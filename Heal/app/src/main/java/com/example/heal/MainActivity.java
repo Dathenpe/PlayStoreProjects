@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import ui.HomeFragment;
 import ui.GalleryFragment;
+import ui.ItemListDialogFragment;
 import ui.SlideshowFragment;
 
 import androidx.annotation.NonNull;
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-                ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (savedInstanceState == null) {
             loadFragment(new HomeFragment());
             navigationView.setCheckedItem(R.id.nav_home);
-                    toolbar.setTitle("Home Room");
+            toolbar.setTitle("Home Room");
         }
         MenuTrigger = findViewById(R.id.menu_trigger); // This will now find the button in the included toolbar
         MenuTrigger.setOnClickListener(new View.OnClickListener() {
@@ -74,8 +75,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 TextView menuItem1 = popupView.findViewById(R.id.menu_item_1);
                 menuItem1.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View view) {
-                        Toast.makeText(MainActivity.this, "Custom Option 1 Clicked", Toast.LENGTH_SHORT).show();
+                    public void onClick(View v) {
+                        showItemListDialog(); // Call the method to show the DialogFragment
                         popupWindow.dismiss();
                     }
                 });
@@ -95,6 +96,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    private void showItemListDialog() {
+        // Get the FragmentManager from the Activity
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        // Create an instance of your DialogFragment
+        ItemListDialogFragment dialog = ItemListDialogFragment.newInstance(R.layout.fragment_item_list_dialog_list_dialog_item); // Pass any arguments you need (e.g., item count)
+
+        // Show the DialogFragment
+        dialog.show(fragmentManager, "item_list_dialog"); // Use a tag to identify the dialog
+    }
     // What happens when you press the back button
     @Override
     public void onBackPressed() {
@@ -130,6 +141,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.fragment_container, fragment);
-                ft.commit();
+        ft.commit();
     }
 }

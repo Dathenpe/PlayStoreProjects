@@ -32,5 +32,11 @@
     <color name="azure">#FFF0FFFF</color>
     <color name="khaki">#FFF0E68C</color>
     <color name="off_white">#F0F0F0</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="gold_primary">#FFD700</color>
+    <color name="gold_variant">#B8860B</color>
+    <color name="gold_secondary">#DAA520</color>
+    <color name="gold_secondary_variant">#A0522D</color>
 
 </resources>
