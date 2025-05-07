@@ -23,6 +23,12 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
+        <View
+            android:id="@+id/overlay_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#80000000" android:visibility="gone" />
+
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
