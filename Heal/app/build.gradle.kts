@@ -35,9 +35,9 @@ android {
 }
 
 dependencies {
-
+    implementation ("com.google.android.material:material:1.12.0") // Explicitly adding Material Components
     implementation(libs.appcompat)
-    implementation(libs.material)
+    // implementation(libs.material) // Removed redundant line
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)

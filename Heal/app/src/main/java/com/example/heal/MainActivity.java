@@ -2,39 +2,49 @@ package com.example.heal; // Replace this!
 
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
-import ui.HomeFragment;
-import ui.GalleryFragment;
-import ui.ItemListDialogFragment;
-import ui.SlideshowFragment;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.heal.R;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView;
+ // Import the correct binding!
+
+import ui.GalleryFragment;
+import ui.HomeFragment;
+import ui.SettingsFragment;
+import ui.SlideshowFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
-
-    private ImageButton MenuTrigger;
     private NavigationView navigationView;
+    private MenuItem previousMenuItem;
+    private View previousItemView;
+    private ImageButton MenuTrigger;
+
+    // Bottom Sheet related variables
+    FrameLayout bottomSheetContent;
+    View bottomSheetView;
+    BottomSheetBehavior<View> bottomSheetBehavior;// Use the settings binding!
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,68 +68,90 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             loadFragment(new HomeFragment());
             navigationView.setCheckedItem(R.id.nav_home);
             toolbar.setTitle("Home Room");
-        }
-        MenuTrigger = findViewById(R.id.menu_trigger); // This will now find the button in the included toolbar
-        MenuTrigger.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-                View popupView = inflater.inflate(R.layout.custom_menu_layout, null);
-
-                PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
-
-                // Set background to allow dismissal on outside touch
-                popupWindow.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-
-                // Find menu items and set click listeners
-                TextView menuItem1 = popupView.findViewById(R.id.menu_item_1);
-                menuItem1.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showItemListDialog(); // Call the method to show the DialogFragment
-                        popupWindow.dismiss();
-                    }
-                });
-
-                TextView menuItem2 = popupView.findViewById(R.id.menu_item_2);
-                menuItem2.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Toast.makeText(MainActivity.this, "Another Option Clicked", Toast.LENGTH_SHORT).show();
-                        popupWindow.dismiss();
-                    }
-                });
-
-                // Show the popup window below the trigger view
-                popupWindow.showAsDropDown(v);
+            previousMenuItem = navigationView.getMenu().findItem(R.id.nav_home);
+            previousItemView = findNavigationViewItemView(previousMenuItem);
+            if (previousItemView != null) {
+                previousItemView.setBackgroundColor(getResources().getColor(R.color.orange));
             }
+        }
+
+        // Initialize Bottom Sheet views and behavior
+        bottomSheetContent = findViewById(R.id.bottom_sheet_content);
+        bottomSheetView = findViewById(R.id.bottom_sheet_container);
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED); // Initial state
+
+        // Inflate the settings layout into the bottom sheet
+
+
+        // Now you can access views in your settings layout using settingsBinding
+        // For example:
+        // settingsBinding.settingTitleProfile.setText("My Settings");
+        // settingsBinding.switchPush.setOnCheckedChangeListener(...);
+
+        MenuTrigger = findViewById(R.id.menu_trigger);
+        MenuTrigger.setOnClickListener(v -> {
+            LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+            View popupView = inflater.inflate(R.layout.custom_menu_layout, null);
+
+            PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+            popupWindow.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+
+            TextView settings = popupView.findViewById(R.id.menu_item_1);
+            settings.setOnClickListener(v1 -> {
+
+                loadBottomFragment(new SettingsFragment());
+                popupWindow.dismiss();
+            });
+
+            TextView logout = popupView.findViewById(R.id.menu_item_2);
+            logout.setOnClickListener(view -> {
+                Toast.makeText(MainActivity.this, "Another Option Clicked", Toast.LENGTH_SHORT).show();
+                popupWindow.dismiss();
+            });
+
+            popupWindow.showAsDropDown(v);
         });
     }
-
-    private void showItemListDialog() {
-        // Get the FragmentManager from the Activity
-        FragmentManager fragmentManager = getSupportFragmentManager();
-
-        // Create an instance of your DialogFragment
-        ItemListDialogFragment dialog = ItemListDialogFragment.newInstance(R.layout.fragment_item_list_dialog_list_dialog_item); // Pass any arguments you need (e.g., item count)
-
-        // Show the DialogFragment
-        dialog.show(fragmentManager, "item_list_dialog"); // Use a tag to identify the dialog
+    private void loadBottomFragment(Fragment fragment) {
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.bottom_sheet_content, fragment);
+        ft.commit();
     }
-    // What happens when you press the back button
+
+    private View findNavigationViewItemView(@NonNull MenuItem item) {
+        if (navigationView == null) return null;
+        return navigationView.findViewById(item.getItemId());
+    }
+
     @Override
     public void onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
+        } else if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         } else {
             super.onBackPressed();
         }
     }
 
-    // This is where the magic happens when you click on a menu item!
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
+        View currentItemView = navigationView.findViewById(id);
+
+        if (previousItemView != null) {
+            previousItemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        }
+
+        if (currentItemView != null) {
+            currentItemView.setBackgroundResource(android.R.drawable.list_selector_background);
+            currentItemView.setBackgroundColor(android.R.drawable.list_selector_background);
+            Toast.makeText(this, "item selected" + id, Toast.LENGTH_SHORT).show();
+        } else {
+            Log.w("MainActivity", "Could not find View for MenuItem: " + item.getTitle() + " with ID: " + id);
+        }
 
         if (id == R.id.nav_home) {
             loadFragment(new HomeFragment());
@@ -132,15 +164,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             toolbar.setTitle("Game Room");
         }
 
+        previousMenuItem = item;
+        previousItemView = currentItemView;
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    // This handy function helps us switch between "rooms" (Fragments)
     private void loadFragment(Fragment fragment) {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.fragment_container, fragment);
         ft.commit();
+    }
+
+    // Method to show/hide the bottom sheet
+    public void toggleBottomSheet() {
+        if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        } else {
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
     }
 }

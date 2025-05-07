@@ -1,11 +1,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.Heal" parent="Base.Theme.Heal">
-        <!-- Transparent system bars for edge-to-edge. -->
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+<!--    <style name="Theme.Heal" parent="Base.Theme.Heal">-->
+<!--        &lt;!&ndash; Transparent system bars for edge-to-edge. &ndash;&gt;-->
+<!--        <item name="android:navigationBarColor">@android:color/transparent</item>-->
+<!--        <item name="android:statusBarColor">@android:color/transparent</item>-->
+<!--        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>-->
 
-    </style>
-    <style name="Theme.Heal.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+<!--    </style>-->
+<!--    <style name="Theme.Heal.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>-->
 </resources>

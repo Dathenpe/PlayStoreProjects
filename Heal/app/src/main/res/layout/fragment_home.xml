@@ -9,5 +9,4 @@
         android:layout_gravity="center"
         android:text="Welcome to the Home Room!"
         android:textSize="24sp" />
-
 </FrameLayout>

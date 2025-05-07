@@ -38,5 +38,8 @@
     <color name="gold_variant">#B8860B</color>
     <color name="gold_secondary">#DAA520</color>
     <color name="gold_secondary_variant">#A0522D</color>
+    <color name="dark_gold_variant">#8B4513</color>
+    <color name="dark_gold_secondary">#B8860B</color>
+    <color name="dark_gold_secondary_variant">#8B0000</color>
 
 </resources>

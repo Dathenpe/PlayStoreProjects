@@ -6,8 +6,11 @@
         <item name="colorSecondary">@color/gold_secondary</item>
         <item name="colorSecondaryVariant">@color/gold_secondary_variant</item>
         <item name="colorOnSecondary">@color/black</item>
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
     <style name="Theme.Heal.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
     <style name="Theme.Heal" parent="Base.Theme.Heal" />
+
+
+
 </resources>
