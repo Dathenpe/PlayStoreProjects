@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -25,7 +27,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.navigation.NavigationView;
- // Import the correct binding!
+// Import the correct binding!
 
 import ui.GalleryFragment;
 import ui.HomeFragment;
@@ -40,11 +42,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MenuItem previousMenuItem;
     private View previousItemView;
     private ImageButton MenuTrigger;
+    private PopupWindow popupWindow; // Declare PopupWindow as a class member
 
     // Bottom Sheet related variables
     FrameLayout bottomSheetContent;
     View bottomSheetView;
     BottomSheetBehavior<View> bottomSheetBehavior;// Use the settings binding!
+
+    // Overlay for graying out
+    private View overlayView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,38 +87,68 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED); // Initial state
 
-        // Inflate the settings layout into the bottom sheet
-
-
-        // Now you can access views in your settings layout using settingsBinding
-        // For example:
-        // settingsBinding.settingTitleProfile.setText("My Settings");
-        // settingsBinding.switchPush.setOnCheckedChangeListener(...);
+        // Initialize the overlay view
+        overlayView = findViewById(R.id.overlay_view);
+        overlayView.setVisibility(View.GONE); // Initially hidden
 
         MenuTrigger = findViewById(R.id.menu_trigger);
         MenuTrigger.setOnClickListener(v -> {
+            // Inflate the custom menu layout for the popup
             LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
             View popupView = inflater.inflate(R.layout.custom_menu_layout, null);
 
-            PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
+            // Create the PopupWindow
+            popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
             popupWindow.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
+            // Find the Settings TextView in the popup
             TextView settings = popupView.findViewById(R.id.menu_item_1);
             settings.setOnClickListener(v1 -> {
-
+                // When Settings is clicked in the popup:
+                // 1. Load the SettingsFragment into the bottom sheet container
                 loadBottomFragment(new SettingsFragment());
+                // 2. Expand the bottom sheet
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                // 3. Make the overlay visible to gray out the background
+                overlayView.setVisibility(View.VISIBLE);
+                // 4. Dismiss the popup window
                 popupWindow.dismiss();
             });
 
+            // Find the Logout TextView in the popup
             TextView logout = popupView.findViewById(R.id.menu_item_2);
             logout.setOnClickListener(view -> {
-                Toast.makeText(MainActivity.this, "Another Option Clicked", Toast.LENGTH_SHORT).show();
+                // Add your logout functionality here
+                Toast.makeText(MainActivity.this, "Logout Clicked", Toast.LENGTH_SHORT).show();
                 popupWindow.dismiss();
             });
 
+            // Show the popup window anchored to the MenuTrigger
             popupWindow.showAsDropDown(v);
         });
+
+        // Add a BottomSheetCallback to handle state changes of the bottom sheet
+        bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                if (newState == BottomSheetBehavior.STATE_HIDDEN || newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    // Hide the overlay when the bottom sheet is hidden or collapsed
+                    overlayView.setVisibility(View.GONE);
+                } else if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    // Show the overlay when the bottom sheet is expanded
+                    overlayView.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                // Optional: You can animate the overlay's alpha based on the slideOffset for a smoother fade-in/out
+                overlayView.setAlpha(slideOffset);
+            }
+        });
     }
+
+    // Loads a fragment into the bottom sheet container
     private void loadBottomFragment(Fragment fragment) {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
@@ -127,13 +163,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
+        // If the drawer is open, close it
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
-        } else if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        } else {
-            super.onBackPressed();
+            return; // Consume the back press
         }
+        // If the bottom sheet is expanded, collapse it and hide the overlay
+        else if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            toggleBottomSheet();
+            return; // Consume the back press
+        }
+        // If the popup window is showing, dismiss it
+        else if (popupWindow != null && popupWindow.isShowing()) {
+            popupWindow.dismiss();
+            return;
+        }
+        // Otherwise, perform the default back button behavior
+        super.onBackPressed();
     }
 
     @Override
@@ -170,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    // Loads a fragment into the main content area
     private void loadFragment(Fragment fragment) {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
@@ -177,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ft.commit();
     }
 
-    // Method to show/hide the bottom sheet
+    // Method to show/hide the bottom sheet (you might not need this anymore with the popup trigger)
     public void toggleBottomSheet() {
         if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -186,3 +233,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 }
+
