@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <resources>
     <dimen name="list_item_spacing">16dp</dimen>
-    <dimen name="fab_bottom_margin">310dp</dimen>
+    <dimen name="fab_bottom_margin">300dp</dimen>
+    <dimen name="fab_0_margin">-300dp</dimen>
+    <dimen name="fab_null_margin">-300dp</dimen>
     <dimen name="list_item_spacing_half">8dp</dimen>
 </resources>

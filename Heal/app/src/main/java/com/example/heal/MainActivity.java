@@ -1,9 +1,12 @@
     package com.example.heal; // Replace this!
 
 
+    import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED;
+
     import android.graphics.drawable.ColorDrawable;
     import android.os.Bundle;
     import android.util.Log;
+    import android.view.Gravity;
     import android.view.LayoutInflater;
     import android.view.MenuItem;
     import android.view.View;
@@ -57,6 +60,8 @@
         // Overlay for graying out
         private View overlayView;
 
+        private View fragmentMain;
+
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -90,14 +95,29 @@
             bottomSheetContent = findViewById(R.id.bottom_sheet_content);
             bottomSheetView = findViewById(R.id.bottom_sheet_container);
             bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView);
-            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED); // Initial state
+            bottomSheetBehavior.setState(STATE_COLLAPSED); // Initial state
 
-            // Initialize the overlay view
-    //        overlayView = findViewById(R.id.overlay_view);
-    //        overlayView.setVisibility(View.GONE); // Initially hidden
 
             MenuTrigger = findViewById(R.id.menu_trigger);
             MenuTrigger.setOnClickListener(v -> {
+                if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                    Fab = findViewById(R.id.fab);
+                    if (Fab != null) {
+                        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) Fab.getLayoutParams();
+                        if (params.bottomMargin >0) { // Check if bottomMargin is 0
+                            clearBottomFragment();
+                            toggleBottomSheet();
+                            params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_null_margin));
+                            Fab.setLayoutParams(params);
+                            Log.d(TAG, "onBackPressed: state collapsed and FAB margin adjusted");
+                            Toast.makeText(MainActivity.this, "menu opened", Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            Log.d(TAG, "onBackPressed: state expanded, but FAB margin is not 0");
+                            // Optionally, add a Toast or other feedback if the margin is not 0
+                        }
+                    }
+                }
                 // Inflate the custom menu layout for the popup
                 LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                 View popupView = inflater.inflate(R.layout.custom_menu_layout, null);
@@ -114,17 +134,12 @@
                     Log.d(TAG, "Settings clicked. Bottom Sheet State: " + bottomSheetBehavior.getState()); // Add this line
                     // When Settings is clicked in the popup:
                     // 1. Load the SettingsFragment into the bottom sheet container
-                    if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
+                    if (bottomSheetBehavior.getState() == STATE_COLLAPSED) {
                         loadBottomFragment(new SettingsFragment());
                         toggleBottomSheet();
                         params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_bottom_margin));
                         Fab.setLayoutParams(params);
                     }
-                    // 2. Expand the bottom sheet
-//                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                    // 3. Make the overlay visible to gray out the background
-//                overlayView.setVisibility(View.VISIBLE);
-                    // 4. Dismiss the popup window
                     popupWindow.dismiss();
                 });
 
@@ -137,31 +152,99 @@
                 });
 
                 // Show the popup window anchored to the MenuTrigger
-                popupWindow.showAsDropDown(v);
-            });
 
-            // Add a BottomSheetCallback to handle state changes of the bottom sheet
-            bottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+                popupWindow.showAtLocation(v, Gravity.END, 30, -700);
+            });
+            //settings collapsed when toolbar clicked
+            if (toolbar != null) {
+                toolbar.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                            Fab = findViewById(R.id.fab);
+                            if (Fab != null) {
+                                CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) Fab.getLayoutParams();
+                                if (params.bottomMargin >0) { // Check if bottomMargin is 0
+                                    clearBottomFragment();
+                                    toggleBottomSheet();
+                                    params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_null_margin));
+                                    Fab.setLayoutParams(params);
+                                    Log.d(TAG, "onBackPressed: state collapsed and FAB margin adjusted");
+                                    Toast.makeText(MainActivity.this, "menu opened", Toast.LENGTH_SHORT).show();
+                                }
+                                else {
+                                    Log.d(TAG, "onBackPressed: state expanded, but FAB margin is not 0");
+                                    // Optionally, add a Toast or other feedback if the margin is not 0
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            //settings collapsed when fragment clicked
+            fragmentMain = findViewById(R.id.fragment_container);
+            fragmentMain.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                    if (newState == BottomSheetBehavior.STATE_HIDDEN || newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                        // Hide the overlay when the bottom sheet is hidden or collapsed
-                      //  overlayView.setVisibility(View.GONE);
-                    } else if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                        // Show the overlay when the bottom sheet is expanded
-                      //  overlayView.setVisibility(View.VISIBLE);
+                public void onClick(View v) {
+                    if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                        Fab = findViewById(R.id.fab);
+                        if (Fab != null) {
+                            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) Fab.getLayoutParams();
+                            if (params.bottomMargin >0) { // Check if bottomMargin is 0
+                                clearBottomFragment();
+                                toggleBottomSheet();
+                                params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_null_margin));
+                                Fab.setLayoutParams(params);
+                                Log.d(TAG, "onBackPressed: state collapsed and FAB margin adjusted");
+                            }
+                            else {
+                                Log.d(TAG, "onBackPressed: state expanded, but FAB margin is not 0");
+                                // Optionally, add a Toast or other feedback if the margin is not 0
+                            }
+                        }
                     }
                 }
-
-                @Override
-                public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                    // Optional: You can animate the overlay's alpha based on the slideOffset for a smoother fade-in/out
-                    overlayView.setAlpha(slideOffset);
-                }
             });
-        }
+    // Settings collapsed when drawer opened
+            if (drawerLayout != null) {
+                drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+                    @Override
+                    public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+                        // Perform action when the drawer slides
+                    }
+                    @Override
+                    public void onDrawerOpened(@NonNull View drawerView) {
+                        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                            Fab = findViewById(R.id.fab);
+                            if (Fab != null) {
+                                CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) Fab.getLayoutParams();
+                                if (params.bottomMargin >0) { // Check if bottomMargin is 0
+                                    clearBottomFragment();
+                                    toggleBottomSheet();
+                                    params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_null_margin));
+                                    Fab.setLayoutParams(params);
+                                    Log.d(TAG, "onBackPressed: state collapsed and FAB margin adjusted");
+                                }
+                                else {
+                                    Log.d(TAG, "onBackPressed: state expanded, but FAB margin is not 0");
+                                    // Optionally, add a Toast or other feedback if the margin is not 0
+                                }
+                            }
+                        }
+                        // Perform action when the drawer opens
+                    }
+                    @Override
+                    public void onDrawerClosed(@NonNull View drawerView) {
+                        // Perform action when the drawer closes
+                    }
+                    @Override
+                    public void onDrawerStateChanged(int newState) {
+                        // Perform action when the drawer state changes
+                    }
+                });
+            }
 
-        // Loads a fragment into the bottom sheet container
+        }
 
         private View findNavigationViewItemView(@NonNull MenuItem item) {
             if (navigationView == null) return null;
@@ -178,7 +261,11 @@
             // If the bottom sheet is expanded, collapse it and hide the overlay
             else if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                 clearBottomFragment();
-                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                bottomSheetBehavior.setState(STATE_COLLAPSED);
+                Fab = findViewById(R.id.fab);
+                CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) Fab.getLayoutParams();
+                params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_null_margin));
+                Fab.setLayoutParams(params);
                 Toast.makeText(this, "hello", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "onBackPressed: state collapsed");
                 return; // Consume the back press
@@ -191,6 +278,8 @@
             // Otherwise, perform the default back button behavior
             super.onBackPressed();
         }
+
+
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -239,9 +328,9 @@
             if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             } else if(bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                bottomSheetBehavior.setState(STATE_COLLAPSED);
             }else{
-                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                bottomSheetBehavior.setState(STATE_COLLAPSED);
             }
         }
         private void loadBottomFragment(Fragment fragment) {
