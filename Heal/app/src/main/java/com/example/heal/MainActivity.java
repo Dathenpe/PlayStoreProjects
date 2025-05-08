@@ -261,12 +261,11 @@
             // If the bottom sheet is expanded, collapse it and hide the overlay
             else if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                 clearBottomFragment();
-                bottomSheetBehavior.setState(STATE_COLLAPSED);
+                toggleBottomSheet();
                 Fab = findViewById(R.id.fab);
                 CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) Fab.getLayoutParams();
                 params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_null_margin));
                 Fab.setLayoutParams(params);
-                Toast.makeText(this, "hello", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "onBackPressed: state collapsed");
                 return; // Consume the back press
             }
@@ -323,14 +322,17 @@
             ft.commit();
         }
 
-        // Method to show/hide the bottom sheet (you might not need this anymore with the popup trigger)
+        // Method to show/hide the bottom sheet
         public void toggleBottomSheet() {
             if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                bottomSheetContent.setBackground(getResources().getDrawable(R.drawable.rounded_top_container));
             } else if(bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                 bottomSheetBehavior.setState(STATE_COLLAPSED);
+                bottomSheetContent.setBackgroundColor(getResources().getColor(R. color.transparent));
             }else{
                 bottomSheetBehavior.setState(STATE_COLLAPSED);
+                bottomSheetContent.setBackgroundColor(getResources().getColor(R. color.transparent));
             }
         }
         private void loadBottomFragment(Fragment fragment) {
