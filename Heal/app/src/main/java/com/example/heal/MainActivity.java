@@ -110,7 +110,6 @@
                             params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_null_margin));
                             Fab.setLayoutParams(params);
                             Log.d(TAG, "onBackPressed: state collapsed and FAB margin adjusted");
-                            Toast.makeText(MainActivity.this, "menu opened", Toast.LENGTH_SHORT).show();
                         }
                         else {
                             Log.d(TAG, "onBackPressed: state expanded, but FAB margin is not 0");
@@ -170,11 +169,9 @@
                                     params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_null_margin));
                                     Fab.setLayoutParams(params);
                                     Log.d(TAG, "onBackPressed: state collapsed and FAB margin adjusted");
-                                    Toast.makeText(MainActivity.this, "menu opened", Toast.LENGTH_SHORT).show();
                                 }
                                 else {
                                     Log.d(TAG, "onBackPressed: state expanded, but FAB margin is not 0");
-                                    // Optionally, add a Toast or other feedback if the margin is not 0
                                 }
                             }
                         }
@@ -287,14 +284,6 @@
 
             if (previousItemView != null) {
                 previousItemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-            }
-
-            if (currentItemView != null) {
-                currentItemView.setBackgroundResource(android.R.drawable.list_selector_background);
-                currentItemView.setBackgroundColor(android.R.drawable.list_selector_background);
-                Toast.makeText(this, "item selected" + id, Toast.LENGTH_SHORT).show();
-            } else {
-                Log.w("MainActivity", "Could not find View for MenuItem: " + item.getTitle() + " with ID: " + id);
             }
 
             if (id == R.id.nav_home) {
