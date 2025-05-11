@@ -6,6 +6,7 @@
     import android.graphics.Color;
     import android.graphics.drawable.ColorDrawable;
     import android.os.Bundle;
+    import android.os.Handler;
     import android.util.Log;
     import android.view.Gravity;
     import android.view.LayoutInflater;
@@ -37,6 +38,7 @@
 
     import ui.GalleryFragment;
     import ui.HomeFragment;
+    import ui.Loading;
     import ui.SettingsFragment;
     import ui.SlideshowFragment;
 
@@ -64,7 +66,7 @@
 
         private View fragmentMain;
 
-        
+
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +87,13 @@
 
             // Load the Home Room when the app starts
             if (savedInstanceState == null) {
-                loadFragment(new HomeFragment());
+                loadFragment(new Loading()); // Load the loading fragment
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadFragment(new HomeFragment()); // Load the HomeFragment after a delay
+                    }
+                }, 2000);
                 navigationView.setCheckedItem(R.id.nav_home);
                 toolbar.setTitle("Home Room");
                 previousMenuItem = navigationView.getMenu().findItem(R.id.nav_home);
@@ -322,24 +330,69 @@
             }
 
             if (id == R.id.nav_home) {
-                loadFragment(new HomeFragment());
+                loadFragment(new Loading()); // Load the loading fragment
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadFragment(new HomeFragment()); // Load the HomeFragment after a delay
+                    }
+                }, 2000); // Delay in milliseconds (e.g., 2000ms = 2 seconds)
                 navigationView.setCheckedItem(R.id.nav_home);
                 toolbar.setTitle("Heal");
             } else if (id == R.id.nav_gallery) {
-                loadFragment(new GalleryFragment());
+                loadFragment(new Loading()); // Load the loading fragment
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadFragment(new GalleryFragment()); // Load the HomeFragment after a delay
+                    }
+                }, 2000);
                 navigationView.setCheckedItem(R.id.nav_gallery);
                 toolbar.setTitle("Art Corner");
             } else if (id == R.id.nav_slideshow) {
-                loadFragment(new SlideshowFragment());
+                loadFragment(new Loading()); // Load the loading fragment
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadFragment(new SlideshowFragment()); // Load the HomeFragment after a delay
+                    }
+                }, 2000);
                 navigationView.setCheckedItem(R.id.nav_slideshow);
                 toolbar.setTitle("Game Room");
             }else if (id == R.id.nav_send) {
                 navigationView.setCheckedItem(R.id.nav_home);
-                loadFragment(new HomeFragment());
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                if (!(currentFragment instanceof HomeFragment)) {
+                    loadFragment(new Loading()); // Load the loading fragment
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadFragment(new HomeFragment());
+                            showSendPopup();// Load the HomeFragment after a delay
+                        }
+                    }, 2000);
+                } else {
+                    // Optionally, add code here if the current fragment is already HomeFragment
+                    showSendPopup(); // You might still want to show the popup
+                }
                 toolbar.setTitle("Heal");
+
             }else if (id == R.id.nav_share) {
                 navigationView.setCheckedItem(R.id.nav_home);
-                loadFragment(new HomeFragment());
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                if (!(currentFragment instanceof HomeFragment)) {
+                    loadFragment(new Loading()); // Load the loading fragment
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadFragment(new HomeFragment());
+                            showSendPopup();// Load the HomeFragment after a delay
+                        }
+                    }, 2000);
+                } else {
+                    // Optionally, add code here if the current fragment is already HomeFragment
+                    showSendPopup(); // You might still want to show the popup
+                }
                 toolbar.setTitle("Heal");
             }
 
@@ -349,6 +402,12 @@
             return true;
         }
 
+        private void showSendPopup() {
+            LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+            View popupView = inflater.inflate(R.layout.send_window, null);
+            popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            popupWindow.showAtLocation(fragmentMain, Gravity.CENTER, 0, 0);
+        }
         // Loads a fragment into the main content area
         private void loadFragment(Fragment fragment) {
             FragmentManager fm = getSupportFragmentManager();
