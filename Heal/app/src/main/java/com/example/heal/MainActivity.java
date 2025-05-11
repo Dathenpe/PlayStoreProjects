@@ -25,6 +25,7 @@
     import androidx.appcompat.app.ActionBarDrawerToggle;
     import androidx.appcompat.app.AppCompatActivity;
     import androidx.appcompat.widget.Toolbar;
+    import androidx.constraintlayout.widget.ConstraintLayout;
     import androidx.coordinatorlayout.widget.CoordinatorLayout;
     import androidx.core.view.GravityCompat;
     import androidx.drawerlayout.widget.DrawerLayout;
@@ -149,7 +150,6 @@
 
                 // Create the PopupWindow
                 popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
-                popupWindow.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
                 // Find the Settings TextView in the popup
                 TextView settings = popupView.findViewById(R.id.menu_item_1);
@@ -330,33 +330,42 @@
             }
 
             if (id == R.id.nav_home) {
-                loadFragment(new Loading()); // Load the loading fragment
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadFragment(new HomeFragment()); // Load the HomeFragment after a delay
-                    }
-                }, 2000); // Delay in milliseconds (e.g., 2000ms = 2 seconds)
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                if (!(currentFragment instanceof HomeFragment)){
+                    loadFragment(new Loading()); // Load the loading fragment
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadFragment(new HomeFragment()); // Load the HomeFragment after a delay
+                        }
+                    }, 2000);
+                }
                 navigationView.setCheckedItem(R.id.nav_home);
                 toolbar.setTitle("Heal");
             } else if (id == R.id.nav_gallery) {
-                loadFragment(new Loading()); // Load the loading fragment
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadFragment(new GalleryFragment()); // Load the HomeFragment after a delay
-                    }
-                }, 2000);
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                if (!(currentFragment instanceof GalleryFragment)){
+                    loadFragment(new Loading()); // Load the loading fragment
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadFragment(new GalleryFragment()); // Load the HomeFragment after a delay
+                        }
+                    }, 2000);
+                }
                 navigationView.setCheckedItem(R.id.nav_gallery);
                 toolbar.setTitle("Art Corner");
             } else if (id == R.id.nav_slideshow) {
-                loadFragment(new Loading()); // Load the loading fragment
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadFragment(new SlideshowFragment()); // Load the HomeFragment after a delay
-                    }
-                }, 2000);
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+               if (!(currentFragment instanceof SlideshowFragment)){
+                   loadFragment(new Loading()); // Load the loading fragment
+                   new Handler().postDelayed(new Runnable() {
+                       @Override
+                       public void run() {
+                           loadFragment(new SlideshowFragment()); // Load the HomeFragment after a delay
+                       }
+                   }, 2000);
+               }
                 navigationView.setCheckedItem(R.id.nav_slideshow);
                 toolbar.setTitle("Game Room");
             }else if (id == R.id.nav_send) {
@@ -405,8 +414,14 @@
         private void showSendPopup() {
             LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
             View popupView = inflater.inflate(R.layout.send_window, null);
-            popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            popupWindow.showAtLocation(fragmentMain, Gravity.CENTER, 0, 0);
+            popupWindow = new PopupWindow(popupView, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
+            popupWindow.setFocusable(true);
+          try {
+              popupWindow.showAtLocation(fragmentMain, Gravity.CENTER, 0, 0);
+          }catch(Exception e){
+              Toast.makeText(this, "popup error", Toast.LENGTH_SHORT).show();
+          }
+           // popupWindow.showAtLocation(fragmentMain, Gravity.CENTER, 0, 0);
         }
         // Loads a fragment into the main content area
         private void loadFragment(Fragment fragment) {
