@@ -18,8 +18,8 @@
             android:title="Gallery" />
         <item
             android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:icon="@drawable/robot"
+            android:title="Gemini" />
     </group>
 
     <group android:title="Communicate">
@@ -30,7 +30,7 @@
                 android:id="@+id/nav_share"
                 android:selectable="false"
                 android:icon="@drawable/ic_share"
-                android:title="Share" />
+                android:title="Share App" />
             <item
                 android:id="@+id/nav_send"
                 android:selectable="false"

@@ -3,8 +3,12 @@
 
     import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED;
 
+    import static java.security.AccessController.getContext;
+
+    import android.content.Intent;
     import android.graphics.Color;
     import android.graphics.drawable.ColorDrawable;
+    import android.net.Uri;
     import android.os.Bundle;
     import android.os.Handler;
     import android.util.Log;
@@ -14,6 +18,8 @@
     import android.view.View;
     import android.view.ViewGroup;
     import android.view.ViewTreeObserver;
+    import android.widget.Button;
+    import android.widget.EditText;
     import android.widget.FrameLayout;
     import android.widget.ImageButton;
     import android.widget.LinearLayout;
@@ -35,7 +41,11 @@
 
     import com.google.android.material.bottomsheet.BottomSheetBehavior;
     import com.google.android.material.navigation.NavigationView;
+    import com.google.android.material.textfield.TextInputEditText;
+    import com.google.android.material.textfield.TextInputLayout;
     // Import the correct binding!
+
+    import java.util.HashMap;
 
     import ui.GalleryFragment;
     import ui.HomeFragment;
@@ -67,6 +77,19 @@
 
         private View fragmentMain;
 
+        private TextInputEditText RecipientId;
+
+        private TextInputEditText SendMessage;
+
+        private Button sendMessage;
+        private Button cancelMessage;
+        private HashMap<String, String> sendData = new HashMap<>();
+
+        private  EditText recipientEditText; // Replace with your actual ID
+       private EditText messageEditText;
+
+        private final String myAppLink = "https://play.google.com/store/apps/details?id=com.example.myapp";
+       private final String shareMessage = "Check out this awesome app!";
 
 
         @Override
@@ -97,11 +120,6 @@
                 }, 2000);
                 navigationView.setCheckedItem(R.id.nav_home);
                 toolbar.setTitle("Home Room");
-                previousMenuItem = navigationView.getMenu().findItem(R.id.nav_home);
-                previousItemView = findNavigationViewItemView(previousMenuItem);
-                if (previousItemView != null) {
-                    previousItemView.setBackgroundColor(getResources().getColor(R.color.orange));
-                }
             }
 
             // Initialize Bottom Sheet views and behavior
@@ -277,7 +295,9 @@
                 });
             }
 
+
         }
+
 
         private View findNavigationViewItemView(@NonNull MenuItem item) {
             if (navigationView == null) return null;
@@ -325,103 +345,171 @@
             int id = item.getItemId();
             View currentItemView = navigationView.findViewById(id);
 
-            if (previousItemView != null) {
+            // Remove background color from the previously selected item
+            if (previousItemView != null && previousItemView != currentItemView) {
                 previousItemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
             }
 
             if (id == R.id.nav_home) {
                 Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-                if (!(currentFragment instanceof HomeFragment)){
+                if (!(currentFragment instanceof HomeFragment)) {
                     loadFragment(new Loading()); // Load the loading fragment
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            loadFragment(new HomeFragment()); // Load the HomeFragment after a delay
-                        }
-                    }, 2000);
+                    new Handler().postDelayed(() -> loadFragment(new HomeFragment()), 2000);
                 }
                 navigationView.setCheckedItem(R.id.nav_home);
                 toolbar.setTitle("Heal");
             } else if (id == R.id.nav_gallery) {
                 Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-                if (!(currentFragment instanceof GalleryFragment)){
+                if (!(currentFragment instanceof GalleryFragment)) {
                     loadFragment(new Loading()); // Load the loading fragment
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            loadFragment(new GalleryFragment()); // Load the HomeFragment after a delay
-                        }
-                    }, 2000);
+                    new Handler().postDelayed(() -> loadFragment(new GalleryFragment()), 2000);
                 }
                 navigationView.setCheckedItem(R.id.nav_gallery);
                 toolbar.setTitle("Art Corner");
             } else if (id == R.id.nav_slideshow) {
                 Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-               if (!(currentFragment instanceof SlideshowFragment)){
-                   loadFragment(new Loading()); // Load the loading fragment
-                   new Handler().postDelayed(new Runnable() {
-                       @Override
-                       public void run() {
-                           loadFragment(new SlideshowFragment()); // Load the HomeFragment after a delay
-                       }
-                   }, 2000);
-               }
+                if (!(currentFragment instanceof SlideshowFragment)) {
+                    loadFragment(new Loading()); // Load the loading fragment
+                    new Handler().postDelayed(() -> loadFragment(new SlideshowFragment()), 2000);
+                }
                 navigationView.setCheckedItem(R.id.nav_slideshow);
                 toolbar.setTitle("Game Room");
-            }else if (id == R.id.nav_send) {
+            } else if (id == R.id.nav_send) {
+                // Always set Home as checked when navigating to "Send"
                 navigationView.setCheckedItem(R.id.nav_home);
                 Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                 if (!(currentFragment instanceof HomeFragment)) {
                     loadFragment(new Loading()); // Load the loading fragment
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            loadFragment(new HomeFragment());
-                            showSendPopup();// Load the HomeFragment after a delay
-                        }
+                    new Handler().postDelayed(() -> {
+                        loadFragment(new HomeFragment());
+                        showSendPopup();
                     }, 2000);
                 } else {
-                    // Optionally, add code here if the current fragment is already HomeFragment
-                    showSendPopup(); // You might still want to show the popup
+                    showSendPopup();
                 }
                 toolbar.setTitle("Heal");
 
-            }else if (id == R.id.nav_share) {
+            } else if (id == R.id.nav_share) {
+                // Always set Home as checked when navigating to "Share"
                 navigationView.setCheckedItem(R.id.nav_home);
                 Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                 if (!(currentFragment instanceof HomeFragment)) {
                     loadFragment(new Loading()); // Load the loading fragment
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            loadFragment(new HomeFragment());
-                            showSendPopup();// Load the HomeFragment after a delay
-                        }
+                    new Handler().postDelayed(() -> {
+                        loadFragment(new HomeFragment());
+                        Share(myAppLink, shareMessage);
                     }, 2000);
                 } else {
-                    // Optionally, add code here if the current fragment is already HomeFragment
-                    showSendPopup(); // You might still want to show the popup
+                    Share(myAppLink, shareMessage);
                 }
                 toolbar.setTitle("Heal");
             }
 
-            previousMenuItem = item;
-            previousItemView = currentItemView;
+            // Update the previous selected item and view
+            if (previousMenuItem != item) {
+                previousMenuItem = item;
+                previousItemView = currentItemView;
+                if (previousItemView != null && id != R.id.nav_send && id != R.id.nav_share) {
+                    previousItemView.setBackgroundColor(getResources().getColor(R.color.orange));
+                }
+            }
+
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
         }
+        private void Share(String appLink, String optionalText) {
+            Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, appLink + (optionalText != null && !optionalText.isEmpty() ? "\n\n" + optionalText : ""));
+            shareIntent.setType("text/plain"); // Set the MIME type to plain text
+
+            Intent chooserIntent = Intent.createChooser(shareIntent, "Share app link via");
+            try {
+                startActivity(chooserIntent);
+            } catch (android.content.ActivityNotFoundException anfe) {
+                Toast.makeText(this, "No app can handle this share action.", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        // Example usage:
+
+
 
         private void showSendPopup() {
             LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
             View popupView = inflater.inflate(R.layout.send_window, null);
-            popupWindow = new PopupWindow(popupView, ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
+            popupWindow = new PopupWindow(popupView, 900, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
             popupWindow.setFocusable(true);
-          try {
-              popupWindow.showAtLocation(fragmentMain, Gravity.CENTER, 0, 0);
-          }catch(Exception e){
-              Toast.makeText(this, "popup error", Toast.LENGTH_SHORT).show();
-          }
-           // popupWindow.showAtLocation(fragmentMain, Gravity.CENTER, 0, 0);
+            try {
+                popupWindow.showAtLocation(fragmentMain, Gravity.CENTER, 0, 0);
+
+                // Find the button and set the listener *after* the popup view is created
+                Button sendMessageButtonPopup = popupView.findViewById(R.id.buttonSend);
+                if (sendMessageButtonPopup != null) {
+                    sendMessageButtonPopup.setOnClickListener(v -> {
+                        EditText recipientEditTextPopup = popupView.findViewById(R.id.editTextRecipient);
+                        EditText messageEditTextPopup = popupView.findViewById(R.id.editTextMessage);
+                        if (recipientEditTextPopup != null && recipientEditTextPopup.length() == 0) {
+                            Toast.makeText(this, "User ID Cannot Be empty", Toast.LENGTH_SHORT).show();
+                        } else if (messageEditTextPopup != null && messageEditTextPopup.length() == 0) {
+                            Toast.makeText(this, "Message cannot be empty", Toast.LENGTH_SHORT).show();
+                        } else {
+                            dismissSendPopupAndSaveData();
+                        }
+                    });
+                } else {
+                    Log.e(TAG, "buttonSend not found in send_window.xml");
+                    Toast.makeText(this, "Error: Send button not found", Toast.LENGTH_SHORT).show();
+                }
+
+                Button cancelMessageButtonPopup = popupView.findViewById(R.id.buttonCancel);
+                if (cancelMessageButtonPopup != null) {
+                    cancelMessageButtonPopup.setOnClickListener(v -> {
+                        if (popupWindow != null && popupWindow.isShowing()) {
+                            popupWindow.dismiss();
+                            popupWindow = null;
+                        }
+                    });
+                } else {
+                    Log.e(TAG, "buttonCancel not found in send_window.xml");
+                    Toast.makeText(this, "Error: Cancel button not found", Toast.LENGTH_SHORT).show();
+                }
+
+            } catch (Exception e) {
+                Toast.makeText(this, "popup error", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Error showing popup", e);
+            }
+        }
+
+
+        private void dismissSendPopupAndSaveData() {
+            if (popupWindow != null && popupWindow.isShowing()) {
+                // Get the content view of the popup window
+                View popupContentView = popupWindow.getContentView();
+
+                // Find your input fields within the popupView and save their data
+                EditText recipientEditText = popupContentView.findViewById(R.id.editTextRecipient); // Replace with your actual ID
+                EditText messageEditText = popupContentView.findViewById(R.id.editTextMessage);   // Replace with your actual ID
+
+                if (recipientEditText != null) {
+                    sendData.put("recipient", recipientEditText.getText().toString());
+                }
+                if (messageEditText != null) {
+                    sendData.put("message", messageEditText.getText().toString());
+                }
+
+                // Dismiss the popup window
+                popupWindow.dismiss();
+                popupWindow = null; // It's good practice to set it to null after dismissing
+
+                // Now you can use the 'sendData' HashMap to access the saved input
+                // For example:
+                String savedRecipient = sendData.get("recipient");
+                String savedMessage = sendData.get("message");
+                // Do something with the saved data (e.g., store it, process it)
+                Toast.makeText(this, "Message sent to " + savedRecipient, Toast.LENGTH_SHORT).show();
+                Log.d("SendData", "Recipient: " + savedRecipient + ", Message: " + savedMessage);
+            }
         }
         // Loads a fragment into the main content area
         private void loadFragment(Fragment fragment) {
