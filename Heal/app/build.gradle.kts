@@ -36,6 +36,8 @@ android {
 
 dependencies {
     implementation ("com.google.android.material:material:1.12.0")
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation ("com.google.code.gson:gson:2.10.1")
     implementation ("com.google.android.flexbox:flexbox:3.0.0")
     implementation ("androidx.viewpager2:viewpager2:1.0.0") // Or the latest version
     implementation(libs.appcompat)

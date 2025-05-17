@@ -11,7 +11,10 @@
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_home"
             android:title="Home" />
-
+        <item
+            android:id="@+id/nav_records"
+            android:icon="@drawable/ic_record"
+            android:title="Records" />
         <item
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_menu_gallery"
@@ -26,15 +29,15 @@
         <item android:title="Communicate"
             android:enabled="false"
             android:checkable="false" />
-            <item
-                android:id="@+id/nav_share"
-                android:selectable="false"
-                android:icon="@drawable/ic_share"
-                android:title="Share App" />
-            <item
-                android:id="@+id/nav_send"
-                android:selectable="false"
-                android:icon="@drawable/outline_arrow_outward_24"
-                android:title="Send" />
+        <item
+            android:id="@+id/nav_share"
+            android:selectable="false"
+            android:icon="@drawable/ic_share"
+            android:title="Share App" />
+        <item
+            android:id="@+id/nav_send"
+            android:selectable="false"
+            android:icon="@drawable/outline_arrow_outward_24"
+            android:title="Send" />
     </group>
 </menu>

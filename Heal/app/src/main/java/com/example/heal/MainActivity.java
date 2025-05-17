@@ -5,12 +5,14 @@
 
     import static java.security.AccessController.getContext;
 
+    import android.content.Context;
     import android.content.Intent;
     import android.graphics.Color;
     import android.graphics.drawable.ColorDrawable;
     import android.net.Uri;
     import android.os.Bundle;
     import android.os.Handler;
+    import android.os.IBinder;
     import android.util.Log;
     import android.view.Gravity;
     import android.view.LayoutInflater;
@@ -18,6 +20,7 @@
     import android.view.View;
     import android.view.ViewGroup;
     import android.view.ViewTreeObserver;
+    import android.view.inputmethod.InputMethodManager;
     import android.widget.Button;
     import android.widget.EditText;
     import android.widget.FrameLayout;
@@ -50,6 +53,7 @@
     import ui.GalleryFragment;
     import ui.HomeFragment;
     import ui.Loading;
+    import ui.RecordFragment;
     import ui.SettingsFragment;
     import ui.SlideshowFragment;
 
@@ -140,27 +144,16 @@
 
             MenuTrigger = findViewById(R.id.menu_trigger);
             MenuTrigger.setOnClickListener(v -> {
-                if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-                    Fab = findViewById(R.id.fab);
-                    if (Fab != null) {
-                        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) Fab.getLayoutParams();
-                        if (params.bottomMargin >0) { // Check if bottomMargin is 0
-                            if (params.bottomMargin  == (int) getResources().getDimension(R.dimen.fab_default_margin)) {
-                                clearBottomFragment();
-                                toggleBottomSheet();
-                                params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_null_margin));
-                                Fab.setLayoutParams(params);
-                                Log.d(TAG, "onBackPressed: state collapsed and FAB margin adjusted");
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
-                            }else {
+                // 2. Get the window token of the Toolbar (or any view in your activity)
+                IBinder windowToken = toolbar.getWindowToken();
 
-                            }
-                        }
-                        else {
-                            Log.d(TAG, "onBackPressed: state expanded, but FAB margin is not 0");
-                        }
-                    }
+                // 3. Check if the keyboard is showing and hide it
+                if (imm != null && windowToken != null) {
+                    imm.hideSoftInputFromWindow(windowToken, 0);
                 }
+              closeSettings();
                 // Inflate the custom menu layout for the popup
                 LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                 View popupView = inflater.inflate(R.layout.custom_menu_layout, null);
@@ -201,32 +194,9 @@
             });
             //settings collapsed when toolbar clicked
             if (toolbar != null) {
-                toolbar.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-                            Fab = findViewById(R.id.fab);
-                            if (Fab != null) {
-                                CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) Fab.getLayoutParams();
-                                if (params.bottomMargin >0) { // Check if bottomMargin is 0
-                                    if (params.bottomMargin  == (int) getResources().getDimension(R.dimen.fab_default_margin)) {
-                                        clearBottomFragment();
-                                        toggleBottomSheet();
-                                        params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_null_margin));
-                                        Fab.setLayoutParams(params);
-                                        Log.d(TAG, "onBackPressed: state collapsed and FAB margin adjusted");
-
-                                    }else {
-
-                                    }
-                                }
-                                else {
-                                    Log.d(TAG, "onBackPressed: state expanded, but FAB margin is not 0");
-                                }
-                            }
-                        }
-                    }
-                });
+              toolbar.setOnClickListener(v->{
+                  closeSettings();
+              });
             }
             //settings collapsed when fragment clicked
             fragmentMain = findViewById(R.id.fragment_container);
@@ -258,30 +228,19 @@
                     @Override
                     public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
                         // Perform action when the drawer slides
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+                        // 2. Get the window token of the Toolbar (or any view in your activity)
+                        IBinder windowToken = toolbar.getWindowToken();
+
+                        // 3. Check if the keyboard is showing and hide it
+                        if (imm != null && windowToken != null) {
+                            imm.hideSoftInputFromWindow(windowToken, 0);
+                        }
                     }
                     @Override
                     public void onDrawerOpened(@NonNull View drawerView) {
-                        if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-                            Fab = findViewById(R.id.fab);
-                            if (Fab != null) {
-                                CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) Fab.getLayoutParams();
-                                if (params.bottomMargin >0) { // Check if bottomMargin is 0
-                                    if (params.bottomMargin  == (int) getResources().getDimension(R.dimen.fab_default_margin)) {
-                                        clearBottomFragment();
-                                        toggleBottomSheet();
-                                        params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_null_margin));
-                                        Fab.setLayoutParams(params);
-                                        Log.d(TAG, "onBackPressed: state collapsed and FAB margin adjusted");
-
-                                    }else {
-
-                                    }
-                                }
-                                else {
-                                    Log.d(TAG, "onBackPressed: state expanded, but FAB margin is not 0");
-                                }
-                            }
-                        }
+                        closeSettings();
                         // Perform action when the drawer opens
                     }
                     @Override
@@ -358,6 +317,14 @@
                 }
                 navigationView.setCheckedItem(R.id.nav_home);
                 toolbar.setTitle("Heal");
+            } else if (id == R.id.nav_records) {
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                if (!(currentFragment instanceof RecordFragment)) {
+                    loadFragment(new Loading()); // Load the loading fragment
+                    new Handler().postDelayed(() -> loadFragment(new RecordFragment()), 2000);
+                }
+                navigationView.setCheckedItem(R.id.nav_gallery);
+                toolbar.setTitle("Data Records");
             } else if (id == R.id.nav_gallery) {
                 Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
                 if (!(currentFragment instanceof GalleryFragment)) {
@@ -547,6 +514,30 @@
                 ft.remove(currentFragment);
                 ft.commit();
                 fm.executePendingTransactions(); // Ensure the removal happens immediately
+            }
+        }
+
+        public void closeSettings() {
+            if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                Fab = findViewById(R.id.fab);
+                if (Fab != null) {
+                    CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) Fab.getLayoutParams();
+                    if (params.bottomMargin >0) { // Check if bottomMargin is 0
+                        if (params.bottomMargin  == (int) getResources().getDimension(R.dimen.fab_default_margin)) {
+                            clearBottomFragment();
+                            toggleBottomSheet();
+                            params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_null_margin));
+                            Fab.setLayoutParams(params);
+                            Log.d(TAG, "onBackPressed: state collapsed and FAB margin adjusted");
+
+                        }else {
+
+                        }
+                    }
+                    else {
+                        Log.d(TAG, "onBackPressed: state expanded, but FAB margin is not 0");
+                    }
+                }
             }
         }
     }

@@ -13,9 +13,9 @@ import androidx.fragment.app.Fragment;
 
 import com.example.heal.R; // Replace with your actual R class path
 
-public class SliderTwo extends Fragment {
+public class SliderThree extends Fragment {
 
-    public SliderTwo() {
+    public SliderThree() {
         // Required empty public constructor
     }
 
@@ -35,10 +35,10 @@ public class SliderTwo extends Fragment {
 
         // You can set data or perform other UI operations here
         if (titleTextView != null) {
-            titleTextView.setText("Second Slide");
+            titleTextView.setText("Third Slide");
         }
         if (descriptionTextView != null) {
-            descriptionTextView.setText("This is the content of the second slider page.");
+            descriptionTextView.setText("This is the content of the third slider page.");
         }
 //        if (imageView != null) {
 //            imageView.setImageResource(R.drawable.your_first_slide_image); // Replace with your image resource
