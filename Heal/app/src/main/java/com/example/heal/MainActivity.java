@@ -3,13 +3,14 @@
 
     import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED;
 
-    import static java.security.AccessController.getContext;
-
+    import android.app.AlarmManager;
+    import android.app.NotificationChannel;
+    import android.app.NotificationManager;
+    import android.app.PendingIntent;
     import android.content.Context;
     import android.content.Intent;
-    import android.graphics.Color;
-    import android.graphics.drawable.ColorDrawable;
-    import android.net.Uri;
+    import android.content.SharedPreferences;
+    import android.os.Build;
     import android.os.Bundle;
     import android.os.Handler;
     import android.os.IBinder;
@@ -18,8 +19,6 @@
     import android.view.LayoutInflater;
     import android.view.MenuItem;
     import android.view.View;
-    import android.view.ViewGroup;
-    import android.view.ViewTreeObserver;
     import android.view.inputmethod.InputMethodManager;
     import android.widget.Button;
     import android.widget.EditText;
@@ -27,7 +26,6 @@
     import android.widget.ImageButton;
     import android.widget.LinearLayout;
     import android.widget.PopupWindow;
-    import android.widget.ScrollView;
     import android.widget.TextView;
     import android.widget.Toast;
     import androidx.annotation.NonNull;
@@ -41,19 +39,22 @@
     import androidx.fragment.app.Fragment;
     import androidx.fragment.app.FragmentManager;
     import androidx.fragment.app.FragmentTransaction;
+    import androidx.preference.PreferenceManager;
 
     import com.google.android.material.bottomsheet.BottomSheetBehavior;
     import com.google.android.material.navigation.NavigationView;
     import com.google.android.material.textfield.TextInputEditText;
-    import com.google.android.material.textfield.TextInputLayout;
     // Import the correct binding!
 
+    import java.util.Calendar;
     import java.util.HashMap;
+    import java.util.concurrent.TimeUnit;
 
     import ui.GalleryFragment;
     import ui.HomeFragment;
     import ui.Loading;
     import ui.RecordFragment;
+    import ui.ReminderBroadcastReceiver;
     import ui.SettingsFragment;
     import ui.SlideshowFragment;
 
@@ -95,11 +96,19 @@
         private final String myAppLink = "https://play.google.com/store/apps/details?id=com.example.myapp";
        private final String shareMessage = "Check out this awesome app!";
 
+        private TextView userNameDisplayTextView;
+
+        private static final String CHANNEL_ID = "reminder_channel";
+        private static final int REMINDER_NOTIFICATION_ID = 1;
+        private static final int REMINDER_REQUEST_CODE = 102; // Different request code for MainActivity
+        private static final long REPEAT_INTERVAL = TimeUnit.DAYS.toMillis(1);
+
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
+            checkAndScheduleReminder();
 
             toolbar = findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
@@ -132,16 +141,6 @@
             bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView);
             bottomSheetBehavior.setState(STATE_COLLAPSED); // Initial state
 
-
-
-//            if (Fab != null) {
-//                CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) Fab.getLayoutParams();
-//               if (params.bottomMargin >0 || params.bottomMargin == 16) { // Check if bottomMargin is 0
-//                   params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_bottom_margin));
-//                   Fab.setLayoutParams(params);
-//               }
-//            }
-
             MenuTrigger = findViewById(R.id.menu_trigger);
             MenuTrigger.setOnClickListener(v -> {
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -165,18 +164,10 @@
                 // Find the Settings TextView in the popup
                 TextView settings = popupView.findViewById(R.id.menu_item_1);
                 settings.setOnClickListener(v1 -> {
-                    bottomSheetBehavior.setState(STATE_COLLAPSED);
-                    Fab = findViewById(R.id.fab);
-                    CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) Fab.getLayoutParams();
+                  loadBottomSettingsFragment();
                     Log.d(TAG, "Settings clicked. Bottom Sheet State: " + bottomSheetBehavior.getState()); // Add this line
                     // When Settings is clicked in the popup:
                     // 1. Load the SettingsFragment into the bottom sheet container
-                    if (bottomSheetBehavior.getState() == STATE_COLLAPSED) {
-                        loadBottomFragment(new SettingsFragment());
-                        toggleBottomSheet();
-                        params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_bottom_margin));
-                        Fab.setLayoutParams(params);
-                    }
                     popupWindow.dismiss();
                 });
 
@@ -200,28 +191,6 @@
             }
             //settings collapsed when fragment clicked
             fragmentMain = findViewById(R.id.fragment_container);
-//            fragmentMain.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-//                        Fab = findViewById(R.id.fab);
-//                        if (Fab != null) {
-//                            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) Fab.getLayoutParams();
-//                            if (params.bottomMargin >0) { // Check if bottomMargin is 0
-//                                clearBottomFragment();
-//                                toggleBottomSheet();
-//                                params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_null_margin));
-//                                Fab.setLayoutParams(params);
-//                                Log.d(TAG, "onBackPressed: state collapsed and FAB margin adjusted");
-//                            }
-//                            else {
-//                                Log.d(TAG, "onBackPressed: state expanded, but FAB margin is not 0");
-//                                // Optionally, add a Toast or other feedback if the margin is not 0
-//                            }
-//                        }
-//                    }
-//                }
-//            });
     // Settings collapsed when drawer opened
             if (drawerLayout != null) {
                 drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
@@ -254,6 +223,7 @@
                 });
             }
 
+          // Replace with the actual ID of your TextView
 
         }
 
@@ -479,11 +449,12 @@
             }
         }
         // Loads a fragment into the main content area
-        private void loadFragment(Fragment fragment) {
+        public Runnable loadFragment(Fragment fragment) {
             FragmentManager fm = getSupportFragmentManager();
             FragmentTransaction ft = fm.beginTransaction();
             ft.replace(R.id.fragment_container, fragment);
             ft.commit();
+            return null;
         }
 
         // Method to show/hide the bottom sheet
@@ -539,6 +510,83 @@
                     }
                 }
             }
+        }
+
+        private void createNotificationChannel() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                String name = "Reminder Notifications"; // Using normal text
+                String description = "Daily reminders for your well-being,you are important and you should take care of yourself"; // Using normal text
+                int importance = NotificationManager.IMPORTANCE_DEFAULT;
+                NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+                channel.setDescription(description);
+                NotificationManager notificationManager = getSystemService(NotificationManager.class);
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
+
+        private void scheduleReminderNotification() {
+            createNotificationChannel();
+
+            Intent notificationIntent = new Intent(this, ReminderBroadcastReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, REMINDER_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+            // Set the alarm to trigger at approximately the same time every day
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, 11);
+            calendar.set(Calendar.MINUTE, 25);
+            calendar.set(Calendar.SECOND, 0);
+
+            // If the trigger time is in the past, add one day
+            if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
+                calendar.add(Calendar.DAY_OF_YEAR, 1);
+            }
+
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), REPEAT_INTERVAL, pendingIntent);
+        }
+
+        private void cancelReminderNotification() {
+            Intent notificationIntent = new Intent(this, ReminderBroadcastReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, REMINDER_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            alarmManager.cancel(pendingIntent);
+        }
+
+        private boolean getSavedReminderState() {
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            return sharedPreferences.getBoolean("reminder_enabled", false);
+        }
+
+        private void checkAndScheduleReminder() {
+            if (getSavedReminderState()) {
+                scheduleReminderNotification();
+                // Optionally, you can show a toast here if the reminder is already enabled
+                // Toast.makeText(this, "Reminder notifications are enabled", Toast.LENGTH_SHORT).show();
+            } else {
+                cancelReminderNotification();
+                // Optionally, you can show a toast here if the reminder is disabled
+                // Toast.makeText(this, "Reminder notifications are disabled", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        public void loadBottomSettingsFragment() {
+            bottomSheetBehavior.setState(STATE_COLLAPSED);
+            Fab = findViewById(R.id.fab);
+            CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) Fab.getLayoutParams();
+            if (bottomSheetBehavior.getState() == STATE_COLLAPSED) {
+                loadBottomFragment(new SettingsFragment());
+                toggleBottomSheet();
+                params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, params.bottomMargin + (int) getResources().getDimension(R.dimen.fab_bottom_margin));
+                Fab.setLayoutParams(params);
+            }
+        }
+        public void saveNameToLocalStorage(String name) {
+            SharedPreferences sharedPreferences = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("user_name", name);
+            editor.apply();
         }
     }
 

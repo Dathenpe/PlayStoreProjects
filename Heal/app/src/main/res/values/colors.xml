@@ -43,4 +43,5 @@
     <color name="dark_gold_secondary_variant">#8B0000</color>
     <color name="transparent">#00000000</color>
     <color name="gold_transparent">#80FFA500</color>
+    <color name="holo_blue_light">#ff33b5e5</color>
 </resources>

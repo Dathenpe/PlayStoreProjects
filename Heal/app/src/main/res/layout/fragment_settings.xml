@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:backgroundTint="@color/orange"
+    android:layout_height="wrap_content"
     android:background="@drawable/rounded_container"
-    android:layout_height="wrap_content">
+    android:backgroundTint="@color/orange">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,38 +12,46 @@
         android:padding="16dp">
 
         <TextView
-            android:id="@+id/setting_title_profile"
+            android:id="@+id/setting_title_general"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="Settings"
             android:drawableEnd="@drawable/settings"
+            android:padding="8dp"
+            android:text="General Settings"
             android:textColor="#000"
             android:textSize="18sp"
             android:textStyle="bold" />
 
         <LinearLayout
+            android:id="@+id/edit_name_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
+            android:paddingBottom="8dp"
             android:paddingLeft="16dp"
-            android:paddingTop="8dp"
             android:paddingRight="16dp"
-            android:paddingBottom="8dp">
+            android:paddingTop="8dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Edit Profile"
+                android:text="Edit Name"
                 android:textColor="#000"
+                android:textSize="16sp" />
+            <TextView
+                android:id="@+id/name_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Your Name"
+                android:textColor="#666"
                 android:textSize="16sp" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:contentDescription="Edit Profile"
+                android:contentDescription="Edit Name"
                 android:src="@android:drawable/ic_menu_edit" />
         </LinearLayout>
 
@@ -54,30 +62,7 @@
             android:layout_marginRight="16dp"
             android:background="#CCCCCC" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingLeft="16dp"
-            android:paddingTop="8dp"
-            android:paddingRight="16dp"
-            android:paddingBottom="8dp">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Change Password"
-                android:textColor="#000"
-                android:textSize="16sp" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="Change Password"
-                android:src="@drawable/ic_menu_lock" />
-        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
@@ -91,7 +76,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp"
-            android:text="Notification Settings"
+            android:text="Notifications"
             android:textColor="#000"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -101,21 +86,21 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
+            android:paddingBottom="8dp"
             android:paddingLeft="16dp"
-            android:paddingTop="8dp"
             android:paddingRight="16dp"
-            android:paddingBottom="8dp">
+            android:paddingTop="8dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Push Notifications"
+                android:text="Reminder Notifications"
                 android:textColor="#000"
                 android:textSize="16sp" />
 
             <Switch
-                android:id="@+id/switch_push"
+                android:id="@+id/switch_reminder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
@@ -128,27 +113,56 @@
             android:background="#CCCCCC" />
 
         <LinearLayout
+            android:id="@+id/feedback_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
+            android:paddingBottom="8dp"
             android:paddingLeft="16dp"
-            android:paddingTop="8dp"
             android:paddingRight="16dp"
-            android:paddingBottom="8dp">
+            android:paddingTop="8dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Email Notifications"
+                android:text="Send Feedback"
+                android:textColor="#000"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:background="#CCCCCC" />
+
+        <LinearLayout
+            android:id="@+id/about_us_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingBottom="8dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="8dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="About Us"
                 android:textColor="#000"
                 android:textSize="16sp" />
 
-            <Switch
-                android:id="@+id/switch_email"
+            <ImageView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:contentDescription="About Us"
+                android:src="@android:drawable/ic_menu_info_details" />
         </LinearLayout>
 
         <View
@@ -159,5 +173,4 @@
             android:background="#CCCCCC" />
 
     </LinearLayout>
-
 </androidx.core.widget.NestedScrollView>

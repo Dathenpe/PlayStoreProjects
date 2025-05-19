@@ -16,11 +16,11 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="8dp" android:text="@string/app_name"
+        android:paddingTop="8dp" android:text="Proverbs 18:14"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textSize="18sp"  android:textColor="@android:color/white"/> <TextView
-    android:id="@+id/textView"
-    android:layout_width="match_parent"  android:layout_height="wrap_content"
-    android:text="TODO"
-    android:textSize="14sp"
-    android:textColor="@android:color/white"/>  </LinearLayout>
+        android:textSize="18sp"  android:textColor="@android:color/white"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="&#x201C;The spirit of a man will sustain his infirmity; but a wounded spirit who can bear?&#x201D;" />
+     </LinearLayout>

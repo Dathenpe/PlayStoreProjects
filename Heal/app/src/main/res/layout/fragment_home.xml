@@ -148,8 +148,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:min="0"
-                        android:max="10" />
+                        android:max="10"
+                        android:min="0" />
 
                     <TextView
                         android:id="@+id/coping_strategies_label"
@@ -163,9 +163,10 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
                         android:layout_marginTop="8dp"
+                        android:orientation="horizontal"
                         android:weightSum="3">
+
                         <EditText
                             android:id="@+id/coping_strategies_input"
                             android:layout_width="0dp"
@@ -181,15 +182,14 @@
                         <Button
                             android:id="@+id/save_coping_strategy_button"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
+                            android:layout_height="match_parent"
                             android:layout_marginStart="8dp"
+                            android:layout_weight="1"
                             android:backgroundTint="@color/green"
                             android:text="Save"
                             android:textColor="@android:color/white"
                             android:textSize="12sp"
-                            app:cornerRadius="8dp"
-                            />
+                            app:cornerRadius="8dp" />
                     </LinearLayout>
 
                     <TextView
@@ -200,26 +200,26 @@
                         android:text="Saved Strategies:"
                         android:textColor="@color/gray"
                         android:textSize="14sp"
-                        android:visibility="gone"/>
+                        android:visibility="gone" />
 
                     <GridLayout
                         android:id="@+id/saved_strategies_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:columnCount="3"
                         android:rowCount="0"
-                        android:layout_marginTop="8dp"
-                        android:visibility="gone">
-                    </GridLayout>
+                        android:visibility="gone"></GridLayout>
+
                     <Button
                         android:id="@+id/see_more_strategies_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="See More"
-                        android:visibility="gone"
                         android:backgroundTint="@color/purple"
+                        android:text="See More"
                         android:textColor="@android:color/white"
+                        android:visibility="gone"
                         app:cornerRadius="8dp" />
 
 
