@@ -124,8 +124,7 @@ public class SettingsFragment extends Fragment {
             if (newName != null && !newName.isEmpty()) {
                 Toast.makeText(builder.getContext(), "name saved", Toast.LENGTH_SHORT).show();
                 mainActivity.saveNameToLocalStorage(newName);
-                mainActivity.loadFragment(new Loading());
-              new Handler().postDelayed(mainActivity.loadFragment(new HomeFragment()),1000);
+                mainActivity.loadFragment(new HomeFragment(),R.id.nav_home);
               //  dialog.dismiss();
               try {
                   if (mainActivity != null) {

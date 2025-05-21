@@ -1,17 +1,29 @@
 package ui;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.heal.MainActivity;
 import com.example.heal.R;
+
+import records.CopingExercisesFragment;
+import records.EmergencyContactsFragment;
+import records.JournalEntriesFragment;
+import records.MoodCheckinFragment;
+import records.SavedStrategiesFragment;
+import viewmodels.GeneralViewModel;
 
 public class RecordFragment extends Fragment {
 
@@ -20,6 +32,23 @@ public class RecordFragment extends Fragment {
     private FrameLayout savedStrategiesContainer;
     private FrameLayout journalEntriesContainer;
     private FrameLayout emergencyContactsContainer;
+
+    private ScrollView recordScrollView;
+
+    private Context context;
+    private MainActivity mainActivity;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.context = context;
+        if (context instanceof MainActivity) {
+            mainActivity = (MainActivity) context;
+        } else {
+            Toast.makeText(context, "Error: Fragment attached to wrong activity", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     @Override
     public View onCreateView(
@@ -32,46 +61,59 @@ public class RecordFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mainActivity.toolbar.setTitle("Data Records");
+       mainActivity.navigationView.setCheckedItem(R.id.nav_records);
 
         copingExercisesContainer = view.findViewById(R.id.coping_exercises_container);
         dailyMoodCheckingsContainer = view.findViewById(R.id.daily_mood_checkings_container);
         savedStrategiesContainer = view.findViewById(R.id.saved_strategies_container);
         journalEntriesContainer = view.findViewById(R.id.journal_entries_container);
         emergencyContactsContainer = view.findViewById(R.id.emergency_contacts_container);
+        View loadingProgressBar = view.findViewById(R.id.loading_progress_bar);
+        recordScrollView = view.findViewById(R.id.record_scroll_view);
+
+        GeneralViewModel viewModel = new ViewModelProvider(this).get(GeneralViewModel.class);
+
+        viewModel.isLoading.observe(getViewLifecycleOwner(), isLoading -> {
+            if (isLoading) {
+                loadingProgressBar.setVisibility(View.VISIBLE);
+                recordScrollView.setVisibility(View.GONE); // Hide content while loading
+            } else {
+                loadingProgressBar.setVisibility(View.GONE);
+                recordScrollView.setVisibility(View.VISIBLE); // Show content when loading finishes
+            }
+        });
+
 
         copingExercisesContainer.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Coping Exercises Clicked", Toast.LENGTH_SHORT).show();
-            // Navigate to Coping Exercises screen/fragment
-            NavHostFragment.findNavController(RecordFragment.this)
-                    .navigate(R.id.action_recordFragment_to_copingExercisesFragment);
+            // Navigating to Coping Exercises screen/fragment
+            mainActivity.loadFragment(new CopingExercisesFragment(),R.layout.fragment_coping_exercises);
+
         });
 
         dailyMoodCheckingsContainer.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Daily Mood Checkings Clicked", Toast.LENGTH_SHORT).show();
-            // Navigate to Daily Mood Checkings screen/fragment
-             NavHostFragment.findNavController(RecordFragment.this)
-                   .navigate(R.id.action_recordFragment_to_moodCheckinFragment);
+            // Navigating to Daily Mood Checkings screen/fragment
+            mainActivity.loadFragment(new MoodCheckinFragment(),R.layout.fragment_mood_checkin);
         });
 
         savedStrategiesContainer.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Saved Strategies Clicked", Toast.LENGTH_SHORT).show();
-            // Navigate to Saved Strategies screen/fragment
-            NavHostFragment.findNavController(RecordFragment.this)
-                    .navigate(R.id.action_recordFragment_to_savedStrategiesFragment);
+            // Navigating to Saved Strategies screen/fragment
+            mainActivity.loadFragment(new SavedStrategiesFragment(),R.layout.fragment_saved_strategies);
         });
 
         journalEntriesContainer.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Journal Entries Clicked", Toast.LENGTH_SHORT).show();
-            // Navigate to Journal Entries screen/fragment
-             NavHostFragment.findNavController(RecordFragment.this)
-                    .navigate(R.id.action_recordFragment_to_journalEntriesFragment);
+            // Navigating to Journal Entries screen/fragment
+            mainActivity.loadFragment(new JournalEntriesFragment(),R.layout.fragment_journal_entries);
         });
 
         emergencyContactsContainer.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Emergency Contacts Clicked", Toast.LENGTH_SHORT).show();
-            // Navigate to Emergency Contacts screen/fragment
-             NavHostFragment.findNavController(RecordFragment.this)
-                   .navigate(R.id.action_recordFragment_to_emergencyContactsFragment);
+            // Navigating to Emergency Contacts screen/fragment
+            mainActivity.loadFragment(new EmergencyContactsFragment(),R.layout.fragment_emergency_contacts);
         });
     }
 }

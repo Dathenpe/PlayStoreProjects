@@ -1,13 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/gallery_coordinator_layout">
 
-    <TextView
+    <ProgressBar
+        android:id="@+id/loading_progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Welcome to the Gallery Room!"
-        android:textSize="24sp" />
+        android:visibility="gone" />
+    <ScrollView
+    android:id="@+id/gallery_scroll_view" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+        android:fillViewport="true">
 
-</FrameLayout>
+    <StackView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5"/>
+
+    </ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

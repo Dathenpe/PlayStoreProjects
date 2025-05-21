@@ -3,26 +3,78 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/recordFragment">
 
     <fragment
-        android:id="@+id/FirstFragment"
-        android:name="com.example.heal.FirstFragment"
-        android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
-
+        android:id="@+id/recordFragment"
+        android:name="ui.RecordFragment"
+        android:label="Records"
+        tools:layout="@layout/fragment_record">
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
+            android:id="@+id/action_recordFragment_to_copingExercisesFragment"
+            app:destination="@id/copingExercisesFragment" />
+        <action
+            android:id="@+id/action_recordFragment_to_moodCheckinFragment"
+            app:destination="@id/moodCheckinFragment" />
+        <action
+            android:id="@+id/action_recordFragment_to_savedStrategiesFragment"
+            app:destination="@id/savedStrategiesFragment" />
+        <action
+            android:id="@+id/action_recordFragment_to_journalEntriesFragment"
+            app:destination="@id/journalEntriesFragment" />
+        <action
+            android:id="@+id/action_recordFragment_to_emergencyContactsFragment"
+            app:destination="@id/emergencyContactsFragment" />
     </fragment>
+
     <fragment
-        android:id="@+id/SecondFragment"
-        android:name="com.example.heal.SecondFragment"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second">
-
+        android:id="@+id/emergencyContactsFragment"
+        android:name="records.EmergencyContactsFragment"
+        android:label="Emergency Contacts"
+        tools:layout="@layout/fragment_emergency_contacts" >
         <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+            android:id="@+id/action_emergencyContactsFragment_to_recordFragment"
+            app:destination="@id/recordFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/copingExercisesFragment"
+        android:name="records.CopingExercisesFragment"
+        android:label="Coping Exercises"
+        tools:layout="@layout/fragment_coping_exercises" >
+        <action
+            android:id="@+id/action_copingExercisesFragment_to_recordFragment"
+            app:destination="@id/recordFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/moodCheckinFragment"
+        android:name="records.MoodCheckinFragment"
+        android:label="Mood Checkin"
+        tools:layout="@layout/fragment_mood_checkin" >
+        <action
+            android:id="@+id/action_moodCheckinFragment_to_recordFragment"
+            app:destination="@id/recordFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/savedStrategiesFragment"
+        android:name="records.SavedStrategiesFragment"
+        android:label="Saved Strategies"
+        tools:layout="@layout/fragment_saved_strategies" >
+        <action
+            android:id="@+id/action_savedStrategiesFragment_to_recordFragment"
+            app:destination="@id/recordFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/journalEntriesFragment"
+        android:name="records.JournalEntriesFragment"
+        android:label="Journal Entries"
+        tools:layout="@layout/fragment_journal_entries" >
+        <action
+            android:id="@+id/action_journalEntriesFragment_to_recordFragment"
+            app:destination="@id/recordFragment" />
+    </fragment>
+
 </navigation>

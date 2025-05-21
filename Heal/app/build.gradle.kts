@@ -36,6 +36,8 @@ android {
 
 dependencies {
     implementation ("com.google.android.material:material:1.12.0")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
     implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation ("com.google.code.gson:gson:2.10.1")
     implementation ("com.google.android.flexbox:flexbox:3.0.0")
