@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -51,6 +52,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import records.EmergencyContact;
 import ui.GalleryFragment;
 import ui.HomeFragment;
 import ui.RecordFragment;
@@ -127,8 +129,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         bottomSheetContent = findViewById(R.id.bottom_sheet_content);
         bottomSheetView = findViewById(R.id.bottom_sheet_container);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView);
-        bottomSheetBehavior.setState(STATE_COLLAPSED); // Initial state
-
+        bottomSheetBehavior.setState(STATE_COLLAPSED);
         MenuTrigger = findViewById(R.id.menu_trigger);
         MenuTrigger.setOnClickListener(v -> {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -204,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 @Override
                 public void onDrawerClosed(@NonNull View drawerView) {
+
                     // Perform action when the drawer closes
                 }
 
@@ -213,8 +215,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             });
         }
+
+
+
+
         // Replace with the actual ID of your TextView
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -264,7 +271,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        currentNavId = id; // Update currentNavId
+        // No need to update currentNavId *before* the checks for fragment change
+        // currentNavId will be updated by loadFragment if a change occurs.
+
         View currentItemView = navigationView.findViewById(id);
 
         // Remove background color from the previously selected item
@@ -272,38 +281,84 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             previousItemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
         }
 
-        if (id == R.id.nav_home) {
-            loadFragment(new HomeFragment(), R.id.nav_home);
-            toolbar.setTitle("Heal");
-        } else if (id == R.id.nav_records) {
-            loadFragment(new RecordFragment(), R.id.nav_records);
-            toolbar.setTitle("Data Records");
-        } else if (id == R.id.nav_gallery) {
-            loadFragment(new GalleryFragment(), R.id.nav_gallery);
-            toolbar.setTitle("Art Corner");
-        } else if (id == R.id.nav_slideshow) {
-            loadFragment(new SlideshowFragment(), R.id.nav_slideshow);
-            toolbar.setTitle("Game Room");
-        } else if (id == R.id.nav_send) {
-            loadFragment(new HomeFragment(), R.id.nav_home);
-            showSendPopup();
-            toolbar.setTitle("Heal");
+        // Get the currently displayed fragment in the main container
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
 
+        // Determine the fragment to load and its title
+        Fragment targetFragment = null;
+        String toolbarTitle = "";
+        boolean shouldLoadFragment = false; // Flag to indicate if a fragment transaction is needed
+
+        if (id == R.id.nav_home) {
+            toolbarTitle = "Heal";
+            if (!(currentFragment instanceof HomeFragment)) {
+                targetFragment = new HomeFragment();
+                shouldLoadFragment = true;
+            }
+        } else if (id == R.id.nav_records) {
+            toolbarTitle = "Data Records";
+            if (!(currentFragment instanceof RecordFragment)) {
+                targetFragment = new RecordFragment();
+                shouldLoadFragment = true;
+            }
+        } else if (id == R.id.nav_gallery) {
+            toolbarTitle = "Art Corner";
+            if (!(currentFragment instanceof GalleryFragment)) {
+                targetFragment = new GalleryFragment();
+                shouldLoadFragment = true;
+            }
+        } else if (id == R.id.nav_slideshow) {
+            toolbarTitle = "Game Room";
+            if (!(currentFragment instanceof SlideshowFragment)) {
+                targetFragment = new SlideshowFragment();
+                shouldLoadFragment = true;
+            }
+        } else if (id == R.id.nav_send) {
+            toolbarTitle = "Heal"; // Keep the title as Heal
+            if (!(currentFragment instanceof HomeFragment)) {
+                targetFragment = new HomeFragment();
+                shouldLoadFragment = true;
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.postDelayed(() -> {
+                    showSendPopup();
+                }, 1000);
+            }else {
+                showSendPopup();
+            }
+             // Always show the popup when 'Send' is selected
         } else if (id == R.id.nav_share) {
-            loadFragment(new HomeFragment(), R.id.nav_home);
-            Share(myAppLink, shareMessage);
-            toolbar.setTitle("Heal");
+            // Similar to 'Send', sharing is an action, not usually a main fragment change.
+            toolbarTitle = "Heal"; // Keep the title as Heal
+            if (!(currentFragment instanceof HomeFragment)) {
+                targetFragment = new HomeFragment();
+                shouldLoadFragment = true;
+            }
+            Share(myAppLink, shareMessage); // Always perform the share action
         }
 
-        // Update the previous selected item and view
-        if (previousMenuItem != item) {
-            previousMenuItem = item;
-            previousItemView = currentItemView;
+        if (shouldLoadFragment && targetFragment != null) {
+            loadFragment(targetFragment, id);
+        }
+
+        // Always update the toolbar title based on the selected item
+        toolbar.setTitle(toolbarTitle);
+        if (previousMenuItem != item) { // Only update if a *different* item was selected
+            if (previousItemView != null) {
+                previousItemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+            }
+            previousMenuItem = item; // Update the previously selected item
+            previousItemView = currentItemView; // Update its view
+
+            // Apply highlight to the new item, unless it's a "utility" item like send/share
             if (previousItemView != null && id != R.id.nav_send && id != R.id.nav_share) {
                 previousItemView.setBackgroundColor(getResources().getColor(R.color.orange));
             }
+        } else {
+            // If the same item is clicked, ensure its background remains orange if it's a "screen-changing" one
+            if (currentItemView != null && id != R.id.nav_send && id != R.id.nav_share) {
+                currentItemView.setBackgroundColor(getResources().getColor(R.color.orange));
+            }
         }
-
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -313,7 +368,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_TEXT, appLink + (optionalText != null && !optionalText.isEmpty() ? "\n\n" + optionalText : ""));
         shareIntent.setType("text/plain"); // Set the MIME type to plain text
-
+        navigationView.setCheckedItem(R.id.nav_home);
         Intent chooserIntent = Intent.createChooser(shareIntent, "Share app link via");
         try {
             startActivity(chooserIntent);
@@ -328,6 +383,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View popupView = inflater.inflate(R.layout.send_window, null);
         popupWindow = new PopupWindow(popupView, 900, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
         popupWindow.setFocusable(true);
+        navigationView.setCheckedItem(R.id.nav_home);
         try {
             popupWindow.showAtLocation(fragmentMain, Gravity.CENTER, 0, 0);
 
@@ -576,5 +632,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SharedPreferences sharedPreferences = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("user_name", name);
-        editor.apply();}
+        editor.apply();
+    }
+    
+
 }

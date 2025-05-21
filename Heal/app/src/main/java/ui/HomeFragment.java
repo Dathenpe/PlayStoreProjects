@@ -62,6 +62,8 @@ import java.util.concurrent.TimeUnit;
 import Slider.SliderOne;
 import Slider.SliderThree;
 import Slider.SliderTwo;
+import records.CopingExercisesFragment;
+import records.EmergencyContactsFragment;
 import viewmodels.GeneralViewModel;
 
 
@@ -337,25 +339,20 @@ public class HomeFragment extends Fragment {
         updateBarChart();
 
         emergencyContactButton.setOnClickListener(v -> {
-            // Handle emergency contact button click
+            mainActivity.loadFragment(new EmergencyContactsFragment(),0);
+            mainActivity.navigationView.setCheckedItem(R.id.nav_records);
         });
 
         copingExercisesButton.setOnClickListener(v -> {
-            // Handle coping exercises button click
+            mainActivity.loadFragment(new CopingExercisesFragment(),0);
+            mainActivity.navigationView.setCheckedItem(R.id.nav_records);
         });
 
         moreResourcesButton.setOnClickListener(v -> {
-            // Handle more resources button click
+            mainActivity.loadFragment(new RecordFragment(),0);
         });
         groundingExerciseButton.setOnClickListener(v -> {
             // Handle grounding exercise
-        });
-
-        copingExercisesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveCopingStrategy();
-            }
         });
 
         if (seeMoreStrategiesButton != null) {
