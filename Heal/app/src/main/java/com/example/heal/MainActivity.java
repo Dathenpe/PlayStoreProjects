@@ -234,32 +234,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
             return; // Consume the back press
-        }
-        // 2. Handle Bottom Sheet expanded state
-        else if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-            clearBottomFragment();
-            toggleBottomSheet();
-            // Adjust FAB margin if necessary (this logic seems tied to your FAB animation)
-            com.google.android.material.floatingactionbutton.FloatingActionButton Fab = findViewById(R.id.fab);
-            if (Fab != null) {
-                CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) Fab.getLayoutParams();
-                if (params.bottomMargin > 16) { // Check if it's not already at default margin
-                    params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, (int) getResources().getDimension(R.dimen.fab_null_margin));
-                    Fab.setLayoutParams(params);
-                }
-            }
-            Log.d(TAG, "onBackPressed: bottom sheet collapsed");
-            return; // Consume the back press
-        }
-        // 3. Handle PopupWindow showing state
-        else if (popupWindow != null && popupWindow.isShowing()) {
+        }else if (popupWindow != null && popupWindow.isShowing()) {
             popupWindow.dismiss();
             return; // Consume the back press
         }
-
+       closeSettings();
+        // 3. Handle PopupWindow showing state
         // 4. Handle exit confirmation ONLY if on HomeFragment AND no other modals are open
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        if (currentFragment instanceof HomeFragment) {
+        if (currentFragment instanceof HomeFragment && bottomSheetBehavior.getState()==STATE_COLLAPSED) {
             new AlertDialog.Builder(this)
                     .setTitle("Exit Application")
                     .setMessage("Are you sure you want to exit the application?")
@@ -468,7 +451,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void toggleBottomSheet() {
         if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-
             bottomSheetContent.setBackground(getResources().getDrawable(R.drawable.rounded_top_container));
         } else if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             bottomSheetBehavior.setState(STATE_COLLAPSED);
@@ -483,6 +465,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.bottom_sheet_content, fragment);
+        ft.addToBackStack(null);
         ft.commit();
     }
 
