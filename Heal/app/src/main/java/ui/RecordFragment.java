@@ -113,7 +113,7 @@ public class RecordFragment extends Fragment {
         emergencyContactsContainer.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Emergency Contacts Clicked", Toast.LENGTH_SHORT).show();
             // Navigating to Emergency Contacts screen/fragment
-            mainActivity.loadFragment(new EmergencyContactsFragment(),R.layout.fragment_emergency_contacts);
+            mainActivity.loadContacts();
         });
     }
 }

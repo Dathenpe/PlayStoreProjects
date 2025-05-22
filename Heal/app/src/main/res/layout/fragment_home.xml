@@ -5,13 +5,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/home_coordinator_layout"
-    android:background="@color/off_white">
+    android:id="@+id/home_coordinator_layout">
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/home_scroll_view"
-        android:background="@color/off_white">
+        android:id="@+id/home_scroll_view">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -19,95 +17,94 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <LinearLayout
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:id="@+id/greeting"
-                    android:layout_width="0dp"
+                app:cardBackgroundColor="@color/orange" app:cardCornerRadius="12dp" app:cardElevation="6dp" android:layout_marginBottom="16dp"
+                android:layout_marginTop="8dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="sans-serif-light"
-                    android:text="Hello"
-                    android:textColor="@color/black"
-                    android:textSize="32sp" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="20dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="12dp">
 
-                <ImageView
+                    <TextView
+                        android:id="@+id/greeting"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="sans-serif-light"
+                        android:text="Hello, [User Name]!" android:textColor="@android:color/white" android:textSize="28sp" android:textStyle="bold" /> <ImageView
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:id="@+id/self_improvement_icon"
                     android:src="@drawable/outline_self_improvement_24"
-                    app:tint="@color/orange" />
-            </LinearLayout>
-
-
+                    app:tint="@android:color/white" /> </LinearLayout>
+            </androidx.cardview.widget.CardView>
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/sliderViewPager"
                 android:layout_width="match_parent"
-                android:layout_height="200dp" />
+                android:layout_height="200dp"
+                android:layout_marginBottom="16dp"/> <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/card_background_light" app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            android:layout_marginBottom="16dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="110dp"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tracker_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Taking Positive Steps"
+                    android:textColor="@color/teal_700"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@+id/steps_counter"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/steps_counter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-condensed-bold"
+                    android:text="0"
+                    android:textColor="@color/orange"
+                    android:textSize="36sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/add_step_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:backgroundTint="@color/orange"
+                    android:text="Log Positive Action"
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="8dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tracker_title" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="4dp"
-                android:layout_marginBottom="16dp">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="110dp"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:id="@+id/tracker_title"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-medium"
-                        android:text="Taking Positive Steps"
-                        android:textColor="@color/teal_700"
-                        android:textSize="18sp"
-                        app:layout_constraintEnd_toStartOf="@+id/steps_counter"
-                        app:layout_constraintHorizontal_bias="0.0"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/steps_counter"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="sans-serif-condensed-bold"
-                        android:text="0"
-                        android:textColor="@color/orange"
-                        android:textSize="36sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <Button
-                        android:id="@+id/add_step_button"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:backgroundTint="@color/orange"
-                        android:text="Log Positive Action"
-                        android:textColor="@android:color/white"
-                        app:cornerRadius="8dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/tracker_title" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="8dp"
+                app:cardBackgroundColor="@color/card_background_light" app:cardCornerRadius="8dp"
                 app:cardElevation="4dp"
                 android:layout_marginBottom="16dp">
 
@@ -178,19 +175,18 @@
                             android:minHeight="48dp"
                             android:padding="12dp"
                             android:textColor="@color/darkgray"
-                            android:textSize="16sp" />
-
-                        <Button
-                            android:id="@+id/save_coping_strategy_button"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_marginStart="8dp"
-                            android:layout_weight="1"
-                            android:backgroundTint="@color/green"
-                            android:text="Save"
-                            android:textColor="@android:color/white"
-                            android:textSize="12sp"
-                            app:cornerRadius="8dp" />
+                            android:textSize="16sp"
+                            android:textColorHint="@android:color/black" /> <Button
+                        android:id="@+id/save_coping_strategy_button"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/green"
+                        android:text="Save"
+                        android:textColor="@android:color/white"
+                        android:textSize="12sp"
+                        app:cornerRadius="8dp" />
                     </LinearLayout>
 
                     <TextView
@@ -230,8 +226,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="8dp"
+                app:cardBackgroundColor="@color/card_background_light" app:cardCornerRadius="8dp"
                 app:cardElevation="4dp"
                 android:layout_marginBottom="16dp">
 
@@ -276,7 +271,7 @@
                             android:backgroundTint="@color/teal_200"
                             android:text="Coping Exercises"
                             android:id="@+id/coping_exercises_button"
-                            android:textColor="@android:color/white"
+                            android:textColor="@color/white"
                             android:textSize="12sp"
                             app:cornerRadius="8dp" />
                     </LinearLayout>
@@ -300,8 +295,7 @@
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="8dp"
+                app:cardBackgroundColor="@color/card_background_light" app:cardCornerRadius="8dp"
                 app:cardElevation="4dp"
                 android:layout_marginBottom="16dp">
 
@@ -355,17 +349,16 @@
                         android:padding="12dp"
                         android:background="@drawable/rounded_input_field_light"
                         android:textColor="@color/darkgray"
-                        android:textSize="16sp" />
-
-                    <Button
-                        android:id="@+id/submit_checkin_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:backgroundTint="@color/indigo"
-                        android:text="Submit Check-in"
-                        android:textColor="@android:color/white"
-                        app:cornerRadius="8dp" />
+                        android:textSize="16sp"
+                        android:textColorHint="@android:color/black" /> <Button
+                    android:id="@+id/submit_checkin_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:backgroundTint="@color/indigo"
+                    android:text="Submit Check-in"
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="8dp" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -374,8 +367,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="8dp"
+                app:cardBackgroundColor="@color/card_background_light" app:cardCornerRadius="8dp"
                 app:cardElevation="4dp"
                 android:layout_marginBottom="16dp">
 
@@ -417,8 +409,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="8dp"
+                app:cardBackgroundColor="@color/card_background_light" app:cardCornerRadius="8dp"
                 app:cardElevation="4dp"
                 android:layout_marginBottom="16dp">
 
@@ -456,17 +447,16 @@
                         android:gravity="top|start"
                         android:background="@drawable/rounded_input_field_light"
                         android:textColor="@color/darkgray"
-                        android:textSize="16sp" />
-
-                    <Button
-                        android:id="@+id/save_journal_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:backgroundTint="@color/blue"
-                        android:text="Save Entry"
-                        android:textColor="@android:color/white"
-                        app:cornerRadius="8dp" />
+                        android:textSize="16sp"
+                        android:textColorHint="@android:color/black" /> <Button
+                    android:id="@+id/save_journal_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:backgroundTint="@color/blue"
+                    android:text="Save Entry"
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="8dp" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -474,8 +464,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="8dp"
+                app:cardBackgroundColor="@color/card_background_light" app:cardCornerRadius="8dp"
                 app:cardElevation="4dp">
 
                 <LinearLayout
@@ -522,4 +511,3 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-

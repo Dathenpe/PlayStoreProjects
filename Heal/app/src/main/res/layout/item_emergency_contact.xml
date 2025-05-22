@@ -9,25 +9,22 @@
     android:layout_marginEnd="16dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp"
-    app:cardBackgroundColor="@android:color/white">
-
+    app:cardBackgroundColor="@android:color/transparent">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
-
+        android:padding="16dp"
+        android:background="@drawable/card_background_pattern">
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/contactImageView"
             android:layout_width="72dp"
             android:layout_height="72dp"
             android:src="@drawable/ic_default_contact_avatar"
-            app:civ_border_color="#E0E0E0"
+            app:civ_border_color="@color/orange"
             app:civ_border_width="2dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/actionButtonsLayout"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
             android:scaleType="centerCrop"
             tools:src="@tools:sample/avatars" />
 
@@ -36,25 +33,25 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
+            android:textSize="22sp"
+            android:textColor="@color/black"
             android:maxLines="1"
             android:ellipsize="end"
             app:layout_constraintStart_toEndOf="@+id/contactImageView"
             app:layout_constraintTop_toTopOf="@+id/contactImageView"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="4dp"
+            android:layout_marginStart="16dp"
             tools:text="Olivia React" />
 
         <TextView
             android:id="@+id/contactPhoneTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="15sp"
-            android:textColor="@android:color/darker_gray"
+            android:textSize="18sp"
+            android:textColor="@color/darkgray"
             android:maxLines="1"
             android:ellipsize="end"
-            app:layout_constraintStart_toEndOf="@+id/contactImageView"
+            app:layout_constraintStart_toStartOf="@+id/contactNameTextView"
             app:layout_constraintTop_toBottomOf="@+id/contactNameTextView"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="4dp"
@@ -65,52 +62,51 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="end"
-            android:layout_marginTop="12dp"
+            android:gravity="end" android:layout_marginTop="16dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/contactImageView">
 
             <Button
                 android:id="@+id/callContactButton"
-                style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Call"
                 android:layout_marginEnd="8dp"
-                android:minHeight="0dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:textSize="12sp"
-                android:textColor="@color/green" /> <Button
-            android:id="@+id/editContactButton"
-            style="?attr/materialButtonOutlinedStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Edit"
-            android:layout_marginEnd="8dp"
-            android:minHeight="0dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textSize="12sp" />
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:textSize="14sp"
+                android:backgroundTint="@color/green_call_button" android:textColor="@android:color/white"
+                app:cornerRadius="8dp" />
+
+            <Button
+                android:id="@+id/editContactButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edit"
+                android:layout_marginEnd="8dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:textSize="14sp"
+                android:textColor="@color/text_color_primary" app:strokeColor="@color/button_outline_color_light" app:cornerRadius="8dp" />
 
             <Button
                 android:id="@+id/deleteContactButton"
-                style="?attr/materialButtonOutlinedStyle"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Delete"
-                android:textColor="@android:color/holo_red_dark"
-                android:minHeight="0dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:textSize="12sp" />
+                android:textColor="@color/red_delete_button" android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:textSize="14sp"
+                app:strokeColor="@color/red_delete_button" app:cornerRadius="8dp" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

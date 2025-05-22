@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="card_background_light">#2C2C2C</color>
+    <color name="hint_text_color">#A0A0A0</color>
+    <color name="text_color_primary">#FFFFFFFF</color>
+    <color name="text_color_secondary">#BDBDBD</color>
+    <color name="teal_700">#00BCD4</color>
+    <color name="orange">#FFB74D</color>
+    <color name="green_call_button">#66BB6A</color>
+    <color name="red_delete_button">#EF5350</color>
+    <color name="button_outline_color_light">#90A4AE</color>
+</resources>

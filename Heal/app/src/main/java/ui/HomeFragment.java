@@ -339,7 +339,7 @@ public class HomeFragment extends Fragment {
         updateBarChart();
 
         emergencyContactButton.setOnClickListener(v -> {
-            mainActivity.loadFragment(new EmergencyContactsFragment(),0);
+            mainActivity.loadContacts();
             mainActivity.navigationView.setCheckedItem(R.id.nav_records);
         });
 

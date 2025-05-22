@@ -37,7 +37,7 @@
             android:layout_gravity="bottom|end"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            app:srcCompat="@android:drawable/ic_dialog_email"
+            app:srcCompat="@drawable/outline_article_person_24"
             app:backgroundTint="#FFA500"
             app:tint="@color/gray"
             app:rippleColor="#7FFFD4" />

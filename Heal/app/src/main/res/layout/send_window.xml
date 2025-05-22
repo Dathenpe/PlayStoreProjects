@@ -12,6 +12,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:text="Send To"
+        android:textColorHint="@color/black"
+        android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -20,6 +22,8 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textColorHint="@color/black"
         android:hint="Enter Recipient's Heal ID"
         app:layout_alignSelf="stretch">
 
@@ -36,6 +40,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:textColorHint="@color/black"
+        android:textColor="@color/black"
         android:hint="Enter Message (Optional)"
         app:layout_alignSelf="stretch">
 

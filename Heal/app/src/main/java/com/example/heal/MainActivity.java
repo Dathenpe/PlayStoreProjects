@@ -1,5 +1,4 @@
-package com.example.heal; // Replace this!
-
+package com.example.heal;
 import static android.app.ProgressDialog.show;
 import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED;
 
@@ -45,6 +44,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -52,30 +52,42 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import records.AddEditContactDialogFragment;
 import records.EmergencyContact;
+import records.EmergencyContactsFragment;
 import ui.GalleryFragment;
 import ui.HomeFragment;
 import ui.RecordFragment;
 import ui.ReminderBroadcastReceiver;
 import ui.SettingsFragment;
 import ui.SlideshowFragment;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
+        AddEditContactDialogFragment.OnContactSavedListener {
+
+    private List<EmergencyContact> emergencyContactList;
+    private Gson gson;
+    private static final String PREFS_NAME = "EmergencyContactsPrefs";
+    private static final String KEY_CONTACTS = "contactsList";
 
     private DrawerLayout drawerLayout;
-    private com.google.android.material.floatingactionbutton.FloatingActionButton Fab;
+    private FloatingActionButton Fab;
     public Toolbar toolbar;
     public NavigationView navigationView;
     private MenuItem previousMenuItem;
     private View previousItemView;
     private ImageButton MenuTrigger;
-    private PopupWindow popupWindow; // Declare PopupWindow as a class member
-    // Bottom Sheet related variables
+    private PopupWindow popupWindow;
     FrameLayout bottomSheetContent;
     private static final String TAG = "YourActivityTag";
     View bottomSheetView;
-    BottomSheetBehavior<View> bottomSheetBehavior;// Use the settings binding!
-    // Overlay for graying out
+    BottomSheetBehavior<View> bottomSheetBehavior;
     private View overlayView;
     private View fragmentMain;
     private TextInputEditText RecipientId;
@@ -83,21 +95,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Button sendMessage;
     private Button cancelMessage;
     private HashMap<String, String> sendData = new HashMap<>();
-    private EditText recipientEditText; // Replace with your actual ID
+    private EditText recipientEditText;
     private EditText messageEditText;
     private final String myAppLink = "https://play.google.com/store/apps/details?id=com.example.myapp";
     private final String shareMessage = "Check out this awesome app!";
     private TextView userNameDisplayTextView;
     private static final String CHANNEL_ID = "reminder_channel";
     private static final int REMINDER_NOTIFICATION_ID = 1;
-    private static final int REMINDER_REQUEST_CODE = 102; // Different request code for MainActivity
+    private static final int REMINDER_REQUEST_CODE = 102;
     private static final long REPEAT_INTERVAL = TimeUnit.DAYS.toMillis(1);
-    private int currentNavId = R.id.nav_home; // Keep track of the current nav item
+    private int currentNavId = R.id.nav_home;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        gson = new Gson();
+        loadEmergencyContacts();
+
         setContentView(R.layout.activity_main);
         checkAndScheduleReminder();
 
@@ -113,85 +128,60 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        // Load the Home Room when the app starts
         if (savedInstanceState == null) {
-            loadFragment(new HomeFragment(), R.id.nav_home); // Load the loading fragment
+            loadFragment(new HomeFragment(), R.id.nav_home);
             navigationView.setCheckedItem(R.id.nav_home);
             toolbar.setTitle("Home Room");
         } else {
-            // Restore the current nav ID
             currentNavId = savedInstanceState.getInt("currentNavId", R.id.nav_home);
             navigationView.setCheckedItem(currentNavId);
-            updateToolbarAndNavigation(currentNavId); // Restore title and selected item
+            updateToolbarAndNavigation(currentNavId);
         }
 
-        // Initialize Bottom Sheet views and behavior
         bottomSheetContent = findViewById(R.id.bottom_sheet_content);
         bottomSheetView = findViewById(R.id.bottom_sheet_container);
         bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView);
         bottomSheetBehavior.setState(STATE_COLLAPSED);
+
         MenuTrigger = findViewById(R.id.menu_trigger);
         MenuTrigger.setOnClickListener(v -> {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-
-            // 2. Get the window token of the Toolbar (or any view in your activity)
             IBinder windowToken = toolbar.getWindowToken();
-
-            // 3. Check if the keyboard is showing and hide it
             if (imm != null && windowToken != null) {
                 imm.hideSoftInputFromWindow(windowToken, 0);
             }
             closeSettings();
-            // Inflate the custom menu layout for the popup
             LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
             View popupView = inflater.inflate(R.layout.custom_menu_layout, null);
-
-
-            // Create the PopupWindow
             popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
 
-            // Find the Settings TextView in the popup
             TextView settings = popupView.findViewById(R.id.menu_item_1);
             settings.setOnClickListener(v1 -> {
                 loadBottomSettingsFragment();
-                Log.d(TAG, "Settings clicked. Bottom Sheet State: " + bottomSheetBehavior.getState()); // Add this line
-                // When Settings is clicked in the popup:
-                // 1. Load the SettingsFragment into the bottom sheet container
+                Log.d(TAG, "Settings clicked. Bottom Sheet State: " + bottomSheetBehavior.getState());
                 popupWindow.dismiss();
             });
 
-            // Find the Logout TextView in the popup
             TextView logout = popupView.findViewById(R.id.menu_item_2);
             logout.setOnClickListener(view -> {
-                // Add your logout functionality here
                 Toast.makeText(MainActivity.this, "Logout Clicked", Toast.LENGTH_SHORT).show();
                 popupWindow.dismiss();
             });
-
-            // Show the popup window anchored to the MenuTrigger
-
             popupWindow.showAtLocation(v, Gravity.END, 30, -700);
         });
-        //settings collapsed when toolbar clicked
+
         if (toolbar != null) {
             toolbar.setOnClickListener(v -> {
                 closeSettings();
             });
         }
-        //settings collapsed when fragment clicked
         fragmentMain = findViewById(R.id.fragment_container);
-        // Settings collapsed when drawer opened
         if (drawerLayout != null) {
             drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
                 @Override
                 public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
-                    // Perform action when the drawer slides
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-
-                    // 2. Get the window token of the Toolbar (or any view in your activity)
                     IBinder windowToken = toolbar.getWindowToken();
-
-                    // 3. Check if the keyboard is showing and hide it
                     if (imm != null && windowToken != null) {
                         imm.hideSoftInputFromWindow(windowToken, 0);
                     }
@@ -200,33 +190,103 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 @Override
                 public void onDrawerOpened(@NonNull View drawerView) {
                     closeSettings();
-                    // Perform action when the drawer opens
                 }
 
                 @Override
                 public void onDrawerClosed(@NonNull View drawerView) {
-
-                    // Perform action when the drawer closes
                 }
 
                 @Override
                 public void onDrawerStateChanged(int newState) {
-                    // Perform action when the drawer state changes
                 }
             });
         }
 
+        Fab = findViewById(R.id.fab);
+        if (Fab != null) {
+            Fab.setOnClickListener(v -> {
+                AddEditContactDialogFragment addEditDialog = AddEditContactDialogFragment.newInstance(null);
+                addEditDialog.show(getSupportFragmentManager(), "AddEditContactDialog");
+            });
+        }
+    }
 
 
+    private void saveEmergencyContacts() {
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        String json = gson.toJson(emergencyContactList);
+        editor.putString(KEY_CONTACTS, json);
+        editor.apply();
+        Log.d(TAG, "Emergency contacts saved. Count: " + emergencyContactList.size());
+    }
 
-        // Replace with the actual ID of your TextView
+    private void loadEmergencyContacts() {
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String json = sharedPreferences.getString(KEY_CONTACTS, null);
+
+        if (json == null) {
+            emergencyContactList = new ArrayList<>();
+            Log.d(TAG, "No emergency contacts found. Initialized empty list.");
+        } else {
+            Type type = new TypeToken<ArrayList<EmergencyContact>>() {}.getType();
+            emergencyContactList = gson.fromJson(json, type);
+            Log.d(TAG, "Emergency contacts loaded. Count: " + emergencyContactList.size());
+        }
+    }
+
+    @Override
+    public void onContactSaved(EmergencyContact contact) {
+        boolean found = false;
+        for (int i = 0; i < emergencyContactList.size(); i++) {
+            if (emergencyContactList.get(i).getId().equals(contact.getId())) {
+                emergencyContactList.set(i, contact);
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            emergencyContactList.add(contact);
+        }
+
+        saveEmergencyContacts();
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment currentFragment = fragmentManager.findFragmentById(R.id.fragment_container);
+
+        if (currentFragment instanceof EmergencyContactsFragment) {
+            ((EmergencyContactsFragment) currentFragment).refreshContactsFromActivity(emergencyContactList);
+        } else {
+            Toast.makeText(this, "Contact saved! You can see it in Emergency Contacts.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void removeEmergencyContact(String contactId) {
+        if (emergencyContactList != null) {
+            EmergencyContact contactToRemove = null;
+            for (EmergencyContact contact : emergencyContactList) {
+                if (contact.getId().equals(contactId)) {
+                    contactToRemove = contact;
+                    break;
+                }
+            }
+            if (contactToRemove != null) {
+                emergencyContactList.remove(contactToRemove);
+                saveEmergencyContacts();
+
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                Fragment currentFragment = fragmentManager.findFragmentById(R.id.fragment_container);
+                if (currentFragment instanceof EmergencyContactsFragment) {
+                    ((EmergencyContactsFragment) currentFragment).refreshContactsFromActivity(emergencyContactList);
+                }
+            }
+        }
     }
 
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        // Save the current nav ID
         outState.putInt("currentNavId", currentNavId);
     }
 
@@ -237,57 +297,55 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onBackPressed() {
-        // 1. Handle DrawerLayout open state
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
-            return; // Consume the back press
-        }else if (popupWindow != null && popupWindow.isShowing()) {
+            return;
+        } else if (popupWindow != null && popupWindow.isShowing()) {
             popupWindow.dismiss();
-            return; // Consume the back press
+            return;
         }
-       closeSettings();
-        // 3. Handle PopupWindow showing state
-        // 4. Handle exit confirmation ONLY if on HomeFragment AND no other modals are open
+        closeSettings();
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        if (currentFragment instanceof HomeFragment && bottomSheetBehavior.getState()==STATE_COLLAPSED) {
+        if (currentFragment instanceof HomeFragment && bottomSheetBehavior.getState() == STATE_COLLAPSED) {
             new AlertDialog.Builder(this)
                     .setTitle("Exit Application")
                     .setMessage("Are you sure you want to exit the application?")
-                    .setPositiveButton("Yes", (dialog, which) -> finish()) // Finish the activity to exit
+                    .setPositiveButton("Yes", (dialog, which) -> finish())
                     .setNegativeButton("No", (dialog, which) -> {
-                        // Do nothing or dismiss the dialog. The activity remains.
                         dialog.dismiss();
                     })
-                    .setCancelable(false) // Prevent dismissing by tapping outside or pressing back again
+                    .setCancelable(false)
                     .show();
         } else {
-            // If not on HomeFragment, or if it's not the root of the back stack,
-            // let the default back behavior (popping fragments) happen.
             super.onBackPressed();
         }
     }
 
+    public void loadContacts() {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (!(currentFragment instanceof EmergencyContactsFragment)) {
+            EmergencyContactsFragment targetFragment = new EmergencyContactsFragment();
+            Bundle args = new Bundle();
+            // THIS IS CRUCIAL: Ensure emergencyContactList in MainActivity has data
+            args.putSerializable("contactList", new ArrayList<>(emergencyContactList));
+            targetFragment.setArguments(args);
+            loadFragment(targetFragment, R.id.nav_emergency_contacts); // Or whatever ID you use
+        }
+    }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        // No need to update currentNavId *before* the checks for fragment change
-        // currentNavId will be updated by loadFragment if a change occurs.
-
         View currentItemView = navigationView.findViewById(id);
 
-        // Remove background color from the previously selected item
         if (previousItemView != null && previousItemView != currentItemView) {
             previousItemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
         }
 
-        // Get the currently displayed fragment in the main container
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-
-        // Determine the fragment to load and its title
         Fragment targetFragment = null;
         String toolbarTitle = "";
-        boolean shouldLoadFragment = false; // Flag to indicate if a fragment transaction is needed
+        boolean shouldLoadFragment = false;
 
         if (id == R.id.nav_home) {
             toolbarTitle = "Heal";
@@ -314,47 +372,42 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 shouldLoadFragment = true;
             }
         } else if (id == R.id.nav_send) {
-            toolbarTitle = "Heal"; // Keep the title as Heal
+            toolbarTitle = "Heal";
             if (!(currentFragment instanceof HomeFragment)) {
                 targetFragment = new HomeFragment();
                 shouldLoadFragment = true;
                 Handler handler = new Handler(Looper.getMainLooper());
-                handler.postDelayed(() -> {
-                    showSendPopup();
-                }, 1000);
-            }else {
+                handler.postDelayed(this::showSendPopup, 1000);
+            } else {
                 showSendPopup();
             }
-             // Always show the popup when 'Send' is selected
         } else if (id == R.id.nav_share) {
-            // Similar to 'Send', sharing is an action, not usually a main fragment change.
-            toolbarTitle = "Heal"; // Keep the title as Heal
+            toolbarTitle = "Heal";
             if (!(currentFragment instanceof HomeFragment)) {
                 targetFragment = new HomeFragment();
                 shouldLoadFragment = true;
             }
-            Share(myAppLink, shareMessage); // Always perform the share action
+            Share(myAppLink, shareMessage);
         }
+        // The `nav_emergency_contacts` block was here, removed.
+
 
         if (shouldLoadFragment && targetFragment != null) {
             loadFragment(targetFragment, id);
         }
 
-        // Always update the toolbar title based on the selected item
         toolbar.setTitle(toolbarTitle);
-        if (previousMenuItem != item) { // Only update if a *different* item was selected
+        if (previousMenuItem != item) {
             if (previousItemView != null) {
                 previousItemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
             }
-            previousMenuItem = item; // Update the previously selected item
-            previousItemView = currentItemView; // Update its view
+            previousMenuItem = item;
+            previousItemView = currentItemView;
 
-            // Apply highlight to the new item, unless it's a "utility" item like send/share
             if (previousItemView != null && id != R.id.nav_send && id != R.id.nav_share) {
                 previousItemView.setBackgroundColor(getResources().getColor(R.color.orange));
             }
         } else {
-            // If the same item is clicked, ensure its background remains orange if it's a "screen-changing" one
             if (currentItemView != null && id != R.id.nav_send && id != R.id.nav_share) {
                 currentItemView.setBackgroundColor(getResources().getColor(R.color.orange));
             }
@@ -367,7 +420,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_TEXT, appLink + (optionalText != null && !optionalText.isEmpty() ? "\n\n" + optionalText : ""));
-        shareIntent.setType("text/plain"); // Set the MIME type to plain text
+        shareIntent.setType("text/plain");
         navigationView.setCheckedItem(R.id.nav_home);
         Intent chooserIntent = Intent.createChooser(shareIntent, "Share app link via");
         try {
@@ -377,7 +430,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    // Example usage:
     private void showSendPopup() {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.send_window, null);
@@ -387,7 +439,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         try {
             popupWindow.showAtLocation(fragmentMain, Gravity.CENTER, 0, 0);
 
-            // Find the button and set the listener *after* the popup view is created
             Button sendMessageButtonPopup = popupView.findViewById(R.id.buttonSend);
             if (sendMessageButtonPopup != null) {
                 sendMessageButtonPopup.setOnClickListener(v -> {
@@ -427,12 +478,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void dismissSendPopupAndSaveData() {
         if (popupWindow != null && popupWindow.isShowing()) {
-            // Get the content view of the popup window
             View popupContentView = popupWindow.getContentView();
-
-            // Find your input fields within the popupView and save their data
-            EditText recipientEditText = popupContentView.findViewById(R.id.editTextRecipient); // Replace with your actual ID
-            EditText messageEditText = popupContentView.findViewById(R.id.editTextMessage);   // Replace with your actual ID
+            EditText recipientEditText = popupContentView.findViewById(R.id.editTextRecipient);
+            EditText messageEditText = popupContentView.findViewById(R.id.editTextMessage);
 
             if (recipientEditText != null) {
                 sendData.put("recipient", recipientEditText.getText().toString());
@@ -441,47 +489,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 sendData.put("message", messageEditText.getText().toString());
             }
 
-            // Dismiss the popup window
             popupWindow.dismiss();
-            popupWindow = null; // It's good practice to set it to null after dismissing
+            popupWindow = null;
 
-            // Now you can use the 'sendData' HashMap to access the saved input
-            // For example:
             String savedRecipient = sendData.get("recipient");
             String savedMessage = sendData.get("message");
-            // Do something with the saved data (e.g., store it, process it)
             Toast.makeText(this, "Message sent to " + savedRecipient, Toast.LENGTH_SHORT).show();
             Log.d("SendData", "Recipient: " + savedRecipient + ", Message: " + savedMessage);
         }
     }
 
-    // Loads a fragment into the main content area
     public void loadFragment(Fragment fragment, int navId) {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
 
-        // Add custom animations BEFORE the replace method
-        // Parameters: enter, exit, popEnter, popExit
-        // enter: animation for the new fragment entering
-        // exit: animation for the current fragment exiting
-        // popEnter: animation for the fragment returning when popped from back stack
-        // popExit: animation for the fragment that's being popped off the back stack
         ft.setCustomAnimations(
-                R.anim.slide_in_right,  // New fragment enters
-                R.anim.slide_out_left,  // Current fragment exits
-                R.anim.slide_in_left,   // Previous fragment re-enters (when back pressed)
-                R.anim.slide_out_right  // Fragment being popped exits
+                R.anim.slide_in_right,
+                R.anim.slide_out_left,
+                R.anim.slide_in_left,
+                R.anim.slide_out_right
         );
 
         ft.replace(R.id.fragment_container, fragment);
 
         if (!(fragment instanceof HomeFragment)) {
-            // Only add to back stack if it's not the HomeFragment
             ft.addToBackStack(null);
         }
         ft.commit();
-        currentNavId = navId; // Update the currentNavId here
-        //updateToolbarAndNavigation(navId); // Consider uncommenting this for dynamic UI updates
+        currentNavId = navId;
     }
 
     private void updateToolbarAndNavigation(int navId) {
@@ -501,9 +536,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             toolbar.setTitle("Heal");
             navigationView.setCheckedItem(R.id.nav_home);
         }
+        // The `nav_emergency_contacts` block was here, removed.
     }
 
-    // Method to show/hide the bottom sheet
     public void toggleBottomSheet() {
         if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -532,7 +567,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             FragmentTransaction ft = fm.beginTransaction();
             ft.remove(currentFragment);
             ft.commit();
-            fm.executePendingTransactions(); // Ensure the removal happens immediately
+            fm.executePendingTransactions();
         }
     }
 
@@ -540,7 +575,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
             Fab = findViewById(R.id.fab);
             CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) Fab.getLayoutParams();
-            if (params.bottomMargin > 0) { // Check if bottomMargin is 0
+            if (params.bottomMargin > 0) {
                 if (params.bottomMargin == (int) getResources().getDimension(R.dimen.fab_default_margin)) {
                     clearBottomFragment();
                     toggleBottomSheet();
@@ -559,8 +594,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String name = "Reminder Notifications"; // Using normal text
-            String description = "Daily reminders for your well-being,you are important and you should take care of yourself"; // Using normal text
+            String name = "Reminder Notifications";
+            String description = "Daily reminders for your well-being,you are important and you should take care of yourself";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
@@ -577,13 +612,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-        // Set the alarm to trigger at approximately the same time every day
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 11);
         calendar.set(Calendar.MINUTE, 25);
         calendar.set(Calendar.SECOND, 0);
 
-        // If the trigger time is in the past, add one day
         if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
             calendar.add(Calendar.DAY_OF_YEAR, 1);
         }
@@ -607,12 +640,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void checkAndScheduleReminder() {
         if (getSavedReminderState()) {
             scheduleReminderNotification();
-            // Optionally, you can show a toast here if the reminder is already enabled
-            // Toast.makeText(this, "Reminder notifications are enabled", Toast.LENGTH_SHORT).show();
         } else {
             cancelReminderNotification();
-            // Optionally, you can show a toast here if the reminder is disabled
-            // Toast.makeText(this, "Reminder notifications are disabled", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -634,6 +663,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         editor.putString("user_name", name);
         editor.apply();
     }
-    
-
 }

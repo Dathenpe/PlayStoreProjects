@@ -1,134 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    android:layout_width="match_parent"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_height="match_parent">
+    android:id="@+id/nav_emergency_contacts"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="records.EmergencyContactsFragment">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp"
-        tools:context="records.EmergencyContactsFragment">
+        android:orientation="vertical">
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Emergency Contacts"
             android:textSize="24sp"
+            android:padding="16dp"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginBottom="24dp"
-            android:textColor="@android:color/black"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:layout_marginBottom="24dp">
-
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/addEditContactImageView"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:src="@drawable/ic_default_contact_avatar"
-                app:civ_border_color="#E0E0E0"
-                app:civ_border_width="3dp"
-                android:layout_marginBottom="12dp"
-                android:scaleType="centerCrop"
-                tools:src="@tools:sample/avatars" />
-
-            <Button
-                android:id="@+id/buttonSelectImage"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Select Image"
-                android:paddingStart="24dp"
-                android:paddingEnd="24dp"
-                android:textSize="14sp" />
-        </LinearLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Contact Name"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:boxCornerRadiusTopStart="8dp"
-            app:boxCornerRadiusTopEnd="8dp"
-            app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusBottomEnd="8dp"
-            android:layout_marginBottom="12dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTextContactName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Phone Number"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:boxCornerRadiusTopStart="8dp"
-            app:boxCornerRadiusTopEnd="8dp"
-            app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusBottomEnd="8dp"
-            android:layout_marginBottom="24dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTextPhoneNumber"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="phone" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_horizontal"
-            android:layout_marginBottom="24dp">
-
-            <Button
-                android:id="@+id/buttonAddSaveContact"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Add Contact"
-                android:layout_marginEnd="8dp"
-                android:paddingVertical="12dp"
-                android:textSize="16sp" />
-
-            <Button
-                android:id="@+id/buttonClearFields"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Clear"
-                android:paddingVertical="12dp"
-                android:textSize="16sp" />
-
-        </LinearLayout>
-
+            android:textColor="@color/text_color_primary"/>
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Your Contacts"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="12dp"
-            android:textColor="@android:color/black"/>
-
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your Contacts"
+        android:padding="16dp"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp"
+        android:textColor="@color/text_color_primary"/>
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewEmergencyContacts"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:listitem="@layout/item_emergency_contact" />
+        android:id="@+id/recyclerViewEmergencyContacts"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:listitem="@layout/item_emergency_contact" />
 
     </LinearLayout>
-</ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
