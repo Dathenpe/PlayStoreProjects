@@ -277,8 +277,10 @@ public class HomeFragment extends Fragment {
                             handler.postDelayed(() -> seekBar.setProgress(0), 2000);
                         });
                         builder.setNegativeButton("Need Help", (dialog, which) -> {
+                            MainActivity mainActiviy = (MainActivity) getActivity();
                             Toast.makeText(context, "Please seek help", Toast.LENGTH_SHORT).show();
                             handler.postDelayed(() -> seekBar.setProgress(0), 2000);
+                            handler.postDelayed(() -> { seekBar.setProgress(0); mainActiviy.loadContacts(); }, 3000);
 
                         });
                         builder.setCancelable(false);
