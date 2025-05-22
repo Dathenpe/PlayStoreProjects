@@ -13,24 +13,15 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Emergency Contacts"
-            android:textSize="24sp"
-            android:padding="16dp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="24dp"
-            android:textColor="@color/text_color_primary"/>
-        <TextView
+<TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Your Contacts"
+        android:text="Your Emergency Contacts"
         android:padding="16dp"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="6dp"
+        android:gravity="center"
         android:textColor="@color/text_color_primary"/>
         <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewEmergencyContacts"

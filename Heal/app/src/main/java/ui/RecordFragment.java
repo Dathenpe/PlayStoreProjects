@@ -86,32 +86,26 @@ public class RecordFragment extends Fragment {
 
 
         copingExercisesContainer.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Coping Exercises Clicked", Toast.LENGTH_SHORT).show();
-            // Navigating to Coping Exercises screen/fragment
             mainActivity.loadFragment(new CopingExercisesFragment(),R.layout.fragment_coping_exercises);
 
         });
 
         dailyMoodCheckingsContainer.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Daily Mood Checkings Clicked", Toast.LENGTH_SHORT).show();
             // Navigating to Daily Mood Checkings screen/fragment
             mainActivity.loadFragment(new MoodCheckinFragment(),R.layout.fragment_mood_checkin);
         });
 
         savedStrategiesContainer.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Saved Strategies Clicked", Toast.LENGTH_SHORT).show();
             // Navigating to Saved Strategies screen/fragment
             mainActivity.loadFragment(new SavedStrategiesFragment(),R.layout.fragment_saved_strategies);
         });
 
         journalEntriesContainer.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Journal Entries Clicked", Toast.LENGTH_SHORT).show();
             // Navigating to Journal Entries screen/fragment
             mainActivity.loadFragment(new JournalEntriesFragment(),R.layout.fragment_journal_entries);
         });
 
         emergencyContactsContainer.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Emergency Contacts Clicked", Toast.LENGTH_SHORT).show();
             // Navigating to Emergency Contacts screen/fragment
             mainActivity.loadContacts();
         });

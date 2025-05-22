@@ -1,32 +1,202 @@
-package records;
+// records/SavedStrategiesFragment.java
+package records; // Adjust package as necessary
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
+import android.widget.Button; // Import Button
+import android.widget.EditText; // Import EditText
+import android.widget.TextView; // Import TextView for empty state
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.heal.R;
+import com.example.heal.R; // Adjust your package name
+import com.example.heal.MainActivity; // Import MainActivity if needed
 
-public class SavedStrategiesFragment extends Fragment {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class SavedStrategiesFragment extends Fragment
+        implements StrategiesAdapter.OnStrategyDeleteListener, StrategiesAdapter.OnStrategyEditListener,StrategiesAdapter.OnStrategyClickListener { // Implement new interface
+
+    private RecyclerView recyclerView;
+    private StrategiesAdapter adapter;
+    private List<String> allSavedStrategies = new ArrayList<>();
+    private MainActivity mainActivity; // Reference to MainActivity
+    private Button addStrategyButton; // Reference to the Add button
+    private TextView emptyStateTextView; // Reference to the empty state TextView
 
     @Override
-    public View onCreateView(
-            LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState
-    ) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_saved_strategies, container, false);
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof MainActivity) {
+            mainActivity = (MainActivity) context;
+        }
     }
 
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_saved_strategies, container, false);
+
+        if (mainActivity != null) {
+            mainActivity.navigationView.setCheckedItem(R.id.nav_records);
+        }
+
+        recyclerView = view.findViewById(R.id.recyclerViewStrategies);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // Initialize adapter with both listeners
+        adapter = new StrategiesAdapter(getContext(), allSavedStrategies, this, this,this);
+        recyclerView.setAdapter(adapter);
+
+        addStrategyButton = view.findViewById(R.id.addStrategyButton);
+        emptyStateTextView = view.findViewById(R.id.emptyStateTextView);
+
+        addStrategyButton.setOnClickListener(v -> showAddStrategyDialog());
+
+        loadAllSavedStrategies(); // Load strategies when the view is created
+        return view;
+    }
+
+    private void loadAllSavedStrategies() {
+        if (getContext() == null) return;
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("coping_strategies", Context.MODE_PRIVATE);
+        String savedStrategies = sharedPreferences.getString("strategies", "");
+
+        allSavedStrategies.clear();
+        if (!savedStrategies.isEmpty()) {
+            String[] strategiesArray = savedStrategies.split(",");
+            for (String strategy : strategiesArray) {
+                if (!strategy.trim().isEmpty()) { // Avoid adding empty strings from trailing commas
+                    allSavedStrategies.add(strategy.trim());
+                }
+            }
+        }
+        adapter.updateStrategies(allSavedStrategies); // Notify adapter that data has changed
+        updateEmptyStateVisibility(); // Update visibility after loading
+    }
+
+    private void saveAllStrategiesToSharedPreferences() {
+        if (getContext() == null) return;
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("coping_strategies", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("strategies", TextUtils.join(",", allSavedStrategies));
+        editor.apply();
+        updateEmptyStateVisibility(); // Update visibility after saving
+    }
+
+    private void updateEmptyStateVisibility() {
+        if (allSavedStrategies.isEmpty()) {
+            emptyStateTextView.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            emptyStateTextView.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onDeleteStrategy(int position) {
+        if (position != RecyclerView.NO_POSITION && position < allSavedStrategies.size()) {
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Delete Strategy")
+                    .setMessage("Are you sure you want to delete this strategy?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        allSavedStrategies.remove(position);
+                        adapter.notifyItemRemoved(position);
+                        saveAllStrategiesToSharedPreferences();
+                        Toast.makeText(getContext(), "Strategy deleted!", Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                    .show();
+        }
+    }
+
+    @Override
+    public void onEditStrategy(int position, String currentStrategy) {
+        if (position != RecyclerView.NO_POSITION && position < allSavedStrategies.size()) {
+            showEditStrategyDialog(position, currentStrategy);
+        }
+    }
+
+    private void showAddStrategyDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Add New Strategy");
+
+        final EditText input = new EditText(getContext());
+        input.setHint("Enter your new coping strategy");
+        builder.setView(input);
+
+        builder.setPositiveButton("Add", (dialog, which) -> {
+            String newStrategy = input.getText().toString().trim();
+            if (!newStrategy.isEmpty()) {
+                allSavedStrategies.add(newStrategy);
+                saveAllStrategiesToSharedPreferences();
+                adapter.notifyItemInserted(allSavedStrategies.size() - 1); // Notify for efficiency
+                Toast.makeText(getContext(), "Strategy added!", Toast.LENGTH_SHORT).show();
+                recyclerView.scrollToPosition(allSavedStrategies.size() - 1); // Scroll to new item
+            } else {
+                Toast.makeText(getContext(), "Strategy cannot be empty.", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
+
+    private void showEditStrategyDialog(int position, String currentStrategy) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Edit Strategy");
+
+        final EditText input = new EditText(getContext());
+        input.setText(currentStrategy); // Pre-fill with current strategy
+        builder.setView(input);
+
+        builder.setPositiveButton("Save", (dialog, which) -> {
+            String updatedStrategy = input.getText().toString().trim();
+            if (!updatedStrategy.isEmpty()) {
+                allSavedStrategies.set(position, updatedStrategy); // Update in list
+                saveAllStrategiesToSharedPreferences(); // Save to storage
+                adapter.notifyItemChanged(position); // Notify adapter of change
+                Toast.makeText(getContext(), "Strategy updated!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "Strategy cannot be empty.", Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
 
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadAllSavedStrategies(); // Reload strategies in onResume
+    }
+
+    @Override
+    public void onStrategyClick(String strategyText) {
+        new AlertDialog.Builder(getContext()) // Use getContext() to get the current context
+                .setTitle("Coping Strategy Details") // A descriptive title for the popover
+                .setMessage(strategyText)
+                .setPositiveButton("Close", (dialog, which) -> {
+                    // When the "Close" button is tapped, simply dismiss the dialog.
+                    dialog.dismiss();
+                })
+                .show(); // Don't forget to call show() to display the dialog
     }
 }

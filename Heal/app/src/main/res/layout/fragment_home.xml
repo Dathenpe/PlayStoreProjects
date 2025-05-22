@@ -92,6 +92,7 @@
                     android:layout_marginTop="16dp"
                     android:backgroundTint="@color/orange"
                     android:text="Log Positive Action"
+                    android:layout_marginBottom="15dp"
                     android:textColor="@android:color/white"
                     app:cornerRadius="8dp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -170,13 +171,16 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="2"
+                            android:maxLines="2"
+                            android:layout_marginBottom="4dp"
                             android:background="@drawable/rounded_input_field_light"
                             android:hint="e.g., Deep breathing, distraction"
                             android:minHeight="48dp"
                             android:padding="12dp"
                             android:textColor="@color/darkgray"
                             android:textSize="16sp"
-                            android:textColorHint="@android:color/black" /> <Button
+                            android:textColorHint="@android:color/black" />
+                        <Button
                         android:id="@+id/save_coping_strategy_button"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
