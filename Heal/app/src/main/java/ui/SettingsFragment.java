@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.example.heal.MainActivity;
 import com.example.heal.R;
 
@@ -28,7 +28,7 @@ public class SettingsFragment extends Fragment {
 
     private View settingsRootView;
     private LinearLayout editNameLayout;
-    private Switch switchReminder;
+    private MaterialSwitch switchReminder;
     private LinearLayout feedbackLayout;
     private LinearLayout aboutUsLayout;
     private TextView nameText;
@@ -61,7 +61,6 @@ public class SettingsFragment extends Fragment {
 
         editNameLayout = view.findViewById(R.id.edit_name_layout);
         switchReminder = view.findViewById(R.id.switch_reminder);
-        feedbackLayout = view.findViewById(R.id.feedback_layout);
         aboutUsLayout = view.findViewById(R.id.about_us_layout);
         nameText = view.findViewById(R.id.name_text);
 

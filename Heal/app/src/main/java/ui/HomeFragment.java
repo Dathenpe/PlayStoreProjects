@@ -23,12 +23,12 @@ import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat; // Import ContextCompat for color retrieval
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -46,7 +46,9 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.slider.Slider;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException; // Import this
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -91,7 +93,7 @@ public class HomeFragment extends Fragment {
     private Button logPositiveActionButton;
     private TextView urgeLevelLabel;
     private TextView urgeLevelDisplay;
-    private SeekBar urgeLevelSeekbar;
+    private Slider urgeLevelSeekbar;
     private TextView copingStrategiesLabel;
     private EditText copingStrategiesInput;
     private Button saveCopingStrategyButton;
@@ -103,7 +105,7 @@ public class HomeFragment extends Fragment {
     private Button moreResourcesButton;
     private TextView dailyCheckinTitle;
     private TextView moodQuestion;
-    private SeekBar moodSeekBar;
+    private Slider moodSeekBar;
     private TextView moodValueLabel;
     private EditText moodInputText;
     private Button submitCheckinButton;
@@ -117,7 +119,7 @@ public class HomeFragment extends Fragment {
     private TextView moodOverTimeTitle;
     private BarChart moodBarChart;
     private TextView moodOverTimeDescription;
-    private Button seeMoreStrategiesButton; // Added for "See More" button
+    private Button seeMoreStrategiesButton;
 
     private Handler autoScrollHandler = new Handler();
     private Runnable autoScrollRunnable;
@@ -128,8 +130,8 @@ public class HomeFragment extends Fragment {
     private Gson gson = new Gson();
     private Context context;
     private SliderAdapter sliderAdapter;
-    private long lastCheckinTime = 0; // Store the last check-in time
-    private CountDownTimer checkinTimer; // Timer to handle enabling the button at midnight
+    private long lastCheckinTime = 0;
+    private CountDownTimer checkinTimer;
     private List<JournalEntry> allJournalEntries = new ArrayList<>();
     private CoordinatorLayout homeCoordinatorLayout;
     private ScrollView homeScrollView;
@@ -172,13 +174,11 @@ public class HomeFragment extends Fragment {
         moodValueLabel = view.findViewById(R.id.mood_value_label);
         moodInputText = view.findViewById(R.id.mood_input_text);
         journalEntryText = view.findViewById(R.id.journal_entry_text);
-        savedStrategiesContainer = view.findViewById(R.id.saved_strategies_container);
-        savedStrategiesTitle = view.findViewById(R.id.saved_strategies_title);
         moodBarChart = view.findViewById(R.id.mood_bar_chart);
         seeMoreStrategiesButton = view.findViewById(R.id.see_more_strategies_button);
         loadingProgressBar = view.findViewById(R.id.loading_progress_bar);
         homeScrollView = view.findViewById(R.id.home_scroll_view);
-        loadJournalEntries(); // Load saved journal entries
+        loadJournalEntries();
         GeneralViewModel viewModel = new ViewModelProvider(this).get(GeneralViewModel.class);
         viewModel.isLoading.observe(getViewLifecycleOwner(), isLoading -> {
             if (isLoading) {
@@ -233,37 +233,41 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-        urgeLevelSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+        urgeLevelSeekbar.addOnChangeListener((slider, value, fromUser) -> {
+            urgeLevelDisplay.setText("Urgency Level: " + (int) value);
+        });
+
+        urgeLevelSeekbar.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
             Context context = getContext();
+
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                urgeLevelDisplay.setText("Urgency Level: " + progress);
+            public void onStartTrackingTouch(@NonNull Slider slider) {
+                // Optional: Handle start of tracking
             }
+
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                int progress = seekBar.getProgress();
+            public void onStopTrackingTouch(@NonNull Slider slider) {
+                int progress = (int) slider.getValue();
                 Handler handler = new Handler(Looper.getMainLooper());
                 if (context != null) {
                     if (progress >= 0 && progress <= 3) {
                         Toast.makeText(context, "It'seems that you are doing your grounding exercise, but try to go a bit further.", Toast.LENGTH_SHORT).show();
-                        handler.postDelayed(() -> seekBar.setProgress(0), 1000);
+                        handler.postDelayed(() -> slider.setValue(0), 1000);
                     } else if (progress > 3 && progress <= 6) {
-                        Toast.makeText(context, "You seem quite agitated.  Grounding exercises are important; please continue.", Toast.LENGTH_SHORT).show();
-                        handler.postDelayed(() -> seekBar.setProgress(0), 1500);
+                        Toast.makeText(context, "You seem quite agitated. Grounding exercises are important; please continue.", Toast.LENGTH_SHORT).show();
+                        handler.postDelayed(() -> slider.setValue(0), 1500);
                     } else if (progress > 6 && progress <= 9) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(context);
                         builder.setTitle("Are you okay?");
-                        builder.setMessage("This is a high level of distress.  Have you completed your grounding exercise?  It can really help.");
+                        builder.setMessage("This is a high level of distress. Have you completed your grounding exercise? It can really help.");
                         builder.setPositiveButton("Yes, completed", (dialog, which) -> {
-                            Toast.makeText(context, "Okay, that's good.  Remember to use your grounding techniques whenever you feel overwhelmed.", Toast.LENGTH_SHORT).show();
-                            handler.postDelayed(() -> seekBar.setProgress(0), 2000);
+                            Toast.makeText(context, "Okay, that's good. Remember to use your grounding techniques whenever you feel overwhelmed.", Toast.LENGTH_SHORT).show();
+                            handler.postDelayed(() -> slider.setValue(0), 2000);
                         });
                         builder.setNegativeButton("Not yet", (dialog, which) -> {
-                            Toast.makeText(context, "It's crucial that you do it now.  Your well-being is important.", Toast.LENGTH_SHORT).show();
-                            handler.postDelayed(() -> seekBar.setProgress(0), 2000);
+                            Toast.makeText(context, "It's crucial that you do it now. Your well-being is important.", Toast.LENGTH_SHORT).show();
+                            handler.postDelayed(() -> slider.setValue(0), 2000);
                         });
                         builder.setCancelable(false);
                         AlertDialog dialog = builder.create();
@@ -271,27 +275,28 @@ public class HomeFragment extends Fragment {
                     } else if (progress == 10) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(context);
                         builder.setTitle("This is very high!");
-                        builder.setMessage("You're experiencing a very high level of distress.  Please complete your grounding exercise immediately.  If you feel unsafe, seek help.");
+                        builder.setMessage("You're experiencing a very high level of distress. Please complete your grounding exercise immediately. If you feel unsafe, seek help.");
                         builder.setPositiveButton("Completed", (dialog, which) -> {
                             Toast.makeText(context, "Please monitor your feelings, if you feel unsafe seek help.", Toast.LENGTH_SHORT).show();
-                            handler.postDelayed(() -> seekBar.setProgress(0), 2000);
+                            handler.postDelayed(() -> slider.setValue(0), 2000);
                         });
                         builder.setNegativeButton("Need Help", (dialog, which) -> {
                             MainActivity mainActiviy = (MainActivity) getActivity();
                             Toast.makeText(context, "Please seek help", Toast.LENGTH_SHORT).show();
-                            handler.postDelayed(() -> seekBar.setProgress(0), 2000);
-                            handler.postDelayed(() -> { seekBar.setProgress(0); mainActiviy.loadContacts(); }, 3000);
+                            handler.postDelayed(() -> slider.setValue(0), 2000);
+                            handler.postDelayed(() -> { slider.setValue(0); mainActiviy.loadContacts(); }, 3000);
 
                         });
                         builder.setCancelable(false);
                         AlertDialog dialog = builder.create();
                         dialog.show();
                     } else {
-                        Toast.makeText(context, "Please move the seekbar", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Please move the slider", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
         });
+
         logPositiveActionButton.setOnClickListener(v -> {
             int LogSteps = Integer.parseInt(stepsCounter.getText().toString());
             LogSteps++;
@@ -318,10 +323,10 @@ public class HomeFragment extends Fragment {
                 saveCopingStrategy();
             });
         }
-        loadSavedStrategies();
+        loadSavedStrategies(); // Load strategies here
         setupBarChart();
-        loadMoodData();
-        updateBarChart();
+        loadMoodData(); // Load mood data here
+        updateBarChart(); // Update chart after loading data
         emergencyContactButton.setOnClickListener(v -> {
             mainActivity.loadContacts();
             mainActivity.navigationView.setCheckedItem(R.id.nav_records);
@@ -336,19 +341,22 @@ public class HomeFragment extends Fragment {
             mainActivity.loadFragment(new RecordFragment(), 0);
         });
         groundingExerciseButton.setOnClickListener(v -> {
-            // Handle grounding exercise
+            CopingExercisesFragment copingFragment = CopingExercisesFragment.newInstance(true);
+            mainActivity.loadFragment(copingFragment, 3);
         });
         if (seeMoreStrategiesButton != null) {
             seeMoreStrategiesButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mainActivity != null) {
+                        mainActivity.loadFragment(new SavedStrategiesFragment(),0); // Ensure this navigation works
+                        mainActivity.navigationView.setCheckedItem(R.id.nav_records);
                     }
                 }
             });
         }
         loadSavedUsername();
-        setupMoodCheckin(); // Initialize the mood check-in UI and logic
+        setupMoodCheckin(); // This will now correctly apply the disabled state on initial load
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
     }
     @Override
@@ -357,8 +365,12 @@ public class HomeFragment extends Fragment {
         if (sliderViewPager != null && sliderViewPager.getScrollState() == ViewPager2.SCROLL_STATE_IDLE) {
             startAutoScroll();
         }
+        // Re-check daily check-in status every time the fragment is resumed
         checkDailyCheckin();
+        // Re-load strategies and update chart in onResume to ensure fresh data
         loadSavedStrategies();
+        loadMoodData();
+        updateBarChart();
     }
     @Override
     public void onPause() {
@@ -431,89 +443,111 @@ public class HomeFragment extends Fragment {
         String strategy = copingStrategiesInput.getText().toString().trim();
         if (!strategy.isEmpty()) {
             savedStrategiesList.add(strategy);
-            displaySavedStrategies();
+            // No need to call displaySavedStrategies() here, it's called in loadSavedStrategies()
             copingStrategiesInput.getText().clear();
             Toast.makeText(getContext(), "Strategy saved!", Toast.LENGTH_SHORT).show();
             saveStrategiesToSharedPreferences();
+            // After saving, reload and display to ensure consistency
+            loadSavedStrategies();
         } else {
             Toast.makeText(getContext(), "Please enter a coping strategy.", Toast.LENGTH_SHORT).show();
         }
     }
     private void displaySavedStrategies() {
         if (savedStrategiesList.isEmpty()) {
-            savedStrategiesTitle.setVisibility(View.GONE);
-            savedStrategiesContainer.setVisibility(View.GONE);
-            seeMoreStrategiesButton.setVisibility(View.GONE);
+            if (savedStrategiesTitle != null) savedStrategiesTitle.setVisibility(View.GONE);
+            if (savedStrategiesContainer != null) savedStrategiesContainer.setVisibility(View.GONE);
+            if (seeMoreStrategiesButton != null) seeMoreStrategiesButton.setVisibility(View.GONE);
         } else {
-            savedStrategiesTitle.setVisibility(View.VISIBLE);
-            savedStrategiesContainer.setVisibility(View.VISIBLE);
-            savedStrategiesContainer.removeAllViews();
-            int displayCount = Math.min(savedStrategiesList.size(), MAX_STRATEGIES_DISPLAYED);
-            savedStrategiesContainer.setRowCount((int) Math.ceil((displayCount + (savedStrategiesList.size() > MAX_STRATEGIES_DISPLAYED ? 1 : 0)) / 2.0));
-            for (int i = 0; i < displayCount; i++) {
-                String strategy = savedStrategiesList.get(i);
-                View strategyItemView = LayoutInflater.from(getContext()).inflate(R.layout.coping_strategy_item, savedStrategiesContainer, false);
-                TextView strategyTextView = strategyItemView.findViewById(R.id.strategy_text_view);
-                ImageView deleteImageView = strategyItemView.findViewById(R.id.delete_image_view);
-                strategyTextView.setText(strategy);
-                strategyTextView.setTextColor(getResources().getColor(R.color.darkgray, getContext().getTheme()));
-                strategyTextView.setTextSize(16);
-                final int position = i;
-                deleteImageView.setOnClickListener(new View.OnClickListener() {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    @Override
-                    public void onClick(View v) {
-                        builder.setTitle("Delete Strategy")
-                                .setMessage("Are you sure you want to delete this strategy?")
-                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        deleteStrategy(position);
-                                    }
-                                })
-                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
-                        AlertDialog dialog = builder.create();
-                        dialog.show();
+            if (savedStrategiesTitle != null) savedStrategiesTitle.setVisibility(View.VISIBLE);
+            if (savedStrategiesContainer != null) {
+                savedStrategiesContainer.setVisibility(View.VISIBLE);
+                savedStrategiesContainer.removeAllViews(); // Clear existing views
+
+                int displayCount = Math.min(savedStrategiesList.size(), MAX_STRATEGIES_DISPLAYED);
+                // Calculate row count based on displayCount, assuming 2 columns
+                savedStrategiesContainer.setRowCount((int) Math.ceil(displayCount / 2.0));
+
+                for (int i = 0; i < displayCount; i++) {
+                    String strategy = savedStrategiesList.get(i);
+                    View strategyItemView = LayoutInflater.from(getContext()).inflate(R.layout.coping_strategy_item, savedStrategiesContainer, false);
+                    TextView strategyTextView = strategyItemView.findViewById(R.id.strategy_text_view);
+                    ImageView deleteImageView = strategyItemView.findViewById(R.id.delete_image_view);
+                    strategyTextView.setText(strategy);
+                    // Use ContextCompat for color retrieval for day/night theme compatibility
+                    if (getContext() != null) {
+                        strategyTextView.setTextColor(ContextCompat.getColor(getContext(), R.color.darkgray));
                     }
-                });
-                GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-                params.rowSpec = GridLayout.spec(i / 2, 1);
-                params.columnSpec = GridLayout.spec(i % 2, 1);
-                params.setMargins(8, 8, 8, 8);
-                strategyItemView.setLayoutParams(params);
-                savedStrategiesContainer.addView(strategyItemView);
-            }
-            if (savedStrategiesList.size() > MAX_STRATEGIES_DISPLAYED) {
-                if (seeMoreStrategiesButton.getParent() != null) {
-                    ((ViewGroup) seeMoreStrategiesButton.getParent()).removeView(seeMoreStrategiesButton);
+                    strategyTextView.setTextSize(16);
+                    final int position = i;
+                    deleteImageView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (getContext() != null) {
+                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                                builder.setTitle("Delete Strategy")
+                                        .setMessage("Are you sure you want to delete this strategy?")
+                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                deleteStrategy(position);
+                                            }
+                                        })
+                                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                AlertDialog dialog = builder.create();
+                                dialog.show();
+                            }
+                        }
+                    });
+                    GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                    params.rowSpec = GridLayout.spec(i / 2, 1f); // Use weight for row distribution
+                    params.columnSpec = GridLayout.spec(i % 2, 1f); // Use weight for column distribution
+                    params.setMargins(8, 8, 8, 8);
+                    strategyItemView.setLayoutParams(params);
+                    savedStrategiesContainer.addView(strategyItemView);
                 }
-                GridLayout.LayoutParams buttonParams = new GridLayout.LayoutParams();
-                buttonParams.rowSpec = GridLayout.spec(MAX_STRATEGIES_DISPLAYED / 2, 1);
-                buttonParams.columnSpec = GridLayout.spec(MAX_STRATEGIES_DISPLAYED % 2, 1);
-                buttonParams.setMargins(8, 8, 8, 8);
-                seeMoreStrategiesButton.setLayoutParams(buttonParams);
-                savedStrategiesContainer.addView(seeMoreStrategiesButton);
-                seeMoreStrategiesButton.setVisibility(View.VISIBLE);
-                seeMoreStrategiesButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                       mainActivity.loadFragment(new SavedStrategiesFragment(),0);
-                       mainActivity.navigationView.setCheckedItem(R.id.nav_records);
+
+                // Handle "See More" button visibility
+                if (savedStrategiesList.size() > MAX_STRATEGIES_DISPLAYED) {
+                    if (seeMoreStrategiesButton != null) {
+                        // Ensure the button is not already attached to a parent before adding
+                        if (seeMoreStrategiesButton.getParent() != null) {
+                            ((ViewGroup) seeMoreStrategiesButton.getParent()).removeView(seeMoreStrategiesButton);
+                        }
+                        GridLayout.LayoutParams buttonParams = new GridLayout.LayoutParams();
+                        // Place "See More" button after the displayed strategies
+                        buttonParams.rowSpec = GridLayout.spec(savedStrategiesContainer.getRowCount(), 1);
+                        buttonParams.columnSpec = GridLayout.spec(0, savedStrategiesContainer.getColumnCount()); // Span across all columns
+                        buttonParams.setMargins(8, 8, 8, 8);
+                        seeMoreStrategiesButton.setLayoutParams(buttonParams);
+                        savedStrategiesContainer.addView(seeMoreStrategiesButton);
+                        seeMoreStrategiesButton.setVisibility(View.VISIBLE);
+                        seeMoreStrategiesButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (mainActivity != null) {
+                                    mainActivity.loadFragment(new SavedStrategiesFragment(),0);
+                                    mainActivity.navigationView.setCheckedItem(R.id.nav_records);
+                                }
+                            }
+                        });
                     }
-                });
-            } else {
-                seeMoreStrategiesButton.setVisibility(View.GONE);
+                } else {
+                    if (seeMoreStrategiesButton != null) {
+                        seeMoreStrategiesButton.setVisibility(View.GONE);
+                    }
+                }
             }
         }
     }
     private void deleteStrategy(int position) {
         savedStrategiesList.remove(position);
-        displaySavedStrategies();
+        displaySavedStrategies(); // Re-display after deletion
         saveStrategiesToSharedPreferences();
         Toast.makeText(getContext(), "Strategy deleted!", Toast.LENGTH_SHORT).show();
     }
@@ -521,37 +555,75 @@ public class HomeFragment extends Fragment {
         if (getContext() == null) return;
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("coping_strategies", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("strategies", TextUtils.join(",", savedStrategiesList));
+        editor.putString("strategies", gson.toJson(savedStrategiesList)); // Save as JSON
         editor.apply();
     }
     private void loadSavedStrategies() {
         if (getContext() == null) return;
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("coping_strategies", Context.MODE_PRIVATE);
-        String savedStrategies = sharedPreferences.getString("strategies", "");
-        if (!savedStrategies.isEmpty()) {
-            String[] strategiesArray = savedStrategies.split(",");
-            for (String strategy : strategiesArray) {
-                savedStrategiesList.add(strategy);
+        String json = sharedPreferences.getString("strategies", null);
+        if (json != null) {
+            Type type = new TypeToken<List<String>>() {}.getType();
+            try {
+                savedStrategiesList = gson.fromJson(json, type); // This is line 566
+                if (savedStrategiesList == null) { // Handle case where JSON parsing returns null
+                    savedStrategiesList = new ArrayList<>();
+                }
+            } catch (JsonSyntaxException e) {
+                Log.e("HomeFragment", "Error parsing saved strategies JSON: " + e.getMessage());
+                // If parsing fails, it means the stored data is corrupted or in an old format.
+                // Clear the corrupted data and initialize with an empty list.
+                savedStrategiesList = new ArrayList<>();
+                sharedPreferences.edit().remove("strategies").apply(); // Clear the bad data
+                Toast.makeText(getContext(), "Coping strategies data reset due to format error.", Toast.LENGTH_LONG).show();
             }
-            displaySavedStrategies();
+        } else {
+            savedStrategiesList = new ArrayList<>();
         }
+        displaySavedStrategies(); // Display after loading
     }
     private void setupBarChart() {
         moodBarChart.getDescription().setEnabled(false);
         moodBarChart.setDrawGridBackground(false);
-        moodBarChart.setTouchEnabled(true);
-        moodBarChart.setDragEnabled(true);
-        moodBarChart.setScaleEnabled(true);
-        moodBarChart.setPinchZoom(true);
+        moodBarChart.setTouchEnabled(false); // Disable touch for a static display
+        moodBarChart.setDragEnabled(false);
+        moodBarChart.setScaleEnabled(false);
+        moodBarChart.setPinchZoom(false);
+        moodBarChart.setHighlightPerDragEnabled(false);
+        moodBarChart.setHighlightPerTapEnabled(false);
         moodBarChart.setNoDataText("No mood data available");
+        moodBarChart.setNoDataTextColor(Color.GRAY); // Set no data text color
+
         XAxis xAxis = moodBarChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setDrawGridLines(false);
+        xAxis.setDrawGridLines(false); // Remove grid lines
+        xAxis.setDrawAxisLine(false); // Remove x-axis line
         xAxis.setGranularity(1f);
-        xAxis.setLabelRotationAngle(-45);
+        xAxis.setLabelRotationAngle(-45f); // Keep rotation for better fit
+        // Use ContextCompat for dynamic day/night color
+        if (getContext() != null) {
+            xAxis.setTextColor(ContextCompat.getColor(getContext(), R.color.md_theme_onSurfaceVariant));
+        }
+        xAxis.setTextSize(9f); // Slightly smaller text size to prevent cutting
+
         moodBarChart.getAxisLeft().setAxisMinimum(0f);
-        moodBarChart.getAxisRight().setEnabled(false);
-        moodBarChart.getLegend().setEnabled(false);
+        moodBarChart.getAxisLeft().setAxisMaximum(10f); // Assuming mood is 0-10
+        moodBarChart.getAxisLeft().setDrawGridLines(true); // Keep horizontal grid lines for readability
+        // Use ContextCompat for dynamic day/night grid color
+        if (getContext() != null) {
+            moodBarChart.getAxisLeft().setGridColor(ContextCompat.getColor(getContext(), R.color.md_theme_outline));
+        }
+        moodBarChart.getAxisLeft().setDrawAxisLine(false); // Remove y-axis line
+        // Use ContextCompat for dynamic day/night label color
+        if (getContext() != null) {
+            moodBarChart.getAxisLeft().setTextColor(ContextCompat.getColor(getContext(), R.color.md_theme_onSurfaceVariant));
+        }
+        moodBarChart.getAxisLeft().setTextSize(9f); // Slightly smaller text size
+
+        moodBarChart.getAxisRight().setEnabled(false); // Disable right axis
+        moodBarChart.getLegend().setEnabled(false); // Disable legend
+
+        moodBarChart.animateY(1000); // Add animation for a smoother look
     }
     private void updateBarChart() {
         ArrayList<BarEntry> entries = new ArrayList<>();
@@ -559,63 +631,60 @@ public class HomeFragment extends Fragment {
         List<String> labels = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         Calendar calendar = Calendar.getInstance();
-        for (int i = 4; i >= 0; i--) {
+
+        // Get data for the last 7 days for a better trend visualization
+        for (int i = 6; i >= 0; i--) {
             calendar.setTime(new Date());
             calendar.add(Calendar.DAY_OF_YEAR, -i);
             String day = sdf.format(calendar.getTime());
-            labels.add(day);
-            int moodLevel = -1;
+            // Use a shorter format for labels to prevent cutting
+            labels.add(new SimpleDateFormat("EEE\nMMM d", Locale.getDefault()).format(calendar.getTime())); // Format: "Mon\nMay 27"
+            int moodLevel = 0; // Default to 0 if no entry for the day
             for (MoodEntry moodEntry : moodEntries) {
                 if (moodEntry.getDay().equals(day)) {
                     moodLevel = moodEntry.getMoodLevel();
                     break;
                 }
             }
-            if (moodLevel != -1) {
-                entries.add(new BarEntry(4 - i, moodLevel));
-                colors.add(getMoodColor(moodLevel));
-            } else {
-                entries.add(new BarEntry(4 - i, 0));
-                colors.add(Color.LTGRAY);
-            }
+            entries.add(new BarEntry(6 - i, moodLevel));
+            colors.add(getMoodColor(moodLevel));
         }
+
         BarDataSet dataSet = new BarDataSet(entries, "Mood");
         dataSet.setColors(colors);
-        dataSet.setValueTextColor(Color.BLACK);
-        dataSet.setValueTextSize(12f);
-        dataSet.setDrawValues(true);
+        // Use ContextCompat for dynamic day/night color for value text
+        if (getContext() != null) {
+            dataSet.setValueTextColor(ContextCompat.getColor(getContext(), R.color.md_theme_onSurface));
+        }
+        dataSet.setValueTextSize(9f); // Slightly smaller value text size
+        dataSet.setDrawValues(true); // Show value on top of bars
+        // Use ContextCompat for dynamic day/night color for bar border
+        if (getContext() != null) {
+            dataSet.setBarBorderColor(ContextCompat.getColor(getContext(), R.color.md_theme_outline));
+        }
+        dataSet.setBarBorderWidth(0.5f); // Border width
+
         BarData barData = new BarData(dataSet);
-        barData.setBarWidth(0.6f);
+        barData.setBarWidth(0.7f); // Adjust bar width for better spacing
+
         moodBarChart.setData(barData);
         XAxis xAxis = moodBarChart.getXAxis();
         xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
-        xAxis.setGranularity(1f);
-        xAxis.setDrawGridLines(false);
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setLabelRotationAngle(-45);
-        xAxis.setAxisMinimum(0f);
-        moodBarChart.getAxisLeft().setAxisMinimum(0f);
-        moodBarChart.getAxisLeft().setAxisMaximum(10f);
-        moodBarChart.getAxisRight().setEnabled(false);
-        moodBarChart.getLegend().setEnabled(false);
-        moodBarChart.setTouchEnabled(false);
-        moodBarChart.setDragEnabled(false);
-        moodBarChart.setScaleEnabled(false);
-        moodBarChart.setPinchZoom(false);
-        moodBarChart.setHighlightPerDragEnabled(false);
-        moodBarChart.setHighlightPerTapEnabled(false);
-        moodBarChart.invalidate();
+        xAxis.setLabelCount(labels.size(), false); // Ensure all labels are shown
+        moodBarChart.invalidate(); // Refresh the chart
     }
     private int getMoodColor(int moodLevel) {
-        final int badMoodColor = Color.RED;
-        final int mediumMoodColor = Color.YELLOW;
-        final int goodMoodColor = Color.GREEN;
-        if (moodLevel <= 3) {
-            return badMoodColor;
+        // Material-like color palette for mood levels
+        if (moodLevel <= 2) {
+            return Color.parseColor("#EF5350"); // Red - Very Bad
+        } else if (moodLevel <= 4) {
+            return Color.parseColor("#FFCA28"); // Amber - Bad
         } else if (moodLevel <= 6) {
-            return mediumMoodColor;
+            return Color.parseColor("#FFEE58"); // Light Yellow - Neutral
+        } else if (moodLevel <= 8) {
+            return Color.parseColor("#9CCC65"); // Light Green - Good
         } else {
-            return goodMoodColor;
+            return Color.parseColor("#4CAF50"); // Green - Very Good
         }
     }
     private void saveJournalEntryToStorage() {
@@ -636,7 +705,6 @@ public class HomeFragment extends Fragment {
         if (context == null) return;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_JOURNAL, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
-        Gson gson = new Gson();
         String json = gson.toJson(allJournalEntries);
         editor.putString(KEY_JOURNAL_ENTRIES, json);
         editor.apply();
@@ -659,25 +727,22 @@ public class HomeFragment extends Fragment {
     }
     // In your HomeFragment.java, inside the HomeFragment class:
     public static class JournalEntry {
-        private String formattedTimestamp; // This holds "yyyy-MM-dd HH:mm:ss"
+        private String formattedTimestamp;
         private String text;
-        private long creationTimestampMillis; // This holds the raw milliseconds
+        private long creationTimestampMillis;
 
-        // Constructor when you create a new entry (e.g., in HomeFragment)
         public JournalEntry(String formattedTimestamp, String text) {
             this.formattedTimestamp = formattedTimestamp;
             this.text = text;
             this.creationTimestampMillis = System.currentTimeMillis();
         }
 
-        // Constructor when loading from storage or reconstructing for edit
         public JournalEntry(String formattedTimestamp, String text, long creationTimestampMillis) {
             this.formattedTimestamp = formattedTimestamp;
             this.text = text;
             this.creationTimestampMillis = creationTimestampMillis;
         }
 
-        // --- GETTERS ---
         public String getTimestamp() {
             return formattedTimestamp;
         }
@@ -691,31 +756,37 @@ public class HomeFragment extends Fragment {
     private void setupMoodCheckin() {
         loadLastCheckinTime(); // Load the last check-in time from SharedPreferences
         checkDailyCheckin();    // Check if the user has already checked in today
-        moodSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                moodValueLabel.setText("Mood: " + progress);
-            }
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {// Optional: Handle start of tracking
-            }
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {// Optional: Handle end of tracking
-            }
+
+        moodSeekBar.addOnChangeListener((slider, value, fromUser) -> {
+            moodValueLabel.setText("Mood: " + (int) value);
         });
+
         submitCheckinButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (isCheckinAllowed()) {
                     saveMoodData(); // Save mood data if check-in is allowed
+                    saveLastCheckinTime(); // IMPORTANT: Save the last check-in time immediately
+                    checkDailyCheckin(); // Update UI state after saving
                 } else {
                     Toast.makeText(getContext(), "You can only check in once per day.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+        moodSeekBar.setOnClickListener(v -> {
+            if (!moodSeekBar.isEnabled()) {
+                Toast.makeText(getContext(), "Mood check-in is disabled until tomorrow.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        moodInputText.setOnClickListener(v -> {
+            if (!moodInputText.isEnabled()) {
+                Toast.makeText(getContext(), "Mood check-in is disabled until tomorrow.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
     private void saveMoodData() {
-        int moodLevel = moodSeekBar.getProgress();
+        int moodLevel = (int) moodSeekBar.getValue();
         String moodText = moodInputText.getText().toString().trim();
         if (moodText.isEmpty()) {
             Toast.makeText(getContext(), "Please describe your mood.", Toast.LENGTH_SHORT).show();
@@ -724,33 +795,22 @@ public class HomeFragment extends Fragment {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         String today = sdf.format(new Date());
 
-        // Create MoodEntry with current timestamp
-        MoodEntry newMoodEntry = new MoodEntry(today, moodLevel, moodText, System.currentTimeMillis()); // Use the new constructor
+        MoodEntry newMoodEntry = new MoodEntry(today, moodLevel, moodText, System.currentTimeMillis());
 
-        // Before adding, check if an entry for today already exists and replace it
-        // This prevents multiple entries if the user somehow bypasses the check, or if you later allow editing
         boolean replacedExisting = false;
         for (int i = 0; i < moodEntries.size(); i++) {
             if (moodEntries.get(i).getDay().equals(today)) {
-                moodEntries.set(i, newMoodEntry); // Replace existing entry for today
+                moodEntries.set(i, newMoodEntry);
                 replacedExisting = true;
                 break;
             }
         }
         if (!replacedExisting) {
-            moodEntries.add(newMoodEntry); // Add new entry if none existed for today
+            moodEntries.add(newMoodEntry);
         }
-
 
         saveMoodDataToPreferences();
         updateBarChart();
-        // Disable the input fields and button after submitting data.
-        moodSeekBar.setEnabled(false);
-        moodInputText.setEnabled(false);
-        submitCheckinButton.setEnabled(false);
-        // lastCheckinTime is now updated when saving mood data, you could remove this
-        // saveLastCheckinTime(); // Save the current time as the last check-in time.
-        // The checkDailyCheckin method already takes care of re-enabling the button.
         Toast.makeText(getContext(), "Mood data saved!", Toast.LENGTH_SHORT).show();
         moodInputText.getText().clear();
     }
@@ -781,16 +841,15 @@ public class HomeFragment extends Fragment {
         private String day;
         private int moodLevel;
         private String moodText;
-        private long timestamp; // Add timestamp
+        private long timestamp;
 
         public MoodEntry(String day, int moodLevel, String moodText) {
             this.day = day;
             this.moodLevel = moodLevel;
             this.moodText = moodText;
-            this.timestamp = System.currentTimeMillis(); // Automatically set timestamp
+            this.timestamp = System.currentTimeMillis();
         }
 
-        // Add a constructor that takes a timestamp if you're loading old data or need to specify
         public MoodEntry(String day, int moodLevel, String moodText, long timestamp) {
             this.day = day;
             this.moodLevel = moodLevel;
@@ -807,7 +866,7 @@ public class HomeFragment extends Fragment {
         public String getMoodText() {
             return moodText;
         }
-        public long getTimestamp() { // Add getter for timestamp
+        public long getTimestamp() {
             return timestamp;
         }
     }
@@ -850,17 +909,40 @@ public class HomeFragment extends Fragment {
             moodInputText.setEnabled(false);
             submitCheckinButton.setEnabled(false);
             submitCheckinButton.setText("You've checked in today!");
+
+            // Add OnClickListeners for disabled elements to show toasts
+            if (moodSeekBar != null) {
+                moodSeekBar.setOnClickListener(v -> {
+                    Toast.makeText(getContext(), "Mood check-in is disabled until tomorrow.", Toast.LENGTH_SHORT).show();
+                });
+            }
+            if (moodInputText != null) {
+                moodInputText.setOnClickListener(v -> {
+                    Toast.makeText(getContext(), "Mood check-in is disabled until tomorrow.", Toast.LENGTH_SHORT).show();
+                });
+            }
+            if (submitCheckinButton != null) {
+                submitCheckinButton.setOnClickListener(v -> {
+                    Toast.makeText(getContext(), "You've already checked in today. Please wait until tomorrow.", Toast.LENGTH_SHORT).show();
+                });
+            }
+
         } else {
             // User can check in today
             moodSeekBar.setEnabled(true);
             moodInputText.setEnabled(true);
             submitCheckinButton.setEnabled(true);
             submitCheckinButton.setText("Submit Check-in");
-            // Ensure no lingering timer from previous logic, though not strictly necessary now
+
+            // Remove OnClickListeners if they were previously set for disabled state
+            if (moodSeekBar != null) {
+                moodSeekBar.setOnClickListener(null); // Remove listener
+            }
+            if (moodInputText != null) {
+                moodInputText.setOnClickListener(null); // Remove listener
+            }
+            // The submit button's original listener is already set in setupMoodCheckin()
+            // and will be active when enabled. No need to set it again here.
         }
     }
-
-
-
 }
-

@@ -1,44 +1,44 @@
-<LinearLayout
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="200dp"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:layout_marginTop="7dp"
-    android:backgroundTint="@color/white"
-    android:background="@drawable/rounded_container"
-    android:layout_marginBottom="3dp"
-    android:layout_marginEnd="7dp"
-    android:elevation="4dp"
-    android:padding="1dp">
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="4dp"
+    android:layout_marginEnd="8dp"
+    app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="3dp"              >
 
-    <TextView
-    android:id="@+id/menu_item_1"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="20dp"
-    android:drawableStart="@drawable/settings"
-    android:drawablePadding="4dp"
-    android:text="Settings"
-    android:clickable="true"
-    android:focusable="true"
-    android:fadingEdge="horizontal" />
-
-    <View
-        android:layout_width="150dp"
-        android:layout_height="1dp"
-        android:background="@color/gray" />
-
-    <TextView
-        android:id="@+id/menu_item_2"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:drawableStart="@drawable/baseline_accessible_forward_24"
-        android:drawablePadding="4dp"
-        android:text="Logout"
-        android:textColor="#ff0000"
-        android:clickable="true"
+        android:orientation="vertical"
+        android:padding="0dp"> <TextView
+        android:id="@+id/menu_item_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp" android:paddingVertical="12dp"   android:drawableStart="@drawable/settings"
+        android:drawablePadding="16dp"   android:text="Settings"
+        android:textColor="?attr/colorOnSurface" style="?attr/textAppearanceBodyLarge" android:background="?attr/selectableItemBackground" android:clickable="true"
         android:focusable="true"
-        android:fadingEdge="horizontal" />
+        app:drawableTint="?attr/colorOnSurfaceVariant" /> <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/menu_item_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:drawableStart="@drawable/baseline_accessible_forward_24" android:drawablePadding="16dp"
+            android:text="Delete Account"
+            android:textColor="?attr/colorError" style="?attr/textAppearanceBodyLarge"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            app:drawableTint="?attr/colorError" /> </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -9,86 +9,68 @@
     android:layout_marginEnd="8dp"
     android:layout_marginTop="4dp"
     android:layout_marginBottom="4dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp"
-    app:cardBackgroundColor="@color/card_background_light">
+    app:cardCornerRadius="12dp" app:cardElevation="2dp" app:cardBackgroundColor="?attr/colorSurfaceContainerLow"> <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
-
-            <TextView
-                android:id="@+id/moodEntryDateTextView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textStyle="bold"
-                android:textColor="@color/darkgray"
-                android:textSize="16sp"
-                tools:text="2025-05-22"/>
-
-            <TextView
-                android:id="@+id/moodEntryTimeTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/gray"
-                android:textSize="14sp"
-                android:layout_marginEnd="16dp"
-                tools:text="14:30"/>
-
-            <ImageView
-                android:id="@+id/deleteMoodEntryIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@android:drawable/ic_delete"  app:tint="@color/gray"
-                android:contentDescription="Delete mood entry"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackgroundBorderless"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mood Level: "
-                android:textColor="@color/gray"
-                android:textSize="14sp"/>
-
-            <TextView
-                android:id="@+id/moodEntryLevelTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:textColor="@color/indigo"
-                android:textSize="16sp"
-                tools:text="8/10"/>
-        </LinearLayout>
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
 
         <TextView
-            android:id="@+id/moodEntryDetailsTextView"
-            android:layout_width="match_parent"
+            android:id="@+id/moodEntryDateTextView"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textColor="@color/darkgray"
-            android:textSize="14sp"
-            android:maxLines="3"
-            android:ellipsize="end"
-            tools:text="Feeling good today after a productive morning. Managed to finish a task that was pending for a while."/>
+            android:layout_weight="1"
+            android:textAppearance="?attr/textAppearanceTitleSmall" android:textColor="?attr/colorOnSurface" tools:text="2025-05-22"/>
 
+        <TextView
+            android:id="@+id/moodEntryTimeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceBodySmall" android:textColor="?attr/colorOnSurfaceVariant" android:layout_marginEnd="16dp"
+            tools:text="14:30"/>
+
+        <ImageView
+            android:id="@+id/deleteMoodEntryIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_delete"  app:tint="?attr/colorOnSurfaceVariant" android:contentDescription="Delete mood entry"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mood Level: "
+            android:textAppearance="?attr/textAppearanceBodyMedium" android:textColor="?attr/colorOnSurface" /> <TextView
+        android:id="@+id/moodEntryLevelTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceTitleSmall" android:textColor="?attr/colorPrimary" tools:text="8/10"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/moodEntryDetailsTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceBodyMedium" android:textColor="?attr/colorOnSurfaceVariant" android:maxLines="3"
+        android:ellipsize="end"
+        tools:text="Feeling good today after a productive morning. Managed to finish a task that was pending for a while."/>
+
+</LinearLayout>
 </androidx.cardview.widget.CardView>

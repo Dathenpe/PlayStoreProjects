@@ -16,7 +16,6 @@
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fitsSystemWindows="true"
             android:theme="@style/Theme.Heal.AppBarOverlay">
 
             <include layout="@layout/toolbar" />
@@ -38,7 +37,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
             app:srcCompat="@drawable/outline_article_person_24"
-            app:backgroundTint="#FFA500"
+            app:backgroundTint="@color/md_theme_primary"
             app:tint="@color/gray"
             app:rippleColor="#7FFFD4" />
 

@@ -5,16 +5,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/record_coordinator_layout">
+    android:id="@+id/record_coordinator_layout"
+    android:background="?attr/colorSurfaceContainerLow">
     <ProgressBar
     android:id="@+id/loading_progress_bar"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:visibility="gone" />
+    android:visibility="gone"
+    style="?android:attr/progressBarStyleLarge" />
     <ScrollView
     android:id="@+id/record_scroll_view"
-        android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
 
@@ -22,101 +24,111 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:columnCount="2"
-        android:padding="16dp">
+        android:padding="8dp" android:useDefaultMargins="false"
+        android:alignmentMode="alignBounds"
+        android:columnOrderPreserved="false">
 
-        <FrameLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
             android:layout_margin="8dp"
             android:id="@+id/coping_exercises_container"
-            android:background="@drawable/card_background_teal">
+            app:cardBackgroundColor="?attr/colorPrimaryContainer" app:cardCornerRadius="16dp" app:cardElevation="2dp" android:clickable="true"
+            android:focusable="true">
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:padding="24dp"
                 android:text="Coping Exercises"
-                android:textSize="20sp"
-                android:textColor="@android:color/white" />
-        </FrameLayout>
+                android:textColor="?attr/colorOnPrimaryContainer" style="?attr/textAppearanceTitleLarge" /> </com.google.android.material.card.MaterialCardView>
 
-        <FrameLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
             android:layout_margin="8dp"
             android:id="@+id/daily_mood_checkings_container"
-            android:background="@drawable/card_background_purple">
+            app:cardBackgroundColor="?attr/colorSecondaryContainer" app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            android:clickable="true"
+            android:focusable="true">
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:padding="24dp"
                 android:text="Daily Mood Checkings"
-                android:textSize="20sp"
-                android:textColor="@android:color/white" />
-        </FrameLayout>
+                android:textColor="?attr/colorOnSecondaryContainer" style="?attr/textAppearanceTitleLarge" />
+        </com.google.android.material.card.MaterialCardView>
 
-        <FrameLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
             android:layout_margin="8dp"
             android:id="@+id/saved_strategies_container"
-            android:background="@drawable/card_background_yellow">
+            app:cardBackgroundColor="?attr/colorTertiaryContainer" app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            android:clickable="true"
+            android:focusable="true">
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:padding="24dp"
                 android:text="Saved Strategies"
-                android:textSize="20sp" />
-        </FrameLayout>
+                android:textColor="?attr/colorOnTertiaryContainer" style="?attr/textAppearanceTitleLarge" />
+        </com.google.android.material.card.MaterialCardView>
 
-        <FrameLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
             android:layout_margin="8dp"
             android:id="@+id/journal_entries_container"
-            android:background="@drawable/card_background_blue">
+            app:cardBackgroundColor="?attr/colorSecondary" app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            android:clickable="true"
+            android:focusable="true">
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:padding="24dp"
                 android:text="Journal Entries"
-                android:textSize="20sp"
-                android:textColor="@android:color/white" />
-        </FrameLayout>
+                android:textColor="?attr/colorOnSecondary" style="?attr/textAppearanceTitleLarge" />
+        </com.google.android.material.card.MaterialCardView>
 
-        <FrameLayout
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_rowWeight="1"
             android:layout_columnWeight="1"
             android:layout_margin="8dp"
             android:id="@+id/emergency_contacts_container"
-            android:background="@drawable/card_background_green_accent">
+            app:cardBackgroundColor="?attr/colorErrorContainer" app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            android:clickable="true"
+            android:focusable="true">
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:padding="24dp"
                 android:text="Emergency Contacts"
-                android:textSize="20sp"
-                android:textColor="@android:color/white" />
-        </FrameLayout>
+                android:textColor="?attr/colorOnErrorContainer" style="?attr/textAppearanceTitleLarge" />
+        </com.google.android.material.card.MaterialCardView>
 
     </GridLayout>
 </ScrollView>

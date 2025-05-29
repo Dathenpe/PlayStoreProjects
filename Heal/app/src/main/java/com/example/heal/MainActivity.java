@@ -53,8 +53,12 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import records.AddEditContactDialogFragment;
+import records.CopingExercisesFragment;
 import records.EmergencyContact;
 import records.EmergencyContactsFragment;
+import records.JournalEntriesFragment;
+import records.MoodCheckinFragment;
+import records.SavedStrategiesFragment;
 import ui.GalleryFragment;
 import ui.HomeFragment;
 import ui.RecordFragment;
@@ -162,9 +166,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 popupWindow.dismiss();
             });
 
-            TextView logout = popupView.findViewById(R.id.menu_item_2);
-            logout.setOnClickListener(view -> {
-                Toast.makeText(MainActivity.this, "Logout Clicked", Toast.LENGTH_SHORT).show();
+            TextView deleteData = popupView.findViewById(R.id.menu_item_2);
+            deleteData.setOnClickListener(view -> {
+                Toast.makeText(MainActivity.this, "Account Deletion Clicked", Toast.LENGTH_SHORT).show();
                 popupWindow.dismiss();
             });
             popupWindow.showAtLocation(v, Gravity.END, 30, -700);
@@ -356,6 +360,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_records) {
             toolbarTitle = "Data Records";
             if (!(currentFragment instanceof RecordFragment)) {
+                if (currentFragment instanceof EmergencyContactsFragment || currentFragment instanceof CopingExercisesFragment ||  currentFragment instanceof JournalEntriesFragment ||  currentFragment instanceof MoodCheckinFragment ||  currentFragment instanceof SavedStrategiesFragment) {
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                }
                 targetFragment = new RecordFragment();
                 shouldLoadFragment = true;
             }

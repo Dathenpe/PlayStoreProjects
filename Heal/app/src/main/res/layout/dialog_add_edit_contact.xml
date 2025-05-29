@@ -7,41 +7,32 @@
     android:orientation="vertical"
     android:padding="16dp"
     android:gravity="center_horizontal">
-
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add/Edit Contact"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"
-        android:textColor="@android:color/black"/>
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Add/Edit Contact"
+    android:textAppearance="?attr/textAppearanceTitleLarge" android:layout_marginBottom="16dp"
+    android:textColor="?attr/colorOnSurface"/> <de.hdodenhof.circleimageview.CircleImageView
+    android:id="@+id/addEditContactImageView"
+    android:layout_width="120dp"
+    android:layout_height="120dp"
+    android:layout_marginBottom="12dp"
+    android:scaleType="centerCrop"
+    android:src="@drawable/ic_default_contact_avatar"
+    app:civ_border_color="?attr/colorOutline" app:civ_border_width="3dp"
+    tools:src="@tools:sample/avatars" />
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/addEditContactImageView"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginBottom="12dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_default_contact_avatar"
-        app:civ_border_color="#E0E0E0"
-        app:civ_border_width="3dp"
-        tools:src="@tools:sample/avatars" />
-
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonSelectImage"
-        style="?attr/materialButtonOutlinedStyle"
-        android:layout_width="wrap_content"
+        style="?attr/materialButtonOutlinedStyle" android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
         android:text="Select Image"
         android:textSize="14sp"
-        android:layout_marginBottom="16dp"/>
-
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
+        android:layout_marginBottom="16dp"
+        android:textColor="?attr/colorPrimary"/> <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
         android:hint="Contact Name"
@@ -58,8 +49,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:hint="Phone Number"
@@ -80,7 +70,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonAddSaveContact"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -88,16 +78,14 @@
             android:layout_weight="1"
             android:paddingVertical="12dp"
             android:text="Add Contact"
-            android:textSize="16sp" />
-
-        <Button
-            android:id="@+id/buttonClearFields"
-            style="?attr/materialButtonOutlinedStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingVertical="12dp"
-            android:text="Clear"
-            android:textSize="16sp" />
-    </LinearLayout>
+            android:textSize="16sp"
+            app:backgroundTint="?attr/colorPrimary" android:textColor="?attr/colorOnPrimary" /> <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonClearFields"
+        style="?attr/materialButtonOutlinedStyle" android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingVertical="12dp"
+        android:text="Clear"
+        android:textSize="16sp"
+        android:textColor="?attr/colorPrimary"/> </LinearLayout>
 </LinearLayout>
