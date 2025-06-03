@@ -8,23 +8,29 @@
     android:layout_height="match_parent"
     tools:context="records.EmergencyContactsFragment">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="match_parent"
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_height="wrap_content"
-            android:text="Your Emergency Contacts"
-            android:padding="16dp"
-            android:textAppearance="?attr/textAppearanceTitleLarge" android:layout_marginBottom="8dp" android:gravity="center"
-            android:textColor="?attr/colorPrimary"/> <androidx.recyclerview.widget.RecyclerView
+            android:background="?attr/colorSurface"
+            android:theme="?attr/actionBarTheme"
+            android:layout_width="match_parent">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/EmergencyContactsTitle"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:gravity="center_horizontal"
+                app:layout_scrollFlags="scroll|enterAlways"
+                app:title="Your Emergency Contacts"
+                app:titleCentered="true"
+                app:titleTextAppearance="?attr/textAppearanceHeadlineSmall"
+                app:titleTextColor="?attr/colorPrimary" />
+        </com.google.android.material.appbar.AppBarLayout>
+        <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewEmergencyContacts"
         android:layout_width="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:layout_height="match_parent"
         tools:listitem="@layout/item_emergency_contact" />
 
-    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

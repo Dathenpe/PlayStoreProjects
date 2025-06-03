@@ -2,10 +2,14 @@ package com.example.heal;
 import static android.app.ProgressDialog.show;
 import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED;
 
+import static ui.HomeFragment.KEY_LAST_RELAPSE_DATE;
+import static ui.HomeFragment.PREFS_RELAPSE;
+
 import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -50,6 +54,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import records.AddEditContactDialogFragment;
@@ -64,7 +69,7 @@ import ui.HomeFragment;
 import ui.RecordFragment;
 import ui.ReminderBroadcastReceiver;
 import ui.SettingsFragment;
-import ui.SlideshowFragment;
+import ui.AIFragment;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
@@ -75,6 +80,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         AddEditContactDialogFragment.OnContactSavedListener {
 
+    private static final String KEY_LAST_RELAPSE_DATE = "RelapseCounterPrefs" ;
+    private static final String PREFS_RELAPSE = "lastRelapseDate" ;
     private List<EmergencyContact> emergencyContactList;
     private Gson gson;
     private static final String PREFS_NAME = "EmergencyContactsPrefs";
@@ -89,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageButton MenuTrigger;
     private PopupWindow popupWindow;
     FrameLayout bottomSheetContent;
-    private static final String TAG = "YourActivityTag";
+    private static final String TAG = "MainActivity";
     View bottomSheetView;
     BottomSheetBehavior<View> bottomSheetBehavior;
     private View overlayView;
@@ -109,43 +116,61 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int REMINDER_REQUEST_CODE = 102;
     private static final long REPEAT_INTERVAL = TimeUnit.DAYS.toMillis(1);
     private int currentNavId = R.id.nav_home;
+    private static final String FIRST_LAUNCH_KEY = "firstLaunch";
+
+    public SharedPreferences settingse;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        gson = new Gson();
-        loadEmergencyContacts();
+        setContentView(R.layout.activity_main); // Set content view first
 
-        setContentView(R.layout.activity_main);
-        checkAndScheduleReminder();
-
+        // Initialize UI components that depend on the layout
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        settingse = getSharedPreferences(PREFS_NAME,0);
+        boolean isFirstLaunch = settingse.getBoolean(FIRST_LAUNCH_KEY, true);
+        Log.d(TAG, "MainActivity: onCreate - isFirstLaunch: " + isFirstLaunch);
+
+
+        if (isFirstLaunch){
+            welcomeMessage(); // This will handle setting the flag, starting timer, and then loading HomeFragment
+        } else {
+            // If not first launch, load HomeFragment immediately
+            if (savedInstanceState == null) {
+                loadFragment(new HomeFragment(), R.id.nav_home);
+                navigationView.setCheckedItem(R.id.nav_home);
+                toolbar.setTitle("Home Room");
+                Log.d(TAG, "MainActivity: onCreate - Loading HomeFragment (not first launch, savedInstanceState is null)");
+            } else {
+                currentNavId = savedInstanceState.getInt("currentNavId", R.id.nav_home);
+                navigationView.setCheckedItem(currentNavId);
+                updateToolbarAndNavigation(currentNavId);
+                Log.d(TAG, "MainActivity: onCreate - Restoring fragment (not first launch, savedInstanceState exists)");
+            }
+        }
+
+        // Rest of the onCreate logic that runs regardless of first launch
+        gson = new Gson();
+        loadEmergencyContacts();
+        checkAndScheduleReminder();
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        if (savedInstanceState == null) {
-            loadFragment(new HomeFragment(), R.id.nav_home);
-            navigationView.setCheckedItem(R.id.nav_home);
-            toolbar.setTitle("Home Room");
-        } else {
-            currentNavId = savedInstanceState.getInt("currentNavId", R.id.nav_home);
-            navigationView.setCheckedItem(currentNavId);
-            updateToolbarAndNavigation(currentNavId);
-        }
-
-        bottomSheetContent = findViewById(R.id.bottom_sheet_content);
-        bottomSheetView = findViewById(R.id.bottom_sheet_container);
-        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView);
-        bottomSheetBehavior.setState(STATE_COLLAPSED);
+      if (bottomSheetBehavior != null){
+          bottomSheetContent = findViewById(R.id.bottom_sheet_content);
+          bottomSheetView = findViewById(R.id.bottom_sheet_container);
+          bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView);
+          bottomSheetBehavior.setState(STATE_COLLAPSED);
+      }
 
         MenuTrigger = findViewById(R.id.menu_trigger);
         MenuTrigger.setOnClickListener(v -> {
@@ -209,11 +234,47 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Fab = findViewById(R.id.fab);
         if (Fab != null) {
             Fab.setOnClickListener(v -> {
+                closeSettings();
                 AddEditContactDialogFragment addEditDialog = AddEditContactDialogFragment.newInstance(null);
                 addEditDialog.show(getSupportFragmentManager(), "AddEditContactDialog");
             });
         }
     }
+
+    private void welcomeMessage() {
+        new AlertDialog.Builder(this)
+                .setTitle("Welcome to Heal")
+                .setMessage("Welcome to Heal! This app is designed to support you on your journey. We'll start a relapse counter for you now. You can reset it anytime.")
+                .setPositiveButton("OK", (dialog, which) -> {
+                    SharedPreferences.Editor editor = settingse.edit();
+                    editor.putBoolean(FIRST_LAUNCH_KEY, false);
+                    editor.apply();
+                    Log.d(TAG, "MainActivity: welcomeMessage - FIRST_LAUNCH_KEY set to false.");
+                    startRelapseCounter(); // Start the counter and save the time
+
+                    // Removed explicit call to HomeFragment's startRelapseCounterUpdates()
+                    // HomeFragment's onResume will now handle starting the timer.
+
+                    // Now load the HomeFragment after the counter has been started
+                    loadFragment(new HomeFragment(), R.id.nav_home);
+                    navigationView.setCheckedItem(R.id.nav_home);
+                    toolbar.setTitle("Home Room");
+                    Log.d(TAG, "MainActivity: welcomeMessage - Loading HomeFragment after timer start (final step).");
+                })
+                .setCancelable(false)
+                .show();
+    }
+
+    private void startRelapseCounter() {
+        SharedPreferences prefs = this.getSharedPreferences(PREFS_RELAPSE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        long startTime = System.currentTimeMillis();
+        editor.putLong(KEY_LAST_RELAPSE_DATE, startTime);
+        editor.apply();
+        Toast.makeText(this, "Relapse counter Started!", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "MainActivity: startRelapseCounter - Saved time: " + startTime);
+    }
+
 
 
     private void saveEmergencyContacts() {
@@ -324,7 +385,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             super.onBackPressed();
         }
     }
-
     public void loadContacts() {
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if (!(currentFragment instanceof EmergencyContactsFragment)) {
@@ -373,10 +433,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 targetFragment = new GalleryFragment();
                 shouldLoadFragment = true;
             }
-        } else if (id == R.id.nav_slideshow) {
-            toolbarTitle = "Game Room";
-            if (!(currentFragment instanceof SlideshowFragment)) {
-                targetFragment = new SlideshowFragment();
+        } else if (id == R.id.nav_ai) {
+            toolbarTitle = "Gemini";
+            if (!(currentFragment instanceof AIFragment)) {
+                targetFragment = new AIFragment();
                 shouldLoadFragment = true;
             }
         } else if (id == R.id.nav_send) {
@@ -433,7 +493,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent chooserIntent = Intent.createChooser(shareIntent, "Share app link via");
         try {
             startActivity(chooserIntent);
-        } catch (android.content.ActivityNotFoundException anfe) {
+        } catch (ActivityNotFoundException anfe) {
             Toast.makeText(this, "No app can handle this share action.", Toast.LENGTH_SHORT).show();
         }
     }
@@ -510,21 +570,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void loadFragment(Fragment fragment, int navId) {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
-
         ft.setCustomAnimations(
                 R.anim.slide_in_right,
                 R.anim.slide_out_left,
                 R.anim.slide_in_left,
                 R.anim.slide_out_right
         );
+        if (fragment instanceof HomeFragment) {
+            fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            fm.executePendingTransactions();
+        }
 
         ft.replace(R.id.fragment_container, fragment);
-
         if (!(fragment instanceof HomeFragment)) {
             ft.addToBackStack(null);
         }
         ft.commit();
         currentNavId = navId;
+        Log.d(TAG, "MainActivity: loadFragment - Fragment loaded: " + fragment.getClass().getSimpleName());
     }
 
     private void updateToolbarAndNavigation(int navId) {
@@ -537,9 +600,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (navId == R.id.nav_gallery) {
             toolbar.setTitle("Art Corner");
             navigationView.setCheckedItem(R.id.nav_gallery);
-        } else if (navId == R.id.nav_slideshow) {
+        } else if (navId == R.id.nav_ai) {
             toolbar.setTitle("Game Room");
-            navigationView.setCheckedItem(R.id.nav_slideshow);
+            navigationView.setCheckedItem(R.id.nav_ai);
         } else if (navId == R.id.nav_send || navId == R.id.nav_share) {
             toolbar.setTitle("Heal");
             navigationView.setCheckedItem(R.id.nav_home);

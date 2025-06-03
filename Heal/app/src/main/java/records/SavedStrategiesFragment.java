@@ -67,7 +67,7 @@ public class SavedStrategiesFragment extends Fragment
 
         addStrategyButton.setOnClickListener(v -> showAddStrategyDialog());
 
-        loadAllSavedStrategies(); // Load strategies when the view is created
+        loadAllSavedStrategies();
         return view;
     }
 
@@ -80,13 +80,13 @@ public class SavedStrategiesFragment extends Fragment
         if (!savedStrategies.isEmpty()) {
             String[] strategiesArray = savedStrategies.split(",");
             for (String strategy : strategiesArray) {
-                if (!strategy.trim().isEmpty()) { // Avoid adding empty strings from trailing commas
+                if (!strategy.trim().isEmpty()) {
                     allSavedStrategies.add(strategy.trim());
                 }
             }
         }
-        adapter.updateStrategies(allSavedStrategies); // Notify adapter that data has changed
-        updateEmptyStateVisibility(); // Update visibility after loading
+        adapter.updateStrategies(allSavedStrategies);
+        updateEmptyStateVisibility();
     }
 
     private void saveAllStrategiesToSharedPreferences() {
@@ -95,7 +95,7 @@ public class SavedStrategiesFragment extends Fragment
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("strategies", TextUtils.join(",", allSavedStrategies));
         editor.apply();
-        updateEmptyStateVisibility(); // Update visibility after saving
+        updateEmptyStateVisibility();
     }
 
     private void updateEmptyStateVisibility() {
@@ -143,11 +143,16 @@ public class SavedStrategiesFragment extends Fragment
         builder.setPositiveButton("Add", (dialog, which) -> {
             String newStrategy = input.getText().toString().trim();
             if (!newStrategy.isEmpty()) {
-                allSavedStrategies.add(newStrategy);
-                saveAllStrategiesToSharedPreferences();
-                adapter.notifyItemInserted(allSavedStrategies.size() - 1); // Notify for efficiency
-                Toast.makeText(getContext(), "Strategy added!", Toast.LENGTH_SHORT).show();
-                recyclerView.scrollToPosition(allSavedStrategies.size() - 1); // Scroll to new item
+                if (!allSavedStrategies.contains(newStrategy)){
+                    allSavedStrategies.add(newStrategy);
+                    saveAllStrategiesToSharedPreferences();
+                    adapter.notifyItemInserted(allSavedStrategies.size() - 1);
+                    Toast.makeText(getContext(), "Strategy added!", Toast.LENGTH_SHORT).show();
+                    recyclerView.scrollToPosition(allSavedStrategies.size() - 1);
+                }else {
+                    Toast.makeText(mainActivity, "Strategy already exists", Toast.LENGTH_SHORT).show();
+                }
+
             } else {
                 Toast.makeText(getContext(), "Strategy cannot be empty.", Toast.LENGTH_SHORT).show();
             }
@@ -162,15 +167,15 @@ public class SavedStrategiesFragment extends Fragment
         builder.setTitle("Edit Strategy");
 
         final EditText input = new EditText(getContext());
-        input.setText(currentStrategy); // Pre-fill with current strategy
+        input.setText(currentStrategy);
         builder.setView(input);
 
         builder.setPositiveButton("Save", (dialog, which) -> {
             String updatedStrategy = input.getText().toString().trim();
             if (!updatedStrategy.isEmpty()) {
-                allSavedStrategies.set(position, updatedStrategy); // Update in list
-                saveAllStrategiesToSharedPreferences(); // Save to storage
-                adapter.notifyItemChanged(position); // Notify adapter of change
+                allSavedStrategies.set(position, updatedStrategy);
+                saveAllStrategiesToSharedPreferences();
+                adapter.notifyItemChanged(position);
                 Toast.makeText(getContext(), "Strategy updated!", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getContext(), "Strategy cannot be empty.", Toast.LENGTH_SHORT).show();
@@ -185,18 +190,17 @@ public class SavedStrategiesFragment extends Fragment
     @Override
     public void onResume() {
         super.onResume();
-        loadAllSavedStrategies(); // Reload strategies in onResume
+        loadAllSavedStrategies();
     }
 
     @Override
     public void onStrategyClick(String strategyText) {
-        new AlertDialog.Builder(getContext()) // Use getContext() to get the current context
-                .setTitle("Coping Strategy Details") // A descriptive title for the popover
+        new AlertDialog.Builder(getContext())
+                .setTitle("Coping Strategy Details")
                 .setMessage(strategyText)
                 .setPositiveButton("Close", (dialog, which) -> {
-                    // When the "Close" button is tapped, simply dismiss the dialog.
                     dialog.dismiss();
                 })
-                .show(); // Don't forget to call show() to display the dialog
+                .show();
     }
 }

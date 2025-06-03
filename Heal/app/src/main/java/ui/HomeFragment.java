@@ -1,5 +1,7 @@
 package ui;
 
+import static android.content.ContentValues.TAG;
+
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
@@ -55,6 +57,7 @@ import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -99,7 +102,7 @@ public class HomeFragment extends Fragment {
     private Button saveCopingStrategyButton;
     private GridLayout savedStrategiesContainer;
     private TextView savedStrategiesTitle;
-    private List<String> savedStrategiesList = new ArrayList<>();
+    private List<String> allSavedStrategies = new ArrayList<>();
     private Button emergencyContactButton;
     private Button copingExercisesButton;
     private Button moreResourcesButton;
@@ -135,6 +138,18 @@ public class HomeFragment extends Fragment {
     private List<JournalEntry> allJournalEntries = new ArrayList<>();
     private CoordinatorLayout homeCoordinatorLayout;
     private ScrollView homeScrollView;
+
+    private TextView relapseCounterTextView;
+    public static TextView relapseCounterTextView2;
+    private Button resetRelapseButton;
+    public static final String PREFS_RELAPSE = "RelapseCounterPrefs";
+    public static final String KEY_LAST_RELAPSE_DATE = "lastRelapseDate";
+
+    // Handler and Runnable for the relapse counter updates
+    private Handler relapseCounterHandler;
+    private Runnable relapseCounterRunnable;
+
+    private boolean moodSeekBarTouched = false;
 
 
     @Override
@@ -178,6 +193,10 @@ public class HomeFragment extends Fragment {
         seeMoreStrategiesButton = view.findViewById(R.id.see_more_strategies_button);
         loadingProgressBar = view.findViewById(R.id.loading_progress_bar);
         homeScrollView = view.findViewById(R.id.home_scroll_view);
+        relapseCounterTextView = view.findViewById(R.id.relapse_counter_text_view);
+        relapseCounterTextView2 = view.findViewById(R.id.relapse_counter_text_view);
+        resetRelapseButton = view.findViewById(R.id.reset_relapse_button);
+
         loadJournalEntries();
         GeneralViewModel viewModel = new ViewModelProvider(this).get(GeneralViewModel.class);
         viewModel.isLoading.observe(getViewLifecycleOwner(), isLoading -> {
@@ -207,6 +226,13 @@ public class HomeFragment extends Fragment {
                 mainActivity.closeSettings();
             }
         });
+        //  Initial update of the relapse counter when the fragment is created
+        updateRelapseCounter();
+
+        resetRelapseButton.setOnClickListener(v -> {
+            showResetRelapseConfirmationDialog();
+        });
+        loadSavedStrategiesFromPrefs();
         return view;
     }
     @Override
@@ -323,7 +349,6 @@ public class HomeFragment extends Fragment {
                 saveCopingStrategy();
             });
         }
-        loadSavedStrategies(); // Load strategies here
         setupBarChart();
         loadMoodData(); // Load mood data here
         updateBarChart(); // Update chart after loading data
@@ -356,8 +381,9 @@ public class HomeFragment extends Fragment {
             });
         }
         loadSavedUsername();
-        setupMoodCheckin(); // This will now correctly apply the disabled state on initial load
+        setupMoodCheckin();
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+
     }
     @Override
     public void onResume() {
@@ -368,19 +394,22 @@ public class HomeFragment extends Fragment {
         // Re-check daily check-in status every time the fragment is resumed
         checkDailyCheckin();
         // Re-load strategies and update chart in onResume to ensure fresh data
-        loadSavedStrategies();
         loadMoodData();
         updateBarChart();
+        // Start the relapse counter updates when the fragment is resumed
+        startRelapseCounterUpdates();
     }
     @Override
     public void onPause() {
         super.onPause();
         stopAutoScroll();
-
+        // Stop the relapse counter updates when the fragment is paused
+        stopRelapseCounterUpdates();
     }
+
     private void startAutoScroll() {
         if (sliderViewPager != null && sliderViewPager.getAdapter() != null) {
-            stopAutoScroll();
+            stopAutoScroll(); // Stop any existing auto-scroll
             autoScrollRunnable = new Runnable() {
                 @Override
                 public void run() {
@@ -395,11 +424,42 @@ public class HomeFragment extends Fragment {
             autoScrollHandler.postDelayed(autoScrollRunnable, AUTO_SCROLL_DELAY);
         }
     }
+
+    /**
+     * Stops the auto-scrolling for the ViewPager2.
+     * This removes any pending callbacks from the autoScrollHandler.
+     */
     private void stopAutoScroll() {
         if (autoScrollHandler != null && autoScrollRunnable != null) {
             autoScrollHandler.removeCallbacks(autoScrollRunnable);
         }
     }
+
+    public void startRelapseCounterUpdates() {
+        // Initialize handler if it's null
+        if (relapseCounterHandler == null) {
+            relapseCounterHandler = new Handler(Looper.getMainLooper());
+        }
+        // Stop any existing updates before starting a new one
+        stopRelapseCounterUpdates();
+
+        relapseCounterRunnable = new Runnable() {
+            @Override
+            public void run() {
+                updateRelapseCounter();
+                relapseCounterHandler.postDelayed(this, 1000);
+            }
+        };
+        relapseCounterHandler.post(relapseCounterRunnable);
+    }
+
+
+    private void stopRelapseCounterUpdates() {
+        if (relapseCounterHandler != null && relapseCounterRunnable != null) {
+            relapseCounterHandler.removeCallbacks(relapseCounterRunnable);
+        }
+    }
+
     private void shakeView(View view) {
         ObjectAnimator translateX = ObjectAnimator.ofFloat(view, "translationX", 0f, -20f, 20f, -20f, 20f, 0f);
         translateX.setDuration(2700);
@@ -408,6 +468,7 @@ public class HomeFragment extends Fragment {
         animatorSet.play(translateX);
         animatorSet.start();
     }
+
     public void loadSavedUsername() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         try {
@@ -419,6 +480,7 @@ public class HomeFragment extends Fragment {
             }
         }
     }
+
     private static class SliderAdapter extends FragmentStateAdapter {
         private final List<Fragment> fragments;
         public SliderAdapter(@NonNull Fragment fragment) {
@@ -439,192 +501,81 @@ public class HomeFragment extends Fragment {
             return fragments.size();
         }
     }
+
+
     private void saveCopingStrategy() {
-        String strategy = copingStrategiesInput.getText().toString().trim();
-        if (!strategy.isEmpty()) {
-            savedStrategiesList.add(strategy);
-            // No need to call displaySavedStrategies() here, it's called in loadSavedStrategies()
-            copingStrategiesInput.getText().clear();
-            Toast.makeText(getContext(), "Strategy saved!", Toast.LENGTH_SHORT).show();
-            saveStrategiesToSharedPreferences();
-            // After saving, reload and display to ensure consistency
-            loadSavedStrategies();
-        } else {
+        String newStrategy = copingStrategiesInput.getText().toString().trim();
+        if (!newStrategy.isEmpty()) {
+            if (!allSavedStrategies.contains(newStrategy)){
+                allSavedStrategies.add(newStrategy);
+                SharedPreferences sharedPreferences = getContext().getSharedPreferences("coping_strategies", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("strategies", TextUtils.join(",", allSavedStrategies));
+                editor.apply();
+                copingStrategiesInput.setText("");
+                Toast.makeText(getContext(), "Strategy added!", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(mainActivity, "Strategy already exists", Toast.LENGTH_SHORT).show();
+            }
+        }else {
             Toast.makeText(getContext(), "Please enter a coping strategy.", Toast.LENGTH_SHORT).show();
         }
     }
-    private void displaySavedStrategies() {
-        if (savedStrategiesList.isEmpty()) {
-            if (savedStrategiesTitle != null) savedStrategiesTitle.setVisibility(View.GONE);
-            if (savedStrategiesContainer != null) savedStrategiesContainer.setVisibility(View.GONE);
-            if (seeMoreStrategiesButton != null) seeMoreStrategiesButton.setVisibility(View.GONE);
-        } else {
-            if (savedStrategiesTitle != null) savedStrategiesTitle.setVisibility(View.VISIBLE);
-            if (savedStrategiesContainer != null) {
-                savedStrategiesContainer.setVisibility(View.VISIBLE);
-                savedStrategiesContainer.removeAllViews(); // Clear existing views
 
-                int displayCount = Math.min(savedStrategiesList.size(), MAX_STRATEGIES_DISPLAYED);
-                // Calculate row count based on displayCount, assuming 2 columns
-                savedStrategiesContainer.setRowCount((int) Math.ceil(displayCount / 2.0));
+    public void loadSavedStrategiesFromPrefs(){
+        if (getContext() == null) return;
 
-                for (int i = 0; i < displayCount; i++) {
-                    String strategy = savedStrategiesList.get(i);
-                    View strategyItemView = LayoutInflater.from(getContext()).inflate(R.layout.coping_strategy_item, savedStrategiesContainer, false);
-                    TextView strategyTextView = strategyItemView.findViewById(R.id.strategy_text_view);
-                    ImageView deleteImageView = strategyItemView.findViewById(R.id.delete_image_view);
-                    strategyTextView.setText(strategy);
-                    // Use ContextCompat for color retrieval for day/night theme compatibility
-                    if (getContext() != null) {
-                        strategyTextView.setTextColor(ContextCompat.getColor(getContext(), R.color.darkgray));
-                    }
-                    strategyTextView.setTextSize(16);
-                    final int position = i;
-                    deleteImageView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (getContext() != null) {
-                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                                builder.setTitle("Delete Strategy")
-                                        .setMessage("Are you sure you want to delete this strategy?")
-                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                deleteStrategy(position);
-                                            }
-                                        })
-                                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                dialog.dismiss();
-                                            }
-                                        });
-                                AlertDialog dialog = builder.create();
-                                dialog.show();
-                            }
-                        }
-                    });
-                    GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-                    params.rowSpec = GridLayout.spec(i / 2, 1f); // Use weight for row distribution
-                    params.columnSpec = GridLayout.spec(i % 2, 1f); // Use weight for column distribution
-                    params.setMargins(8, 8, 8, 8);
-                    strategyItemView.setLayoutParams(params);
-                    savedStrategiesContainer.addView(strategyItemView);
-                }
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("coping_strategies",context.MODE_PRIVATE);
+        String savedStrategiesString = sharedPreferences.getString("strategies",null);
+        allSavedStrategies.clear();
 
-                // Handle "See More" button visibility
-                if (savedStrategiesList.size() > MAX_STRATEGIES_DISPLAYED) {
-                    if (seeMoreStrategiesButton != null) {
-                        // Ensure the button is not already attached to a parent before adding
-                        if (seeMoreStrategiesButton.getParent() != null) {
-                            ((ViewGroup) seeMoreStrategiesButton.getParent()).removeView(seeMoreStrategiesButton);
-                        }
-                        GridLayout.LayoutParams buttonParams = new GridLayout.LayoutParams();
-                        // Place "See More" button after the displayed strategies
-                        buttonParams.rowSpec = GridLayout.spec(savedStrategiesContainer.getRowCount(), 1);
-                        buttonParams.columnSpec = GridLayout.spec(0, savedStrategiesContainer.getColumnCount()); // Span across all columns
-                        buttonParams.setMargins(8, 8, 8, 8);
-                        seeMoreStrategiesButton.setLayoutParams(buttonParams);
-                        savedStrategiesContainer.addView(seeMoreStrategiesButton);
-                        seeMoreStrategiesButton.setVisibility(View.VISIBLE);
-                        seeMoreStrategiesButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (mainActivity != null) {
-                                    mainActivity.loadFragment(new SavedStrategiesFragment(),0);
-                                    mainActivity.navigationView.setCheckedItem(R.id.nav_records);
-                                }
-                            }
-                        });
-                    }
-                } else {
-                    if (seeMoreStrategiesButton != null) {
-                        seeMoreStrategiesButton.setVisibility(View.GONE);
-                    }
-                }
-            }
+        if ( savedStrategiesString != null && !savedStrategiesString.isEmpty()){
+            String[] strategiesArray = savedStrategiesString.split(",");
+            allSavedStrategies.addAll(Arrays.asList(strategiesArray));
         }
     }
-    private void deleteStrategy(int position) {
-        savedStrategiesList.remove(position);
-        displaySavedStrategies(); // Re-display after deletion
-        saveStrategiesToSharedPreferences();
-        Toast.makeText(getContext(), "Strategy deleted!", Toast.LENGTH_SHORT).show();
-    }
-    private void saveStrategiesToSharedPreferences() {
-        if (getContext() == null) return;
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences("coping_strategies", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("strategies", gson.toJson(savedStrategiesList)); // Save as JSON
-        editor.apply();
-    }
-    private void loadSavedStrategies() {
-        if (getContext() == null) return;
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences("coping_strategies", Context.MODE_PRIVATE);
-        String json = sharedPreferences.getString("strategies", null);
-        if (json != null) {
-            Type type = new TypeToken<List<String>>() {}.getType();
-            try {
-                savedStrategiesList = gson.fromJson(json, type); // This is line 566
-                if (savedStrategiesList == null) { // Handle case where JSON parsing returns null
-                    savedStrategiesList = new ArrayList<>();
-                }
-            } catch (JsonSyntaxException e) {
-                Log.e("HomeFragment", "Error parsing saved strategies JSON: " + e.getMessage());
-                // If parsing fails, it means the stored data is corrupted or in an old format.
-                // Clear the corrupted data and initialize with an empty list.
-                savedStrategiesList = new ArrayList<>();
-                sharedPreferences.edit().remove("strategies").apply(); // Clear the bad data
-                Toast.makeText(getContext(), "Coping strategies data reset due to format error.", Toast.LENGTH_LONG).show();
-            }
-        } else {
-            savedStrategiesList = new ArrayList<>();
-        }
-        displaySavedStrategies(); // Display after loading
-    }
+
+
     private void setupBarChart() {
         moodBarChart.getDescription().setEnabled(false);
         moodBarChart.setDrawGridBackground(false);
-        moodBarChart.setTouchEnabled(false); // Disable touch for a static display
+        moodBarChart.setTouchEnabled(false);
         moodBarChart.setDragEnabled(false);
         moodBarChart.setScaleEnabled(false);
         moodBarChart.setPinchZoom(false);
         moodBarChart.setHighlightPerDragEnabled(false);
         moodBarChart.setHighlightPerTapEnabled(false);
         moodBarChart.setNoDataText("No mood data available");
-        moodBarChart.setNoDataTextColor(Color.GRAY); // Set no data text color
+        moodBarChart.setNoDataTextColor(Color.GRAY);
 
         XAxis xAxis = moodBarChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setDrawGridLines(false); // Remove grid lines
-        xAxis.setDrawAxisLine(false); // Remove x-axis line
+        xAxis.setDrawGridLines(false);
+        xAxis.setDrawAxisLine(false);
         xAxis.setGranularity(1f);
-        xAxis.setLabelRotationAngle(-45f); // Keep rotation for better fit
-        // Use ContextCompat for dynamic day/night color
+        xAxis.setLabelRotationAngle(-45f);
         if (getContext() != null) {
             xAxis.setTextColor(ContextCompat.getColor(getContext(), R.color.md_theme_onSurfaceVariant));
         }
-        xAxis.setTextSize(9f); // Slightly smaller text size to prevent cutting
-
+        xAxis.setTextSize(9f);
         moodBarChart.getAxisLeft().setAxisMinimum(0f);
-        moodBarChart.getAxisLeft().setAxisMaximum(10f); // Assuming mood is 0-10
-        moodBarChart.getAxisLeft().setDrawGridLines(true); // Keep horizontal grid lines for readability
-        // Use ContextCompat for dynamic day/night grid color
+        moodBarChart.getAxisLeft().setAxisMaximum(10f);
+        moodBarChart.getAxisLeft().setDrawGridLines(true);
         if (getContext() != null) {
             moodBarChart.getAxisLeft().setGridColor(ContextCompat.getColor(getContext(), R.color.md_theme_outline));
         }
-        moodBarChart.getAxisLeft().setDrawAxisLine(false); // Remove y-axis line
-        // Use ContextCompat for dynamic day/night label color
+        moodBarChart.getAxisLeft().setDrawAxisLine(false);
         if (getContext() != null) {
             moodBarChart.getAxisLeft().setTextColor(ContextCompat.getColor(getContext(), R.color.md_theme_onSurfaceVariant));
         }
-        moodBarChart.getAxisLeft().setTextSize(9f); // Slightly smaller text size
+        moodBarChart.getAxisLeft().setTextSize(9f);
 
-        moodBarChart.getAxisRight().setEnabled(false); // Disable right axis
-        moodBarChart.getLegend().setEnabled(false); // Disable legend
+        moodBarChart.getAxisRight().setEnabled(false);
+        moodBarChart.getLegend().setEnabled(false);
 
-        moodBarChart.animateY(1000); // Add animation for a smoother look
+        moodBarChart.animateY(1000);
     }
+
     private void updateBarChart() {
         ArrayList<BarEntry> entries = new ArrayList<>();
         List<Integer> colors = new ArrayList<>();
@@ -632,13 +583,12 @@ public class HomeFragment extends Fragment {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         Calendar calendar = Calendar.getInstance();
 
-        // Get data for the last 7 days for a better trend visualization
         for (int i = 6; i >= 0; i--) {
             calendar.setTime(new Date());
             calendar.add(Calendar.DAY_OF_YEAR, -i);
             String day = sdf.format(calendar.getTime());
-            // Use a shorter format for labels to prevent cutting
-            labels.add(new SimpleDateFormat("EEE\nMMM d", Locale.getDefault()).format(calendar.getTime())); // Format: "Mon\nMay 27"
+
+            labels.add(new SimpleDateFormat("EEE\nMMM d", Locale.getDefault()).format(calendar.getTime()));
             int moodLevel = 0; // Default to 0 if no entry for the day
             for (MoodEntry moodEntry : moodEntries) {
                 if (moodEntry.getDay().equals(day)) {
@@ -658,23 +608,22 @@ public class HomeFragment extends Fragment {
         }
         dataSet.setValueTextSize(9f); // Slightly smaller value text size
         dataSet.setDrawValues(true); // Show value on top of bars
-        // Use ContextCompat for dynamic day/night color for bar border
         if (getContext() != null) {
             dataSet.setBarBorderColor(ContextCompat.getColor(getContext(), R.color.md_theme_outline));
         }
-        dataSet.setBarBorderWidth(0.5f); // Border width
+        dataSet.setBarBorderWidth(0.5f);
 
         BarData barData = new BarData(dataSet);
-        barData.setBarWidth(0.7f); // Adjust bar width for better spacing
+        barData.setBarWidth(0.7f);
 
         moodBarChart.setData(barData);
         XAxis xAxis = moodBarChart.getXAxis();
         xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
         xAxis.setLabelCount(labels.size(), false); // Ensure all labels are shown
-        moodBarChart.invalidate(); // Refresh the chart
+        moodBarChart.invalidate();
     }
     private int getMoodColor(int moodLevel) {
-        // Material-like color palette for mood levels
+
         if (moodLevel <= 2) {
             return Color.parseColor("#EF5350"); // Red - Very Bad
         } else if (moodLevel <= 4) {
@@ -725,7 +674,6 @@ public class HomeFragment extends Fragment {
             allJournalEntries = new ArrayList<>();
         }
     }
-    // In your HomeFragment.java, inside the HomeFragment class:
     public static class JournalEntry {
         private String formattedTimestamp;
         private String text;
@@ -759,31 +707,56 @@ public class HomeFragment extends Fragment {
 
         moodSeekBar.addOnChangeListener((slider, value, fromUser) -> {
             moodValueLabel.setText("Mood: " + (int) value);
+            if(fromUser){
+                moodSeekBarTouched = true;
+            }
+        });
+        moodSeekBar.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
+            @Override
+            public void onStartTrackingTouch(Slider slider) {
+                moodSeekBarTouched = true;
+            }
+
+            @Override
+            public void onStopTrackingTouch(@NonNull Slider slider) {
+
+            }
         });
 
         submitCheckinButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (isCheckinAllowed()) {
-                    saveMoodData(); // Save mood data if check-in is allowed
-                    saveLastCheckinTime(); // IMPORTANT: Save the last check-in time immediately
-                    checkDailyCheckin(); // Update UI state after saving
+                    if(moodInputText.length() != 0 ){
+                       if (moodSeekBarTouched == true){
+                           saveMoodData();
+                           saveLastCheckinTime();
+                           checkDailyCheckin();
+                           Handler handler = new Handler();
+                           handler.postDelayed(() -> setupMoodCheckin(),1000);
+                       }else {
+                           Toast.makeText(mainActivity, "Move the mood bar first", Toast.LENGTH_SHORT).show();
+                       }
+                    }else{
+                        Toast.makeText(mainActivity, "Mood input cannot be empty", Toast.LENGTH_SHORT).show();
+                    }
+
                 } else {
                     Toast.makeText(getContext(), "You can only check in once per day.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-        moodSeekBar.setOnClickListener(v -> {
-            if (!moodSeekBar.isEnabled()) {
+        // Re-set listeners for disabled state to show toasts
+        if (!moodSeekBar.isEnabled()) {
+            moodSeekBar.setOnClickListener(v -> {
                 Toast.makeText(getContext(), "Mood check-in is disabled until tomorrow.", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        moodInputText.setOnClickListener(v -> {
-            if (!moodInputText.isEnabled()) {
+            });
+        }
+        if (!moodInputText.isEnabled()) {
+            moodInputText.setOnClickListener(v -> {
                 Toast.makeText(getContext(), "Mood check-in is disabled until tomorrow.", Toast.LENGTH_SHORT).show();
-            }
-        });
+            });
+        }
     }
     private void saveMoodData() {
         int moodLevel = (int) moodSeekBar.getValue();
@@ -882,9 +855,10 @@ public class HomeFragment extends Fragment {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_MOOD, Context.MODE_PRIVATE);
         lastCheckinTime = prefs.getLong(KEY_LAST_CHECKIN, 0); // Load the stored time, default to 0 if not found
     }
+
     private boolean isCheckinAllowed() {
         if (lastCheckinTime == 0) {
-            return true; // If lastCheckinTime is 0, it means the user has never checked in or it's the first check-in for the day.
+            return true;
         }
 
         // Get the current date (year, month, day)
@@ -933,16 +907,82 @@ public class HomeFragment extends Fragment {
             moodInputText.setEnabled(true);
             submitCheckinButton.setEnabled(true);
             submitCheckinButton.setText("Submit Check-in");
-
-            // Remove OnClickListeners if they were previously set for disabled state
             if (moodSeekBar != null) {
                 moodSeekBar.setOnClickListener(null); // Remove listener
             }
             if (moodInputText != null) {
                 moodInputText.setOnClickListener(null); // Remove listener
             }
-            // The submit button's original listener is already set in setupMoodCheckin()
-            // and will be active when enabled. No need to set it again here.
         }
+    }
+
+    private void updateRelapseCounter() {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_RELAPSE, Context.MODE_PRIVATE);
+        long lastRelapseTime = prefs.getLong(KEY_LAST_RELAPSE_DATE, 0L);
+        Log.d(TAG, "HomeFragment: updateRelapseCounter - Read lastRelapseTime: " + lastRelapseTime);
+
+        if (lastRelapseTime == 0L) {
+            Log.w(TAG, "HomeFragment: updateRelapseCounter - lastRelapseTime is 0. Timer might not have been set yet. Displaying 'Timer not started'.");
+            if (relapseCounterTextView != null) {
+                relapseCounterTextView.setText("Timer not started"); // Provide feedback
+                resetRelapseButton.setText("Start Counter");
+                resetRelapseButton.setOnClickListener(v->{
+                    resetRelapseCounter();
+                    Toast.makeText(mainActivity, "Timer Started", Toast.LENGTH_SHORT).show();
+                });
+            }
+            return; // Exit if timer not started
+        }
+
+        long currentTime = System.currentTimeMillis();
+        long difference = currentTime - lastRelapseTime;
+
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(difference);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(difference);
+        long hours = TimeUnit.MILLISECONDS.toHours(difference);
+        long days = TimeUnit.MILLISECONDS.toDays(difference);
+
+        // Calculate remaining hours, minutes, and seconds for display
+        long remainingHours = hours % 24;
+        long remainingMinutes = minutes % 60;
+        long remainingSeconds = seconds % 60;
+
+        String counterText = String.format(Locale.getDefault(),
+                "%d Day%s %02d Hour%s %02d Minute%s %02d Second%s",
+                days, (days == 1 ? "" : "s"),
+                remainingHours, (remainingHours == 1 ? "" : "s"),
+                remainingMinutes, (remainingMinutes == 1 ? "" : "s"),
+                remainingSeconds, (remainingSeconds == 1 ? "" : "s"));
+
+        relapseCounterTextView.setText(counterText);
+    }
+
+    public void resetRelapseCounter() {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_RELAPSE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putLong(KEY_LAST_RELAPSE_DATE, System.currentTimeMillis());
+        editor.apply();
+        updateRelapseCounter();
+        resetRelapseButton.setText("Reset Counter");
+    }
+
+    private void showResetRelapseConfirmationDialog() {
+        new AlertDialog.Builder(context)
+                .setTitle("Reset Counter")
+                .setMessage("Are you sure you want to reset the relapse counter? This action cannot be undone.")
+                .setPositiveButton("Reset", (dialog, which) -> {
+                    resetRelapseCounter();
+                    Handler handler = new Handler();
+                    handler.postDelayed(() ->{
+                        Toast.makeText(context, "Relapse counter reset!", Toast.LENGTH_SHORT).show();
+                    },1000);
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .create()
+                .show();
     }
 }

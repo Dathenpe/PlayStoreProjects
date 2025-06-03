@@ -1,48 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <TextView
-    android:id="@+id/moodCheckinTitle"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:text="Your Mood History"
-    android:textAppearance="?attr/textAppearanceHeadlineSmall"
-    android:textColor="?attr/colorPrimary"
-    android:layout_marginStart="16dp"
-    android:layout_marginTop="16dp"
-    android:layout_marginEnd="16dp"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent" />
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        android:theme="?attr/actionBarTheme"
+        android:layout_width="match_parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/MoodCheckinHistoryTitle"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:gravity="center_horizontal"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:title="Your Mood History"
+            app:titleCentered="true"
+            app:titleTextAppearance="?attr/textAppearanceHeadlineSmall"
+            app:titleTextColor="?attr/colorPrimary" />
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewMoodEntries"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintTop_toBottomOf="@id/moodCheckinTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:listitem="@layout/item_mood_entry" />
-
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/item_mood_entry"
+        android:paddingTop="8dp" android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:clipToPadding="false" />
     <TextView
-        android:id="@+id/moodEntriesEmptyStateTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No mood entries yet. Check-in from the Home screen!"
-        android:textAppearance="?attr/textAppearanceBodyLarge" android:textColor="?attr/colorOnSurfaceVariant" android:gravity="center"
-        android:padding="24dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    android:id="@+id/moodEntriesEmptyStateTextView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="No mood entries yet. Check-in from the Home screen!"
+    android:textAppearance="?attr/textAppearanceBodyLarge"
+    android:textColor="?attr/colorOnSurfaceVariant"
+    android:gravity="center"
+    android:padding="24dp"
+    android:visibility="gone"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    app:layout_anchor="@id/recyclerViewMoodEntries" app:layout_anchorGravity="center" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
