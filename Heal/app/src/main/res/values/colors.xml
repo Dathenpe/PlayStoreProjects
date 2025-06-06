@@ -88,4 +88,5 @@
     <color name="green_call_button">#28B463</color>
     <color name="red_delete_button">#E74C3C</color>
     <color name="button_outline_color_light">#B0BEC5</color>
+    <color name="status_bar_overlay_dark">#80000000</color>
 </resources>
