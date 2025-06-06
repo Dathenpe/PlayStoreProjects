@@ -1,8 +1,6 @@
 <?xml version="1.0"?>
 <resources>
     <dimen name="list_item_spacing">16dp</dimen>
-    <dimen name="fab_bottom_margin">310dp</dimen>
-    <dimen name="fab_null_margin">-310dp</dimen>
-    <dimen name="fab_default_margin">326dp</dimen>
     <dimen name="list_item_spacing_half">8dp</dimen>
+    <dimen name="fab_slide_up_distance">50dp</dimen>
 </resources>

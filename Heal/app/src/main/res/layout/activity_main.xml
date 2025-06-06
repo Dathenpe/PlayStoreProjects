@@ -28,6 +28,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        <View
+            android:id="@+id/overlay_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/status_bar_overlay_dark"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
@@ -36,6 +44,7 @@
             android:layout_gravity="bottom|end"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
+            android:contentDescription="Article Person"
             app:srcCompat="@drawable/outline_article_person_24"
             app:backgroundTint="@color/md_theme_primary"
             app:tint="@color/gray"
@@ -66,7 +75,7 @@
         android:layout_height="640dp"
         android:layout_marginTop="120dp"
         android:layout_gravity="start"
-         android:fitsSystemWindows="true"
+        android:fitsSystemWindows="true"
         app:itemHorizontalPadding="10dp"
         app:itemVerticalPadding="10dp"
         app:itemBackground="@drawable/nav_item_background"

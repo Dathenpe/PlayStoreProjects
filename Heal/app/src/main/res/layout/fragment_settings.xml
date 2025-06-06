@@ -4,114 +4,39 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/rounded_top_container"
     app:cardCornerRadius="12dp" >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingVertical="16dp"> <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="16dp"
-        android:paddingBottom="8dp"
-        >
-        <TextView
-            android:id="@+id/setting_title_general"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        android:paddingVertical="16dp">
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="General Settings"
-            android:textColor="?attr/colorOnSurface"
-            style="?attr/textAppearanceTitleMedium" /> <ImageView
-        android:layout_width="24dp"
-        android:layout_height="44dp"
-        android:src="@drawable/settings" android:contentDescription="Settings icon"
-        app:tint="?attr/colorOnSurfaceVariant" /> </LinearLayout>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="8dp"
+            >
+            <TextView
+                android:id="@+id/setting_title_general"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="General Settings"
+                android:textColor="#333333" style="?attr/textAppearanceTitleMedium" />
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="44dp"
+                android:src="@drawable/settings"
+                android:contentDescription="Settings icon"
+                app:tint="#666666" /> </LinearLayout>
 
 
         <LinearLayout
             android:id="@+id/edit_name_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingVertical="12dp" android:paddingHorizontal="16dp"
-            android:background="?attr/selectableItemBackground" android:clickable="true"
-            android:focusable="true">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Edit Name"
-                android:textColor="?attr/colorOnSurface"
-                style="?attr/textAppearanceBodyLarge" />
-            <TextView
-            android:id="@+id/name_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Your Name"
-            android:textColor="?attr/colorOnSurfaceVariant" style="?attr/textAppearanceBodyMedium" />
-            <ImageView
-            android:layout_width="24dp"
-            android:layout_height="14dp"
-            android:layout_marginStart="8dp" android:contentDescription="Edit Name"
-            android:src="@android:drawable/ic_menu_edit" app:tint="?attr/colorOnSurfaceVariant" />
-        </LinearLayout>
-
-        <com.google.android.material.divider.MaterialDivider
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp" />
-
-        <TextView
-            android:id="@+id/setting_title_notifications"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="16dp" android:paddingBottom="8dp"
-            android:text="Notifications"
-            android:textColor="?attr/colorOnSurface"
-            style="?attr/textAppearanceTitleMedium" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingVertical="12dp"
-            android:paddingHorizontal="16dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Reminder Notifications"
-                android:textColor="?attr/colorOnSurface"
-                style="?attr/textAppearanceBodyLarge" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/switch_reminder"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:thumbTint="@color/md_theme_secondary"  />
-        </LinearLayout>
-
-        <com.google.android.material.divider.MaterialDivider
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp" />
-
-        <com.google.android.material.divider.MaterialDivider
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp" />
-
-        <LinearLayout
-            android:id="@+id/about_us_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
@@ -126,21 +51,95 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="About Us"
-                android:textColor="?attr/colorOnSurface"
-                style="?attr/textAppearanceBodyLarge" />
-
+                android:text="Edit Name"
+                android:textColor="#333333" style="?attr/textAppearanceBodyLarge" />
+            <TextView
+                android:id="@+id/name_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Your Name"
+                android:textColor="#666666" style="?attr/textAppearanceBodyMedium" />
             <ImageView
                 android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_height="14dp"
                 android:layout_marginStart="8dp"
-                android:contentDescription="About Us"
-                android:src="@android:drawable/ic_menu_info_details" app:tint="?attr/colorOnSurfaceVariant" />
-        </LinearLayout>
+                android:contentDescription="Edit Name"
+                android:src="@android:drawable/ic_menu_edit"
+                app:tint="#666666" /> </LinearLayout>
 
         <com.google.android.material.divider.MaterialDivider
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp" />
-    </LinearLayout>
+            android:layout_marginHorizontal="16dp"
+            app:dividerColor="#CCCCCC" /> <TextView
+        android:id="@+id/setting_title_notifications"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp"
+        android:text="Notifications"
+        android:textColor="#333333" style="?attr/textAppearanceTitleMedium" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingVertical="12dp"
+            android:paddingHorizontal="16dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Reminder Notifications"
+                android:textColor="#333333" style="?attr/textAppearanceBodyLarge" />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switch_reminder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:thumbTint="@color/orange" app:trackTint="#BBDEFB" /> </LinearLayout>
+
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            app:dividerColor="#CCCCCC" /> <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        app:dividerColor="#CCCCCC" /> <LinearLayout
+        android:id="@+id/about_us_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingVertical="12dp"
+        android:paddingHorizontal="16dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="About Us"
+            android:textColor="#333333" style="?attr/textAppearanceBodyLarge" />
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="8dp"
+            android:contentDescription="About Us"
+            android:src="@android:drawable/ic_menu_info_details"
+            app:tint="#666666" /> </LinearLayout>
+
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            app:dividerColor="#CCCCCC" /> </LinearLayout>
 </androidx.core.widget.NestedScrollView>

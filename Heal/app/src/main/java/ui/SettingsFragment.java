@@ -75,76 +75,43 @@ public class SettingsFragment extends Fragment {
             if (isSwitchInitialized) {
                 if (isChecked) {
                     Toast.makeText(getContext(), "Reminder notifications enabled", Toast.LENGTH_SHORT).show();
-                    // Removed scheduleReminderNotification();
                 } else {
                     Toast.makeText(getContext(), "Reminder notifications disabled", Toast.LENGTH_SHORT).show();
-                    // Removed cancelReminderNotification();
                 }
-            } else {
-                // Removed initial scheduling/canceling
             }
         });
         //  feedbackLayout.setOnClickListener(v -> sendFeedback());
         aboutUsLayout.setOnClickListener(v -> {
-            // Implement About Us functionality here (e.g., start a new activity or show a dialog)
             Toast.makeText(getContext(), "About Us clicked", Toast.LENGTH_SHORT).show();
         });
         nameText.setText(getNameFromLocalStorage());
-        settingsRootView.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                if (!isViewInside(v, (int) event.getRawX(), (int) event.getRawY())) {
-                    return true;
-                }
-            }
-            return false;
-        });
         initializeUi();
         isSwitchInitialized = true;
     }
 
-    private boolean isViewInside(View view, int x, int y) {
-        int[] location = new int[2];
-        view.getLocationOnScreen(location);
-        Rect rect = new Rect(location[0], location[1], location[0] + view.getWidth(), location[1] + view.getHeight());
-        return rect.contains(x, y);
-    }
 
     private void showNameInputDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Edit Name");
         final EditText input = new EditText(getContext());
         input.setText(nameText.getText());
-        mainActivity.closeSettings();
         new Handler().postDelayed(input::requestFocus, 300);
         builder.setView(input);
 
         builder.setPositiveButton("OK", (dialog, which) -> {
             String newName = input.getText().toString().trim();
             if (newName != null && !newName.isEmpty()) {
-                Toast.makeText(builder.getContext(), "name saved", Toast.LENGTH_SHORT).show();
                 mainActivity.saveNameToLocalStorage(newName);
-                mainActivity.loadFragment(new HomeFragment(),R.id.nav_home);
-              //  dialog.dismiss();
-              try {
-                  if (mainActivity != null) {
-                      mainActivity.loadBottomSettingsFragment();
-                  }
-              } catch (Exception e) {
-                  Toast.makeText(mainActivity,e + " error", Toast.LENGTH_SHORT).show();
-              }
+                nameText.setText(newName); // Update the name text directly in SettingsFragment
+                Toast.makeText(getContext(), "Name saved successfully", Toast.LENGTH_SHORT).show();
             } else {
-                if (mainActivity != null) {
-                    mainActivity.loadBottomSettingsFragment();
-                }
-             new Handler().postDelayed(() -> Toast.makeText(mainActivity, "Name cannot be empty, changes not saved", Toast.LENGTH_SHORT).show(), 100);
+                Toast.makeText(getContext(), "Name cannot be empty, changes not saved", Toast.LENGTH_SHORT).show();
             }
+            dialog.dismiss(); // Dismiss the AlertDialog
         });
 
         builder.setNegativeButton("Cancel", (dialog, which) -> {
-            if (mainActivity != null) {
-                mainActivity.loadBottomSettingsFragment();
-            }
-            dialog.cancel();
+            dialog.cancel(); // Dismiss the AlertDialog
         });
 
         builder.show();
@@ -154,19 +121,6 @@ public class SettingsFragment extends Fragment {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         return sharedPreferences.getString("user_name", "Your Name");
     }
-
-//    private void sendFeedback() {
-//        Intent intent = new Intent(Intent.ACTION_SEND);
-//        intent.setType("message/rfc822");
-//        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"feedback@example.com"});
-//        intent.putExtra(Intent.EXTRA_SUBJECT, "App Feedback");
-//        intent.putExtra(Intent.EXTRA_TEXT, "Enter your feedback here:");
-//        try {
-//            startActivity(Intent.createChooser(intent, "Send Feedback"));
-//        } catch (android.content.ActivityNotFoundException ex) {
-//            Toast.makeText(getContext(), "No email client found.", Toast.LENGTH_SHORT).show();
-//        }
-//    }
 
     private void initializeUi() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
@@ -179,7 +133,6 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        // Saving the reminder state is now handled directly in the OnCheckedChangeListener
     }
 
     @Override

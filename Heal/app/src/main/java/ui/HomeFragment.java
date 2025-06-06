@@ -391,13 +391,11 @@ public class HomeFragment extends Fragment {
         if (sliderViewPager != null && sliderViewPager.getScrollState() == ViewPager2.SCROLL_STATE_IDLE) {
             startAutoScroll();
         }
-        // Re-check daily check-in status every time the fragment is resumed
         checkDailyCheckin();
-        // Re-load strategies and update chart in onResume to ensure fresh data
         loadMoodData();
         updateBarChart();
-        // Start the relapse counter updates when the fragment is resumed
         startRelapseCounterUpdates();
+        loadSavedUsername();
     }
     @Override
     public void onPause() {
@@ -425,10 +423,6 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    /**
-     * Stops the auto-scrolling for the ViewPager2.
-     * This removes any pending callbacks from the autoScrollHandler.
-     */
     private void stopAutoScroll() {
         if (autoScrollHandler != null && autoScrollRunnable != null) {
             autoScrollHandler.removeCallbacks(autoScrollRunnable);
