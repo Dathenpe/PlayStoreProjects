@@ -1,5 +1,5 @@
 package com.example.heal;
-import static android.app.ProgressDialog.show;
+
 import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED;
 import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED;
 import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN;
@@ -29,7 +29,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -58,9 +57,14 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import records.AddEditContactDialogFragment;
@@ -70,18 +74,12 @@ import records.EmergencyContactsFragment;
 import records.JournalEntriesFragment;
 import records.MoodCheckinFragment;
 import records.SavedStrategiesFragment;
+import ui.AIFragment;
 import ui.GalleryFragment;
 import ui.HomeFragment;
 import ui.RecordFragment;
 import ui.ReminderBroadcastReceiver;
 import ui.SettingsFragment;
-import ui.AIFragment;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
@@ -251,7 +249,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
 
             popupMenu.setOnDismissListener(a -> {
-                // THE FIX: Only hide the overlay if we are NOT opening the settings
                 if (!isSettingsOpened) {
                     if (overlayView.getVisibility() == View.VISIBLE) {
                         setStatusBarColor(R.color.transparent);
@@ -819,5 +816,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
            animatorSet.play(slideUp);
            animatorSet.start();
        }
+    }
+    public void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null && getCurrentFocus() != null) {
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
     }
 }

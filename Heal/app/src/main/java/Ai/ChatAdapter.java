@@ -26,11 +26,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatMessageVie
         ChatMessage message = messages.get(position);
         holder.messageTextView.setText(message.getText());
 
-//        if (message.isUserMessage()){
-//            holder.messageTextView.setTextAlignment(View.TEXT_ALIGNMENT_END);
-//        }else{
-//            holder.messageTextView.setTextAlignment(View.TEXT_ALIGNMENT_START);
-//        }
+        if (message.isUserMessage()){
+            holder.messageTextView.setTextAlignment(View.TEXT_ALIGNMENT_END);
+        }else{
+            holder.messageTextView.setTextAlignment(View.TEXT_ALIGNMENT_START);
+        }
     }
     @Override
     public int getItemCount(){
