@@ -3,16 +3,15 @@ package records; // Adjust package as necessary
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button; // Import Button
-import android.widget.EditText; // Import EditText
-import android.widget.TextView; // Import TextView for empty state
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,11 +20,10 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.heal.R; // Adjust your package name
-import com.example.heal.MainActivity; // Import MainActivity if needed
+import com.example.heal.MainActivity;
+import com.example.heal.R;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class SavedStrategiesFragment extends Fragment
@@ -58,7 +56,6 @@ public class SavedStrategiesFragment extends Fragment
         recyclerView = view.findViewById(R.id.recyclerViewStrategies);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Initialize adapter with both listeners
         adapter = new StrategiesAdapter(getContext(), allSavedStrategies, this, this,this);
         recyclerView.setAdapter(adapter);
 
@@ -68,6 +65,7 @@ public class SavedStrategiesFragment extends Fragment
         addStrategyButton.setOnClickListener(v -> showAddStrategyDialog());
 
         loadAllSavedStrategies();
+
         return view;
     }
 
@@ -100,6 +98,7 @@ public class SavedStrategiesFragment extends Fragment
 
     private void updateEmptyStateVisibility() {
         if (allSavedStrategies.isEmpty()) {
+            emptyStateTextView.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
             emptyStateTextView.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         } else {
@@ -113,7 +112,8 @@ public class SavedStrategiesFragment extends Fragment
         if (position != RecyclerView.NO_POSITION && position < allSavedStrategies.size()) {
             new AlertDialog.Builder(getContext())
                     .setTitle("Delete Strategy")
-                    .setMessage("Are you sure you want to delete this strategy?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setMessage("Are you sure you want to delete this strategy?, this action cannot be undone.")
                     .setPositiveButton("Yes", (dialog, which) -> {
                         allSavedStrategies.remove(position);
                         adapter.notifyItemRemoved(position);

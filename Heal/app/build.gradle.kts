@@ -50,12 +50,8 @@ dependencies {
     implementation ("androidx.cardview:cardview:1.0.0")
     implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation ("de.hdodenhof:circleimageview:3.1.0")
-    implementation("com.google.guava:guava:32.0.1-android")
     implementation ("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
-    implementation(libs.generativeai)
-    implementation("com.google.ai.client.generativeai:generativeai:1.3.0") // REMOVE THIS ONE
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1") // Good to keep
     implementation(libs.appcompat)
     // implementation(libs.material)
     implementation(libs.constraintlayout)

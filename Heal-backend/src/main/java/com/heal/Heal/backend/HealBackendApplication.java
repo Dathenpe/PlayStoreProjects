@@ -8,6 +8,7 @@ public class HealBackendApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(HealBackendApplication.class, args);
+		
 	}
- 
+
 }

@@ -1,9 +1,12 @@
 package com.example.heal;
 
 import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED;
+import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_DRAGGING;
 import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED;
 import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.AlarmManager;
@@ -127,6 +130,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private  Boolean isSettingsOpened;
 
+    private int currentWelcomeDialogStep = 0;
+
+    private final String[] WELCOME_TITLES ={
+            "Welcome To Heal",
+            "Your Journey Starts Now",
+            "Counter & Control"
+    };
+
+    private final String[] WelcomeMessages = {
+            "Welcome to Heal! This app is designed to support you on your journey.",
+            "We'll start a relapse counter for you now. This helps track your progress and celebrate your milestones.",
+            "You can reset the counter anytime you feel the need. Let's embark on this healing journey together!"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,9 +199,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         if(newState == STATE_EXPANDED){
                             overlayView.setVisibility(View.VISIBLE);
                             setStatusBarColor(R.color.status_bar_overlay_dark);
-                        } else if (newState == STATE_COLLAPSED){
+                        } else if (newState == STATE_COLLAPSED ){
                             Fab.setVisibility(View.VISIBLE);
                             shakeView(Fab);
+                            overlayView.setVisibility(View.GONE);
+                            setStatusBarColor(R.color.transparent);
+                        } else if (newState == STATE_DRAGGING) {
                             overlayView.setVisibility(View.GONE);
                             setStatusBarColor(R.color.transparent);
                         }
@@ -301,7 +320,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Fab = findViewById(R.id.fab);
         if (Fab != null) {
             Fab.setOnClickListener(v -> {
-                closeSettings();
                 AddEditContactDialogFragment addEditDialog = AddEditContactDialogFragment.newInstance(null);
                 addEditDialog.show(getSupportFragmentManager(), "AddEditContactDialog");
             });
@@ -309,28 +327,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void welcomeMessage() {
-        new AlertDialog.Builder(this)
-                .setTitle("Welcome to Heal")
-                .setMessage("Welcome to Heal! This app is designed to support you on your journey. We'll start a relapse counter for you now. You can reset it anytime.")
-                .setPositiveButton("OK", (dialog, which) -> {
-                    SharedPreferences.Editor editor = settingse.edit();
-                    editor.putBoolean(FIRST_LAUNCH_KEY, false);
-                    editor.apply();
-
-                    long initialRelapseTime = startRelapseCounter();
-
-                    HomeFragment homeFragment = new HomeFragment();
-                    Bundle args = new Bundle();
-                    args.putLong(KEY_LAST_RELAPSE_DATE, initialRelapseTime);
-                    homeFragment.setArguments(args);
-
-                    loadFragment(homeFragment, R.id.nav_home);
-                    navigationView.setCheckedItem(R.id.nav_home);
-                    toolbar.setTitle("Home Room");
-                    Log.d(TAG, "MainActivity: welcomeMessage - Loading HomeFragment after timer start (final step).");
-                })
-                .setCancelable(false)
-                .show();
+        currentWelcomeDialogStep = 0;
+        showWelcomeDialogStep(currentWelcomeDialogStep);
     }
 
     private long startRelapseCounter() {
@@ -481,6 +479,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             toolbarTitle = "Heal";
             if (!(currentFragment instanceof HomeFragment)) {
                 targetFragment = new HomeFragment();
+                MenuTrigger.setVisibility(View.VISIBLE);
+                Fab.setVisibility(View.VISIBLE);
+                shakeView(Fab);
                 shouldLoadFragment = true;
             }
         } else if (id == R.id.nav_records) {
@@ -491,18 +492,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 }
                 targetFragment = new RecordFragment();
+                MenuTrigger.setVisibility(View.VISIBLE);
+                Fab.setVisibility(View.VISIBLE);
+                shakeView(Fab);
                 shouldLoadFragment = true;
             }
         } else if (id == R.id.nav_gallery) {
             toolbarTitle = "Art Corner";
             if (!(currentFragment instanceof GalleryFragment)) {
                 targetFragment = new GalleryFragment();
+                MenuTrigger.setVisibility(View.VISIBLE);
+                Fab.setVisibility(View.VISIBLE);
+                shakeView(Fab);
                 shouldLoadFragment = true;
             }
         } else if (id == R.id.nav_ai) {
             toolbarTitle = "Gemini";
             if (!(currentFragment instanceof AIFragment)) {
                 targetFragment = new AIFragment();
+                    invertShakeView(Fab);
+                    MenuTrigger.setVisibility(View.GONE);
+                    bottomSheetBehavior.setState(STATE_HIDDEN);
+                    overlayView.setVisibility(View.GONE);
+                    toolbar.setTitle("Gemini Chat");
+                    Log.d(TAG, "MainActivity: onCreate - Loading Gemini Fragment");
                 shouldLoadFragment = true;
             }
         } else if (id == R.id.nav_send) {
@@ -666,7 +679,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             toolbar.setTitle("Art Corner");
             navigationView.setCheckedItem(R.id.nav_gallery);
         } else if (navId == R.id.nav_ai) {
-            toolbar.setTitle("Game Room");
             navigationView.setCheckedItem(R.id.nav_ai);
         } else if (navId == R.id.nav_send || navId == R.id.nav_share) {
             toolbar.setTitle("Heal");
@@ -804,9 +816,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     public void shakeView(View view) {
        if (Fab != null && Fab.getVisibility() != View.GONE) {
-           // Start from slightly below its final position (e.g., 50 pixels down)
-           // and slide up to its original position (0f translationY).
-           // A negative value for translationY means moving upwards.
            float startTranslationY = getResources().getDimensionPixelSize(R.dimen.fab_slide_up_distance);
            ObjectAnimator slideUp = ObjectAnimator.ofFloat(view, "translationY", startTranslationY, 0f);
            slideUp.setDuration(400); // Adjust duration for desired slowness
@@ -817,10 +826,80 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
            animatorSet.start();
        }
     }
+    public void invertShakeView(View view) {
+        if (view != null && view.getVisibility() == View.VISIBLE) {
+            float endTranslationY = getResources().getDimensionPixelSize(R.dimen.fab_slide_up_distance);
+            ObjectAnimator slideDown = ObjectAnimator.ofFloat(view, "translationY", 0f, endTranslationY);
+            slideDown.setDuration(300);
+            slideDown.setInterpolator(new AccelerateDecelerateInterpolator());
+
+            AnimatorSet animatorSet = new AnimatorSet();
+            animatorSet.play(slideDown);
+            animatorSet.start();
+
+            animatorSet.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    view.setVisibility(View.GONE);
+                }
+            });
+        }
+    }
     public void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null && getCurrentFocus() != null) {
             imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }
+    }
+    private void showWelcomeDialogStep(int step) {
+        // Basic bounds check
+        if (step < 0 || step >= WelcomeMessages.length) {
+            Log.w(TAG, "showWelcomeDialogStep: Step " + step + " is out of bounds.");
+            return;
+        }
+        currentWelcomeDialogStep = step;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(WELCOME_TITLES[currentWelcomeDialogStep])
+                .setMessage(WelcomeMessages[currentWelcomeDialogStep])
+                .setCancelable(false);
+        if (currentWelcomeDialogStep > 0) {
+            builder.setNegativeButton("Previous", (dialog, which) -> {
+
+                showWelcomeDialogStep(currentWelcomeDialogStep - 1);
+            });
+        }
+        if (currentWelcomeDialogStep < WelcomeMessages.length - 1) {
+            builder.setPositiveButton("Next", (dialog, which) -> {
+                showWelcomeDialogStep(currentWelcomeDialogStep + 1);
+            });
+        } else {
+            builder.setPositiveButton("Start", (dialog, which) -> {
+                dialog.dismiss();
+
+                SharedPreferences.Editor editor = settingse.edit();
+                editor.putBoolean(FIRST_LAUNCH_KEY, false);
+                editor.apply();
+
+                long initialRelapseTime = startRelapseCounter();
+
+                HomeFragment homeFragment = new HomeFragment();
+                Bundle args = new Bundle();
+                args.putLong(KEY_LAST_RELAPSE_DATE, initialRelapseTime);
+                homeFragment.setArguments(args);
+
+                loadFragment(homeFragment, R.id.nav_home);
+                if (navigationView != null) { // Add null check for safety
+                    navigationView.setCheckedItem(R.id.nav_home);
+                }
+                if (toolbar != null) { // Add null check
+                    toolbar.setTitle("Home Room");
+                }
+                Log.d(TAG, "MainActivity: welcomeMessage - Loading HomeFragment after timer start (final step).");
+            });
+        }
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }

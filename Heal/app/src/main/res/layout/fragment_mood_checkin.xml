@@ -5,28 +5,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
-        android:theme="?attr/actionBarTheme"
-        android:layout_width="match_parent">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/MoodCheckinHistoryTitle"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:gravity="center_horizontal"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:title="Your Mood History"
-            app:titleCentered="true"
-            app:titleTextAppearance="?attr/textAppearanceHeadlineSmall"
-            app:titleTextColor="?attr/colorPrimary" />
-    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewMoodEntries"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/item_mood_entry"
         android:paddingTop="8dp" android:paddingStart="16dp"

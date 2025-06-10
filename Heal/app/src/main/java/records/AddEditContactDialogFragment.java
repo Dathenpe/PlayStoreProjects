@@ -1,11 +1,8 @@
 package records;
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -15,17 +12,17 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.bumptech.glide.Glide;
-import com.example.heal.R; // Make sure this is your correct R package
+import com.example.heal.R;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.UUID;
@@ -41,10 +38,12 @@ public class AddEditContactDialogFragment extends DialogFragment {
     private CircleImageView addEditContactImageView;
     private Button buttonSelectImage;
 
+    private TextView dialogTitle;
+
     private EmergencyContact editingContact; // The contact being edited, or null for new
     private String currentSelectedImageUrl = null;
 
-    // Listener interface to communicate back to the hosting Fragment/Activity
+
     public interface OnContactSavedListener {
         void onContactSaved(EmergencyContact contact); // Pass the saved/updated contact
     }
@@ -72,8 +71,6 @@ public class AddEditContactDialogFragment extends DialogFragment {
         if (context instanceof OnContactSavedListener) {
             contactSavedListener = (OnContactSavedListener) context;
         }
-        // Option 2 (Less likely in this specific setup, but good for general fragment communication):
-        // If the parent fragment (i.e., EmergencyContactsFragment) was the listener
         else if (getParentFragment() instanceof OnContactSavedListener) {
             contactSavedListener = (OnContactSavedListener) getParentFragment();
         }
@@ -165,15 +162,14 @@ public class AddEditContactDialogFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize UI elements from the dialog's layout
         editTextContactName = view.findViewById(R.id.editTextContactName);
         editTextPhoneNumber = view.findViewById(R.id.editTextPhoneNumber);
         buttonAddSaveContact = view.findViewById(R.id.buttonAddSaveContact);
         buttonClearFields = view.findViewById(R.id.buttonClearFields);
         addEditContactImageView = view.findViewById(R.id.addEditContactImageView);
         buttonSelectImage = view.findViewById(R.id.buttonSelectImage);
+        dialogTitle = view.findViewById(R.id.dialogTitle);
 
-        // If editing an existing contact, populate fields
         if (editingContact != null) {
             editTextContactName.setText(editingContact.getName());
             editTextPhoneNumber.setText(editingContact.getPhoneNumber());
@@ -187,12 +183,13 @@ public class AddEditContactDialogFragment extends DialogFragment {
             } else {
                 addEditContactImageView.setImageResource(R.drawable.ic_default_contact_avatar);
             }
+            dialogTitle.setText("Edit Contact");
             buttonAddSaveContact.setText("Save Changes");
             if (getContext() != null) {
                 Toast.makeText(getContext(), "Editing: " + editingContact.getName(), Toast.LENGTH_SHORT).show();
             }
         } else {
-            // For a new contact, ensure default state
+            dialogTitle.setText("Add Contact");
             buttonAddSaveContact.setText("Add Contact");
             addEditContactImageView.setImageResource(R.drawable.ic_default_contact_avatar);
         }
@@ -215,23 +212,21 @@ public class AddEditContactDialogFragment extends DialogFragment {
 
         EmergencyContact contactToSave;
         if (editingContact == null) {
-            // New contact
+
             String id = UUID.randomUUID().toString();
             contactToSave = new EmergencyContact(id, name, phoneNumber, currentSelectedImageUrl);
         } else {
-            // Existing contact (update)
             editingContact.setName(name);
             editingContact.setPhoneNumber(phoneNumber);
             editingContact.setImageUrl(currentSelectedImageUrl);
             contactToSave = editingContact;
         }
 
-        // Notify the listener (main fragment/activity) with the contact object
+
         if (contactSavedListener != null) {
             contactSavedListener.onContactSaved(contactToSave);
         }
-
-        dismiss(); // Close the dialog
+        dismiss();
     }
 
     private void clearFields() {
@@ -240,7 +235,7 @@ public class AddEditContactDialogFragment extends DialogFragment {
         currentSelectedImageUrl = null;
         addEditContactImageView.setImageResource(R.drawable.ic_default_contact_avatar);
         buttonAddSaveContact.setText("Add Contact");
-        editingContact = null; // Reset editing state
+        editingContact = null;
         if (getContext() != null) {
             Toast.makeText(getContext(), "Fields cleared.", Toast.LENGTH_SHORT).show();
         }

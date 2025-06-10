@@ -2,7 +2,6 @@ package ui;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,13 +12,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.heal.MainActivity;
 import com.example.heal.R;
 
 import records.CopingExercisesFragment;
-import records.EmergencyContactsFragment;
 import records.JournalEntriesFragment;
 import records.MoodCheckinFragment;
 import records.SavedStrategiesFragment;
@@ -91,22 +88,22 @@ public class RecordFragment extends Fragment {
         });
 
         dailyMoodCheckingsContainer.setOnClickListener(v -> {
-            // Navigating to Daily Mood Checkings screen/fragment
+            mainActivity.toolbar.setTitle("My Mood History");
             mainActivity.loadFragment(new MoodCheckinFragment(),R.layout.fragment_mood_checkin);
         });
 
         savedStrategiesContainer.setOnClickListener(v -> {
-            // Navigating to Saved Strategies screen/fragment
+            mainActivity.toolbar.setTitle("My Coping Strategies");
             mainActivity.loadFragment(new SavedStrategiesFragment(),R.layout.fragment_saved_strategies);
         });
 
         journalEntriesContainer.setOnClickListener(v -> {
-            // Navigating to Journal Entries screen/fragment
+            mainActivity.toolbar.setTitle("My Journal Entries");
             mainActivity.loadFragment(new JournalEntriesFragment(),R.layout.fragment_journal_entries);
         });
 
         emergencyContactsContainer.setOnClickListener(v -> {
-            // Navigating to Emergency Contacts screen/fragment
+            mainActivity.toolbar.setTitle("My Emergency Contacts");
             mainActivity.loadContacts();
         });
     }

@@ -5,8 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
-import android.text.method.ScrollingMovementMethod;
-import android.view.Gravity; // <--- Import the Gravity class here!
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,20 +21,18 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.heal.MainActivity;
 import com.example.heal.R;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
-import ui.HomeFragment;
 import records.JournalEntryAdapter.OnJournalEntryClickListener;
+import ui.HomeFragment;
 
 public class JournalEntriesFragment extends Fragment implements OnJournalEntryClickListener {
 
@@ -44,6 +41,8 @@ public class JournalEntriesFragment extends Fragment implements OnJournalEntryCl
     private List<HomeFragment.JournalEntry> journalEntries;
     private TextView emptyStateTextView;
     private Gson gson;
+
+    private MainActivity mainActivity;
 
     private static final String PREFS_JOURNAL = "journal_prefs";
     private static final String KEY_JOURNAL_ENTRIES = "journal_entries";
@@ -70,6 +69,7 @@ public class JournalEntriesFragment extends Fragment implements OnJournalEntryCl
         recyclerView.setAdapter(adapter);
 
         updateEmptyState();
+
 
         return view;
     }
@@ -106,6 +106,7 @@ public class JournalEntriesFragment extends Fragment implements OnJournalEntryCl
     private void updateEmptyState() {
         if (journalEntries.isEmpty()) {
             emptyStateTextView.setVisibility(View.VISIBLE);
+            emptyStateTextView.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
             recyclerView.setVisibility(View.GONE);
         } else {
             emptyStateTextView.setVisibility(View.GONE);
@@ -182,7 +183,8 @@ public class JournalEntriesFragment extends Fragment implements OnJournalEntryCl
         builder.setNegativeButton("Delete", (dialog, which) -> {
             new AlertDialog.Builder(getContext())
                     .setTitle("Delete Entry")
-                    .setMessage("Are you sure you want to delete this journal entry?")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setMessage("Are you sure you want to delete this journal entry?, this action cannot be undone.")
                     .setPositiveButton("Yes", (dialogDelete, whichDelete) -> {
                         journalEntries.remove(entryToEdit);
                         saveJournalEntries();

@@ -6,7 +6,6 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -30,13 +29,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.content.ContextCompat; // Import ContextCompat for color retrieval
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
-import androidx.viewpager2.widget.ViewPager2;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.heal.MainActivity;
 import com.example.heal.R;
@@ -46,15 +44,11 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
-import com.github.mikephil.charting.utils.ColorTemplate;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.slider.Slider;
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException; // Import this
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,7 +62,6 @@ import Slider.SliderOne;
 import Slider.SliderThree;
 import Slider.SliderTwo;
 import records.CopingExercisesFragment;
-import records.EmergencyContactsFragment;
 import records.SavedStrategiesFragment;
 import viewmodels.GeneralViewModel;
 
@@ -355,12 +348,11 @@ public class HomeFragment extends Fragment {
         emergencyContactButton.setOnClickListener(v -> {
             mainActivity.loadContacts();
             mainActivity.navigationView.setCheckedItem(R.id.nav_records);
-            mainActivity.toolbar.setTitle("Data Records");
+            mainActivity.toolbar.setTitle("My Emergency Contacts");
         });
         copingExercisesButton.setOnClickListener(v -> {
             mainActivity.loadFragment(new CopingExercisesFragment(), 0);
             mainActivity.navigationView.setCheckedItem(R.id.nav_records);
-            mainActivity.toolbar.setTitle("Data Records");
         });
         moreResourcesButton.setOnClickListener(v -> {
             mainActivity.loadFragment(new RecordFragment(), 0);
@@ -874,6 +866,7 @@ public class HomeFragment extends Fragment {
         if (!isCheckinAllowed()) {
             // User has already checked in today
             moodSeekBar.setEnabled(false);
+            moodSeekBar.setValue(0);
             moodInputText.setEnabled(false);
             submitCheckinButton.setEnabled(false);
             submitCheckinButton.setText("You've checked in today!");

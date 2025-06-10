@@ -85,7 +85,7 @@ public class AIFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Initialize RecyclerView first as it's used before UI elements
-        setupRecyclerView();
+//        setupRecyclerView();
 
         // UI Element Initialization
         chatRecyclerView = view.findViewById(R.id.chat_recycler_view);
@@ -147,9 +147,9 @@ public class AIFragment extends Fragment {
         });
 
         // Optional: Add an initial greeting from the AI when the fragment loads
-        if (chatMessages.isEmpty()) {
-            addMessageToChat(new ChatMessage("Hello! How can I help you today?", false));
-        }
+//        if (chatMessages.isEmpty() && chatMessages != null) {
+//            addMessageToChat(new ChatMessage("Hello! How can I help you today?", false));
+//        }
     }
 
     private void setupRecyclerView(){

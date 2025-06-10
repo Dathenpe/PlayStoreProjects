@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-// import android.content.SharedPreferences; // Remove this if it's no longer used
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,28 +23,27 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.heal.MainActivity;
 import com.example.heal.R;
-import com.bumptech.glide.Glide;
-// Remove Gson imports if no longer used here
-// import com.google.gson.Gson;
-// import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type; // Not needed if Gson imports are removed
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID; // Not needed if AddEditContactDialogFragment handles ID generation
 
 public class EmergencyContactsFragment extends Fragment implements EmergencyContactsAdapter.OnContactActionListener {
 
     private RecyclerView recyclerViewEmergencyContacts;
     private EmergencyContactsAdapter adapter;
-    private List<EmergencyContact> contactList;
+    List<EmergencyContact> contactList;
 
     private ActivityResultLauncher<String> requestCallPermissionLauncher;
     private EmergencyContact contactToCall;
 
+    private TextView emptyStateTextView;
+
     private AddEditContactDialogFragment.OnContactSavedListener onContactSavedListener;
+
+    private MainActivity mainActivity;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -98,28 +96,20 @@ public class EmergencyContactsFragment extends Fragment implements EmergencyCont
         adapter = new EmergencyContactsAdapter(contactList, this);
         recyclerViewEmergencyContacts.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerViewEmergencyContacts.setAdapter(adapter);
-
-        // --- ADD THIS LINE ---
-        // Notify the adapter that the initial data set is ready
+        emptyStateTextView = view.findViewById(R.id.emptyStateTextView);
+        updateEmptyStateVisibility();
         adapter.notifyDataSetChanged();
-        // Or, more explicitly using your custom update method:
-        // adapter.updateContacts(contactList); // This would also work if updateContacts calls notifyDataSetChanged internally
-        // Since updateContacts is already defined, let's use that for consistency.
-        // If contactList is already holding the data from arguments, calling updateContacts here ensures it's displayed.
     }
 
-    /**
-     * Public method to refresh the contact list from MainActivity.
-     * This is called by MainActivity after a contact is added/updated/deleted.
-     */
     public void refreshContactsFromActivity(List<EmergencyContact> updatedList) {
-        // Ensure the list is not null before clearing/adding
+
         if (this.contactList == null) {
             this.contactList = new ArrayList<>();
         }
         this.contactList.clear();
         this.contactList.addAll(updatedList);
-        adapter.updateContacts(this.contactList); // This will call notifyDataSetChanged internally
+        adapter.updateContacts(this.contactList);
+        updateEmptyStateVisibility();
     }
 
     // --- OnContactActionListener methods (from RecyclerView adapter) ---
@@ -134,19 +124,20 @@ public class EmergencyContactsFragment extends Fragment implements EmergencyCont
     public void onDeleteClick(EmergencyContact contact) {
         new AlertDialog.Builder(getContext())
                 .setTitle("Delete Contact")
-                .setMessage("Are you sure you want to delete " + contact.getName() + "?")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setMessage("Are you sure you want to delete " + contact.getName() + "?, this action cannot be undone.")
                 .setPositiveButton("Delete", (dialog, which) -> {
                     // Corrected approach for deletion: Delegate to MainActivity
                     if (getContext() instanceof MainActivity) {
                         ((MainActivity) getContext()).removeEmergencyContact(contact.getId());
-                        // MainActivity's removeEmergencyContact will then call refreshContactsFromActivity
-                        // on this fragment, so no need to manually update adapter here.
                     } else if (getContext() != null) {
                         Toast.makeText(getContext(), "Error: Host activity not found for deletion.", Toast.LENGTH_SHORT).show();
                     }
 
                     if (getContext() != null) {
+                        updateEmptyStateVisibility();
                         Toast.makeText(getContext(), contact.getName() + " deleted.", Toast.LENGTH_SHORT).show();
+
                     }
                 })
                 .setNegativeButton("Cancel", null)
@@ -215,6 +206,21 @@ public class EmergencyContactsFragment extends Fragment implements EmergencyCont
                 Toast.makeText(getContext(), "Could not initiate call: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
             e.printStackTrace();
+        }
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
+        updateEmptyStateVisibility();
+    }
+    private void updateEmptyStateVisibility() {
+        if (contactList.isEmpty()) {
+            emptyStateTextView.setVisibility(View.VISIBLE);
+            emptyStateTextView.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
+            recyclerViewEmergencyContacts.setVisibility(View.GONE);
+        } else {
+            emptyStateTextView.setVisibility(View.GONE);
+            recyclerViewEmergencyContacts.setVisibility(View.VISIBLE);
         }
     }
 }

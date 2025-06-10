@@ -8,14 +8,26 @@
     android:background="?attr/colorSurfaceContainerLow"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="12dp"
+        android:contentDescription="@string/clear_ai_history"
+        app:rippleColor="@color/red"
+        android:backgroundTint="@color/dark_gold_secondary"
+        android:src="@android:drawable/ic_menu_delete"/>
+
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/chat_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingBottom="60dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:listitem="@layout/item_chat_message" />
+    android:id="@+id/chat_recycler_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:paddingTop="?attr/actionBarSize"
+    android:paddingBottom="84dp"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:listitem="@layout/item_chat_message" />
 
     <ProgressBar
         android:id="@+id/loading_progress_bar"
@@ -25,21 +37,36 @@
         android:visibility="gone"
         style="?android:attr/progressBarStyleLarge" />
 
+
     <LinearLayout
         android:id="@+id/input_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="horizontal"
-        android:padding="12dp"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp"
         android:background="?attr/colorSurfaceContainerHigh"
         android:elevation="6dp"
         android:gravity="center_vertical">
 
+    <!-- TextInputEditText with TextInputLayout for modern look -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        app:boxCornerRadiusTopStart="38dp"
+        app:boxCornerRadiusTopEnd="38dp"
+        app:boxCornerRadiusBottomStart="38dp"
+        app:boxCornerRadiusBottomEnd="38dp"
+        app:boxBackgroundMode="outline"
+        app:boxStrokeColor="?attr/colorPrimary"
+        app:hintEnabled="false"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/message_input_edit_text"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Type your message..."
             android:inputType="textMultiLine"
@@ -49,24 +76,27 @@
             android:paddingVertical="14dp"
             android:textColor="?attr/colorOnSurface"
             android:textColorHint="?attr/colorOnSurfaceVariant"
-            android:textAppearance="?attr/textAppearanceBodyLarge" />
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:background="@android:color/transparent" /> <!-- Set background to transparent -->
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/send_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            app:icon="@android:drawable/ic_menu_send"
-            app:iconTint="?attr/colorOnSecondary"
-            app:iconGravity="textStart"
-            android:text="Send"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:minWidth="0dp"
-            android:paddingHorizontal="20dp"
-            android:paddingVertical="14dp"
-            android:backgroundTint="?attr/colorSecondary"
-            android:textColor="?attr/colorOnSecondary"
-            app:cornerRadius="28dp" />
-    </LinearLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <!-- Send Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/send_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        app:icon="@android:drawable/ic_menu_send"
+        app:iconTint="?attr/colorOnPrimary"
+        app:iconGravity="textStart"
+        android:text="Send"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:minWidth="0dp"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="16dp"
+        android:backgroundTint="@color/orange"
+        android:textColor="?attr/colorOnPrimary"
+        app:cornerRadius="28dp" />
+</LinearLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>

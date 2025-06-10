@@ -1,12 +1,16 @@
 package Ai;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import java.util.List;
+
 import com.example.heal.R;
+
+import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatMessageViewHolder> {
     private List <ChatMessage> messages;
@@ -26,11 +30,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatMessageVie
         ChatMessage message = messages.get(position);
         holder.messageTextView.setText(message.getText());
 
-        if (message.isUserMessage()){
-            holder.messageTextView.setTextAlignment(View.TEXT_ALIGNMENT_END);
-        }else{
-            holder.messageTextView.setTextAlignment(View.TEXT_ALIGNMENT_START);
-        }
+//        if (message.isUserMessage()){
+//            holder.messageTextView.setTextAlignment(View.TEXT_ALIGNMENT_END);
+//        }else{
+//            holder.messageTextView.setTextAlignment(View.TEXT_ALIGNMENT_START);
+//        }
     }
     @Override
     public int getItemCount(){

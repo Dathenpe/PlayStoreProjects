@@ -8,24 +8,21 @@
     android:layout_height="match_parent"
     tools:context="records.EmergencyContactsFragment">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:layout_height="wrap_content"
-            android:background="?attr/colorSurface"
-            android:theme="?attr/actionBarTheme"
-            android:layout_width="match_parent">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/EmergencyContactsTitle"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:gravity="center_horizontal"
-                app:layout_scrollFlags="scroll|enterAlways"
-                app:title="Your Emergency Contacts"
-                app:titleCentered="true"
-                app:titleTextAppearance="?attr/textAppearanceHeadlineSmall"
-                app:titleTextColor="?attr/colorPrimary" />
-        </com.google.android.material.appbar.AppBarLayout>
+    <TextView
+        android:id="@+id/emptyStateTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/no_emergency_contacts_here_yet_tap_the_button_at_the_bottom_right_to_add_one"
+        android:gravity="center"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:layout_marginTop="23dp"
+        android:padding="24dp"
+        android:visibility="gone"
+        app:layout_anchor="@id/recyclerViewEmergencyContacts"
+        app:layout_anchorGravity="center" />
         <androidx.recyclerview.widget.RecyclerView
+        android:layout_marginTop="10dp"
         android:id="@+id/recyclerViewEmergencyContacts"
         android:layout_width="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"

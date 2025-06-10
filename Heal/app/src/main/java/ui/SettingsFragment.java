@@ -2,27 +2,26 @@ package ui;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import com.google.android.material.materialswitch.MaterialSwitch;
+
 import com.example.heal.MainActivity;
 import com.example.heal.R;
+import com.google.android.material.materialswitch.MaterialSwitch;
 
 public class SettingsFragment extends Fragment {
 
@@ -107,14 +106,21 @@ public class SettingsFragment extends Fragment {
             } else {
                 Toast.makeText(getContext(), "Name cannot be empty, changes not saved", Toast.LENGTH_SHORT).show();
             }
-            dialog.dismiss(); // Dismiss the AlertDialog
         });
 
         builder.setNegativeButton("Cancel", (dialog, which) -> {
             dialog.cancel(); // Dismiss the AlertDialog
         });
 
-        builder.show();
+        AlertDialog dialog = builder.create();
+
+        // Set the windowSoftInputMode on the created dialog's window
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
+
+        // Show the dialog instance you just configured
+        dialog.show(); // <--- CHANGE THIS LINE
     }
 
     private String getNameFromLocalStorage() {

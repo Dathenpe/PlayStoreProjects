@@ -6,27 +6,12 @@
     android:layout_height="match_parent"
     tools:context="records.SavedStrategiesFragment">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="?attr/actionBarTheme"
-        android:background="?attr/colorSurface">
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:title="My Coping Strategies"
-            app:titleTextAppearance="?attr/textAppearanceHeadlineSmall"
-            app:titleTextColor="?attr/colorPrimary"
-            android:gravity="center_horizontal" />
-    </com.google.android.material.appbar.AppBarLayout>
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewStrategies"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
+        android:layout_marginTop="10dp"
         android:paddingBottom="80dp"  tools:listitem="@layout/item_strategy"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 

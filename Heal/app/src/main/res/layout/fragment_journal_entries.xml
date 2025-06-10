@@ -5,24 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:layout_height="wrap_content"
-        android:background="?attr/colorSurface"
-        android:theme="?attr/actionBarTheme"
-        android:layout_width="match_parent">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/journalHistoryTitle"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:gravity="center_horizontal"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:title="My Coping Strategies"
-            app:titleCentered="true"
-            app:titleTextAppearance="?attr/textAppearanceHeadlineSmall"
-            app:titleTextColor="?attr/colorPrimary" />
-    </com.google.android.material.appbar.AppBarLayout>
-
     <TextView
         android:id="@+id/empty_journal_state_text_view"
         android:layout_width="match_parent"
@@ -31,10 +13,11 @@
         android:layout_marginTop="50dp"
         android:layout_marginEnd="24dp"
         android:gravity="center"
-        android:text="You haven't written any journal entries yet. Start reflecting on your day from the Home tab!"
+        android:text="You haven't written any journal entries yet. Start reflecting on your day from the Home Screen"
         android:textAppearance="?attr/textAppearanceBodyLarge" android:textColor="?attr/colorOnSurfaceVariant" android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:layout_marginTop="10dp"
         android:id="@+id/journal_entries_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
