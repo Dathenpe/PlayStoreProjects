@@ -4,11 +4,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -94,33 +95,47 @@ public class SettingsFragment extends Fragment {
         builder.setTitle("Edit Name");
         final EditText input = new EditText(getContext());
         input.setText(nameText.getText());
-        new Handler().postDelayed(input::requestFocus, 300);
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            input.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+            }
+        }, 300);
+
         builder.setView(input);
 
-        builder.setPositiveButton("OK", (dialog, which) -> {
+        builder.setPositiveButton("OK", null);
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            dialog.cancel();
+            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String newName = input.getText().toString().trim();
             if (newName != null && !newName.isEmpty()) {
                 mainActivity.saveNameToLocalStorage(newName);
-                nameText.setText(newName); // Update the name text directly in SettingsFragment
+                nameText.setText(newName);
                 Toast.makeText(getContext(), "Name saved successfully", Toast.LENGTH_SHORT).show();
+
+                dialog.dismiss();
+
+                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
+                }
+
             } else {
                 Toast.makeText(getContext(), "Name cannot be empty, changes not saved", Toast.LENGTH_SHORT).show();
             }
         });
-
-        builder.setNegativeButton("Cancel", (dialog, which) -> {
-            dialog.cancel(); // Dismiss the AlertDialog
-        });
-
-        AlertDialog dialog = builder.create();
-
-        // Set the windowSoftInputMode on the created dialog's window
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        }
-
-        // Show the dialog instance you just configured
-        dialog.show(); // <--- CHANGE THIS LINE
     }
 
     private String getNameFromLocalStorage() {

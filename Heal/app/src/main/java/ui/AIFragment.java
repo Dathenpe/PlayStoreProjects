@@ -118,7 +118,6 @@ public class AIFragment extends Fragment {
 
         // Set Toolbar title and Navigation View item (assuming mainActivity is not null)
         if (mainActivity != null) {
-            mainActivity.toolbar.setTitle("AI Chat"); // Changed title to be more accurate
             mainActivity.navigationView.setCheckedItem(R.id.nav_ai);
         } else {
             Log.e("AIFragment", "MainActivity is null, cannot set toolbar or navigation view.");
@@ -250,6 +249,15 @@ public class AIFragment extends Fragment {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if (mainActivity != null){
+            mainActivity.MenuTrigger.setVisibility(View.VISIBLE);
+            mainActivity. Fab.setVisibility(View.VISIBLE);
+            mainActivity.shakeView(mainActivity.Fab);
         }
     }
 }

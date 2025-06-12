@@ -96,12 +96,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final String KEY_CONTACTS = "contactsList";
 
     private DrawerLayout drawerLayout;
-    private FloatingActionButton Fab;
+    public FloatingActionButton Fab;
     public Toolbar toolbar;
     public NavigationView navigationView;
     private MenuItem previousMenuItem;
     private View previousItemView;
-    private ImageButton MenuTrigger;
+    public ImageButton MenuTrigger;
     private PopupWindow popupWindow;
     FrameLayout bottomSheetContent;
     private static final String TAG = "MainActivity";
@@ -116,8 +116,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private HashMap<String, String> sendData = new HashMap<>();
     private EditText recipientEditText;
     private EditText messageEditText;
-    private final String myAppLink = "https://play.google.com/store/apps/details?id=com.example.myapp";
-    private final String shareMessage = "Check out this awesome app!";
     private TextView userNameDisplayTextView;
     private static final String CHANNEL_ID = "reminder_channel";
     private static final int REMINDER_NOTIFICATION_ID = 1;
@@ -410,14 +408,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("currentNavId", currentNavId);
-    }
-
-    private View findNavigationViewItemView(@NonNull MenuItem item) {
-        if (navigationView == null) return null;
-        return navigationView.findViewById(item.getItemId());
     }
 
     @Override
@@ -534,6 +527,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 targetFragment = new HomeFragment();
                 shouldLoadFragment = true;
             }
+            String myAppLink = "https://play.google.com/store/apps/details?id=com.example.myapp";
+            String shareMessage = "Check out this awesome app!";
             Share(myAppLink, shareMessage);
         }
 
@@ -654,9 +649,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 R.anim.slide_in_left,
                 R.anim.slide_out_right
         );
-        if (fragment instanceof HomeFragment) {
+        if (fragment instanceof HomeFragment || fragment instanceof AIFragment) {
             fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             fm.executePendingTransactions();
+        }
+        if (!(fragment instanceof HomeFragment) && !(fragment instanceof AIFragment)) {
+            ft.setCustomAnimations(
+                    R.anim.slide_in_right,
+                    R.anim.slide_out_left,
+                    R.anim.slide_in_left,
+                    R.anim.slide_out_right
+            );
         }
 
         ft.replace(R.id.fragment_container, fragment);
@@ -687,13 +690,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
     private void loadBottomFragment(Fragment fragment) {
         FragmentManager fm = getSupportFragmentManager();
-        Fragment currentFragment = fm.findFragmentById(R.id.bottom_sheet_content);
         FragmentTransaction ft = fm.beginTransaction();
         ft.replace(R.id.bottom_sheet_content, fragment);
         ft.addToBackStack(null);
         ft.commit();
     }
-
     private void clearBottomFragment() {
         FragmentManager fm = getSupportFragmentManager();
         Fragment currentFragment = fm.findFragmentById(R.id.bottom_sheet_content);
@@ -711,7 +712,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
            },200);
         }
     }
-
     public void closeSettings() {
         if (bottomSheetBehavior == null) {
             Log.e(TAG, "closeSettings: bottomSheetBehavior is null. Cannot close settings.");
@@ -730,7 +730,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d(TAG, "closeSettings: Bottom sheet is not expanded. No action needed.");
         }
     }
-
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             String name = "Reminder Notifications";
@@ -742,7 +741,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             notificationManager.createNotificationChannel(channel);
         }
     }
-
     private void scheduleReminderNotification() {
         createNotificationChannel();
 
@@ -762,7 +760,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), REPEAT_INTERVAL, pendingIntent);
     }
-
     private void cancelReminderNotification() {
         Intent notificationIntent = new Intent(this, ReminderBroadcastReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, REMINDER_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
@@ -770,12 +767,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pendingIntent);
     }
-
     private boolean getSavedReminderState() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         return sharedPreferences.getBoolean("reminder_enabled", false);
     }
-
     private void checkAndScheduleReminder() {
         if (getSavedReminderState()) {
             scheduleReminderNotification();
@@ -783,7 +778,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             cancelReminderNotification();
         }
     }
-
     public void loadBottomSettingsFragment() {
         if (bottomSheetBehavior == null) {
             Log.e(TAG, "loadBottomSettingsFragment: bottomSheetBehavior is null. Cannot load settings fragment.");
@@ -799,7 +793,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
        },50);
         Log.d(TAG, "loadBottomSettingsFragment: Settings fragment loaded and bottom sheet expanded.");
     }
-
     public void saveNameToLocalStorage(String name) {
         SharedPreferences sharedPreferences = android.preference.PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -846,12 +839,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
         }
     }
-    public void hideKeyboard() {
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null && getCurrentFocus() != null) {
-            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-        }
-    }
     private void showWelcomeDialogStep(int step) {
         // Basic bounds check
         if (step < 0 || step >= WelcomeMessages.length) {
@@ -890,10 +877,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 homeFragment.setArguments(args);
 
                 loadFragment(homeFragment, R.id.nav_home);
-                if (navigationView != null) { // Add null check for safety
+                if (navigationView != null) {
                     navigationView.setCheckedItem(R.id.nav_home);
                 }
-                if (toolbar != null) { // Add null check
+                if (toolbar != null) {
                     toolbar.setTitle("Home Room");
                 }
                 Log.d(TAG, "MainActivity: welcomeMessage - Loading HomeFragment after timer start (final step).");

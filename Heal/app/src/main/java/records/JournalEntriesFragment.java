@@ -179,7 +179,6 @@ public class JournalEntriesFragment extends Fragment implements OnJournalEntryCl
             }
         });
 
-        // Delete Button
         builder.setNegativeButton("Delete", (dialog, which) -> {
             new AlertDialog.Builder(getContext())
                     .setTitle("Delete Entry")
