@@ -2,14 +2,21 @@ plugins {
     id 'java'
 }
 
-group = 'com.xavier.project'
+group = 'com.f9ld3.xavier.ai'
 version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
 
+java{
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
 dependencies {
+    implementation 'nz.ac.waikato.cms.weka:weka-stable:3.8.6'
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
