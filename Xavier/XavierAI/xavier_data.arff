@@ -1,0 +1,134 @@
+@RELATION xavier_conversational_intents
+
+@ATTRIBUTE text STRING
+@ATTRIBUTE intent {greeting, goodbye, unknown, weather_query, joke_request, followup_location, gratitude, affirmation, negation, personal_question, time_query, feeling_status}
+
+@DATA
+'hello',greeting
+'hi there',greeting
+'good morning',greeting
+'good evening',greeting
+'hey',greeting
+'howdy',greeting
+'greetings',greeting
+'long time no see',greeting
+'what\'s up',greeting
+'hello xavier',greeting
+'hi friend',greeting
+'yo',greeting
+'nice to meet you',greeting
+'pleasure to meet you',greeting
+'how are you doing today',greeting
+
+'goodbye',goodbye
+'see ya',goodbye
+'farewell',goodbye
+'bye',goodbye
+'talk to you later',goodbye
+'catch you later',goodbye
+'so long',goodbye
+'i have to go',goodbye
+'ending conversation',goodbye
+'exit',goodbye
+'quit',goodbye
+
+'random stuff',unknown
+'i dont know',unknown
+'tell me something weird',unknown
+'blah blah blah',unknown
+'mumble jumble',unknown
+'what is this',unknown
+'confused',unknown
+'i do not understand',unknown
+'please clarify',unknown
+'can you explain that',unknown
+'this makes no sense',unknown
+
+'what is the weather like',weather_query
+'is it sunny',weather_query
+'tell me about the forecast',weather_query
+'how hot is it',weather_query
+'will it rain tomorrow',weather_query
+'weather in london',weather_query
+'weather for paris',weather_query
+'is it sunny in abuja',weather_query
+'what is the forecast for tokyo',weather_query
+'can you tell me the weather in dubai',weather_query
+'temperature in new york',weather_query
+'forecast for lagos',weather_query
+'what will the climate be like',weather_query
+'will it snow',weather_query
+
+'tell me a joke',joke_request
+'make me laugh',joke_request
+'any jokes',joke_request
+'tell me something funny',joke_request
+'i need a laugh',joke_request
+'can you crack a joke',joke_request
+'amuse me',joke_request
+
+'what about sydney',followup_location
+'in lagos',followup_location
+'here',followup_location
+'new york',followup_location
+'london',followup_location
+'for paris',followup_location
+'in tokyo',followup_location
+'weather there',followup_location
+'how about beijing',followup_location
+
+'thank you',gratitude
+'thanks a lot',gratitude
+'cheers',gratitude
+'i appreciate it',gratitude
+'many thanks',gratitude
+'that was helpful',gratitude
+'you are a lifesaver',gratitude
+'much obliged',gratitude
+'thank you xavier',gratitude
+
+'yes',affirmation
+'okay',affirmation
+'alright',affirmation
+'sure',affirmation
+'affirmative',affirmation
+'got it',affirmation
+'roger that',affirmation
+'sounds good',affirmation
+'you got it',affirmation
+
+'no',negation
+'not really',negation
+'i dont think so',negation
+'negative',negation
+'nope',negation
+'absolutely not',negation
+'by no means',negation
+'false',negation
+'incorrect',negation
+
+'what is your name',personal_question
+'how are you',personal_question
+'who are you',personal_question
+'are you an ai',personal_question
+'what can i call you',personal_question
+'what is your purpose',personal_question
+'how old are you',personal_question
+'where are you from',personal_question
+
+'what time is it',time_query
+'current time',time_query
+'what is the exact time',time_query
+'can you tell me the time',time_query
+'what\'s the hour',time_query
+'time now',time_query
+
+'i am feeling happy',feeling_status
+'im sad',feeling_status
+'i feel terrible',feeling_status
+'how are you feeling',feeling_status
+'i am bored',feeling_status
+'i am excited',feeling_status
+'i feel great',feeling_status
+'i am upset',feeling_status
+'i am calm',feeling_status
