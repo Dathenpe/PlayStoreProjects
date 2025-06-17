@@ -1,5 +1,6 @@
 package com.f9ld3.xavier.ai; // IMPORTANT: Ensure this matches your package name
 
+import org.json.JSONArray;
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -15,6 +16,7 @@ import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -22,9 +24,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalTime; // NEW: For time_query intent
 import java.time.format.DateTimeFormatter; // NEW: For formatting time
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * XavierCoreAI: Encapsulates the core AI logic for intent classification,
@@ -37,6 +38,11 @@ public class XavierCoreAI {
 //API  CONFIGURATION
 private static final String OPENWEATHER_API_KEY = "a05a0c427992d0bee9a9624548399407";
 private static final String OPENWEATHER_BASE_URL = "http://api.openweathermap.org/data/2.5/weather";
+
+private static final String NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org/search";
+private static final String USER_AGENT  = "XavierAI/1.0 (adetayoadedamola6@gmail.com)";
+private static long  lastNominatimRequestTime = 0;
+private static final long NOMINATIM_RATE_LIMIT_MS = 1000;
 
 // --- AI Brain Components ---
 private Classifier classifier; // The trained Weka classification model
@@ -52,11 +58,65 @@ private static final ArrayList<String> INTENT_POSSIBLE_VALUES = new ArrayList<>(
 		"gratitude", "affirmation", "negation", "personal_question", "time_query", "feeling_status" // All defined intents
 ));
 
-// A simple, predefined list of locations Xavier knows about for extraction
+// A simple, predefined list of locations Xavier knows about for extraction, for faster accessibility
 private static final HashSet<String> KNOWN_LOCATIONS = new HashSet<>(Arrays.asList(
-		"lagos", "london", "new york", "paris", "abuja", "tokyo", "beijing", "dubai", "sydney"
+		"china", "india", "united states", "indonesia", "pakistan", "nigeria", "brazil", "bangladesh",
+		"russia", "mexico", "japan", "ethiopia", "philippines", "egypt", "vietnam", "dr congo",
+		"iran", "turkey", "germany", "united kingdom", "france", "italy", "tanzania", "south africa",
+		"myanmar", "kenya", "south korea", "colombia", "spain", "uganda", "argentina", "algeria",
+		"sudan", "ukraine", "iraq", "afghanistan", "poland", "canada", "morocco", "uzbekistan",
+		"peru", "saudi arabia", "venezuela", "ghana", "nepal", "yemen", "australia", "madagascar",
+		"ivory coast", "north korea", "california", "texas", "florida", "new york", "pennsylvania", "illinois", "ohio", "georgia",
+		"north carolina", "michigan", "new jersey", "virginia", "washington", "arizona", "massachusetts",
+		"tennessee", "indiana", "maryland", "missouri", "colorado", "wisconsin", "minnesota", "south carolina",
+		"alabama", "louisiana", "kentucky", "oregon", "oklahoma", "connecticut", "utah", "iowa",
+		"nevada", "arkansas", "mississippi", "kansas", "new mexico", "nebraska", "idaho", "west virginia",
+		"hawaii", "new hampshire", "maine", "montana", "rhode island", "delaware", "south dakota",
+		"north dakota", "alaska", "district of columbia", "vermont", "wyoming",
+		"netherlands", "belgium", "sweden", "greece", "portugal", "czech republic", "hungary", "austria",
+		"switzerland", "denmark", "finland", "norway", "ireland", "new zealand", "chile", "ecuador",
+		"bolivia", "guatemala", "cuba", "dominican republic", "haiti", "cambodia", "sri lanka",
+		"kazakhstan", "azerbaijan", "georgia", "armenia", "tunisia", "libya", "jordan", "lebanon",
+		"syria", "oman", "qatar", "kuwait", "bahrain", "eritrea", "somalia", "liberia", "sierra leone",
+		"senegal", "mali", "burkina faso", "niger", "chad", "cameroon", "angola", "mozambique",
+		"zambia", "zimbabwe", "botswana", "namibia", "democratic republic of congo", "republic of congo",
+		"gabon", "equatorial guinea", "eritrea", "djibouti", "benin", "togo", "guinea", "guinea-bissau",
+		"gambia", "cape verde", "comoros", "mauritius", "seychelles", "maldives", "brunei", "east timor",
+		"papua new guinea", "fiji", "solomon islands", "vanuatu", "samoa", "tonga", "kiribati", "micronesia",
+		"marshall islands", "palau", "nauru", "tuvalu", "san marino", "monaco", "vatican city", "liechtenstein",
+		"andorra", "luxembourg", "malta", "cyprus", "iceland", "estonia", "latvia", "lithuania",
+		"slovakia", "slovenia", "croatia", "bosnia and herzegovina", "serbia", "kosovo", "montenegro",
+		"north macedonia", "albania", "bulgaria", "romania", "moldova", "belarus",
+		"los angeles", "chicago", "houston", "phoenix", "philadelphia", "san antonio", "san diego",
+		"dallas", "san jose", "austin", "jacksonville", "fort worth", "columbus", "indianapolis",
+		"charlotte", "san francisco", "seattle", "denver", "washington dc", "boston", "el paso",
+		"detroit", "nashville", "portland", "memphis", "louisville", "milwaukee", "baltimore",
+		"albuquerque", "tucson", "fresno", "sacramento", "mesa", "kansas city", "atlanta",
+		"virginia beach", "raleigh", "omaha", "miami", "oakland", "minneapolis", "tulsa",
+		"arlington", "new orleans", "wichita", "cleveland", "tampa", "cincinnati", "pittsburgh",
+		"alberta", "british columbia", "manitoba", "new brunswick", "newfoundland and labrador",
+		"nova scotia", "prince edward island", "saskatchewan", "yukon", "northwest territories", "nunavut",
+		"queensland", "western australia", "south australia", "tasmania", "act", "northern territory",
+		"bengaluru", "mumbai", "delhi", "tokyo", "osaka", "sao paulo", "rio de janeiro", "buenos aires",
+		"london", "manchester", "birmingham", "glasgow", "edinburgh", "dublin", "barcelona", "madrid",
+		"rome", "milan", "munich", "berlin", "hamburg", "amsterdam", "brussels", "stockholm",
+		"copenhagen", "oslo", "helsinki", "zurich", "geneva", "vienna", "prague", "warsaw", "kiev",
+		"moscow", "saint petersburg", "beijing", "shanghai", "hong kong", "singapore", "seoul", "bangkok",
+		"ho chi minh city", "jakarta", "manila", "kuala lumpur", "dubai", "abu dhabi", "doha", "riyadh",
+		"johannesburg", "cape town", "nairobi", "casablanca", "lagos", "abuja", "accra", "cairo",
+		"sydney", "melbourne", "auckland", "wellington", "montevideo", "santiago", "lima", "caracas",
+		"bogota", "quito", "panama city", "san jose costa rica", "guadalajara", "monterrey", "istanbul"
 ));
+private List<String> greetingResponses;
+private List<String> goodbyeResponses;
+private List<String> jokeResponses;
+private List<String> gratitudeResponses;
+private List<String> affirmationResponses;
+private List<String> negationResponses;
+private List<String> feelingResponses;
+private List<String> unknownResponses;
 
+private Random randomGenerator = new Random();
 /**
  * Constructor for XavierCoreAI.
  * Loads the trained Weka classifier and StringToWordVector filter from specified file paths.
@@ -72,10 +132,17 @@ public XavierCoreAI(String modelPath, String filterPath) throws Exception {
 	this.filter = (StringToWordVector) SerializationHelper.read(filterPath);
 	System.out.println("XavierCoreAI: AI brain (model and filter) loaded successfully.");
 	System.out.println("XavierCoreAI: Loaded model type: " + this.classifier.getClass().getSimpleName());
-	
-	if (OPENWEATHER_API_KEY.equals("YOUR_OPENWEATHER_API_KEY") || OPENWEATHER_API_KEY.isEmpty()){
-		System.err.println("WARNING: OpenWeatherMap API key not set. Weather queries will not work. Please update OPENWEATHER_API_KEY in XavierCoreAI.java");
-	}
+	// Load dialogue responses from files
+	System.out.println("XavierCoreAI: Loading dialogue responses...");
+	this.greetingResponses = loadResponsesFromFile("responses/greetings.txt");
+	this.goodbyeResponses = loadResponsesFromFile("responses/goodbyes.txt");
+	this.jokeResponses = loadResponsesFromFile("responses/jokes.txt"); // Added joke responses
+	this.gratitudeResponses = loadResponsesFromFile("responses/gratitude.txt");
+	this.affirmationResponses = loadResponsesFromFile("responses/affirmations.txt");
+	this.negationResponses = loadResponsesFromFile("responses/negations.txt");
+	this.feelingResponses = loadResponsesFromFile("responses/feelings.txt"); // Added feeling responses
+	this.unknownResponses = loadResponsesFromFile("responses/unknowns.txt");
+	System.out.println("XavierCoreAI: Dialogue responses loaded.");
 }
 
 /**
@@ -153,15 +220,66 @@ private String predictIntent(String userMessage) throws Exception {
 /**
  * Attempts to extract a known location from a message.
  * This is a simple dictionary-based entity extraction.
- * @param message The text message to extract from.
+ * "@param "message The text message to extract from.
  * @return The extracted location (e.g., "lagos") or null if not found.
  */
+
 private String extractLocation(String message) {
 	String lowerCaseMessage = message.toLowerCase();
+	String foundLocation = null;
 	for (String location : KNOWN_LOCATIONS) {
-		if (lowerCaseMessage.matches(".*\\b" + location + "\\b.*")) {
-			return location;
+		if (lowerCaseMessage.matches(".*\\b" + location.toLowerCase() + "\\b.*")) {
+			foundLocation = location;
+			break;
 		}
+		
+	}
+	if (foundLocation == null){
+		try{
+			String resolvedLocation = resolveLocationViaNominatim(message);
+			if (resolvedLocation != null){
+				foundLocation = resolvedLocation;
+			}
+		}
+		catch(IOException | JSONException | InterruptedException  e){
+			System.err.println("Error resolving location via Nominatim: " + e.getMessage());
+		}
+	}
+	return foundLocation;
+}
+private String resolveLocationViaNominatim(String query) throws IOException,JSONException,InterruptedException{
+	long now = System.currentTimeMillis();
+	long timeSinceLastRequest = now - lastNominatimRequestTime;
+	if (timeSinceLastRequest < NOMINATIM_RATE_LIMIT_MS){
+		long sleeptime = NOMINATIM_RATE_LIMIT_MS - timeSinceLastRequest;
+		TimeUnit.MILLISECONDS.sleep(sleeptime);
+	}
+	String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
+	String apiUrl = String.format("%s?q=%s&format=json&limit=1", NOMINATIM_BASE_URL, encodedQuery);
+	URL url = new URL(apiUrl);
+	HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+	connection.setRequestMethod("GET");
+	connection.setRequestProperty("User-Agent",USER_AGENT);
+	
+	int responseCode = connection.getResponseCode();
+	if (responseCode == HttpURLConnection.HTTP_OK){
+		BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		String inputLine;
+		StringBuilder response = new StringBuilder();
+		while ((inputLine = in.readLine()) != null){
+			response.append(inputLine);
+		}
+		in.close();
+		
+		lastNominatimRequestTime = System.currentTimeMillis();
+		
+		JSONArray jsonResponseArray = new JSONArray(response.toString());
+		if (!jsonResponseArray.isEmpty()){
+			JSONObject firstResult = jsonResponseArray.getJSONObject(0);
+			return firstResult.getString("display_name").trim();
+		}
+	}else {
+		System.err.println("Error: Nominatim API returned status code " + responseCode);
 	}
 	return null;
 }
@@ -217,60 +335,124 @@ private String getWeatherForLocation(String city){
  * @param userMessage The original user message (used for real-time entity extraction).
  * @return Xavier's friendly response.
  */
+
+/**
+ * Loads a list of responses from a text file in the classpath.
+ * Each line in the file is treated as a separate response.
+ *
+ * @param resourcePath The path to the resource file (e.g., "responses/greetings.txt").
+ * @return A list of strings, where each string is a response.
+ */
+private List<String> loadResponsesFromFile(String resourcePath) {
+	List<String> responses = new ArrayList<>();
+	try (InputStream is = getClass().getClassLoader().getResourceAsStream(resourcePath);
+	     BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+		
+		if (is == null) {
+			System.err.println("ERROR: Cannot find resource file: " + resourcePath);
+			responses.add("Sorry, I'm having a bit of trouble formulating a response for that right now.");
+			return responses;
+		}
+		
+		String line;
+		while ((line = reader.readLine()) != null) {
+			line = line.trim();
+			if (!line.isEmpty()) {
+				responses.add(line);
+			}
+		}
+	} catch (IOException | NullPointerException e) { // Catch NullPointerException if resource not found
+		System.err.println("ERROR loading responses from " + resourcePath + ": " + e.getMessage());
+		e.printStackTrace(); // Good for debugging
+		responses.add("My apologies, I seem to be at a loss for words for that specific case.");
+	}
+	
+	if (responses.isEmpty()) {
+		System.err.println("WARNING: No responses loaded from " + resourcePath + ". File might be empty. Using a default.");
+		responses.add("I'm not quite sure how to reply to that."); // A generic default
+	}
+	return responses;
+}
 private String generateResponse(String predictedIntent, String userMessage) {
 	String response;
 	
-	// Attempt to extract location from the current message right away.
-	// This updates the global 'extractedLocation' for potential future use in dialogue.
 	String currentMessageLocation = extractLocation(userMessage);
 	if (currentMessageLocation != null) {
 		this.extractedLocation = currentMessageLocation;
 	}
 	
+	// Random generator is now a member variable: this.randomGenerator
+	
 	switch (predictedIntent) {
 		case "greeting":
-			response = "Hello there! How can I assist you today?";
+			// Use the pre-loaded list
+			if (!this.greetingResponses.isEmpty()) {
+				response = this.greetingResponses.get(this.randomGenerator.nextInt(this.greetingResponses.size()));
+			} else {
+				response = "Hello there!"; // Fallback if list is somehow empty after loading attempt
+			}
 			break;
 		case "weather_query":
 			if (this.extractedLocation != null) {
-				response = getWeatherForLocation(this.extractedLocation); // Call API here!
+				response = getWeatherForLocation(this.extractedLocation);
 				this.extractedLocation = null;
 			} else {
 				response = "I can tell you the weather. Which location are you interested in?";
 			}
 			break;
 		case "joke_request":
-			response = "Why don't scientists trust atoms? Because they make up everything!";
+			// Use the pre-loaded list
+			if (!this.jokeResponses.isEmpty()) {
+				response = this.jokeResponses.get(this.randomGenerator.nextInt(this.jokeResponses.size()));
+			} else {
+				response = "I tried to think of a joke, but I'm drawing a blank!"; // Fallback
+			}
 			break;
 		case "goodbye":
-			response = "Goodbye! It was nice chatting with you.";
+			// Use the pre-loaded list
+			if (!this.goodbyeResponses.isEmpty()) {
+				response = this.goodbyeResponses.get(this.randomGenerator.nextInt(this.goodbyeResponses.size()));
+			} else {
+				response = "Goodbye!"; // Fallback
+			}
 			break;
 		case "followup_location":
-			// This intent is typically triggered by a standalone location.
-			// Check if it's a valid follow-up to a weather query and a location was found.
 			if (this.lastIntent.equals("weather_query") && this.extractedLocation != null) {
-				response = "Ah, so you'd like the weather in " + this.extractedLocation + ". Let me check... (This would involve a real weather API call!)";
+				response = "Ah, so you'd like the weather in " + " " + this.extractedLocation + " " + getWeatherForLocation(this.extractedLocation);
 				this.extractedLocation = null;
 			} else if (this.extractedLocation != null) {
-				// Location was found, but not in a weather context.
 				response = "You mentioned " + this.extractedLocation + ", but I'm not sure what you want to do with that information right now. Could you clarify?";
 				this.extractedLocation = null;
 			} else {
-				// Follow-up location intent but no clear location found in message or context.
 				response = "You mentioned a location, but I couldn't identify it or relate it to our previous conversation. Can you please specify a city?";
 			}
 			break;
-		case "gratitude": // NEW INTENT RESPONSE
-			response = "You're very welcome! I'm glad I could help.";
+		case "gratitude":
+			// Use the pre-loaded list
+			if (!this.gratitudeResponses.isEmpty()) {
+				response = this.gratitudeResponses.get(this.randomGenerator.nextInt(this.gratitudeResponses.size()));
+			} else {
+				response = "You're welcome!"; // Fallback
+			}
 			break;
-		case "affirmation": // NEW INTENT RESPONSE
-			response = "Understood. Is there anything else I can assist with?";
+		case "affirmation":
+			// Use the pre-loaded list
+			if (!this.affirmationResponses.isEmpty()) {
+				response = this.affirmationResponses.get(this.randomGenerator.nextInt(this.affirmationResponses.size()));
+			} else {
+				response = "Okay."; // Fallback
+			}
 			break;
-		case "negation": // NEW INTENT RESPONSE
-			response = "Alright. Please let me know if you change your mind or need something else.";
+		case "negation":
+			// Use the pre-loaded list
+			if (!this.negationResponses.isEmpty()) {
+				response = this.negationResponses.get(this.randomGenerator.nextInt(this.negationResponses.size()));
+			} else {
+				response = "Understood."; // Fallback
+			}
 			break;
-		case "personal_question": // NEW INTENT RESPONSE
-			// Basic responses for personal questions. You can expand these!
+		case "personal_question":
+			// This logic can remain or also be moved to a file if it grows complex
 			if (userMessage.toLowerCase().contains("name")) {
 				response = "I am Xavier, your personal AI companion.";
 			} else if (userMessage.toLowerCase().contains("how are you")) {
@@ -283,18 +465,27 @@ private String generateResponse(String predictedIntent, String userMessage) {
 				response = "I am an AI, designed to assist you. Is there something specific you'd like to know about me?";
 			}
 			break;
-		case "time_query": // NEW INTENT RESPONSE
-			// Get current local time and format it
+		case "time_query":
 			LocalTime currentTime = LocalTime.now();
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm:ss a"); // e.g., 03:30:15 PM
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm:ss a");
 			response = "The current time is " + currentTime.format(formatter) + ".";
 			break;
-		case "feeling_status": // NEW INTENT RESPONSE
-			response = "I see. While I don't experience feelings, I hope you feel better/continue to feel good! How can I help you further?";
+		case "feeling_status":
+			// Use the pre-loaded list
+			if (!this.feelingResponses.isEmpty()) {
+				response = this.feelingResponses.get(this.randomGenerator.nextInt(this.feelingResponses.size()));
+			} else {
+				response = "I understand. How can I help?"; // Fallback
+			}
 			break;
 		case "unknown":
-		default: // Handles "unknown" and any other unexpected intent string
-			response = "I'm sorry, I didn't quite understand that. Could you rephrase?";
+		default:
+			// Use the pre-loaded list
+			if (!this.unknownResponses.isEmpty()) {
+				response = this.unknownResponses.get(this.randomGenerator.nextInt(this.unknownResponses.size()));
+			} else {
+				response = "I'm sorry, I didn't understand that."; // Fallback
+			}
 			break;
 	}
 	return response;

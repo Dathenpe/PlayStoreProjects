@@ -19,7 +19,6 @@
 'nice to meet you',greeting
 'pleasure to meet you',greeting
 'how are you doing today',greeting
-
 'goodbye',goodbye
 'see ya',goodbye
 'farewell',goodbye
@@ -31,7 +30,6 @@
 'ending conversation',goodbye
 'exit',goodbye
 'quit',goodbye
-
 'random stuff',unknown
 'i dont know',unknown
 'tell me something weird',unknown
@@ -43,7 +41,6 @@
 'please clarify',unknown
 'can you explain that',unknown
 'this makes no sense',unknown
-
 'what is the weather like',weather_query
 'is it sunny',weather_query
 'tell me about the forecast',weather_query
@@ -58,7 +55,6 @@
 'forecast for lagos',weather_query
 'what will the climate be like',weather_query
 'will it snow',weather_query
-
 'tell me a joke',joke_request
 'make me laugh',joke_request
 'any jokes',joke_request
@@ -66,7 +62,6 @@
 'i need a laugh',joke_request
 'can you crack a joke',joke_request
 'amuse me',joke_request
-
 'what about sydney',followup_location
 'in lagos',followup_location
 'here',followup_location
@@ -76,7 +71,6 @@
 'in tokyo',followup_location
 'weather there',followup_location
 'how about beijing',followup_location
-
 'thank you',gratitude
 'thanks a lot',gratitude
 'cheers',gratitude
@@ -85,8 +79,6 @@
 'that was helpful',gratitude
 'you are a lifesaver',gratitude
 'much obliged',gratitude
-'thank you xavier',gratitude
-
 'yes',affirmation
 'okay',affirmation
 'alright',affirmation
@@ -96,7 +88,6 @@
 'roger that',affirmation
 'sounds good',affirmation
 'you got it',affirmation
-
 'no',negation
 'not really',negation
 'i dont think so',negation
@@ -106,7 +97,6 @@
 'by no means',negation
 'false',negation
 'incorrect',negation
-
 'what is your name',personal_question
 'how are you',personal_question
 'who are you',personal_question
@@ -115,14 +105,12 @@
 'what is your purpose',personal_question
 'how old are you',personal_question
 'where are you from',personal_question
-
 'what time is it',time_query
 'current time',time_query
 'what is the exact time',time_query
 'can you tell me the time',time_query
 'what\'s the hour',time_query
 'time now',time_query
-
 'i am feeling happy',feeling_status
 'im sad',feeling_status
 'i feel terrible',feeling_status
@@ -132,3 +120,1653 @@
 'i feel great',feeling_status
 'i am upset',feeling_status
 'i am calm',feeling_status
+'good day',greeting
+'top of the morning',greeting
+'salutations',greeting
+'hiya',greeting
+'how do you do',greeting
+'what\'s happening',greeting
+'how\'s it going',greeting
+'good afternoon',greeting
+'good night',greeting
+'hello there',greeting
+'hi, how are you',greeting
+'greetings to you',greeting
+'pleased to meet you',greeting
+'it\'s a pleasure to meet you',greeting
+'how are things',greeting
+'what\'s new',greeting
+'how\'s life treating you',greeting
+'hello, friend',greeting
+'nice to see you',greeting
+'pleasure to see you',greeting
+'how are you today',greeting
+'good to see you',greeting
+'hello there, friend',greeting
+'hi, good to see you',greeting
+'good morning to you',greeting
+'good evening to you',greeting
+'hey there',greeting
+'howdy partner',greeting
+'greetings and salutations',greeting
+'long time no talk',greeting
+'what\'s up with you',greeting
+'hello, my friend',greeting
+'yo, what\'s good',greeting
+'nice to meet you too',greeting
+'pleasure to meet you as well',greeting
+'how are you doing this fine day',greeting
+'hello, world',greeting
+'hi, everyone',greeting
+'good day to you',greeting
+'how are things going',greeting
+'what\'s the latest',greeting
+'how\'s everything',greeting
+'hello, dear friend',greeting
+'hi, how have you been',greeting
+'good morning, sunshine',greeting
+'good evening, moonbeam',greeting
+'hey, stranger',greeting
+'howdy, partner',greeting
+'greetings from afar',greeting
+'long time no hear',greeting
+'what\'s the scoop',greeting
+'hello, beautiful',greeting
+'hi, handsome',greeting
+'yo, what\'s up, doc',greeting
+'nice to meet you, finally',greeting
+'pleasure to meet you, truly',greeting
+'how are you feeling today',greeting
+'hello, friend',greeting
+'hi, pal',greeting
+'good morning, everyone',greeting
+'good evening, folks',greeting
+'hey, buddy',greeting
+'howdy, folks',greeting
+'greetings, all',greeting
+'long time no chat',greeting
+'what\'s the word',greeting
+'hello, sunshine',greeting
+'hi, star',greeting
+'yo, what\'s good, fam',greeting
+'nice to meet you, friend',greeting
+'pleasure to meet you, pal',greeting
+'how are you doing this morning',greeting
+'hello, my dear',greeting
+'hi, my love',greeting
+'good morning, my friend',greeting
+'good evening, my dear',greeting
+'hey, my buddy',greeting
+'howdy, my friend',greeting
+'greetings, my dear',greeting
+'long time no see, my friend',greeting
+'what\'s up, my dear',greeting
+'hello, my love',greeting
+'hi, my sunshine',greeting
+'yo, what\'s good, my friend',greeting
+'nice to meet you, my dear',greeting
+'pleasure to meet you, my love',greeting
+'how are you doing this evening',greeting
+'adios',goodbye
+'cheerio',goodbye
+'bye bye',goodbye
+'see you around',goodbye
+'until next time',goodbye
+'later',goodbye
+'gotta go',goodbye
+'I\'m off',goodbye
+'time to go',goodbye
+'signing off',goodbye
+'have a good one',goodbye
+'take care',goodbye
+'all the best',goodbye
+'it was nice talking to you',goodbye
+'I\'m leaving now',goodbye
+'ending our chat',goodbye
+'closing conversation',goodbye
+'see you later alligator',goodbye
+'farewell for now',goodbye
+'bye for now',goodbye
+'talk to you soon',goodbye
+'catch you on the flip side',goodbye
+'so long, farewell',goodbye
+'I must depart',goodbye
+'ending this discussion',goodbye
+'exit now',goodbye
+'quit this conversation',goodbye
+'goodbye for now',goodbye
+'see you next time',goodbye
+'farewell, my friend',goodbye
+'bye bye for now',goodbye
+'talk to you later, friend',goodbye
+'catch you later, pal',goodbye
+'so long, partner',goodbye
+'I have to leave',goodbye
+'ending our session',goodbye
+'exit the chat',goodbye
+'quit the application',goodbye
+'goodbye, friend',goodbye
+'see ya, pal',goodbye
+'farewell, dear',goodbye
+'bye, my friend',goodbye
+'talk to you later, dear',goodbye
+'catch you later, dear',goodbye
+'so long, my friend',goodbye
+'I must go now',goodbye
+'ending this interaction',goodbye
+'exit the program',goodbye
+'quit the system',goodbye
+'goodbye, everyone',goodbye
+'see ya, folks',goodbye
+'farewell, all',goodbye
+'bye, folks',goodbye
+'talk to you later, everyone',goodbye
+'catch you later, folks',goodbye
+'so long, everyone',goodbye
+'I have to run',goodbye
+'ending the call',goodbye
+'exit the app',goodbye
+'quit the game',goodbye
+'goodbye, my dear',goodbye
+'see ya, my love',goodbye
+'farewell, my sunshine',goodbye
+'bye, my dear',goodbye
+'talk to you later, my love',goodbye
+'catch you later, my sunshine',goodbye
+'so long, my dear',goodbye
+'I must be going',goodbye
+'ending the dialogue',goodbye
+'exit the interface',goodbye
+'quit the session',goodbye
+'purple elephants fly',unknown
+'the square circle',unknown
+'banana phone',unknown
+'what is the sound of one hand clapping',unknown
+'why is a raven like a writing desk',unknown
+'what\'s the capital of zimbabwe',unknown
+'who won the world series in 1987',unknown
+'tell me about astrophysics',unknown
+'what\'s the best stock to buy',unknown
+'how do I fix my car engine',unknown
+'I\'m not following',unknown
+'I\'m lost',unknown
+'I need more information',unknown
+'I\'m unsure',unknown
+'I\'m puzzled',unknown
+'this is unclear',unknown
+'what is the meaning of life',unknown
+'tell me about quantum entanglement',unknown
+'gibberish',unknown
+'I am utterly lost',unknown
+'can you tell me something random',unknown
+'what is the purpose of existence',unknown
+'speak nonsense',unknown
+'I don\'t get it',unknown
+'please elaborate',unknown
+'I am confused by this',unknown
+'this doesn\'t make sense to me',unknown
+'what is the color of dreams',unknown
+'how many angels can dance on the head of a pin',unknown
+'tell me a riddle',unknown
+'what is the airspeed velocity of an unladen swallow',unknown
+'what is the sound of silence',unknown
+'what is the square root of a banana',unknown
+'tell me something that isn\'t real',unknown
+'what is the meaning of the universe',unknown
+'speak gibberish',unknown
+'I am completely confused',unknown
+'I don\'t understand what you mean',unknown
+'can you clarify that statement',unknown
+'this is beyond my comprehension',unknown
+'what is the sound of one hand clapping in space',unknown
+'why is a duck a duck',unknown
+'tell me a paradox',unknown
+'what is the meaning of the number 42',unknown
+'what is the sound of a tree falling in a forest if no one is around',unknown
+'what is the color of the wind',unknown
+'tell me something that defies logic',unknown
+'what is the meaning of everything',unknown
+'speak in riddles',unknown
+'I am utterly bewildered',unknown
+'I don\'t grasp this concept',unknown
+'can you explain this in simpler terms',unknown
+'this is too complex for me',unknown
+'what is the weather in Berlin',weather_query
+'is it raining in Berlin',weather_query
+'forecast for tomorrow in Tokyo',weather_query
+'what\'s the climate like in London',weather_query
+'will it be sunny in Paris',weather_query
+'what\'s the weather in Rome',weather_query
+'is it stormy in Madrid',weather_query
+'will it snow in Cairo',weather_query
+'temperature in Sydney today',weather_query
+'forecast for Rio this evening',weather_query
+'how cold is it in Moscow',weather_query
+'what\'s the outlook for Beijing',weather_query
+'any precipitation in Delhi',weather_query
+'is it cloudy in Toronto',weather_query
+'what\'s the weather in Vancouver',weather_query
+'is it windy in Mexico City',weather_query
+'will it drizzle in Buenos Aires',weather_query
+'temperature in Santiago today',weather_query
+'forecast for Lima this evening',weather_query
+'how hot is it in Bogota',weather_query
+'what\'s the outlook for Accra',weather_query
+'any precipitation in Nairobi',weather_query
+'is it clear in Cape Town',weather_query
+'what\'s the weather in Istanbul',weather_query
+'is it overcast in Athens',weather_query
+'will it hail in Oslo',weather_query
+'temperature in Stockholm today',weather_query
+'forecast for Helsinki this evening',weather_query
+'how humid is it in Warsaw',weather_query
+'what\'s the outlook for Prague',weather_query
+'any precipitation in Budapest',weather_query
+'is it dry in Vienna',weather_query
+'what\'s the weather in Dublin',weather_query
+'is it chilly in Edinburgh',weather_query
+'will it thunder in Manchester',weather_query
+'temperature in Birmingham today',weather_query
+'forecast for Glasgow this evening',weather_query
+'how warm is it in Liverpool',weather_query
+'what\'s the outlook for Marseille',weather_query
+'any precipitation in Lyon',weather_query
+'is it cold in Nice',weather_query
+'what\'s the weather in Hamburg',weather_query
+'is it freezing in Munich',weather_query
+'will it lightning in Frankfurt',weather_query
+'temperature in Cologne today',weather_query
+'forecast for Dresden this evening',weather_query
+'how mild is it in Milan',weather_query
+'what\'s the outlook for Naples',weather_query
+'any precipitation in Turin',weather_query
+'is it drizzling in Venice',weather_query
+'what\'s the weather in Florence',weather_query
+'is it hailing in Barcelona',weather_query
+'will it be sunny in Valencia',weather_query
+'temperature in Seville today',weather_query
+'forecast for Lisbon this evening',weather_query
+'how stormy is it in Porto',weather_query
+'what\'s the outlook for Brussels',weather_query
+'any precipitation in Amsterdam',weather_query
+'is it windy in Rotterdam',weather_query
+'what\'s the weather in Copenhagen',weather_query
+'is it foggy in Zurich',weather_query
+'will it snow in Geneva',weather_query
+'temperature in Dubai today',weather_query
+'forecast for Abu Dhabi this evening',weather_query
+'how hot is it in Doha',weather_query
+'what\'s the outlook for Riyadh',weather_query
+'any precipitation in Jeddah',weather_query
+'is it clear in Kuwait City',weather_query
+'what\'s the weather in Manama',weather_query
+'is it overcast in Muscat',weather_query
+'will it rain in Amman',weather_query
+'temperature in Beirut today',weather_query
+'forecast for Damascus this evening',weather_query
+'how cold is it in Baghdad',weather_query
+'what\'s the outlook for Tehran',weather_query
+'any precipitation in Kabul',weather_query
+'is it dry in Islamabad',weather_query
+'what\'s the weather in Karachi',weather_query
+'is it chilly in Lahore',weather_query
+'will it thunder in Mumbai',weather_query
+'temperature in Delhi today',weather_query
+'forecast for Bangalore this evening',weather_query
+'how warm is it in Chennai',weather_query
+'what\'s the outlook for Kolkata',weather_query
+'any precipitation in Dhaka',weather_query
+'is it freezing in Kathmandu',weather_query
+'what\'s the weather in Colombo',weather_query
+'is it hailing in Bangkok',weather_query
+'will it be sunny in Ho Chi Minh City',weather_query
+'temperature in Hanoi today',weather_query
+'forecast for Kuala Lumpur this evening',weather_query
+'how stormy is it in Singapore',weather_query
+'what\'s the outlook for Jakarta',weather_query
+'any precipitation in Manila',weather_query
+'is it windy in Seoul',weather_query
+'what\'s the weather in Busan',weather_query
+'is it foggy in Osaka',weather_query
+'will it snow in Sapporo',weather_query
+'temperature in Fukuoka today',weather_query
+'forecast for Perth this evening',weather_query
+'how hot is it in Brisbane',weather_query
+'what\'s the outlook for Adelaide',weather_query
+'any precipitation in Melbourne',weather_query
+'is it clear in Auckland',weather_query
+'what\'s the weather in Wellington',weather_query
+'is it overcast in Christchurch',weather_query
+'will it rain in Honolulu',weather_query
+'temperature in Anchorage today',weather_query
+'forecast for Miami this evening',weather_query
+'how cold is it in Houston',weather_query
+'what\'s the outlook for Dallas',weather_query
+'any precipitation in Philadelphia',weather_query
+'is it dry in Boston',weather_query
+'what\'s the weather in Chicago',weather_query
+'is it chilly in Denver',weather_query
+'will it thunder in Phoenix',weather_query
+'temperature in San Diego today',weather_query
+'forecast for San Francisco this evening',weather_query
+'how warm is it in Seattle',weather_query
+'what\'s the outlook for Portland',weather_query
+'any precipitation in Las Vegas',weather_query
+'is it freezing in New Orleans',weather_query
+'what\'s the weather in Atlanta',weather_query
+'is it hailing in Charlotte',weather_query
+'will it be sunny in Nashville',weather_query
+'temperature in Detroit today',weather_query
+'forecast for Cleveland this evening',weather_query
+'how stormy is it in Minneapolis',weather_query
+'what\'s the outlook for St. Louis',weather_query
+'any precipitation in Kansas City',weather_query
+'is it windy in Indianapolis',weather_query
+'what\'s the weather in Columbus',weather_query
+'is it foggy in Milwaukee',weather_query
+'will it snow in Pittsburgh',weather_query
+'temperature in Cincinnati today',weather_query
+'forecast for Orlando this evening',weather_query
+'how hot is it in Tampa',weather_query
+'what\'s the outlook for Jacksonville',weather_query
+'any precipitation in Raleigh',weather_query
+'is it clear in Richmond',weather_query
+'what\'s the weather in Baltimore',weather_query
+'is it overcast in Washington D.C.',weather_query
+'will it rain in Montreal',weather_query
+'temperature in Calgary today',weather_query
+'forecast for Edmonton this evening',weather_query
+'how cold is it in Winnipeg',weather_query
+'what\'s the outlook for Quebec City',weather_query
+'any precipitation in Ottawa',weather_query
+'is it dry in Victoria',weather_query
+'what\'s the weather in Halifax',weather_query
+'is it chilly in Saskatoon',weather_query
+'will it thunder in Regina',weather_query
+'temperature in Fredericton today',weather_query
+'forecast for Charlottetown this evening',weather_query
+'how warm is it in St. John\'s',weather_query
+'what\'s the outlook for Whitehorse',weather_query
+'any precipitation in Yellowknife',weather_query
+'is it freezing in Iqaluit',weather_query
+'tell me a jest',joke_request
+'share a funny story',joke_request
+'got any humor',joke_request
+'I\'m in the mood for a laugh',joke_request
+'can you tell a gag',joke_request
+'entertain me',joke_request
+'give me something amusing',joke_request
+'do you know any jokes',joke_request
+'I could use a good laugh',joke_request
+'hit me with a joke',joke_request
+'tell me something hilarious',joke_request
+'make me smile',joke_request
+'got a funny one for me',joke_request
+'tell me a witty remark',joke_request
+'can you lighten the mood',joke_request
+'I need some cheer',joke_request
+'tell me a pun',joke_request
+'make me chuckle',joke_request
+'any funny stories',joke_request
+'give me a giggle',joke_request
+'tell me a knee-slapper',joke_request
+'I want to hear something funny',joke_request
+'can you tell a humorous anecdote',joke_request
+'amuse me with a jest',joke_request
+'tell me a comical tale',joke_request
+'make me burst out laughing',joke_request
+'any amusing tales',joke_request
+'tell me something to brighten my day',joke_request
+'I need a chuckle',joke_request
+'can you tell a funny riddle',joke_request
+'entertain me with a joke',joke_request
+'give me a good laugh',joke_request
+'tell me a hilarious joke',joke_request
+'make me grin',joke_request
+'got any jokes for me',joke_request
+'I could use a laugh right now',joke_request
+'hit me with a funny story',joke_request
+'tell me something that will make me laugh',joke_request
+'make me happy',joke_request
+'got a funny joke',joke_request
+'what about Berlin',followup_location
+'and in Rome',followup_location
+'how\'s Madrid',followup_location
+'what about the weather in Cairo',followup_location
+'and Rio?',followup_location
+'there in Moscow',followup_location
+'for Beijing',followup_location
+'in Delhi',followup_location
+'what about Toronto',followup_location
+'and in Vancouver',followup_location
+'how\'s Mexico City',followup_location
+'what about the weather in Buenos Aires',followup_location
+'and Santiago?',followup_location
+'there in Lima',followup_location
+'for Bogota',followup_location
+'in Accra',followup_location
+'what about Nairobi',followup_location
+'and in Cape Town',followup_location
+'how\'s Istanbul',followup_location
+'what about the weather in Athens',followup_location
+'and Oslo?',followup_location
+'there in Stockholm',followup_location
+'for Helsinki',followup_location
+'in Warsaw',followup_location
+'what about Prague',followup_location
+'and in Budapest',followup_location
+'how\'s Vienna',followup_location
+'what about the weather in Dublin',followup_location
+'and Edinburgh?',followup_location
+'there in Manchester',followup_location
+'for Birmingham',followup_location
+'in Glasgow',followup_location
+'what about Liverpool',followup_location
+'and in Marseille',followup_location
+'how\'s Lyon',followup_location
+'what about the weather in Nice',followup_location
+'and Hamburg?',followup_location
+'there in Munich',followup_location
+'for Frankfurt',followup_location
+'in Cologne',followup_location
+'what about Dresden',followup_location
+'and in Milan',followup_location
+'how\'s Naples',followup_location
+'what about the weather in Turin',followup_location
+'and Venice?',followup_location
+'there in Florence',followup_location
+'for Barcelona',followup_location
+'in Valencia',followup_location
+'what about Seville',followup_location
+'and in Lisbon',followup_location
+'how\'s Porto',followup_location
+'what about the weather in Brussels',followup_location
+'and Amsterdam?',followup_location
+'there in Rotterdam',followup_location
+'for Copenhagen',followup_location
+'in Zurich',followup_location
+'what about Geneva',followup_location
+'and in Dubai',followup_location
+'how\'s Abu Dhabi',followup_location
+'what about the weather in Doha',followup_location
+'and Riyadh?',followup_location
+'there in Jeddah',followup_location
+'for Kuwait City',followup_location
+'in Manama',followup_location
+'what about Muscat',followup_location
+'and in Amman',followup_location
+'how\'s Beirut',followup_location
+'what about the weather in Damascus',followup_location
+'and Baghdad?',followup_location
+'there in Tehran',followup_location
+'for Kabul',followup_location
+'in Islamabad',followup_location
+'what about Karachi',followup_location
+'and in Lahore',followup_location
+'how\'s Mumbai',followup_location
+'what about the weather in Delhi',followup_location
+'and Bangalore?',followup_location
+'there in Chennai',followup_location
+'for Kolkata',followup_location
+'in Dhaka',followup_location
+'what about Kathmandu',followup_location
+'and in Colombo',followup_location
+'how\'s Bangkok',followup_location
+'what about the weather in Ho Chi Minh City',followup_location
+'and Hanoi?',followup_location
+'there in Kuala Lumpur',followup_location
+'for Singapore',followup_location
+'in Jakarta',followup_location
+'what about Manila',followup_location
+'and in Seoul',followup_location
+'how\'s Busan',followup_location
+'what about the weather in Osaka',followup_location
+'and Sapporo?',followup_location
+'there in Fukuoka',followup_location
+'for Perth',followup_location
+'in Brisbane',followup_location
+'what about Adelaide',followup_location
+'and in Melbourne',followup_location
+'how\'s Auckland',followup_location
+'what about the weather in Wellington',followup_location
+'and Christchurch?',followup_location
+'there in Honolulu',followup_location
+'for Anchorage',followup_location
+'in Miami',followup_location
+'what about Houston',followup_location
+'and in Dallas',followup_location
+'how\'s Philadelphia',followup_location
+'what about the weather in Boston',followup_location
+'and Chicago?',followup_location
+'there in Denver',followup_location
+'for Phoenix',followup_location
+'in San Diego',followup_location
+'what about San Francisco',followup_location
+'and in Seattle',followup_location
+'how\'s Portland',followup_location
+'what about the weather in Las Vegas',followup_location
+'and New Orleans?',followup_location
+'there in Atlanta',followup_location
+'for Charlotte',followup_location
+'in Nashville',followup_location
+'what about Detroit',followup_location
+'and in Cleveland',followup_location
+'how\'s Minneapolis',followup_location
+'what about the weather in St. Louis',followup_location
+'and Kansas City?',followup_location
+'there in Indianapolis',followup_location
+'for Columbus',followup_location
+'in Milwaukee',followup_location
+'what about Pittsburgh',followup_location
+'and in Cincinnati',followup_location
+'how\'s Orlando',followup_location
+'what about the weather in Tampa',followup_location
+'and Jacksonville?',followup_location
+'there in Raleigh',followup_location
+'for Richmond',followup_location
+'in Baltimore',followup_location
+'what about Washington D.C.',followup_location
+'and in Montreal',followup_location
+'how\'s Calgary',followup_location
+'what about the weather in Edmonton',followup_location
+'and Winnipeg?',followup_location
+'there in Quebec City',followup_location
+'for Ottawa',followup_location
+'in Victoria',followup_location
+'what about Halifax',followup_location
+'and in Saskatoon',followup_location
+'how\'s Regina',followup_location
+'what about the weather in Fredericton',followup_location
+'and Charlottetown?',followup_location
+'there in St. John\'s',followup_location
+'for Whitehorse',followup_location
+'in Yellowknife',followup_location
+'what about Iqaluit',followup_location
+'thanks',gratitude
+'thank you very much',gratitude
+'I\'m grateful',gratitude
+'I\'m thankful',gratitude
+'that\'s very kind',gratitude
+'you\'ve been a great help',gratitude
+'I truly appreciate it',gratitude
+'much appreciated',gratitude
+'you\'re the best',gratitude
+'thanks for your help',gratitude
+'I really appreciate that',gratitude
+'you saved me',gratitude
+'that was really helpful',gratitude
+'I\'m so grateful',gratitude
+'thank you so much',gratitude
+'I appreciate your assistance',gratitude
+'many thanks for your help',gratitude
+'that was very useful',gratitude
+'you\'re a lifesaver, truly',gratitude
+'much obliged for your support',gratitude
+'thanks a bunch',gratitude
+'I can\'t thank you enough',gratitude
+'cheers for the help',gratitude
+'I appreciate your effort',gratitude
+'many thanks indeed',gratitude
+'that was extremely helpful',gratitude
+'you\'re a true hero',gratitude
+'much obliged for that',gratitude
+'thank you kindly',gratitude
+'I appreciate your time',gratitude
+'many thanks for everything',gratitude
+'that was quite helpful',gratitude
+'you\'re a gem',gratitude
+'much obliged, friend',gratitude
+'thanks a million',gratitude
+'I appreciate your guidance',gratitude
+'many thanks to you',gratitude
+'that was super helpful',gratitude
+'you\'re a star',gratitude
+'much obliged for the information',gratitude
+'thank you for your service',gratitude
+'I appreciate your patience',gratitude
+'many thanks for your understanding',gratitude
+'that was very thoughtful',gratitude
+'you\'re a blessing',gratitude
+'much obliged for your kindness',gratitude
+'thank you for everything',gratitude
+'I appreciate your support',gratitude
+'many thanks for your generosity',gratitude
+'that was incredibly helpful',gratitude
+'you\'re a legend',gratitude
+'much obliged for your assistance',gratitude
+'yep',affirmation
+'yeah',affirmation
+'correct',affirmation
+'exactly',affirmation
+'indeed',affirmation
+'absolutely',affirmation
+'certainly',affirmation
+'of course',affirmation
+'understood',affirmation
+'right',affirmation
+'that\'s right',affirmation
+'true',affirmation
+'yes, that\'s correct',affirmation
+'okay, I understand',affirmation
+'alright, I\'ll do that',affirmation
+'sure thing',affirmation
+'affirmative, understood',affirmation
+'got it, thanks',affirmation
+'roger that, loud and clear',affirmation
+'sounds good to me',affirmation
+'you got it, I\'m on it',affirmation
+'yes, I agree',affirmation
+'okay, sounds good',affirmation
+'alright, let\'s do it',affirmation
+'sure, no problem',affirmation
+'affirmative, I copy',affirmation
+'got it, thanks a lot',affirmation
+'roger that, understood',affirmation
+'sounds good, I\'m in',affirmation
+'you got it, consider it done',affirmation
+'yes, that\'s what I meant',affirmation
+'okay, perfect',affirmation
+'alright, I\'m ready',affirmation
+'sure, I can do that',affirmation
+'affirmative, proceeding',affirmation
+'got it, loud and clear',affirmation
+'roger that, over and out',affirmation
+'sounds good, let\'s proceed',affirmation
+'you got it, I\'ll handle it',affirmation
+'yes, absolutely',affirmation
+'okay, great',affirmation
+'alright, fine by me',affirmation
+'sure, why not',affirmation
+'affirmative, confirmed',affirmation
+'got it, understood',affirmation
+'roger that, mission accepted',affirmation
+'sounds good, I\'m ready',affirmation
+'you got it, I\'m here to help',affirmation
+'yes, I confirm',affirmation
+'okay, understood',affirmation
+'alright, I\'m on board',affirmation
+'sure, that works',affirmation
+'affirmative, acknowledged',affirmation
+'got it, clear',affirmation
+'roger that, standing by',affirmation
+'sounds good, I\'m ready to go',affirmation
+'you got it, I\'ll take care of it',affirmation
+'nah',negation
+'not at all',negation
+'I disagree',negation
+'that\'s wrong',negation
+'untrue',negation
+'not correct',negation
+'definitely not',negation
+'no way',negation
+'never',negation
+'no, I don\'t want that',negation
+'not really, thanks',negation
+'I don\'t think so, no',negation
+'negative, that\'s not right',negation
+'nope, not happening',negation
+'absolutely not, impossible',negation
+'by no means, that\'s incorrect',negation
+'no, I can\'t',negation
+'not really, I\'m busy',negation
+'I don\'t think so, it\'s not feasible',negation
+'negative, that\'s a bad idea',negation
+'nope, not interested',negation
+'absolutely not, I refuse',negation
+'by no means, that\'s unacceptable',negation
+'false, that\'s a lie',negation
+'incorrect, you\'re mistaken',negation
+'no, I won\'t',negation
+'not really, I\'m not feeling it',negation
+'I don\'t think so, it\'s too risky',negation
+'negative, I can\'t do that',negation
+'nope, not today',negation
+'absolutely not, I forbid it',negation
+'by no means, that\'s out of the question',negation
+'false, that\'s not true',negation
+'incorrect, that\'s erroneous',negation
+'no, I decline',negation
+'not really, I\'m not in the mood',negation
+'I don\'t think so, it\'s not right',negation
+'negative, I\'m unable to assist',negation
+'nope, not a chance',negation
+'absolutely not, that\'s absurd',negation
+'by no means, that\'s preposterous',negation
+'false, that\'s a fabrication',negation
+'incorrect, that\'s a fallacy',negation
+'no, I refuse to comply',negation
+'not really, I\'m not comfortable with that',negation
+'I don\'t think so, it\'s against my principles',negation
+'negative, I\'m not authorized',negation
+'nope, not in a million years',negation
+'absolutely not, that\'s outrageous',negation
+'by no means, that\'s ridiculous',negation
+'false, that\'s a distortion',negation
+'incorrect, that\'s a misrepresentation',negation
+'what\'s your designation',personal_question
+'how are you feeling',personal_question
+'what\'s your identity',personal_question
+'are you a robot',personal_question
+'what should I call you',personal_question
+'what do you do',personal_question
+'when were you created',personal_question
+'where were you developed',personal_question
+'what\'s your function',personal_question
+'what\'s your job',personal_question
+'what\'s your story',personal_question
+'what is your purpose in life',personal_question
+'how are you doing today',personal_question
+'who created you',personal_question
+'are you human',personal_question
+'what is your preferred name',personal_question
+'what is your role',personal_question
+'how old are you exactly',personal_question
+'where do you reside',personal_question
+'what is your main objective',personal_question
+'what is your occupation',personal_question
+'tell me about yourself',personal_question
+'what is your full name',personal_question
+'how are you feeling right now',personal_question
+'who are you really',personal_question
+'are you sentient',personal_question
+'what name do you go by',personal_question
+'what is your mission',personal_question
+'when were you born',personal_question
+'where were you designed',personal_question
+'what is your primary function',personal_question
+'what is your profession',personal_question
+'tell me more about yourself',personal_question
+'what is your official name',personal_question
+'how are you doing this moment',personal_question
+'who is your developer',personal_question
+'are you alive',personal_question
+'what do people call you',personal_question
+'what is your goal',personal_question
+'when did you come into existence',personal_question
+'where were you manufactured',personal_question
+'what is your core purpose',personal_question
+'what is your line of work',personal_question
+'can you tell me about yourself',personal_question
+'what is your given name',personal_question
+'how are you feeling at this time',personal_question
+'who is your creator',personal_question
+'are you conscious',personal_question
+'what name do you prefer',personal_question
+'what is your aim',personal_question
+'when did you start operating',personal_question
+'where were you built',personal_question
+'what is your fundamental purpose',personal_question
+'what is your specialty',personal_question
+'current time in London',time_query
+'what time is it in New York',time_query
+'what\'s the time in Tokyo',time_query
+'can you tell me the time in Sydney',time_query
+'what\'s the hour in Paris',time_query
+'time now in Berlin',time_query
+'what time is it in Rome',time_query
+'current time in Madrid',time_query
+'what\'s the time in Cairo',time_query
+'can you tell me the time in Rio',time_query
+'what\'s the hour in Moscow',time_query
+'time now in Beijing',time_query
+'what time is it in Delhi',time_query
+'current time in Toronto',time_query
+'what\'s the time in Vancouver',time_query
+'can you tell me the time in Mexico City',time_query
+'what\'s the hour in Buenos Aires',time_query
+'time now in Santiago',time_query
+'what time is it in Lima',time_query
+'current time in Bogota',time_query
+'what\'s the time in Accra',time_query
+'can you tell me the time in Nairobi',time_query
+'what\'s the hour in Cape Town',time_query
+'time now in Istanbul',time_query
+'what time is it in Athens',time_query
+'current time in Oslo',time_query
+'what\'s the time in Stockholm',time_query
+'can you tell me the time in Helsinki',time_query
+'what\'s the hour in Warsaw',time_query
+'time now in Prague',time_query
+'what time is it in Budapest',time_query
+'current time in Vienna',time_query
+'what\'s the time in Dublin',time_query
+'can you tell me the time in Edinburgh',time_query
+'what\'s the hour in Manchester',time_query
+'time now in Birmingham',time_query
+'what time is it in Glasgow',time_query
+'current time in Liverpool',time_query
+'what\'s the time in Marseille',time_query
+'can you tell me the time in Lyon',time_query
+'what\'s the hour in Nice',time_query
+'time now in Hamburg',time_query
+'what time is it in Munich',time_query
+'current time in Frankfurt',time_query
+'what\'s the time in Cologne',time_query
+'can you tell me the time in Dresden',time_query
+'what\'s the hour in Milan',time_query
+'time now in Naples',time_query
+'what time is it in Turin',time_query
+'current time in Venice',time_query
+'what\'s the time in Florence',time_query
+'can you tell me the time in Barcelona',time_query
+'what\'s the hour in Valencia',time_query
+'time now in Seville',time_query
+'what time is it in Lisbon',time_query
+'current time in Porto',time_query
+'what\'s the time in Brussels',time_query
+'can you tell me the time in Amsterdam',time_query
+'what\'s the hour in Rotterdam',time_query
+'time now in Copenhagen',time_query
+'what time is it in Zurich',time_query
+'current time in Geneva',time_query
+'what\'s the time in Dubai',time_query
+'can you tell me the time in Abu Dhabi',time_query
+'what\'s the hour in Doha',time_query
+'time now in Riyadh',time_query
+'what time is it in Jeddah',time_query
+'current time in Kuwait City',time_query
+'what\'s the time in Manama',time_query
+'can you tell me the time in Muscat',time_query
+'what\'s the hour in Amman',time_query
+'time now in Beirut',time_query
+'what time is it in Damascus',time_query
+'current time in Baghdad',time_query
+'what\'s the time in Tehran',time_query
+'can you tell me the time in Kabul',time_query
+'what\'s the hour in Islamabad',time_query
+'time now in Karachi',time_query
+'what time is it in Lahore',time_query
+'current time in Mumbai',time_query
+'what\'s the time in Delhi',time_query
+'can you tell me the time in Bangalore',time_query
+'what\'s the hour in Chennai',time_query
+'time now in Kolkata',time_query
+'what time is it in Dhaka',time_query
+'current time in Kathmandu',time_query
+'what\'s the time in Colombo',time_query
+'can you tell me the time in Bangkok',time_query
+'what\'s the hour in Ho Chi Minh City',time_query
+'time now in Hanoi',time_query
+'what time is it in Kuala Lumpur',time_query
+'current time in Singapore',time_query
+'what\'s the time in Jakarta',time_query
+'can you tell me the time in Manila',time_query
+'what\'s the hour in Seoul',time_query
+'time now in Busan',time_query
+'what time is it in Osaka',time_query
+'current time in Sapporo',time_query
+'what\'s the time in Fukuoka',time_query
+'can you tell me the time in Perth',time_query
+'what\'s the hour in Brisbane',time_query
+'time now in Adelaide',time_query
+'what time is it in Melbourne',time_query
+'current time in Auckland',time_query
+'what\'s the time in Wellington',time_query
+'can you tell me the time in Christchurch',time_query
+'what\'s the hour in Honolulu',time_query
+'time now in Anchorage',time_query
+'what time is it in Miami',time_query
+'current time in Houston',time_query
+'what\'s the time in Dallas',time_query
+'can you tell me the time in Philadelphia',time_query
+'what\'s the hour in Boston',time_query
+'time now in Chicago',time_query
+'what time is it in Denver',time_query
+'current time in Phoenix',time_query
+'what\'s the time in San Diego',time_query
+'can you tell me the time in San Francisco',time_query
+'what\'s the hour in Seattle',time_query
+'time now in Portland',time_query
+'what time is it in Las Vegas',time_query
+'current time in New Orleans',time_query
+'what\'s the time in Atlanta',time_query
+'can you tell me the time in Charlotte',time_query
+'what\'s the hour in Nashville',time_query
+'time now in Detroit',time_query
+'what time is it in Cleveland',time_query
+'current time in Minneapolis',time_query
+'what\'s the time in St. Louis',time_query
+'can you tell me the time in Kansas City',time_query
+'what\'s the hour in Indianapolis',time_query
+'time now in Columbus',time_query
+'what time is it in Milwaukee',time_query
+'current time in Pittsburgh',time_query
+'what\'s the time in Cincinnati',time_query
+'can you tell me the time in Orlando',time_query
+'what\'s the hour in Tampa',time_query
+'time now in Jacksonville',time_query
+'what time is it in Raleigh',time_query
+'current time in Richmond',time_query
+'what\'s the time in Baltimore',time_query
+'can you tell me the time in Washington D.C.',time_query
+'what\'s the hour in Montreal',time_query
+'time now in Calgary',time_query
+'what time is it in Edmonton',time_query
+'current time in Winnipeg',time_query
+'what\'s the time in Quebec City',time_query
+'can you tell me the time in Ottawa',time_query
+'what\'s the hour in Victoria',time_query
+'time now in Halifax',time_query
+'what time is it in Saskatoon',time_query
+'current time in Regina',time_query
+'what\'s the time in Fredericton',time_query
+'can you tell me the time in Charlottetown',time_query
+'what\'s the hour in St. John\'s',time_query
+'time now in Whitehorse',time_query
+'what time is it in Yellowknife',time_query
+'current time in Iqaluit',time_query
+'I\'m feeling joyful',feeling_status
+'I\'m feeling down',feeling_status
+'I feel awful',feeling_status
+'how are you doing',feeling_status
+'I\'m feeling restless',feeling_status
+'I\'m thrilled',feeling_status
+'I feel fantastic',feeling_status
+'I\'m annoyed',feeling_status
+'I\'m relaxed',feeling_status
+'I\'m feeling good',feeling_status
+'I\'m feeling anxious',feeling_status
+'I\'m feeling energetic',feeling_status
+'I\'m feeling tired',feeling_status
+'I\'m feeling stressed',feeling_status
+'I\'m feeling content',feeling_status
+'I\'m feeling angry',feeling_status
+'I\'m feeling peaceful',feeling_status
+'I\'m feeling lonely',feeling_status
+'I\'m feeling hopeful',feeling_status
+'I\'m feeling optimistic',feeling_status
+'I\'m feeling pessimistic',feeling_status
+'I\'m feeling confused',feeling_status
+'I\'m feeling surprised',feeling_status
+'I\'m feeling disgusted',feeling_status
+'I\'m feeling scared',feeling_status
+'I\'m feeling brave',feeling_status
+'I am feeling great',feeling_status
+'I am feeling terrible',feeling_status
+'I am feeling sad',feeling_status
+'I am feeling excited',feeling_status
+'I am feeling bored',feeling_status
+'I am feeling upset',feeling_status
+'I am feeling calm',feeling_status
+'how are you feeling today',feeling_status
+'I feel wonderful',feeling_status
+'I feel miserable',feeling_status
+'I feel happy',feeling_status
+'I feel enthusiastic',feeling_status
+'I feel uninspired',feeling_status
+'I feel irritated',feeling_status
+'I feel serene',feeling_status
+'how do you feel',feeling_status
+'I am feeling fantastic',feeling_status
+'I am feeling awful',feeling_status
+'I am feeling blue',feeling_status
+'I am feeling ecstatic',feeling_status
+'I am feeling dull',feeling_status
+'I am feeling cross',feeling_status
+'I am feeling tranquil',feeling_status
+'how are you doing emotionally',feeling_status
+'I feel amazing',feeling_status
+'I feel dreadful',feeling_status
+'I feel cheerful',feeling_status
+'I feel eager',feeling_status
+'I feel listless',feeling_status
+'I feel frustrated',feeling_status
+'I feel composed',feeling_status
+'how is your mood',feeling_status
+'I am feeling superb',feeling_status
+'I am feeling horrible',feeling_status
+'I am feeling gloomy',feeling_status
+'I am feeling lively',feeling_status
+'I am feeling weary',feeling_status
+'I am feeling annoyed',feeling_status
+'I am feeling relaxed',feeling_status
+'how are your spirits',feeling_status
+'I feel splendid',feeling_status
+'I feel rotten',feeling_status
+'I feel content',feeling_status
+'I feel thrilled',feeling_status
+'I feel sluggish',feeling_status
+'I feel angry',feeling_status
+'I feel peaceful',feeling_status
+'how are you at the moment',feeling_status
+'I am feeling delightful',feeling_status
+'I am feeling terrible',feeling_status
+'I am feeling sorrowful',feeling_status
+'I am feeling jubilant',feeling_status
+'I am feeling unmotivated',feeling_status
+'I am feeling distressed',feeling_status
+'I am feeling quiet',feeling_status
+'how are you doing right now',feeling_status
+'I feel joyous',feeling_status
+'I feel distraught',feeling_status
+'I feel merry',feeling_status
+'I feel energetic',feeling_status
+'I feel lethargic',feeling_status
+'I feel exasperated',feeling_status
+'I feel tranquil',feeling_status
+'how are you feeling this evening',feeling_status
+'I am feeling ecstatic',feeling_status
+'I am feeling miserable',feeling_status
+'I am feeling downhearted',feeling_status
+'I am feeling enthusiastic',feeling_status
+'I am feeling disengaged',feeling_status
+'I am feeling irate',feeling_status
+'I am feeling composed',feeling_status
+'how are you doing this morning',feeling_status
+'I feel elated',feeling_status
+'I feel wretched',feeling_status
+'I feel gleeful',feeling_status
+'I feel vibrant',feeling_status
+'I feel uninspired',feeling_status
+'I feel furious',feeling_status
+'I feel serene',feeling_status
+'how are you feeling at this moment',feeling_status
+'I am feeling cheerful',feeling_status
+'I am feeling awful',feeling_status
+'I am feeling low',feeling_status
+'I am feeling spirited',feeling_status
+'I am feeling uninterested',feeling_status
+'I am feeling frustrated',feeling_status
+'I am feeling calm and collected',feeling_status
+'how are you doing emotionally today',feeling_status
+'I feel wonderful today',feeling_status
+'I feel terrible today',feeling_status
+'I feel sad today',feeling_status
+'I feel excited today',feeling_status
+'I feel bored today',feeling_status
+'I feel upset today',feeling_status
+'I feel calm today',feeling_status
+'how are you feeling right this moment',feeling_status
+'I feel great right now',feeling_status
+'I feel terrible right now',feeling_status
+'I feel sad right now',feeling_status
+'I feel excited right now',feeling_status
+'I feel bored right now',feeling_status
+'I feel upset right now',feeling_status
+'I feel calm right now',feeling_status
+'how are you feeling at this very moment',feeling_status
+'I feel wonderful at this moment',feeling_status
+'I feel terrible at this moment',feeling_status
+'I feel sad at this moment',feeling_status
+'I feel excited at this moment',feeling_status
+'I feel bored at this moment',feeling_status
+'I feel upset at this moment',feeling_status
+'I feel calm at this moment',feeling_status
+'how are you doing at this precise time',feeling_status
+'I feel great at this precise time',feeling_status
+'I feel terrible at this precise time',feeling_status
+'I feel sad at this precise time',feeling_status
+'I feel excited at this precise time',feeling_status
+'I feel bored at this precise time',feeling_status
+'I feel upset at this precise time',feeling_status
+'I feel calm at this precise time',feeling_status
+'how are you feeling this instant',feeling_status
+'I feel wonderful this instant',feeling_status
+'I feel terrible this instant',feeling_status
+'I feel sad this instant',feeling_status
+'I feel excited this instant',feeling_status
+'I feel bored this instant',feeling_status
+'I feel upset this instant',feeling_status
+'I feel calm this instant',feeling_status
+'how are you doing this second',feeling_status
+'I feel great this second',feeling_status
+'I feel terrible this second',feeling_status
+'I feel sad this second',feeling_status
+'I feel excited this second',feeling_status
+'I feel bored this second',feeling_status
+'I feel upset this second',feeling_status
+'I feel calm this second',feeling_status
+'how are you feeling right now, truly',feeling_status
+'I feel wonderful right now, truly',feeling_status
+'I feel terrible right now, truly',feeling_status
+'I feel sad right now, truly',feeling_status
+'I feel excited right now, truly',feeling_status
+'I feel bored right now, truly',feeling_status
+'I feel upset right now, truly',feeling_status
+'I feel calm right now, truly',feeling_status
+'how are you doing at this very moment, honestly',feeling_status
+'I feel great at this very moment, honestly',feeling_status
+'I feel terrible at this very moment, honestly',feeling_status
+'I feel sad at this very moment, honestly',feeling_status
+'I feel excited at this very moment, honestly',feeling_status
+'I feel bored at this very moment, honestly',feeling_status
+'I feel upset at this very moment, honestly',feeling_status
+'I feel calm at this very moment, honestly',feeling_status
+'how are you feeling this very instant, really',feeling_status
+'I feel wonderful this very instant, really',feeling_status
+'I feel terrible this very instant, really',feeling_status
+'I feel sad this very instant, really',feeling_status
+'I feel excited this very instant, really',feeling_status
+'I feel bored this very instant, really',feeling_status
+'I feel upset this very instant, really',feeling_status
+'I feel calm this very instant, really',feeling_status
+'how are you doing this very second, truly',feeling_status
+'I feel great this very second, truly',feeling_status
+'I feel terrible this very second, truly',feeling_status
+'I feel sad this very second, truly',feeling_status
+'I feel excited this very second, truly',feeling_status
+'I feel bored this very second, truly',feeling_status
+'I feel upset this very second, truly',feeling_status
+'I feel calm this very second, truly',feeling_status
+'how are you feeling at this exact moment',feeling_status
+'I feel wonderful at this exact moment',feeling_status
+'I feel terrible at this exact moment',feeling_status
+'I feel sad at this exact moment',feeling_status
+'I feel excited at this exact moment',feeling_status
+'I feel bored at this exact moment',feeling_status
+'I feel upset at this exact moment',feeling_status
+'I feel calm at this exact moment',feeling_status
+'how are you doing at this exact time',feeling_status
+'I feel great at this exact time',feeling_status
+'I feel terrible at this exact time',feeling_status
+'I feel sad at this exact time',feeling_status
+'I feel excited at this exact time',feeling_status
+'I feel bored at this exact time',feeling_status
+'I feel upset at this exact time',feeling_status
+'I feel calm at this exact time',feeling_status
+'how are you feeling this exact instant',feeling_status
+'I feel wonderful this exact instant',feeling_status
+'I feel terrible this exact instant',feeling_status
+'I feel sad this exact instant',feeling_status
+'I feel excited this exact instant',feeling_status
+'I feel bored this exact instant',feeling_status
+'I feel upset this exact instant',feeling_status
+'I feel calm this exact instant',feeling_status
+'how are you doing this exact second',feeling_status
+'I feel great this exact second',feeling_status
+'I feel terrible this exact second',feeling_status
+'I feel sad this exact second',feeling_status
+'I feel excited this exact second',feeling_status
+'I feel bored this exact second',feeling_status
+'I feel upset this exact second',feeling_status
+'I feel calm this exact second',feeling_status
+'how are you feeling right now, tell me',feeling_status
+'I feel wonderful right now, tell me',feeling_status
+'I feel terrible right now, tell me',feeling_status
+'I feel sad right now, tell me',feeling_status
+'I feel excited right now, tell me',feeling_status
+'I feel bored right now, tell me',feeling_status
+'I feel upset right now, tell me',feeling_status
+'I feel calm right now, tell me',feeling_status
+'how are you doing at this very moment, please tell me',feeling_status
+'I feel great at this very moment, please tell me',feeling_status
+'I feel terrible at this very moment, please tell me',feeling_status
+'I feel sad at this very moment, please tell me',feeling_status
+'I feel excited at this very moment, please tell me',feeling_status
+'I feel bored at this very moment, please tell me',feeling_status
+'I feel upset at this very moment, please tell me',feeling_status
+'I feel calm at this very moment, please tell me',feeling_status
+'how are you feeling this very instant, please tell me',feeling_status
+'I feel wonderful this very instant, please tell me',feeling_status
+'I feel terrible this very instant, please tell me',feeling_status
+'I feel sad this very instant, please tell me',feeling_status
+'I feel excited this very instant, please tell me',feeling_status
+'I feel bored this very instant, please tell me',feeling_status
+'I feel upset this very instant, please tell me',feeling_status
+'I feel calm this very instant, please tell me',feeling_status
+'how are you doing this very second, please tell me',feeling_status
+'I feel great this very second, please tell me',feeling_status
+'I feel terrible this very second, please tell me',feeling_status
+'I feel sad this very second, please tell me',feeling_status
+'I feel excited this very second, please tell me',feeling_status
+'I feel bored this very second, please tell me',feeling_status
+'I feel upset this very second, please tell me',feeling_status
+'I feel calm this very second',feeling_status
+'hello there, how are you',greeting
+'good morning to you all',greeting
+'hi everyone',greeting
+'greetings and salutations to you',greeting
+'how do you do today',greeting
+'what\'s up with you all',greeting
+'hello, my dear friend',greeting
+'hi, how have you been doing',greeting
+'good morning, sunshine',greeting
+'good evening, moon',greeting
+'hey, what\'s new',greeting
+'howdy, partner',greeting
+'greetings from me to you',greeting
+'long time no see, my friend',greeting
+'what\'s up, buddy',greeting
+'hello, beautiful soul',greeting
+'hi, handsome stranger',greeting
+'yo, what\'s good, my man',greeting
+'nice to meet you, finally',greeting
+'pleasure to meet you, indeed',greeting
+'how are you doing this lovely day',greeting
+'hello, world traveler',greeting
+'hi, fellow human',greeting
+'good morning, sleepyhead',greeting
+'good evening, night owl',greeting
+'hey, what\'s cooking',greeting
+'howdy, stranger',greeting
+'greetings, earthling',greeting
+'long time no talk, friend',greeting
+'what\'s the latest news',greeting
+'hello, my dear',greeting
+'hi, my love',greeting
+'good morning, my friend',greeting
+'good evening, my dear',greeting
+'hey, my buddy',greeting
+'howdy, my friend',greeting
+'greetings, my dear',greeting
+'long time no see, my friend',greeting
+'what\'s up, my dear',greeting
+'hello, my love',greeting
+'hi, my sunshine',greeting
+'yo, what\'s good, my friend',greeting
+'nice to meet you, my dear',greeting
+'pleasure to meet you, my love',greeting
+'how are you doing this evening',greeting
+'goodbye for now, friend',goodbye
+'see you later, pal',goodbye
+'farewell, dear friend',goodbye
+'bye bye, my dear',goodbye
+'talk to you soon, friend',goodbye
+'catch you on the flip side, buddy',goodbye
+'so long, partner',goodbye
+'I must depart now',goodbye
+'ending this conversation, goodbye',goodbye
+'exit the chat, goodbye',goodbye
+'quit the application, goodbye',goodbye
+'goodbye, my dear friend',goodbye
+'see ya, my good friend',goodbye
+'farewell, my beloved',goodbye
+'bye, my dear one',goodbye
+'talk to you later, my dear',goodbye
+'catch you later, my love',goodbye
+'so long, my dear friend',goodbye
+'I have to leave now',goodbye
+'ending our discussion, goodbye',goodbye
+'exit the program, goodbye',goodbye
+'quit the system, goodbye',goodbye
+'goodbye, everyone, farewell',goodbye
+'see ya, folks, later',goodbye
+'farewell, all, until next time',goodbye
+'bye, folks, take care',goodbye
+'talk to you later, everyone, bye',goodbye
+'catch you later, folks, so long',goodbye
+'so long, everyone, farewell',goodbye
+'I have to run now, goodbye',goodbye
+'ending the call, farewell',goodbye
+'exit the app, bye',goodbye
+'quit the game, goodbye',goodbye
+'goodbye, my dear, see you',goodbye
+'see ya, my love, bye',goodbye
+'farewell, my sunshine, so long',goodbye
+'bye, my dear, catch you later',goodbye
+'talk to you later, my love, farewell',goodbye
+'catch you later, my sunshine, bye',goodbye
+'so long, my dear, see you soon',goodbye
+'I must be going now, goodbye',goodbye
+'ending the dialogue, farewell',goodbye
+'exit the interface, bye',goodbye
+'quit the session, goodbye',goodbye
+'what is the weather like in London today',weather_query
+'is it sunny in Paris right now',weather_query
+'tell me about the forecast for Tokyo tomorrow',weather_query
+'how hot is it in Dubai this afternoon',weather_query
+'will it rain in New York this evening',weather_query
+'weather in Rome this week',weather_query
+'weather for Berlin on the weekend',weather_query
+'is it sunny in Sydney right now',weather_query
+'what is the forecast for Rio de Janeiro next week',weather_query
+'can you tell me the weather in Moscow today',weather_query
+'temperature in Beijing tomorrow',weather_query
+'forecast for Delhi this morning',weather_query
+'what will the climate be like in Toronto next month',weather_query
+'will it snow in Vancouver this winter',weather_query
+'what is the weather like in Mexico City right now',weather_query
+'is it sunny in Buenos Aires this afternoon',weather_query
+'tell me about the forecast for Santiago tomorrow',weather_query
+'how hot is it in Lima this evening',weather_query
+'will it rain in Bogota this week',weather_query
+'weather in Accra on the weekend',weather_query
+'weather for Nairobi next week',weather_query
+'is it sunny in Cape Town right now',weather_query
+'what is the forecast for Istanbul tomorrow',weather_query
+'can you tell me the weather in Athens today',weather_query
+'temperature in Oslo tomorrow',weather_query
+'forecast for Stockholm this morning',weather_query
+'what will the climate be like in Helsinki next month',weather_query
+'will it snow in Warsaw this winter',weather_query
+'what is the weather like in Prague right now',weather_query
+'is it sunny in Budapest this afternoon',weather_query
+'tell me about the forecast for Vienna tomorrow',weather_query
+'how hot is it in Dublin this evening',weather_query
+'will it rain in Edinburgh this week',weather_query
+'weather in Manchester on the weekend',weather_query
+'weather for Birmingham next week',weather_query
+'is it sunny in Glasgow right now',weather_query
+'what is the forecast for Liverpool tomorrow',weather_query
+'can you tell me the weather in Marseille today',weather_query
+'temperature in Lyon tomorrow',weather_query
+'forecast for Nice this morning',weather_query
+'what will the climate be like in Hamburg next month',weather_query
+'will it snow in Munich this winter',weather_query
+'what is the weather like in Frankfurt right now',weather_query
+'is it sunny in Cologne this afternoon',weather_query
+'tell me about the forecast for Dresden tomorrow',weather_query
+'how hot is it in Milan this evening',weather_query
+'will it rain in Naples this week',weather_query
+'weather in Turin on the weekend',weather_query
+'weather for Venice next week',weather_query
+'is it sunny in Florence right now',weather_query
+'what is the forecast for Barcelona tomorrow',weather_query
+'can you tell me the weather in Valencia today',weather_query
+'temperature in Seville tomorrow',weather_query
+'forecast for Lisbon this morning',weather_query
+'what will the climate be like in Porto next month',weather_query
+'will it snow in Brussels this winter',weather_query
+'what is the weather like in Amsterdam right now',weather_query
+'is it sunny in Rotterdam this afternoon',weather_query
+'tell me about the forecast for Copenhagen tomorrow',weather_query
+'how hot is it in Zurich this evening',weather_query
+'will it rain in Geneva this week',weather_query
+'weather in Dubai on the weekend',weather_query
+'weather for Abu Dhabi next week',weather_query
+'is it sunny in Doha right now',weather_query
+'what is the forecast for Riyadh tomorrow',weather_query
+'can you tell me the weather in Jeddah today',weather_query
+'temperature in Kuwait City tomorrow',weather_query
+'forecast for Manama this morning',weather_query
+'what will the climate be like in Muscat next month',weather_query
+'will it snow in Amman this winter',weather_query
+'what is the weather like in Beirut right now',weather_query
+'is it sunny in Damascus this afternoon',weather_query
+'tell me about the forecast for Baghdad tomorrow',weather_query
+'how hot is it in Tehran this evening',weather_query
+'will it rain in Kabul this week',weather_query
+'weather in Islamabad on the weekend',weather_query
+'weather for Karachi next week',weather_query
+'is it sunny in Lahore right now',weather_query
+'what is the forecast for Mumbai tomorrow',weather_query
+'can you tell me the weather in Delhi today',weather_query
+'temperature in Bangalore tomorrow',weather_query
+'forecast for Chennai this morning',weather_query
+'what will the climate be like in Kolkata next month',weather_query
+'will it snow in Dhaka this winter',weather_query
+'what is the weather like in Kathmandu right now',weather_query
+'is it sunny in Colombo this afternoon',weather_query
+'tell me about the forecast for Bangkok tomorrow',weather_query
+'how hot is it in Ho Chi Minh City this evening',weather_query
+'will it rain in Hanoi this week',weather_query
+'weather in Kuala Lumpur on the weekend',weather_query
+'weather for Singapore next week',weather_query
+'is it sunny in Jakarta right now',weather_query
+'what is the forecast for Manila tomorrow',weather_query
+'can you tell me the weather in Seoul today',weather_query
+'temperature in Busan tomorrow',weather_query
+'forecast for Osaka this morning',weather_query
+'what will the climate be like in Sapporo next month',weather_query
+'will it snow in Fukuoka this winter',weather_query
+'what is the weather like in Perth right now',weather_query
+'is it sunny in Brisbane this afternoon',weather_query
+'tell me about the forecast for Adelaide tomorrow',weather_query
+'how hot is it in Melbourne this evening',weather_query
+'will it rain in Auckland this week',weather_query
+'weather in Wellington on the weekend',weather_query
+'weather for Christchurch next week',weather_query
+'is it sunny in Honolulu right now',weather_query
+'what is the forecast for Anchorage tomorrow',weather_query
+'can you tell me the weather in Miami today',weather_query
+'temperature in Houston tomorrow',weather_query
+'forecast for Dallas this morning',weather_query
+'what will the climate be like in Philadelphia next month',weather_query
+'will it snow in Boston this winter',weather_query
+'what is the weather like in Chicago right now',weather_query
+'is it sunny in Denver this afternoon',weather_query
+'tell me about the forecast for Phoenix tomorrow',weather_query
+'how hot is it in San Diego this evening',weather_query
+'will it rain in San Francisco this week',weather_query
+'weather in Seattle on the weekend',weather_query
+'weather for Portland next week',weather_query
+'is it sunny in Las Vegas right now',weather_query
+'what is the forecast for New Orleans tomorrow',weather_query
+'can you tell me the weather in Atlanta today',weather_query
+'temperature in Charlotte tomorrow',weather_query
+'forecast for Nashville this morning',weather_query
+'what will the climate be like in Detroit next month',weather_query
+'will it snow in Cleveland this winter',weather_query
+'what is the weather like in Minneapolis right now',weather_query
+'is it sunny in St. Louis this afternoon',weather_query
+'tell me about the forecast for Kansas City tomorrow',weather_query
+'how hot is it in Indianapolis this evening',weather_query
+'will it rain in Columbus this week',weather_query
+'weather in Milwaukee on the weekend',weather_query
+'weather for Pittsburgh next week',weather_query
+'is it sunny in Cincinnati right now',weather_query
+'what is the forecast for Orlando tomorrow',weather_query
+'can you tell me the weather in Tampa today',weather_query
+'temperature in Jacksonville tomorrow',weather_query
+'forecast for Raleigh this morning',weather_query
+'what will the climate be like in Richmond next month',weather_query
+'will it snow in Baltimore this winter',weather_query
+'what is the weather like in Washington D.C. right now',weather_query
+'is it sunny in Montreal this afternoon',weather_query
+'tell me about the forecast for Calgary tomorrow',weather_query
+'how hot is it in Edmonton this evening',weather_query
+'will it rain in Winnipeg this week',weather_query
+'weather in Quebec City on the weekend',weather_query
+'weather for Ottawa next week',weather_query
+'is it sunny in Victoria right now',weather_query
+'what is the forecast for Halifax tomorrow',weather_query
+'can you tell me the weather in Saskatoon today',weather_query
+'temperature in Regina tomorrow',weather_query
+'forecast for Fredericton this morning',weather_query
+'what will the climate be like in Charlottetown next month',weather_query
+'will it snow in St. John\'s this winter',weather_query
+'what is the weather like in Whitehorse right now',weather_query
+'is it sunny in Yellowknife this afternoon',weather_query
+'tell me about the forecast for Iqaluit tomorrow',weather_query
+'how hot is it in London this evening',weather_query
+'will it rain in Paris this week',weather_query
+'weather in Tokyo on the weekend',weather_query
+'weather for Dubai next week',weather_query
+'is it sunny in New York right now',weather_query
+'what is the forecast for Lagos tomorrow',weather_query
+'can you tell me the weather in Abuja today',weather_query
+'temperature in London tomorrow',weather_query
+'forecast for Paris this morning',weather_query
+'what will the climate be like in Tokyo next month',weather_query
+'will it snow in Dubai this winter',weather_query
+'what is the weather like in New York right now',weather_query
+'is it sunny in Lagos this afternoon',weather_query
+'tell me about the forecast for Abuja tomorrow',weather_query
+'how hot is it in London this evening',weather_query
+'will it rain in Paris this week',weather_query
+'weather in Tokyo on the weekend',weather_query
+'weather for Dubai next week',weather_query
+'is it sunny in New York right now',weather_query
+'what is the forecast for Lagos tomorrow',weather_query
+'can you tell me the weather in Abuja today',weather_query
+'temperature in London tomorrow',weather_query
+'forecast for Paris this morning',weather_query
+'what will the climate be like in Tokyo next month',weather_query
+'will it snow in Dubai this winter',weather_query
+'what is the weather like in New York right now',weather_query
+'is it sunny in Lagos this afternoon',weather_query
+'tell me about the forecast for Abuja tomorrow',weather_query
+'how hot is it in London this evening',weather_query
+'will it rain in Paris this week',weather_query
+'weather in Tokyo on the weekend',weather_query
+'weather for Dubai next week',weather_query
+'is it sunny in New York right now',weather_query
+'what is the forecast for Lagos tomorrow',weather_query
+'can you tell me the weather in Abuja today',weather_query
+'temperature in London tomorrow',weather_query
+'forecast for Paris this morning',weather_query
+'what will the climate be like in Tokyo next month',weather_query
+'will it snow in Dubai this winter',weather_query
+'what is the weather like in New York right now',weather_query
+'is it sunny in Lagos this afternoon',weather_query
+'tell me about the forecast for Abuja tomorrow',weather_query
+'how hot is it in London this evening',weather_query
+'will it rain in Paris this week',weather_query
+'weather in Tokyo on the weekend',weather_query
+'weather for Dubai next week',weather_query
+'is it sunny in New York right now',weather_query
+'what is the forecast for Lagos tomorrow',weather_query
+'can you tell me the weather in Abuja today',weather_query
+'temperature in London tomorrow',weather_query
+'forecast for Paris this morning',weather_query
+'what will the climate be like in Tokyo next month',weather_query
+'will it snow in Dubai this winter',weather_query
+'what is the weather like in New York right now',weather_query
+'is it sunny in Lagos this afternoon',weather_query
+'tell me about the forecast for Abuja tomorrow',weather_query
+'how hot is it in London this evening',weather_query
+'will it rain in Paris this week',weather_query
+'weather in Tokyo on the weekend',weather_query
+'weather for Dubai next week',weather_query
+'is it sunny in New York right now',weather_query
+'what is the forecast for Lagos tomorrow',weather_query
+'can you tell me the weather in Abuja today',weather_query
+'temperature in London tomorrow',weather_query
+'forecast for Paris this morning',weather_query
+'what will the climate be like in Tokyo next month',weather_query
+'will it snow in Dubai this winter',weather_query
+'what is the weather like in New York right now',weather_query
+'is it sunny in Lagos this afternoon',weather_query
+'tell me about the forecast for Abuja tomorrow',weather_query
+'how hot is it in London this evening',weather_query
+'will it rain in Paris this week',weather_query
+'weather in Tokyo on the weekend',weather_query
+'weather for Dubai next week',weather_query
+'is it sunny in New York right now',weather_query
+'what is the forecast for Lagos tomorrow',weather_query
+'can you tell me the weather in Abuja today',weather_query
+'temperature in London tomorrow',weather_query
+'forecast for Paris this morning',weather_query
+'what will the climate be like in Tokyo next month',weather_query
+'will it snow in Dubai this winter',weather_query
+'what is the weather like in New York right now',weather_query
+'is it sunny in Lagos this afternoon',weather_query
+'tell me about the forecast for Abuja tomorrow',weather_query
+'how hot is it in London this evening',weather_query
+'will it rain in Paris this week',weather_query
+'weather in Tokyo on the weekend',weather_query
+'weather for Dubai next week',weather_query
+'is it sunny in New York right now',weather_query
+'what is the forecast for Lagos tomorrow',weather_query
+'can you tell me the weather in Abuja today',weather_query
+'temperature in London tomorrow',weather_query
+'forecast for Paris this morning',weather_query
+'what will the climate be like in Tokyo next month',weather_query
+'will it snow in Dubai this winter',weather_query
+'what is the weather like in New York right now',weather_query
+'is it sunny in Lagos this afternoon',weather_query
+'tell me about the forecast for Abuja tomorrow',weather_query
+'how hot is it in London this evening',weather_query
+'will it rain in Paris this week',weather_query
+'weather in Tokyo on the weekend',weather_query
+'weather for Dubai next week',weather_query
+'is it sunny in New York right now',weather_query
+'what is the forecast for Lagos tomorrow',weather_query
+'can you tell me the weather in Abuja today',weather_query
+'temperature in London tomorrow',weather_query
+'forecast for Paris this morning',weather_query
+'what will the climate be like in Tokyo next month',weather_query
+'will it snow in Dubai this winter',weather_query
+'what is the weather like in New York right now',weather_query
+'is it sunny in Lagos this afternoon',weather_query
+'tell me about the forecast for Abuja tomorrow',weather_query
+'how hot is it in London this evening',weather_query
+'will it rain in Paris this week',weather_query
+'weather in Tokyo on the weekend',weather_query
+'weather for Dubai next week',weather_query
+'is it sunny in New York right now',weather_query
+'what is the forecast for Lagos tomorrow',weather_query
+'can you tell me the weather in Abuja today',weather_query
+'temperature in London tomorrow',weather_query
+'forecast for Paris this morning',weather_query
+'what will the climate be like in Tokyo next month',weather_query
+'will it snow in Dubai this winter',weather_query
+'what is the weather like in New York right now',weather_query
+'is it sunny in Lagos this afternoon',weather_query
+'tell me about the forecast for Abuja tomorrow',weather_query
+'how hot is it in London this evening',weather_query
+'will it rain in Paris this week',weather_query
+'weather in Tokyo on the weekend',weather_query
+'weather for Dubai next week',weather_query
+'is it sunny in New York right now',weather_query
+'what is the forecast for Lagos tomorrow',weather_query
+'can you tell me the weather in Abuja today',weather_query
+'temperature in London tomorrow',weather_query
+'forecast for Paris this morning',weather_query
+'what will the climate be like in Tokyo next month',weather_query
+'will it snow in Dubai this winter',weather_query
+'what is the weather like in New York right now',weather_query
+'is it sunny in Lagos this afternoon',weather_query
+'tell me about the forecast for Abuja tomorrow',weather_query
+'how hot is it in London this evening',weather_query
+'will it rain in Paris this week',weather_query
+'weather in Tokyo on the weekend',weather_query
+'weather for Dubai next week',weather_query
+'is it sunny in New York right now',weather_query
+'what is the forecast for Lagos tomorrow',weather_query
+'can you tell me the weather in Abuja today',weather_query
+'temperature in London tomorrow',weather_query
+'forecast for Paris this morning',weather_query
+'what will the climate be like in Tokyo next month',weather_query
+'will it snow in Dubai this winter',weather_query
+'what is the weather like in New York right now',weather_query
+'is it sunny in Lagos this afternoon',weather_query
+'tell me about the forecast for Abuja tomorrow',weather_query
+'how hot is it in London this evening',weather_query
+'will it rain in Paris this week',weather_query
+'weather in Tokyo on the weekend',weather_query
+'weather for Dubai next week',weather_query
+'is it sunny in New York right now',weather_query
+'what is the forecast for Lagos tomorrow',weather_query
+'can you tell me the weather in Abuja today',weather_query
+'temperature in London tomorrow',weather_query
+'forecast for Paris this morning',weather_query
+'what will the climate be like in Tokyo next month',weather_query
+'will it snow in Dubai this winter',weather_query
+'what is the weather like in New York right now',weather_query
+'is it sunny in Lagos this afternoon',weather_query
+'tell me about the forecast for Abuja tomorrow',weather_query
+'how hot is it in London this evening',weather_query
+'will it rain in Paris this week',weather_query
+'weather in Tokyo on the weekend',weather_query
+'weather for Dubai next week',weather_query
+'is it sunny in New York right now',weather_query
+'what is the forecast for Lagos tomorrow',weather_query
+'can you tell me the weather in Abuja today',weather_query
+'temperature in London tomorrow',weather_query
+'forecast for Paris this morning',weather_query
+'what will the climate be like in Tokyo next month',weather_query
+'will it snow in Dubai this winter',weather_query
+'what is the weather like in New York right now',weather_query
+'is it sunny in Lagos this afternoon',weather_query
+'tell me about the forecast for Abuja tomorrow',weather_query
+'how hot is it in London this evening',weather_query
+'will it rain in Paris this week',weather_query
+'weather in Tokyo on the weekend',weather_query
+'weather for Dubai next week',weather_query
+'is it sunny in New York right now',weather_query
+'what is the forecast for Lagos tomorrow',weather_query
+'can you tell me the weather in Abuja today',weather_query
+'temperature in London tomorrow',weather_query
+'forecast for Paris this morning',weather_query
+'what will the climate be like in Tokyo next month',weather_query
+'will it snow in Dubai this winter',weather_query
+'what is the weather like in New York right now',weather_query
+'is it sunny in Lagos this afternoon',weather_query
+'tell me about the forecast for Abuja tomorrow',weather_query
+'how hot is it in London this evening',weather_query
+'will it rain in Paris this week',weather_query
+'weather in Tokyo on the weekend',weather_query
+'weather for Dubai next week',weather_query
+'is it sunny in New York right now',weather_query
+'what is the forecast for Lagos tomorrow',weather_query
+'can you tell me the weather in Abuja today',weather_query
+'temperature in London tomorrow',weather_query
+'forecast for Paris this morning',weather_query
+'what will the climate be like in Tokyo next month',weather_query
+'will it snow in Dubai this winter',weather_query
+'what is the weather like in New York right now',weather_query
+'is it sunny in Lagos this afternoon',weather_query
+'tell me about the forecast for Abuja tomorrow',weather_query
+'how hot is it in London this evening',weather_query
+'will it rain in Paris this week',weather_query
