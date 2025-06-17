@@ -40,12 +40,10 @@ private static final String ARFF_FILE_PATH = "xavier_data.arff";
 private static final String MODEL_FILE_PATH = "xavier_intent_classifier.model";
 private static final String FILTER_FILE_PATH = "xavier_wordvector_filter.filter";
 
-// IMPORTANT: This list MUST match the intents defined in your xavier_data.arff file.
-// It's duplicated here for the *training* method to correctly define the attribute.
-// In XavierCoreAI, it's used internally.
 private static final ArrayList<String> ALL_POSSIBLE_INTENTS = new ArrayList<>(Arrays.asList(
 		"greeting", "goodbye", "unknown", "weather_query", "joke_request", "followup_location",
-		"gratitude", "affirmation", "negation", "personal_question", "time_query", "feeling_status"
+		"gratitude", "affirmation", "negation", "personal_question", "time_query", "feeling_status","arithmetic_query",
+		"set_user_name"
 ));
 
 
@@ -135,7 +133,7 @@ private static void trainAndSaveModel() throws Exception {
 	System.out.println("Applying StringToWordVector Filter...");
 	StringToWordVector stringToWordVectorFilter = new StringToWordVector();
 	stringToWordVectorFilter.setAttributeIndices(String.valueOf(data.attribute("text").index() + 1));
-	stringToWordVectorFilter.setWordsToKeep(1000);
+	stringToWordVectorFilter.setWordsToKeep(10000);
 	stringToWordVectorFilter.setTFTransform(true);
 	stringToWordVectorFilter.setIDFTransform(true);
 	stringToWordVectorFilter.setLowerCaseTokens(true);

@@ -16,6 +16,8 @@ java{
 }
 
 dependencies {
+    implementation 'org.graalvm.js:js:21.3.0'
+    implementation 'org.graalvm.js:js-scriptengine:21.3.0'
     implementation 'org.json:json:20240303'
     implementation 'nz.ac.waikato.cms.weka:weka-stable:3.8.6'
     testImplementation platform('org.junit:junit-bom:5.10.0')

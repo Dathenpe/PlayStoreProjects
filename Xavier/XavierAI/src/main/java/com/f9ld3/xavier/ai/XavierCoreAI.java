@@ -14,6 +14,9 @@ import org.json.JSONObject;
 import org.json.JSONException;
 
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,6 +52,7 @@ private Classifier classifier; // The trained Weka classification model
 private StringToWordVector filter; // The trained Weka text preprocessing filter
 
 // --- Dialogue State Variables ---
+private String userName = null;
 private String lastIntent = "start"; // Tracks the intent of the previous user message
 private String extractedLocation = null; // Stores location if extracted from current/previous turn
 
@@ -373,121 +377,387 @@ private List<String> loadResponsesFromFile(String resourcePath) {
 	}
 	return responses;
 }
+// Add this member variable to XavierCoreAI
+private String awaitingInformationType = null; // e.g., "expression_for_arithmetic", "location_for_weather"
+// You might also want to store the original query that led to the follow-up
+private String originalQueryForFollowUp = null;
+
+
+// Modify generateResponse
 private String generateResponse(String predictedIntent, String userMessage) {
 	String response;
+	String currentMessageLocation = null; // Initialize
 	
-	String currentMessageLocation = extractLocation(userMessage);
-	if (currentMessageLocation != null) {
-		this.extractedLocation = currentMessageLocation;
+	// --- Step 1: Handle Follow-up Input if AI is Awaiting Information ---
+	if (this.awaitingInformationType != null) {
+		String providedInfo = userMessage.trim();
+		String intentToExecute = null;
+		
+		if ("expression_for_arithmetic".equals(this.awaitingInformationType)) {
+			try {
+				double result = evaluateArithmeticExpression(providedInfo);
+				response = "The result of " + providedInfo + " is " + result + ".";
+				this.awaitingInformationType = null; // Reset state
+				this.originalQueryForFollowUp = null;
+				this.lastIntent = "arithmetic_query"; // Set last intent to the fulfilled one
+				return response;
+			} catch (IllegalArgumentException | UnsupportedOperationException e) {
+				System.err.println("Follow-up arithmetic evaluation error: " + e.getMessage());
+				if (e.getMessage() != null && e.getMessage().startsWith("EMPTY_EXPRESSION")) {
+					response = "That still seems to be empty. Please provide the arithmetic expression you'd like me to evaluate.";
+				} else {
+					response = "That still doesn't look like a valid arithmetic expression. Please provide an expression like '2 + 2'.";
+				}
+				// Keep awaitingInformationType set, as we still need the expression
+				return response;
+			}
+		} else if ("location_for_weather".equals(this.awaitingInformationType)) {
+			currentMessageLocation = extractLocation(providedInfo);
+			if (currentMessageLocation != null) {
+				this.extractedLocation = currentMessageLocation;
+				response = getWeatherForLocation(this.extractedLocation);
+				this.awaitingInformationType = null; // Reset state
+				this.originalQueryForFollowUp = null;
+				this.extractedLocation = null; // Clear after use
+				this.lastIntent = "weather_query"; // Set last intent
+				return response;
+			} else {
+				response = "I still couldn't identify a location in '" + providedInfo + "'. Could you please provide a city name?";
+				// Keep awaitingInformationType set
+				return response;
+			}
+		}
+		// Add more else-if blocks for other types of awaited information
 	}
 	
-	// Random generator is now a member variable: this.randomGenerator
+	// --- Step 2: Normal Intent Processing if Not Handling an Immediate Follow-up ---
+	// Extract location from the current message if it's relevant for the predicted intent
+	// This is a bit tricky because extractLocation might be called again if it's a weather_query
+	// We only want to set this.extractedLocation if it's a new context.
+	if (!"followup_location".equals(predictedIntent)) { // Avoid re-extracting if it's a direct followup_location intent
+		currentMessageLocation = extractLocation(userMessage);
+		if (currentMessageLocation != null) {
+			this.extractedLocation = currentMessageLocation;
+		}
+	}
+	
 	
 	switch (predictedIntent) {
 		case "greeting":
-			// Use the pre-loaded list
 			if (!this.greetingResponses.isEmpty()) {
 				response = this.greetingResponses.get(this.randomGenerator.nextInt(this.greetingResponses.size()));
+				if (this.userName != null) {
+					response += " " + this.userName + "!"; // Append name if known
+				}
 			} else {
-				response = "Hello there!"; // Fallback if list is somehow empty after loading attempt
-			}
-			break;
-		case "weather_query":
-			if (this.extractedLocation != null) {
-				response = getWeatherForLocation(this.extractedLocation);
-				this.extractedLocation = null;
-			} else {
-				response = "I can tell you the weather. Which location are you interested in?";
-			}
-			break;
-		case "joke_request":
-			// Use the pre-loaded list
-			if (!this.jokeResponses.isEmpty()) {
-				response = this.jokeResponses.get(this.randomGenerator.nextInt(this.jokeResponses.size()));
-			} else {
-				response = "I tried to think of a joke, but I'm drawing a blank!"; // Fallback
+				response = "Hello there" + (this.userName != null ? ", " + this.userName : "") + "!";
 			}
 			break;
 		case "goodbye":
-			// Use the pre-loaded list
-			if (!this.goodbyeResponses.isEmpty()) {
-				response = this.goodbyeResponses.get(this.randomGenerator.nextInt(this.goodbyeResponses.size()));
+		if (!this.goodbyeResponses.isEmpty()) {
+			response = this.goodbyeResponses.get(this.randomGenerator.nextInt(this.goodbyeResponses.size()));
+			if (this.userName != null) {
+				response += " " + this.userName + "!"; // Append name if known
+			}
+		} else {
+			response = "Goodbye" + (this.userName != null ? ", " + this.userName : "") + "!";
+		}
+		break;
+		
+		
+		case "weather_query":
+			if (this.extractedLocation != null) { // Location found in current message or carried from previous turn (if logic allows)
+				response = getWeatherForLocation(this.extractedLocation);
+				this.extractedLocation = null; // Clear after use for this turn
 			} else {
-				response = "Goodbye!"; // Fallback
+				response = "I can tell you the weather. Which location are you interested in?";
+				this.awaitingInformationType = "location_for_weather"; // Set state
+				this.originalQueryForFollowUp = userMessage;
 			}
 			break;
+		
+		case "arithmetic_query":
+			String expressionToEvaluate = userMessage;
+			String lowerUserMessage = userMessage.toLowerCase();
+			String[] prefixes = {"calculate ", "what is ", "evaluate ", "compute ", "solve ", "for "};
+			boolean prefixFound = false;
+			for (String prefix : prefixes) {
+				if (lowerUserMessage.startsWith(prefix)) {
+					expressionToEvaluate = userMessage.substring(prefix.length()).trim();
+					prefixFound = true;
+					break;
+				}
+			}
+			// If it's just numbers and operators, or if a prefix was found and expression is not empty
+			if (!expressionToEvaluate.isEmpty() && (prefixFound || expressionToEvaluate.matches(".*[0-9].*"))) {
+				try {
+					double result = evaluateArithmeticExpression(expressionToEvaluate);
+					String sanitizedExpression = userMessage.replaceAll("[^0-9.+\\-*/()\\s]", "");
+					sanitizedExpression.trim();
+					response = "The result of " + sanitizedExpression + " is " + result + ".";
+				} catch (IllegalArgumentException e) {
+					System.err.println("Arithmetic evaluation error: " + e.getMessage());
+					if (e.getMessage() != null && e.getMessage().startsWith("EMPTY_EXPRESSION")) {
+						response = "It seems the expression you provided was empty or didn't contain valid characters. What arithmetic expression would you like me to evaluate?";
+						this.awaitingInformationType = "expression_for_arithmetic"; // Set state
+						this.originalQueryForFollowUp = userMessage;
+					} else {
+						response = "I'm sorry, I couldn't evaluate that. Please make sure it's a valid arithmetic expression (e.g., '2 + 2').";
+						
+					}
+				} catch (UnsupportedOperationException e) {
+					System.err.println("Arithmetic evaluation failed: " + e.getMessage());
+					response = "I'm currently unable to perform calculations due to an internal configuration issue. My apologies.";
+				}
+			} else { // The initial query was something like "calculate" or "evaluate something" without an expression
+				response = "Certainly. What arithmetic expression would you like me to calculate?";
+				this.awaitingInformationType = "expression_for_arithmetic"; // Set state
+				this.originalQueryForFollowUp = userMessage;
+			}
+			break;
+		
 		case "followup_location":
-			if (this.lastIntent.equals("weather_query") && this.extractedLocation != null) {
-				response = "Ah, so you'd like the weather in " + " " + this.extractedLocation + " " + getWeatherForLocation(this.extractedLocation);
-				this.extractedLocation = null;
-			} else if (this.extractedLocation != null) {
-				response = "You mentioned " + this.extractedLocation + ", but I'm not sure what you want to do with that information right now. Could you clarify?";
-				this.extractedLocation = null;
+			// This intent is specifically for when the user provides a location after being asked.
+			// The `awaitingInformationType` check at the beginning of the method should ideally handle this.
+			// However, if `predictIntent` strongly classifies a location name as `followup_location`
+			// even when not explicitly awaiting, we can add logic here.
+			
+			currentMessageLocation = extractLocation(userMessage); // Extract from the current message
+			if (currentMessageLocation != null) {
+				this.extractedLocation = currentMessageLocation;
+				if (this.lastIntent.equals("weather_query") || "location_for_weather".equals(this.awaitingInformationType)) {
+					response = getWeatherForLocation(this.extractedLocation);
+					this.awaitingInformationType = null; // Reset state
+					this.originalQueryForFollowUp = null;
+					this.extractedLocation = null; // Clear after use
+				} else {
+					// User provided a location, but we weren't specifically asking for it for weather.
+					response = "You mentioned " + this.extractedLocation + ". What would you like to do regarding this location?";
+					// You might set a new awaitingInformationType here, e.g., "action_for_location"
+					// and store this.extractedLocation for that context.
+				}
 			} else {
-				response = "You mentioned a location, but I couldn't identify it or relate it to our previous conversation. Can you please specify a city?";
+				response = "I'm not sure which location you're referring to. Could you please specify a city?";
+				if (this.lastIntent.equals("weather_query")) { // If the last intent was weather, we are still waiting for a location
+					this.awaitingInformationType = "location_for_weather";
+				}
 			}
 			break;
-		case "gratitude":
-			// Use the pre-loaded list
-			if (!this.gratitudeResponses.isEmpty()) {
-				response = this.gratitudeResponses.get(this.randomGenerator.nextInt(this.gratitudeResponses.size()));
+		case "set_user_name":
+			String extracted = extractNameFromMessage(userMessage);
+			if (extracted != null && !extracted.isEmpty()) {
+				this.userName = extracted;
+				response = "Okay, I'll call you " + this.userName + ". Nice to meet you, " + this.userName + "!";
 			} else {
-				response = "You're welcome!"; // Fallback
+				response = "I'm sorry, I didn't quite catch your name. Could you please tell me again, for example, by saying 'My name is [Your Name]'?";
+				// Optionally, you could set awaitingInformationType here if you have that system
+				// this.awaitingInformationType = "user_name";
 			}
 			break;
-		case "affirmation":
-			// Use the pre-loaded list
-			if (!this.affirmationResponses.isEmpty()) {
-				response = this.affirmationResponses.get(this.randomGenerator.nextInt(this.affirmationResponses.size()));
-			} else {
-				response = "Okay."; // Fallback
-			}
-			break;
-		case "negation":
-			// Use the pre-loaded list
-			if (!this.negationResponses.isEmpty()) {
-				response = this.negationResponses.get(this.randomGenerator.nextInt(this.negationResponses.size()));
-			} else {
-				response = "Understood."; // Fallback
-			}
-			break;
-		case "personal_question":
-			// This logic can remain or also be moved to a file if it grows complex
-			if (userMessage.toLowerCase().contains("name")) {
-				response = "I am Xavier, your personal AI companion.";
-			} else if (userMessage.toLowerCase().contains("how are you")) {
-				response = "As an AI, I don't have feelings, but I'm operating perfectly and ready to assist you!";
-			} else if (userMessage.toLowerCase().contains("who are you")) {
-				response = "I am Xavier, an AI designed to assist you.";
-			} else if (userMessage.toLowerCase().contains("purpose")) {
-				response = "My purpose is to understand your requests and help you efficiently.";
-			} else {
-				response = "I am an AI, designed to assist you. Is there something specific you'd like to know about me?";
-			}
-			break;
-		case "time_query":
-			LocalTime currentTime = LocalTime.now();
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm:ss a");
-			response = "The current time is " + currentTime.format(formatter) + ".";
-			break;
+		// ... other cases ...
 		case "feeling_status":
-			// Use the pre-loaded list
 			if (!this.feelingResponses.isEmpty()) {
 				response = this.feelingResponses.get(this.randomGenerator.nextInt(this.feelingResponses.size()));
 			} else {
-				response = "I understand. How can I help?"; // Fallback
+				response = "I understand. How can I help?";
 			}
 			break;
 		case "unknown":
 		default:
-			// Use the pre-loaded list
 			if (!this.unknownResponses.isEmpty()) {
 				response = this.unknownResponses.get(this.randomGenerator.nextInt(this.unknownResponses.size()));
 			} else {
-				response = "I'm sorry, I didn't understand that."; // Fallback
+				response = "I'm sorry, I didn't understand that.";
 			}
 			break;
 	}
+	
+	
+	if (this.awaitingInformationType == null && !"weather_query".equals(predictedIntent) && !"followup_location".equals(predictedIntent)) {
+		// If we are not waiting for info, and the current intent didn't use the location,
+		// and it wasn't a followup_location itself, clear any passively extracted location.
+		// This prevents "You mentioned London" if the next query is "tell me a joke".
+		// However, if `this.extractedLocation` was set by the current `userMessage` and `predictedIntent`
+		// is something like `weather_query` that *will* use it, it should not be nulled here yet.
+		// The clearing is now mostly handled within the cases or when `awaitingInformationType` is reset.
+	}
+	
 	return response;
+}
+
+private double evaluateArithmeticExpression(String userMessage) {
+	
+	ScriptEngineManager  manager = new ScriptEngineManager();
+	ScriptEngine engine = manager.getEngineByName("JavaScript");
+	
+	if (engine == null) {
+		System.err.println("Engine not found, cannot evaluate expression");
+		throw new UnsupportedOperationException("JavaScript engine (e.g., Nashorn or Graal.js) not available to evaluate expression.");
+	}
+	try {
+		String sanitizedExpression = userMessage.replaceAll("[^0-9.+\\-*/()\\s]", "");
+		if (sanitizedExpression.trim().isEmpty()) {
+			// THROW an exception instead of re-prompting
+			throw new IllegalArgumentException("EMPTY_EXPRESSION_AFTER_SANITIZATION: " + userMessage);
+		}
+		Object result = engine.eval(sanitizedExpression);
+		
+		if (result instanceof Number) {
+			return ((Number) result).doubleValue();
+		} else {
+			System.err.println("Expression did not evaluate to a numeric value: " + sanitizedExpression + " (Evaluated to: " + result + ")");
+			throw new IllegalArgumentException("NON_NUMERIC_RESULT: " + sanitizedExpression);
+		}
+	} catch (ScriptException e) {
+		System.err.println("Error evaluating arithmetic expression '" + userMessage + "': " + e.getMessage());
+		throw new IllegalArgumentException("SYNTAX_ERROR: " + userMessage, e);
+	}
+	
+}
+// In XavierCoreAI.java
+private String extractNameFromMessage(String userMessage) {
+	String lowerUserMessage = userMessage.toLowerCase();
+	String extractedName = null;
+	
+	// Patterns to identify name introductions.
+	// More specific patterns can be added or ordered by preference.
+	String[] patterns = {
+			"my full name is ",
+			"my name is ",
+			"please remember my name is ",
+			"you can call me ",
+			"just call me ",
+			"call me ",
+			"i go by ",
+			"i'm known as ",
+			"people call me ",
+			// "i am ", // Can be ambiguous, handle with care or more context
+			// "i'm "   // Similar to "i am"
+	};
+	
+	for (String pattern : patterns) {
+		int startIndex = lowerUserMessage.indexOf(pattern);
+		if (startIndex != -1) {
+			// Extract the part after the pattern
+			String potentialNameSegment = userMessage.substring(startIndex + pattern.length()).trim();
+			
+			// Heuristic: take the first 1-3 words after the pattern as the name.
+			// This helps avoid grabbing a whole sentence if the user continues talking.
+			String[] words = potentialNameSegment.split("\\s+");
+			if (words.length > 0) {
+				extractedName = words[0];
+				if (words.length > 1 && (extractedName.length() + words[1].length() < 20)) {
+					// Check if the second word is likely part of a name (e.g., not a common conjunction)
+					boolean isSecondWordConjunction = Arrays.asList("and", "or", "but", "so", "is", "was", "the", "a", "for", "to", "in", "on", "at", "by", "from", "with", "who", "which", "that", "because").contains(words[1].toLowerCase());
+					if (!isSecondWordConjunction) {
+						extractedName += " " + words[1];
+						if (words.length > 2 && (extractedName.length() + words[2].length() < 25)) {
+							boolean isThirdWordConjunction = Arrays.asList("and", "or", "but", "so", "is", "was", "the", "a", "for", "to", "in", "on", "at", "by", "from", "with", "who", "which", "that", "because").contains(words[2].toLowerCase());
+							if(!isThirdWordConjunction) {
+								extractedName += " " + words[2];
+							}
+						}
+					}
+				}
+			}
+			
+			if (extractedName != null && !extractedName.isEmpty()) {
+				// Remove trailing punctuation from the extracted segment
+				if (extractedName.endsWith(".") || extractedName.endsWith("!") || extractedName.endsWith("?")) {
+					extractedName = extractedName.substring(0, extractedName.length() - 1).trim();
+				}
+				
+				// Capitalize each part of the name
+				String[] nameTokens = extractedName.split("\\s+");
+				StringBuilder capitalizedNameBuilder = new StringBuilder();
+				for (String token : nameTokens) {
+					if (!token.isEmpty()) {
+						capitalizedNameBuilder.append(Character.toUpperCase(token.charAt(0)))
+								.append(token.length() > 1 ? token.substring(1).toLowerCase() : "")
+								.append(" ");
+					}
+				}
+				extractedName = capitalizedNameBuilder.toString().trim();
+				break; // Found a name using a primary pattern, stop searching
+			} else {
+				extractedName = null; // Reset if processing led to an empty name
+			}
+		}
+	}
+	
+	// Fallback: If no pattern matched (e.g., user just says "Dammy", perhaps after being prompted)
+	// This part assumes the intent is already classified as 'set_user_name'.
+	if (extractedName == null || extractedName.isEmpty()) {
+		String trimmedMessage = userMessage.trim();
+		
+		// Remove common leading conversational fluff if the message is short
+		String[] leadingFluff = {"hi ", "hello ", "hey ", "it's ", "i'm ", "i am "}; // Added "i'm", "i am" here for direct name case
+		for (String fluff : leadingFluff) {
+			if (trimmedMessage.toLowerCase().startsWith(fluff)) {
+				trimmedMessage = trimmedMessage.substring(fluff.length()).trim();
+				break;
+			}
+		}
+		
+		String[] words = trimmedMessage.split("\\s+");
+		// Consider it a name if it's 1-3 words after stripping fluff and isn't a pattern itself
+		if (words.length > 0 && words.length <= 3) {
+			boolean isPatternItself = false;
+			for(String p : patterns) { // Check if the trimmed message is one of the patterns
+				if (trimmedMessage.toLowerCase().equals(p.trim())) {
+					isPatternItself = true;
+					break;
+				}
+			}
+			if(!isPatternItself) {
+				extractedName = trimmedMessage;
+				if (extractedName.endsWith(".") || extractedName.endsWith("!") || extractedName.endsWith("?")) {
+					extractedName = extractedName.substring(0, extractedName.length() - 1).trim();
+				}
+				if (!extractedName.isEmpty()) {
+					String[] nameTokens = extractedName.split("\\s+");
+					StringBuilder capitalizedNameBuilder = new StringBuilder();
+					for (String token : nameTokens) {
+						if (!token.isEmpty()) {
+							capitalizedNameBuilder.append(Character.toUpperCase(token.charAt(0)))
+									.append(token.length() > 1 ? token.substring(1).toLowerCase() : "")
+									.append(" ");
+						}
+					}
+					extractedName = capitalizedNameBuilder.toString().trim();
+				}
+			}
+		}
+	}
+	
+	// Final validation (length, common non-name words, special characters)
+	if (extractedName != null && !extractedName.isEmpty()) {
+		String lowerExtractedName = extractedName.toLowerCase();
+		List<String> stopWords = Arrays.asList( // Words that are unlikely to be names on their own
+				"what", "how", "who", "when", "why", "is", "are", "am", "the", "a", "an",
+				"yes", "no", "ok", "okay", "hi", "hello", "hey", "thanks", "thank", "you",
+				"please", "sorry", "bye", "goodbye", "me", "my", "i", "it", "name",
+				"and", "but", "or", "so", "for", "to", "in", "on", "at", "by", "from", "with",
+				"calculate", "weather", "joke", "time", "feeling" // common command words
+		);
+		
+		boolean isInvalid = extractedName.split("\\s+").length > 3 || // Max 3 words for a name
+				                    extractedName.length() > 35 || // Max 35 chars overall
+				                    (extractedName.length() == 1 && !Character.isUpperCase(extractedName.charAt(0))) ||
+				                    lowerExtractedName.matches(".*[0-9!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?].*");
+		
+		if (isInvalid) {
+			return null;
+		}
+		// If the extracted name (as a whole) is a stop word, it's likely not a name.
+		if (stopWords.contains(lowerExtractedName)) {
+			return null;
+		}
+		
+	} else {
+		return null; // No valid name extracted
+	}
+	
+	return extractedName;
 }
 }
