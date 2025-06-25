@@ -1,6 +1,6 @@
 package com.f9ld3.xavier.ai; // IMPORTANT: Ensure this matches your package name
 
-// Weka imports for training and evaluation (used only in trainAndSaveModel)
+// Weka imports (used only in trainAndSaveModel)
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.Evaluation;
 import weka.classifiers.trees.J48;
@@ -11,142 +11,251 @@ import weka.core.converters.ArffLoader;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
-// Standard Java imports
-import java.io.BufferedReader;
-import java.io.File; // NEW: For checking file existence
-import java.io.FileReader;
-import java.util.ArrayList; // For intentPossibleValues in training
-import java.util.Arrays; // For Array utilities
-import java.util.Random; // For Evaluation random seed
-import java.util.Scanner; // For user input
+// Swing and AWT imports for the GUI
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
 
 /**
- * Main class for the Xavier AI console application.
- * This class serves as the entry point and demonstrates how to
- * initialize and interact with the XavierCoreAI module.
+ * Main class for the Xavier AI graphical chat application.
  *
- * It is responsible for:
- * 1. Defining file paths for ARFF data, trained model, and filter.
- * 2. Providing a utility to train and save the AI model and filter (if not already existing).
- * 3. Creating an instance of XavierCoreAI (which loads the saved components).
- * 4. Handling user input via a console loop.
- * 5. Sending user messages to XavierCoreAI for processing.
- * 6. Printing Xavier's responses.
+ * This class is responsible for:
+ * 1.  Creating and displaying a JFrame-based chat interface.
+ * 2.  Triggering the AI model training/loading process on a background thread.
+ * 3.  Initializing the XavierCoreAI after the model is ready.
+ * 4.  Handling user input from the GUI, processing it with XavierCoreAI,
+ * and displaying the conversation in the chat window.
  */
-public class Main {
+public class Main extends JFrame {
 
 // --- Configuration Constants ---
 private static final String ARFF_FILE_PATH = "xavier_data.arff";
 private static final String MODEL_FILE_PATH = "xavier_intent_classifier.model";
 private static final String FILTER_FILE_PATH = "xavier_wordvector_filter.filter";
-
 private static final ArrayList<String> ALL_POSSIBLE_INTENTS = new ArrayList<>(Arrays.asList(
 		"greeting", "goodbye", "unknown", "weather_query", "joke_request", "followup_location",
-		"gratitude", "affirmation", "negation", "personal_question", "time_query", "feeling_status","arithmetic_query",
-		"set_user_name"
-));
+		"gratitude", "affirmation", "negation", "personal_question", "time_query", "feeling_status",
+		"arithmetic_query", "set_user_name", "factual_query"));
 
+// --- GUI Components ---
+private final JTextArea chatArea;
+private final JTextField userInputField;
+private final JButton sendButton;
 
-public static void main(String[] args) {
-	System.out.println("------Starting Xavier AI Console Application------");
-	System.out.println("Type 'exit' to end the conversation.");
+// --- AI Core ---
+private XavierCoreAI xavierAI;
+private boolean isAIReady = false;
+
+/**
+ * Constructor to set up the GUI.
+ */
+public Main() {
+	// --- Frame Setup ---
+	super("Xavier AI Chat");
+	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	setSize(500, 700);
+	setLocationRelativeTo(null); // Center the window
+	setLayout(new BorderLayout());
 	
-	// --- Step 1: Ensure AI model and filter are trained and saved ---
-	// This method will only train/save if the files don't exist, or if explicitly needed.
-	try {
-		trainAndSaveModel();
-	} catch (Exception e) {
-		System.err.println("Failed to train and save AI model: " + e.getMessage());
-		e.printStackTrace();
-		System.exit(1); // Exit if training fails
+	// --- Chat Area ---
+	chatArea = new JTextArea();
+	chatArea.setEditable(false);
+	chatArea.setLineWrap(true);
+	chatArea.setWrapStyleWord(true);
+	chatArea.setFont(new Font("SansSerif", Font.PLAIN, 14));
+	chatArea.setMargin(new Insets(10, 10, 10, 10));
+	JScrollPane scrollPane = new JScrollPane(chatArea);
+	add(scrollPane, BorderLayout.CENTER);
+	
+	// --- Input Panel ---
+	JPanel inputPanel = new JPanel(new BorderLayout(5, 5));
+	inputPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+	
+	userInputField = new JTextField();
+	userInputField.setFont(new Font("SansSerif", Font.PLAIN, 14));
+	userInputField.setEnabled(false); // Disabled until AI is ready
+	inputPanel.add(userInputField, BorderLayout.CENTER);
+	
+	sendButton = new JButton("Send");
+	sendButton.setFont(new Font("SansSerif", Font.BOLD, 12));
+	sendButton.setEnabled(false); // Disabled until AI is ready
+	inputPanel.add(sendButton, BorderLayout.EAST);
+	
+	add(inputPanel, BorderLayout.SOUTH);
+	
+	// --- Action Listener for Sending Messages ---
+	ActionListener sendMessageAction = e -> {
+		try {
+			processUserInput();
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
+	};
+	sendButton.addActionListener(sendMessageAction);
+	userInputField.addActionListener(sendMessageAction); // Allow pressing Enter
+}
+
+/**
+ * The main entry point of the application.
+ */
+public static void main(String[] args) {
+	SwingUtilities.invokeLater(() -> {
+		Main chatInterface = new Main();
+		chatInterface.setVisible(true);
+		chatInterface.initializeAI(); // Start the AI initialization
+	});
+}
+
+/**
+ * Initializes the AI by checking for existing models or training new ones.
+ * This is done on a background thread to keep the GUI responsive.
+ */
+private void initializeAI() {
+	// Show a loading dialog
+	JDialog loadingDialog = createLoadingDialog();
+	
+	// Use SwingWorker to perform training/loading in the background
+	SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
+		@Override
+		protected Boolean doInBackground() throws Exception {
+			// This method retains the logic for first-time training and subsequent retaining
+			trainAndSaveModel();
+			xavierAI = new XavierCoreAI(MODEL_FILE_PATH, FILTER_FILE_PATH);
+			return true;
+		}
+		
+		@Override
+		protected void done() {
+			loadingDialog.dispose(); // Close the loading dialog
+			try {
+				get(); // Check for exceptions during doInBackground
+				isAIReady = true;
+				userInputField.setEnabled(true);
+				sendButton.setEnabled(true);
+				appendToChat("AI Friend (Xavier)", "Hello! How can I help you today?");
+				userInputField.requestFocus();
+			} catch (Exception e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(
+						Main.this,
+						"Failed to initialize AI: " + e.getMessage(),
+						"Fatal Error",
+						JOptionPane.ERROR_MESSAGE);
+				System.exit(1);
+			}
+		}
+	};
+	
+	worker.execute();
+	loadingDialog.setVisible(true); // Show the dialog while the worker runs
+}
+
+/**
+ * Creates a simple, non-closable dialog to show while the AI is loading.
+ */
+private JDialog createLoadingDialog() {
+	JDialog dialog = new JDialog(this, "Initializing AI", true); // Modal
+	JProgressBar progressBar = new JProgressBar();
+	progressBar.setIndeterminate(true);
+	JLabel label = new JLabel("Please wait while the AI model is being prepared...");
+	label.setBorder(new EmptyBorder(10, 10, 0, 10));
+	
+	JPanel panel = new JPanel(new BorderLayout(10,10));
+	panel.setBorder(new EmptyBorder(20, 20, 20, 20));
+	panel.add(label, BorderLayout.NORTH);
+	panel.add(progressBar, BorderLayout.CENTER);
+	
+	dialog.add(panel);
+	dialog.pack();
+	dialog.setLocationRelativeTo(this);
+	dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+	return dialog;
+}
+
+
+/**
+ * Processes the user's input, gets a response from the AI, and updates the chat.
+ */
+private void processUserInput() throws Exception {
+	if (!isAIReady) return;
+	
+	String userMessage = userInputField.getText().trim();
+	if (userMessage.isEmpty()) {
+		return;
 	}
 	
-	XavierCoreAI xavierAI = null;
+	appendToChat("You", userMessage);
+	userInputField.setText("");
 	
-	try {
-		// --- Step 2: Initialize XavierCoreAI with paths to the saved model and filter ---
-		xavierAI = new XavierCoreAI(MODEL_FILE_PATH, FILTER_FILE_PATH);
-		
-		// --- Step 3: Start the Interactive Console Loop ---
-		Scanner scanner = new Scanner(System.in);
-		System.out.print("\nAI Friend (Xavier): Hello! How can I help you today? ");
-		
-		while (true) {
-			System.out.print("\nYou: ");
-			String userMessage = scanner.nextLine();
-			
-			if (userMessage.equalsIgnoreCase("exit")) {
-				System.out.println("AI Friend (Xavier): Goodbye! It was nice chatting with you.");
-				break; // Exit the loop
-			}
-			
-			// --- Step 4: Process the user's message using XavierCoreAI ---
-			String aiResponse = xavierAI.processMessage(userMessage);
-			
-			System.out.println("AI Friend (Xavier): " + aiResponse);
-		}
-		scanner.close(); // Close the scanner when done.
-		
-	} catch (Exception e) {
-		System.err.println("An unrecoverable error occurred in Xavier AI runtime: " + e.getMessage());
-		e.printStackTrace();
-		System.exit(1); // Exit with an error code
+	if (userMessage.equalsIgnoreCase("exit")) {
+		appendToChat("AI Friend (Xavier)", "Goodbye! It was nice chatting with you.");
+		userInputField.setEnabled(false);
+		sendButton.setEnabled(false);
+		// Optionally close after a delay
+		new Timer(2000, e -> System.exit(0)).start();
+	} else {
+		// Get AI response and update GUI
+		String aiResponse = xavierAI.processMessage(userMessage);
+		appendToChat("AI Friend (Xavier)", aiResponse);
 	}
 }
 
 /**
- * Utility method to train the Weka model and filter and save them to files.
- * This method is called from main to ensure the AI's "brain" is ready.
- * It will only perform training if the model and filter files do not exist,
- * or if you explicitly delete them to force a re-train.
- * @throws Exception If any Weka operation fails during training.
+ * Helper method to append messages to the chat area with formatting.
+ */
+private void appendToChat(String sender, String message) {
+	chatArea.append(String.format("%s: %s\n\n", sender, message));
+	// Auto-scroll to the bottom
+	chatArea.setCaretPosition(chatArea.getDocument().getLength());
+}
+
+/**
+ * Utility method to train the Weka model and filter.
+ * This method is called to ensure the AI's "brain" is ready.
+ * It will only perform training if the model/filter files do not exist.
+ * @throws Exception If any Weka operation fails.
  */
 private static void trainAndSaveModel() throws Exception {
 	File modelFile = new File(MODEL_FILE_PATH);
 	File filterFile = new File(FILTER_FILE_PATH);
 	
-	// Only train and save if files don't exist (or force re-train by deleting them)
 	if (modelFile.exists() && filterFile.exists()) {
-		System.out.println("\n--- AI Model and Filter already exist. Skipping training. ---");
+		System.out.println("AI Model and Filter already exist. Skipping training.");
 		return;
 	}
 	
-	System.out.println("\n--- Training AI Model and Filter (first-time setup or retraining) ---");
-	System.out.println("Loading data from " + ARFF_FILE_PATH + "...");
+	System.out.println("--- Training AI Model and Filter (first-time setup) ---");
+	System.out.println("Loading data from " + ARFF_FILE_PATH);
 	
 	// --- Data Loading ---
 	ArffLoader loader = new ArffLoader();
-	loader.setSource(new java.io.File(ARFF_FILE_PATH));
+	loader.setSource(new File(ARFF_FILE_PATH));
 	Instances data = loader.getDataSet();
-	// Set the class attribute to 'intent'
 	if (data.classIndex() == -1) {
-		Attribute intentAttribute = data.attribute("intent");
-		if (intentAttribute == null) {
-			throw new RuntimeException("Class attribute 'intent' not found in ARFF data.");
-		}
-		data.setClassIndex(intentAttribute.index());
+		data.setClass(data.attribute("intent"));
 	}
 	
-	System.out.println("Data Loaded. Instances: " + data.numInstances() + ", Attributes: " + data.numAttributes());
+	System.out.println("Data Loaded. Instances: " + data.numInstances());
 	
-	// --- Data Preprocessing ---
+	// --- Data Preprocessing (Filter) ---
 	System.out.println("Applying StringToWordVector Filter...");
-	StringToWordVector stringToWordVectorFilter = new StringToWordVector();
-	stringToWordVectorFilter.setAttributeIndices(String.valueOf(data.attribute("text").index() + 1));
-	stringToWordVectorFilter.setWordsToKeep(10000);
-	stringToWordVectorFilter.setTFTransform(true);
-	stringToWordVectorFilter.setIDFTransform(true);
-	stringToWordVectorFilter.setLowerCaseTokens(true);
-	
-	stringToWordVectorFilter.setInputFormat(data);
-	Instances vectorizedData = Filter.useFilter(data, stringToWordVectorFilter);
-	
-	vectorizedData.setClassIndex(vectorizedData.attribute("intent").index());
+	StringToWordVector filter = new StringToWordVector();
+	filter.setAttributeIndices(String.valueOf(data.attribute("text").index() + 1));
+	filter.setWordsToKeep(1000);
+	filter.setTFTransform(true);
+	filter.setIDFTransform(true);
+	filter.setLowerCaseTokens(true);
+	filter.setInputFormat(data);
+	Instances vectorizedData = Filter.useFilter(data, filter);
 	
 	System.out.println("Text vectorized. New attributes: " + vectorizedData.numAttributes());
-	if (!vectorizedData.classAttribute().isNominal()) {
-		throw new RuntimeException("Class attribute '" + vectorizedData.classAttribute().name() + "' is not nominal after filtering!");
-	}
 	
 	// --- Model Training ---
 	System.out.println("Training J48 Classifier...");
@@ -154,29 +263,17 @@ private static void trainAndSaveModel() throws Exception {
 	classifier.buildClassifier(vectorizedData);
 	System.out.println("Classifier trained.");
 	
-	// --- Model Evaluation (Optional, but good for feedback during development) ---
+	// --- Model Evaluation (Optional) ---
 	System.out.println("Evaluating Classifier with 10-Fold Cross-Validation...");
 	Evaluation eval = new Evaluation(vectorizedData);
-	Random rand = new Random(1);
-	int numFolds = 10;
-	if (vectorizedData.numInstances() < numFolds) {
-		numFolds = vectorizedData.numInstances();
-		System.out.println("Warning: Dataset size is less than numFolds. Setting numFolds to " + numFolds);
-	}
-	if (numFolds > 1) {
-		eval.crossValidateModel(classifier, vectorizedData, numFolds, rand);
-		System.out.println("\n--- Model Evaluation Summary ---");
-		System.out.println(eval.toSummaryString("\nResults\n", false));
-		System.out.println(eval.toMatrixString("Confusion Matrix"));
-		// System.out.println(eval.toClassDetailsString("Class Details (Precision, Recall, F-Measure)")); // Commented out for brevity in console
-	} else {
-		System.out.println("Model Evaluation Skipped (Dataset too small for " + numFolds + "-fold CV)");
-	}
+	eval.crossValidateModel(classifier, vectorizedData, 10, new Random(1));
+	System.out.println(eval.toSummaryString("\n--- Evaluation Summary ---\n", false));
+	System.out.println(eval.toMatrixString("--- Confusion Matrix ---"));
 	
-	// --- Save Trained Model and Filter ---
-	System.out.println("Saving trained model to " + MODEL_FILE_PATH + " and filter to " + FILTER_FILE_PATH + "...");
+	// --- Save Model and Filter ---
+	System.out.println("Saving model to " + MODEL_FILE_PATH + " and filter to " + FILTER_FILE_PATH);
 	SerializationHelper.write(MODEL_FILE_PATH, classifier);
-	SerializationHelper.write(FILTER_FILE_PATH, stringToWordVectorFilter);
+	SerializationHelper.write(FILTER_FILE_PATH, filter);
 	System.out.println("Model and Filter saved successfully.");
 }
 }
