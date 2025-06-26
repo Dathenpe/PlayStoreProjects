@@ -3,4 +3,5 @@
     <dimen name="list_item_spacing">16dp</dimen>
     <dimen name="list_item_spacing_half">8dp</dimen>
     <dimen name="fab_slide_up_distance">50dp</dimen>
+    <dimen name="chip_margin_end">8dp</dimen>
 </resources>

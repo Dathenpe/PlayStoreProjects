@@ -82,24 +82,29 @@ public class RecordFragment extends Fragment {
         });
 
 
-        copingExercisesContainer.setOnClickListener(v -> {
-            mainActivity.loadFragment(new CopingExercisesFragment(),R.layout.fragment_coping_exercises);
 
+        copingExercisesContainer.setOnClickListener(v -> {
+            mainActivity.loadFragment(new CopingExercisesFragment(), R.id.nav_coping_exercises);
+            mainActivity.toolbar.setTitle("Coping Exercises");
+            mainActivity.addFragmentToHistory(R.id.nav_coping_exercises, "Coping Exercises");
         });
 
         dailyMoodCheckingsContainer.setOnClickListener(v -> {
+            mainActivity.loadFragment(new MoodCheckinFragment(), R.id.nav_mood_checkin);
             mainActivity.toolbar.setTitle("My Mood History");
-            mainActivity.loadFragment(new MoodCheckinFragment(),R.layout.fragment_mood_checkin);
+            mainActivity.addFragmentToHistory(R.id.nav_mood_checkin, "My Mood History");
         });
 
         savedStrategiesContainer.setOnClickListener(v -> {
+            mainActivity.loadFragment(new SavedStrategiesFragment(), R.id.nav_saved_strategies);
             mainActivity.toolbar.setTitle("My Coping Strategies");
-            mainActivity.loadFragment(new SavedStrategiesFragment(),R.layout.fragment_saved_strategies);
+            mainActivity.addFragmentToHistory(R.id.nav_saved_strategies, "My Coping Strategies");
         });
 
         journalEntriesContainer.setOnClickListener(v -> {
+            mainActivity.loadFragment(new JournalEntriesFragment(), R.id.nav_journal_entries);
             mainActivity.toolbar.setTitle("My Journal Entries");
-            mainActivity.loadFragment(new JournalEntriesFragment(),R.layout.fragment_journal_entries);
+            mainActivity.addFragmentToHistory(R.id.nav_journal_entries, "My Journal Entries");
         });
 
         emergencyContactsContainer.setOnClickListener(v -> {

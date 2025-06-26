@@ -37,6 +37,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -57,6 +58,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -66,8 +68,11 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import records.AddEditContactDialogFragment;
@@ -84,7 +89,27 @@ import ui.RecordFragment;
 import ui.ReminderBroadcastReceiver;
 import ui.SettingsFragment;
 
+ class FragmentHistoryItem{
+    public int navId;
+    public String title;
 
+    public FragmentHistoryItem(int navId, String title) {
+        this.navId = navId;
+        this.title = title;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FragmentHistoryItem that = (FragmentHistoryItem) o;
+        return navId == that.navId;
+    }
+    @Override
+    public int hashCode() {
+        return navId;
+    }
+}
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
         AddEditContactDialogFragment.OnContactSavedListener {
 
@@ -142,6 +167,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             "You can reset the counter anytime you feel the need. Let's embark on this healing journey together!"
     };
 
+    private static final String PREFS_RECENTLY_VISITED =  "RecentlyVisitedPrefs";
+    private static final String KEY_RECENTLY_VISITED = "recentlyVisitedFragments";
+    private static final int MAX_RECENT_CHIPS = 3;
+    private LinearLayout recentlyVisitedChipContainer;
+
+    private LinkedHashMap<Integer,FragmentHistoryItem> fragmentHistoryMap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,6 +184,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        gson = new Gson();
+
+        View headerView = navigationView.getHeaderView(0);
+        recentlyVisitedChipContainer = headerView.findViewById(R.id.recently_visited_chip_container);
+
+        loadFragmentHistory();
+        updateRecentlyVisitedChips();
 
         settingse = getSharedPreferences(PREFS_NAME,0);
         boolean isFirstLaunch = settingse.getBoolean(FIRST_LAUNCH_KEY, true);
@@ -171,7 +211,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Log.d(TAG, "MainActivity: onCreate - Restoring fragment (not first launch, savedInstanceState exists)");
             }
         }
-        gson = new Gson();
         loadEmergencyContacts();
         checkAndScheduleReminder();
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -180,6 +219,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         bottomSheetContent = findViewById(R.id.bottom_sheet_content);
         bottomSheetView = findViewById(R.id.bottom_sheet_container);
         overlayView = findViewById(R.id.overlay_view);
+        ImageButton closeDrawerButton = headerView.findViewById(R.id.nav_close_button);
+         if (closeDrawerButton != null) {
+            closeDrawerButton.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
+         }
         if (bottomSheetView != null) {
             bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView);
 
@@ -324,6 +367,90 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    @Override
+    protected void onPause(){
+        super.onPause();
+        saveFragmentHistory();
+    }
+
+    private void loadFragmentHistory(){
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_RECENTLY_VISITED,Context.MODE_PRIVATE);
+        String json = sharedPreferences.getString(KEY_RECENTLY_VISITED,null);
+        fragmentHistoryMap = new LinkedHashMap<>();
+
+        if (json != null){
+            Type type = new TypeToken<List<FragmentHistoryItem>>(){}.getType();
+            List <FragmentHistoryItem> loadedList = gson.fromJson(json,type);
+            if (loadedList != null){
+                for (FragmentHistoryItem item : loadedList){
+                    fragmentHistoryMap.put(item.navId,item);
+                }
+            }
+        }
+        Log.d(TAG, "Fragment history loaded. Items: " + fragmentHistoryMap.size());
+    }
+
+    private void saveFragmentHistory(){
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_RECENTLY_VISITED,Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        List<FragmentHistoryItem> historyToSave = new ArrayList<>(fragmentHistoryMap.values());
+        String json = gson.toJson(historyToSave);
+        editor.putString(KEY_RECENTLY_VISITED,json);
+        editor.apply();
+        Log.d(TAG, "Fragment history saved. Items: " + fragmentHistoryMap.size());
+
+    }
+
+    public void addFragmentToHistory(int navId, String title){
+        FragmentHistoryItem newItem = new FragmentHistoryItem(navId,title);
+
+        fragmentHistoryMap.remove(newItem.navId);
+        fragmentHistoryMap.put(newItem.navId,newItem);
+
+        while (fragmentHistoryMap.size() > MAX_RECENT_CHIPS){
+            Map.Entry<Integer,FragmentHistoryItem> oldestEntry = fragmentHistoryMap.entrySet().iterator().next();
+            fragmentHistoryMap.remove(oldestEntry.getKey());
+        }
+        saveFragmentHistory();
+        updateRecentlyVisitedChips();
+        Log.d(TAG, "Added to history: " + newItem.title + ". Current history size: " + fragmentHistoryMap.size());
+    }
+
+    private void updateRecentlyVisitedChips() {
+        if (recentlyVisitedChipContainer == null){
+            Log.e(TAG, "recentlyVisitedChipContainer is null. Cannot update chips.");
+        }else {
+            recentlyVisitedChipContainer.removeAllViews();
+
+            List <FragmentHistoryItem> historyForDisplay = new ArrayList<>(fragmentHistoryMap.values());
+            Collections.reverse(historyForDisplay);
+
+            for (FragmentHistoryItem item : historyForDisplay){
+                Chip chip = (Chip) LayoutInflater.from(this).inflate(R.layout.chip_recently_visited,recentlyVisitedChipContainer,false);
+                chip.setText(item.title);
+                chip.setTag(item.navId);
+
+                chip.setOnClickListener(v ->{
+                    int clickedNavId = (int) v.getTag();
+
+                    onNavigationItemSelected(navigationView.getMenu().findItem(clickedNavId));
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                });
+
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+
+                layoutParams.setMarginEnd((int) getResources().getDimension(R.dimen.chip_margin_end));
+                recentlyVisitedChipContainer.addView(chip,layoutParams);
+            }
+            Log.d(TAG, "Chips updated. Displaying " + historyForDisplay.size() + " chips.");
+        }
+    }
+
+
     private void welcomeMessage() {
         currentWelcomeDialogStep = 0;
         showWelcomeDialogStep(currentWelcomeDialogStep);
@@ -432,7 +559,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .setNegativeButton("No", (dialog, which) -> {
                         dialog.dismiss();
                     })
-                    .setCancelable(false)
+                    .setCancelable(true)
                     .show();
         } else {
             super.onBackPressed();
@@ -446,6 +573,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             args.putSerializable("contactList", new ArrayList<>(emergencyContactList));
             targetFragment.setArguments(args);
             loadFragment(targetFragment, R.id.nav_emergency_contacts);
+            addFragmentToHistory(R.id.nav_emergency_contacts, "My Emergency Contacts");
+
         }
     }
 
@@ -462,12 +591,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Fragment targetFragment = null;
         String toolbarTitle = "";
         boolean shouldLoadFragment = false;
+        FragmentHistoryItem historyItemToAdd = null; // Declare here
 
         if (bottomSheetBehavior != null && bottomSheetBehavior.getState() == STATE_EXPANDED) {
             bottomSheetBehavior.setState(STATE_HIDDEN);
             clearBottomFragment();
         }
 
+        // Determine the target fragment and title, and create history item
         if (id == R.id.nav_home) {
             toolbarTitle = "Heal";
             if (!(currentFragment instanceof HomeFragment)) {
@@ -477,10 +608,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 shakeView(Fab);
                 shouldLoadFragment = true;
             }
+            historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
         } else if (id == R.id.nav_records) {
             toolbarTitle = "Data Records";
             if (!(currentFragment instanceof RecordFragment)) {
-                if (currentFragment instanceof EmergencyContactsFragment || currentFragment instanceof CopingExercisesFragment ||  currentFragment instanceof JournalEntriesFragment ||  currentFragment instanceof MoodCheckinFragment ||  currentFragment instanceof SavedStrategiesFragment) {
+                // Pop back stack if navigating from a nested records fragment
+                if (currentFragment instanceof EmergencyContactsFragment || currentFragment instanceof CopingExercisesFragment ||
+                        currentFragment instanceof JournalEntriesFragment || currentFragment instanceof MoodCheckinFragment ||
+                        currentFragment instanceof SavedStrategiesFragment) {
                     FragmentManager fragmentManager = getSupportFragmentManager();
                     fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 }
@@ -490,6 +625,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 shakeView(Fab);
                 shouldLoadFragment = true;
             }
+            historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
         } else if (id == R.id.nav_gallery) {
             toolbarTitle = "Art Corner";
             if (!(currentFragment instanceof GalleryFragment)) {
@@ -499,20 +635,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 shakeView(Fab);
                 shouldLoadFragment = true;
             }
+            historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
         } else if (id == R.id.nav_ai) {
-            toolbarTitle = "Gemini";
+            toolbarTitle = "Xavier"; // Assuming this is the title for AIFragment
             if (!(currentFragment instanceof AIFragment)) {
                 targetFragment = new AIFragment();
-                    invertShakeView(Fab);
-                    MenuTrigger.setVisibility(View.GONE);
-                    bottomSheetBehavior.setState(STATE_HIDDEN);
-                    overlayView.setVisibility(View.GONE);
-                    toolbar.setTitle("Gemini Chat");
-                    Log.d(TAG, "MainActivity: onCreate - Loading Gemini Fragment");
+                invertShakeView(Fab);
+                MenuTrigger.setVisibility(View.GONE);
+                bottomSheetBehavior.setState(STATE_HIDDEN);
+                overlayView.setVisibility(View.GONE);
+                Log.d(TAG, "MainActivity: onNavigationItemSelected - Loading Gemini Fragment");
                 shouldLoadFragment = true;
             }
+            historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
         } else if (id == R.id.nav_send) {
-            toolbarTitle = "Heal";
+            toolbarTitle = "Heal"; // This might be a temporary title before popup
             if (!(currentFragment instanceof HomeFragment)) {
                 targetFragment = new HomeFragment();
                 shouldLoadFragment = true;
@@ -521,8 +658,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } else {
                 showSendPopup();
             }
+            // For send/share, don't add to history if it's just showing a popup/action
+            // If it always loads HomeFragment first, then Home will be added, which is fine.
         } else if (id == R.id.nav_share) {
-            toolbarTitle = "Heal";
+            toolbarTitle = "Heal"; // This might be a temporary title before share action
             if (!(currentFragment instanceof HomeFragment)) {
                 targetFragment = new HomeFragment();
                 shouldLoadFragment = true;
@@ -530,12 +669,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String myAppLink = "https://play.google.com/store/apps/details?id=com.example.myapp";
             String shareMessage = "Check out this awesome app!";
             Share(myAppLink, shareMessage);
+            // Don't add to history for share action
         }
-
 
         if (shouldLoadFragment && targetFragment != null) {
             loadFragment(targetFragment, id);
         }
+
+        // Add to history AFTER fragment loading logic, but only if it's a "trackable" fragment
+        if (historyItemToAdd != null) {
+            // CORRECTED LINE: Pass navId and title separately
+            addFragmentToHistory(historyItemToAdd.navId, historyItemToAdd.title);
+        }
+
 
         toolbar.setTitle(toolbarTitle);
         if (previousMenuItem != item) {
@@ -546,9 +692,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             previousItemView = currentItemView;
 
             if (previousItemView != null && id != R.id.nav_send && id != R.id.nav_share) {
+                // Highlight the newly selected item, but not send/share
                 currentItemView.setBackgroundColor(getResources().getColor(R.color.orange));
             }
         } else {
+            // If re-selecting the same item, ensure it's still highlighted (unless it's send/share)
             if (currentItemView != null && id != R.id.nav_send && id != R.id.nav_share) {
                 currentItemView.setBackgroundColor(getResources().getColor(R.color.orange));
             }
@@ -556,6 +704,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
+
 
     private void Share(String appLink, String optionalText) {
         Intent shareIntent = new Intent();

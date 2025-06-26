@@ -44,6 +44,16 @@ public class MoodCheckinFragment extends Fragment {
     private static final String PREFS_MOOD = "mood_prefs";
     private static final String KEY_MOOD_ENTRIES = "mood_entries";
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof MainActivity) {
+            mainActivity = (MainActivity) context;
+        } else {
+            Toast.makeText(context, "Error: CopingExercisesFragment attached to wrong activity", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -127,5 +137,11 @@ public class MoodCheckinFragment extends Fragment {
             emptyStateTextView.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void onResume(){
+        mainActivity.toolbar.setTitle("My Mood History");
+        super.onResume();
     }
 }

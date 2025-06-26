@@ -2,25 +2,139 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="176dp"
-    android:background="@drawable/abstract_default"
-    android:gravity="bottom"
+    android:layout_height="wrap_content"
+    app:backgroundTint="@color/md_theme_primary"
     android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingTop="16dp"
-    android:paddingRight="16dp"
     android:paddingBottom="16dp"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark">
-
-
-    <TextView
+    android:theme="@style/ThemeOverlay.AppCompat.Light">
+    <RelativeLayout
+        android:layout_marginTop="30dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="8dp" android:text="Proverbs 18:14"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textSize="18sp"  android:textColor="@android:color/white"/>
+        android:layout_height="?attr/actionBarSize"
+        app:backgroundTint="@color/md_theme_primary"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <TextView
+            android:id="@+id/nav_header_app_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Heal"
+            android:backgroundTint="@color/md_theme_primary"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/nav_close_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Close Navigation Drawer"
+            android:src="@android:drawable/ic_delete"
+            app:tint="@color/gray" />
+    </RelativeLayout>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="&#x201C;The spirit of a man will sustain his infirmity; but a wounded spirit who can bear?&#x201D;" />
-     </LinearLayout>
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="RECENTLY VISITED"
+        android:textColor="@color/gray"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <ui.InterceptTouchHorizontalScrollView
+    android:id="@+id/recently_visited_scroll_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="none"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingVertical="15dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:layout_marginTop="8dp">
+
+    <LinearLayout
+        android:id="@+id/recently_visited_chip_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingVertical="15dp">
+
+
+    </LinearLayout>
+</ui.InterceptTouchHorizontalScrollView> <!-- CHANGED LINE HERE -->
+
+<View
+android:layout_width="match_parent"
+android:layout_height="1dp"
+android:background="#E0E0E0"
+android:layout_marginTop="16dp"
+android:layout_marginStart="16dp"
+android:layout_marginEnd="16dp" />
+
+<LinearLayout
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:orientation="horizontal"
+android:gravity="center_vertical"
+android:layout_marginTop="16dp"
+android:paddingStart="16dp"
+android:paddingEnd="16dp">
+
+<TextView
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:text="RECENTLY SENT NOTIFICATIONS"
+    android:textColor="@color/gray"
+    android:textSize="12sp"
+    android:textStyle="bold" />
+
+<ImageButton
+    android:id="@+id/clear_notifications_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackgroundBorderless"
+    android:contentDescription="Clear Notifications"
+    android:src="@android:drawable/ic_menu_delete"
+    app:tint="@color/gray" />
+</LinearLayout>
+
+<TextView
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:layout_marginStart="16dp"
+android:layout_marginEnd="16dp"
+android:layout_marginTop="8dp"
+android:text="• Notification 1: Your daily meditation is ready."
+android:textColor="@color/black"
+android:textSize="14sp" />
+
+<TextView
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:layout_marginStart="16dp"
+android:layout_marginEnd="16dp"
+android:layout_marginTop="4dp"
+android:text="• Notification 2: Don't forget your exercises!"
+android:textColor="@color/black"
+android:textSize="14sp" />
+
+<View
+android:layout_width="match_parent"
+android:layout_height="1dp"
+android:background="#E0E0E0"
+android:layout_marginTop="16dp"
+android:layout_marginStart="16dp"
+android:layout_marginEnd="16dp" />
+
+    </LinearLayout>

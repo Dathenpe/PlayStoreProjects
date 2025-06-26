@@ -53,6 +53,11 @@ public class EmergencyContactsFragment extends Fragment implements EmergencyCont
         } else {
             throw new RuntimeException(context.toString() + " must implement AddEditContactDialogFragment.OnContactSavedListener");
         }
+        if (context instanceof MainActivity) {
+            mainActivity = (MainActivity) context;
+        } else {
+            Toast.makeText(context, "Error: CopingExercisesFragment attached to wrong activity", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -210,6 +215,7 @@ public class EmergencyContactsFragment extends Fragment implements EmergencyCont
     }
     @Override
     public void onResume(){
+        mainActivity.toolbar.setTitle("My Emergency Contacts");
         super.onResume();
         updateEmptyStateVisibility();
     }

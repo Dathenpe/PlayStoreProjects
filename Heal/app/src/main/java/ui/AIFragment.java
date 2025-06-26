@@ -256,8 +256,17 @@ public class AIFragment extends Fragment {
         super.onDestroy();
         if (mainActivity != null){
             mainActivity.MenuTrigger.setVisibility(View.VISIBLE);
-            mainActivity. Fab.setVisibility(View.VISIBLE);
+            mainActivity.Fab.setVisibility(View.VISIBLE);
             mainActivity.shakeView(mainActivity.Fab);
+        }
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
+        if (mainActivity != null){
+            mainActivity.toolbar.setTitle("Xavier");
+            mainActivity.MenuTrigger.setVisibility(View.GONE);
+            mainActivity.invertShakeView(mainActivity.Fab);
         }
     }
 }

@@ -53,6 +53,16 @@ public class JournalEntriesFragment extends Fragment implements OnJournalEntryCl
         gson = new Gson();
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof MainActivity) {
+            mainActivity = (MainActivity) context;
+        } else {
+            Toast.makeText(context, "Error: CopingExercisesFragment attached to wrong activity", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -204,6 +214,7 @@ public class JournalEntriesFragment extends Fragment implements OnJournalEntryCl
 
     @Override
     public void onResume() {
+        mainActivity.toolbar.setTitle("My Journal Entries");
         super.onResume();
         loadJournalEntries();
         if (adapter != null) {

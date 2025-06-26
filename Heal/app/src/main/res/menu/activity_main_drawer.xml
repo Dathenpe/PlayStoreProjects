@@ -4,25 +4,25 @@
     tools:showIn="navigation_view">
 
     <group android:checkableBehavior="single">
-        <item android:title="Navigate"
+        <item android:title="@string/navigate"
             android:enabled="false"
             android:checkable="false" />
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_home"
-            android:title="Home" />
+            android:title="@string/home" />
         <item
             android:id="@+id/nav_records"
             android:icon="@drawable/ic_record"
-            android:title="Records and Exercises" />
+            android:title="@string/records_and_exercises" />
         <item
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:title="Art Corner" />
         <item
             android:id="@+id/nav_ai"
             android:icon="@drawable/robot"
-            android:title="Gemini" />
+            android:title="Xavier" />
     </group>
 
     <group android:title="Communicate">
@@ -39,5 +39,11 @@
             android:selectable="false"
             android:icon="@drawable/outline_arrow_outward_24"
             android:title="Send" />
+
+        <item android:id="@+id/nav_coping_exercises" android:title="Coping Exercises" android:visible="false"/>
+        <item android:id="@+id/nav_mood_checkin" android:title="Mood History" android:visible="false"/>
+        <item android:id="@+id/nav_saved_strategies" android:title="Coping Strategies" android:visible="false"/>
+        <item android:id="@+id/nav_journal_entries" android:title="Journal Entries" android:visible="false"/>
+        <item android:id="@+id/nav_emergency_contacts" android:title="Emergency Contacts" android:visible="false"/>
     </group>
 </menu>

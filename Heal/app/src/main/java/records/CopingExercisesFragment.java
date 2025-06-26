@@ -13,12 +13,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
-import com.example.heal.R;
 import com.example.heal.MainActivity;
+import com.example.heal.R;
 
 public class CopingExercisesFragment extends Fragment {
 
@@ -238,5 +237,11 @@ public class CopingExercisesFragment extends Fragment {
         if (getContext() != null) {
             Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onResume(){
+        mainActivity.toolbar.setTitle("Coping Exercises");
+        super.onResume();
     }
 }

@@ -80,7 +80,7 @@ public class SettingsFragment extends Fragment {
                 }
             }
         });
-        //  feedbackLayout.setOnClickListener(v -> sendFeedback());
+        //feedbackLayout.setOnClickListener(v -> sendFeedback());
         aboutUsLayout.setOnClickListener(v -> {
             Toast.makeText(getContext(), "About Us clicked", Toast.LENGTH_SHORT).show();
         });
@@ -95,7 +95,7 @@ public class SettingsFragment extends Fragment {
         builder.setTitle("Edit Name");
         final EditText input = new EditText(getContext());
         input.setText(nameText.getText());
-
+        mainActivity.closeSettings();
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             input.requestFocus();
             InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -111,6 +111,7 @@ public class SettingsFragment extends Fragment {
         builder.setNegativeButton("Cancel", (dialog, which) -> {
             dialog.cancel();
             InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            mainActivity.loadBottomSettingsFragment();
             if (imm != null) {
                 imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
             }
@@ -123,8 +124,8 @@ public class SettingsFragment extends Fragment {
             if (newName != null && !newName.isEmpty()) {
                 mainActivity.saveNameToLocalStorage(newName);
                 nameText.setText(newName);
-                Toast.makeText(getContext(), "Name saved successfully", Toast.LENGTH_SHORT).show();
-
+                Toast.makeText(getContext(), "Name saved successfully, your changes will apply after home-page reload", Toast.LENGTH_SHORT).show();
+                mainActivity.loadBottomSettingsFragment();
                 dialog.dismiss();
 
                 InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);

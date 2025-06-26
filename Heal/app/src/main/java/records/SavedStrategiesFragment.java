@@ -189,6 +189,7 @@ public class SavedStrategiesFragment extends Fragment
 
     @Override
     public void onResume() {
+        mainActivity.toolbar.setTitle("My Coping Strategies");
         super.onResume();
         loadAllSavedStrategies();
     }
