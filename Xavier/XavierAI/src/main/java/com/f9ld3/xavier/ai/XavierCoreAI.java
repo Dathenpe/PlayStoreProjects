@@ -43,23 +43,24 @@ import java.util.stream.Collectors; // Added for stream operations
  */
 public class XavierCoreAI {
 
-//API  CONFIGURATION
+// API CONFIGURATION
 private static final String OPENWEATHER_API_KEY = "a05a0c427992d0bee9a9624548399407";
 private static final String OPENWEATHER_BASE_URL = "http://api.openweathermap.org/data/2.5/weather";
 
-//DuckDuckGo API Key
+// DuckDuckGo Instant Answer API - No API Key needed
 private static final String DUCKDUCKGO_API_BASE_URL = "https://api.duckduckgo.com/";
 
-//Free Dictionary API
+// Free Dictionary API - No API Key needed
 private static final String FREE_DICTIONARY_API_BASE_URL = "https://api.dictionaryapi.dev/api/v2/entries/en/";
 
-//Numbers API URL
+// Numbers API - No API Key needed
 private static final String NUMBERS_API_BASE_URL = "http://numbersapi.com/";
 
 private static final String NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org/search";
-private static final String USER_AGENT  = "XavierAI/1.0 (adetayoadedamola6@gmail.com)";
-private static long  lastNominatimRequestTime = 0;
+private static final String USER_AGENT = "XavierAI/1.0 (adetayoadedamola6@gmail.com)";
+private static long lastNominatimRequestTime = 0;
 private static final long NOMINATIM_RATE_LIMIT_MS = 1000;
+
 
 // --- AI Brain Components ---
 private Classifier classifier; // The trained Weka classification model
@@ -125,7 +126,8 @@ private static final HashSet<String> KNOWN_LOCATIONS = new HashSet<>(Arrays.asLi
 		"ho chi minh city", "jakarta", "manila", "kuala lumpur", "dubai", "abu dhabi", "doha", "riyadh",
 		"johannesburg", "cape town", "nairobi", "casablanca", "lagos", "abuja", "accra", "cairo",
 		"sydney", "melbourne", "auckland", "wellington", "montevideo", "santiago", "lima", "caracas",
-		"bogota", "quito", "panama city", "san jose costa rica", "guadalajara", "monterrey", "istanbul"
+		"bogota", "quito", "panama city", "san jose costa rica", "guadalajara", "monterrey", "istanbul",
+		"quebec" // Added common spelling for Quebec
 ));
 private List<String> greetingResponses;
 private List<String> goodbyeResponses;
@@ -135,10 +137,6 @@ private List<String> affirmationResponses;
 private List<String> negationResponses;
 private List<String> feelingResponses;
 private List<String> unknownResponses;
-
-private static final String KNOWLEDGE_API_BASE_URL = "YOUR_CHOSEN_KNOWLEDGE_API_ENDPOINT"; // Replace with actual
-private static final String KNOWLEDGE_API_KEY = "YOUR_KNOWLEDGE_API_KEY"; // If required
-
 
 private Random randomGenerator = new Random();
 /**
@@ -241,11 +239,13 @@ private String predictIntent(String userMessage) throws Exception {
 	// 7. Return the predicted class label.
 	return filteredPredictionDataset.classAttribute().value((int) predictedClassValueIndex);
 }
+
 /**
  * Attempts to extract a known location from a message.
  * This is a simple dictionary-based entity extraction.
- @param "message The text message to extract from.
-  * @return The extracted location (e.g., "lagos") or null if not found.
+ *
+ * @param message The text message to extract from.
+ * @return The extracted location (e.g., "lagos") or null if not found.
  */
 
 private String extractLocation(String message) {
@@ -276,12 +276,12 @@ private String extractLocation(String message) {
 	}
 	
 	// 3. If still not found, try resolving via Nominatim API (most powerful but slowest, rate-limited)
-	if (foundLocation == null && message != null && !message.trim().isEmpty()){
-		try{
+	if (foundLocation == null && message != null && !message.trim().isEmpty()) {
+		try {
 			// Only query Nominatim if the message itself is not too short or generic
 			if (message.split("\\s+").length > 1 || !KNOWN_LOCATIONS.contains(lowerCaseMessage)) { // Avoid querying for single common words
 				String resolvedLocation = resolveLocationViaNominatim(message);
-				if (resolvedLocation != null){
+				if (resolvedLocation != null) {
 					// Nominatim returns a full display name, which might be long.
 					// For time zone lookup, we often need a more concise city/country name.
 					// This heuristic attempts to get the first part or a more relevant part.
@@ -303,17 +303,17 @@ private String extractLocation(String message) {
 					}
 				}
 			}
-		}
-		catch(IOException | JSONException | InterruptedException  e){
-			System.err.println("Error resolving location via Nominatim: " + e.getMessage() + " Please Check your internet connection");
+		} catch (IOException | JSONException | InterruptedException e) {
+			System.err.println("Error resolving location via Nominatim: " + e.getMessage() + "Please Check your internet connection");
 		}
 	}
 	return foundLocation;
 }
-private String resolveLocationViaNominatim(String query) throws IOException,JSONException,InterruptedException{
+
+private String resolveLocationViaNominatim(String query) throws IOException, JSONException, InterruptedException {
 	long now = System.currentTimeMillis();
 	long timeSinceLastRequest = now - lastNominatimRequestTime;
-	if (timeSinceLastRequest < NOMINATIM_RATE_LIMIT_MS){
+	if (timeSinceLastRequest < NOMINATIM_RATE_LIMIT_MS) {
 		long sleeptime = NOMINATIM_RATE_LIMIT_MS - timeSinceLastRequest;
 		TimeUnit.MILLISECONDS.sleep(sleeptime);
 	}
@@ -322,14 +322,14 @@ private String resolveLocationViaNominatim(String query) throws IOException,JSON
 	URL url = new URL(apiUrl);
 	HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 	connection.setRequestMethod("GET");
-	connection.setRequestProperty("User-Agent",USER_AGENT);
+	connection.setRequestProperty("User-Agent", USER_AGENT);
 	
 	int responseCode = connection.getResponseCode();
-	if (responseCode == HttpURLConnection.HTTP_OK){
+	if (responseCode == HttpURLConnection.HTTP_OK) {
 		BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 		String inputLine;
 		StringBuilder response = new StringBuilder();
-		while ((inputLine = in.readLine()) != null){
+		while ((inputLine = in.readLine()) != null) {
 			response.append(inputLine);
 		}
 		in.close();
@@ -337,35 +337,35 @@ private String resolveLocationViaNominatim(String query) throws IOException,JSON
 		lastNominatimRequestTime = System.currentTimeMillis();
 		
 		JSONArray jsonResponseArray = new JSONArray(response.toString());
-		if (!jsonResponseArray.isEmpty()){
+		if (!jsonResponseArray.isEmpty()) {
 			JSONObject firstResult = jsonResponseArray.getJSONObject(0);
 			return firstResult.getString("display_name").trim();
 		}
-	}else {
+	} else {
 		System.err.println("Error: Nominatim API returned status code " + responseCode);
 	}
 	return null;
 }
-private String getWeatherForLocation(String city){
-	if (OPENWEATHER_API_KEY.equals("YOUR_OPENWEATHER_API_KEY") || OPENWEATHER_API_KEY.isEmpty()){
-		return "I cannot fetch the weather My API key is not configured";
-		
+
+private String getWeatherForLocation(String city) {
+	if (OPENWEATHER_API_KEY.equals("YOUR_OPENWEATHER_API_KEY") || OPENWEATHER_API_KEY.isEmpty()) {
+		return "I cannot fetch the weather. My API key is not configured.";
 	}
-	try{
+	try {
 		String encodedCity = URLEncoder.encode(city, StandardCharsets.UTF_8);
-		String apiUrl = String.format("%s?q=%s&appid=%s&units=metric",OPENWEATHER_BASE_URL, encodedCity, OPENWEATHER_API_KEY);
+		String apiUrl = String.format("%s?q=%s&appid=%s&units=metric", OPENWEATHER_BASE_URL, encodedCity, OPENWEATHER_API_KEY);
 		
 		URL url = new URL(apiUrl);
-		HttpURLConnection connection =  (HttpURLConnection) url.openConnection();
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("GET");
 		
 		int responseCode = connection.getResponseCode();
 		
-		if (responseCode == HttpURLConnection.HTTP_OK){
+		if (responseCode == HttpURLConnection.HTTP_OK) {
 			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			String inputLine;
 			StringBuilder response = new StringBuilder();
-			while ((inputLine = in.readLine()) != null){
+			while ((inputLine = in.readLine()) != null) {
 				response.append(inputLine);
 			}
 			in.close();
@@ -378,24 +378,212 @@ private String getWeatherForLocation(String city){
 			return String.format("The weather in %s is %s with a temperature of %.1f°C.",
 					cityName, description, temp);
 		} else if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
-			return  "I couldn't find weather data for " + city + ". Please check the city name.";
-		}else {
+			return "I couldn't find weather data for " + city + ". Please check the city name.";
+		} else {
 			System.err.println("OpenWeatherMap API Error. Response Code: " + responseCode);
 			return "I encountered an issue fetching weather data. Please try again later.";
 		}
 	} catch (IOException e) {
 		System.err.println("Network error while fetching weather: " + e.getMessage());
 		return "I'm having trouble connecting to the weather service. Please check your internet connection.";
-	}catch (JSONException e){
+	} catch (JSONException e) {
 		System.err.println("Error parsing weather JSON: " + e.getMessage());
 		return "I received unexpected data from the weather service. Please try again later.";
 	}
 }
 
+
+/**
+ * Fetches an answer from the DuckDuckGo Instant Answer API.
+ *
+ * @param query The factual query.
+ * @return The answer from DuckDuckGo, or an error message.
+ */
+private String fetchDuckDuckGoAnswer(String query) {
+	try {
+		// Added no_html=1 and skip_disambig=1 for cleaner, more direct answers
+		String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
+		String apiUrl = String.format("%s?q=%s&format=json&t=XavierAI&no_html=1&skip_disambig=1", DUCKDUCKGO_API_BASE_URL, encodedQuery);
+		
+		URL url = new URL(apiUrl);
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestMethod("GET");
+		connection.setRequestProperty("User-Agent", USER_AGENT);
+		
+		int responseCode = connection.getResponseCode();
+		if (responseCode == HttpURLConnection.HTTP_OK) {
+			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			String inputLine;
+			StringBuilder response = new StringBuilder();
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+			
+			JSONObject jsonResponse = new JSONObject(response.toString());
+			
+			// Prioritize 'Answer' field if available (often for direct calculations or quick facts)
+			String answer = jsonResponse.optString("Answer", "");
+			if (!answer.isEmpty()) {
+				return answer;
+			}
+			
+			// *** FIX: Changed "AbstractText" to "Abstract" to match the DuckDuckGo API response ***
+			String abstractText = jsonResponse.optString("Abstract", "");
+			String abstractSource = jsonResponse.optString("AbstractSource", "");
+			String abstractURL = jsonResponse.optString("AbstractURL", "");
+			
+			if (!abstractText.isEmpty()) {
+				StringBuilder result = new StringBuilder(abstractText);
+				if (!abstractSource.isEmpty()) {
+					result.append(" (Source: ").append(abstractSource);
+					if (!abstractURL.isEmpty()) {
+						result.append(", ").append(abstractURL);
+					}
+					result.append(")");
+				}
+				return result.toString();
+			}
+			
+			// Fallback to 'Definition'
+			String definition = jsonResponse.optString("Definition", "");
+			if (!definition.isEmpty()) {
+				return definition;
+			}
+			
+			// Fallback to 'Result' (often contains HTML, but we use no_html=1)
+			String resultHtml = jsonResponse.optString("Result", "");
+			if (!resultHtml.isEmpty()) {
+				// This might still contain some formatting, but for now we'll return it directly
+				return resultHtml;
+			}
+			
+			// Fallback to 'RelatedTopics' if nothing else is found
+			if (jsonResponse.has("RelatedTopics") && jsonResponse.getJSONArray("RelatedTopics").length() > 0) {
+				JSONArray relatedTopics = jsonResponse.getJSONArray("RelatedTopics");
+				if (relatedTopics.length() > 0 && relatedTopics.optJSONObject(0) != null) {
+					JSONObject firstRelated = relatedTopics.optJSONObject(0);
+					if (firstRelated.has("Text")) {
+						return "According to a related topic: " + firstRelated.getString("Text");
+					}
+				}
+			}
+			return "I couldn't find a direct answer for '" + query + "'.";
+		} else {
+			System.err.println("DuckDuckGo API Error. Response Code: " + responseCode);
+			return "I encountered an issue fetching factual data. Please try again later.";
+		}
+	} catch (IOException e) {
+		System.err.println("Network error while fetching DuckDuckGo answer: " + e.getMessage());
+		return "I'm having trouble connecting to the knowledge service. Please check your internet connection.";
+	} catch (JSONException e) {
+		System.err.println("Error parsing DuckDuckGo JSON: " + e.getMessage());
+		return "I received unexpected data from the knowledge service. Please try again later.";
+	}
+}
+/**
+ * Fetches a definition from the Free Dictionary API.
+ *
+ * @param word The word to define.
+ * @return The definition, or an error message.
+ */
+private String fetchDictionaryDefinition(String word) {
+	try {
+		String encodedWord = URLEncoder.encode(word, StandardCharsets.UTF_8);
+		String apiUrl = FREE_DICTIONARY_API_BASE_URL + encodedWord;
+		
+		URL url = new URL(apiUrl);
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestMethod("GET");
+		connection.setRequestProperty("User-Agent", USER_AGENT);
+		
+		int responseCode = connection.getResponseCode();
+		if (responseCode == HttpURLConnection.HTTP_OK) {
+			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			String inputLine;
+			StringBuilder response = new StringBuilder();
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+			
+			JSONArray jsonResponse = new JSONArray(response.toString());
+			if (jsonResponse.length() > 0) {
+				JSONObject entry = jsonResponse.getJSONObject(0);
+				JSONArray meanings = entry.getJSONArray("meanings");
+				if (meanings.length() > 0) {
+					StringBuilder definition = new StringBuilder("Meaning of '" + word + "':\n");
+					for (int i = 0; i < meanings.length(); i++) {
+						JSONObject meaning = meanings.getJSONObject(i);
+						String partOfSpeech = meaning.getString("partOfSpeech");
+						definition.append("- ").append(partOfSpeech).append(":\n");
+						JSONArray definitionsArray = meaning.getJSONArray("definitions");
+						for (int j = 0; j < Math.min(definitionsArray.length(), 2); j++) { // Get up to 2 definitions
+							definition.append("  ").append(j + 1).append(". ")
+									.append(definitionsArray.getJSONObject(j).getString("definition")).append("\n");
+						}
+					}
+					return definition.toString().trim();
+				}
+			}
+			return "I couldn't find a definition for '" + word + "'.";
+		} else if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
+			return "I couldn't find a definition for '" + word + "'. It might be a proper noun or a very obscure word.";
+		} else {
+			System.err.println("Free Dictionary API Error. Response Code: " + responseCode);
+			return "I encountered an issue fetching dictionary data. Please try again later.";
+		}
+	} catch (IOException e) {
+		System.err.println("Network error while fetching dictionary definition: " + e.getMessage());
+		return "I'm having trouble connecting to the dictionary service. Please check your internet connection.";
+	} catch (JSONException e) {
+		System.err.println("Error parsing Free Dictionary JSON: " + e.getMessage());
+		return "I received unexpected data from the dictionary service. Please try again later.";
+	}
+}
+
+/**
+ * Fetches a fact about a number from the Numbers API.
+ *
+ * @param number The number to get a fact about.
+ * @param type   The type of fact (trivia, math, date, year).
+ * @return The number fact, or an error message.
+ */
+private String fetchNumberFact(String number, String type) {
+	try {
+		String apiUrl = String.format("%s%s/%s", NUMBERS_API_BASE_URL, URLEncoder.encode(number, StandardCharsets.UTF_8), type);
+		
+		URL url = new URL(apiUrl);
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setRequestMethod("GET");
+		connection.setRequestProperty("User-Agent", USER_AGENT);
+		
+		int responseCode = connection.getResponseCode();
+		if (responseCode == HttpURLConnection.HTTP_OK) {
+			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			String inputLine;
+			StringBuilder response = new StringBuilder();
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+			return response.toString().trim(); // Numbers API returns plain text fact
+		} else {
+			System.err.println("Numbers API Error. Response Code: " + responseCode);
+			return "I couldn't find a fact about the number '" + number + "'.";
+		}
+	} catch (IOException e) {
+		System.err.println("Network error while fetching number fact: " + e.getMessage());
+		return "I'm having trouble connecting to the numbers fact service. Please check your internet connection.";
+	}
+}
+
+
 /**
  * Generates Xavier's response based on the predicted intent and conversational context.
+ *
  * @param predictedIntent The intent predicted by the Weka classifier.
- * @param userMessage The original user message (used for real-time entity extraction).
+ * @param userMessage     The original user message (used for real-time entity extraction).
  * @return Xavier's friendly response.
  */
 
@@ -436,6 +624,7 @@ private List<String> loadResponsesFromFile(String resourcePath) {
 	}
 	return responses;
 }
+
 // Add this member variable to XavierCoreAI
 private String awaitingInformationType = null; // e.g., "expression_for_arithmetic", "location_for_weather"
 // You might also want to store the original query that led to the follow-up
@@ -495,6 +684,7 @@ private String handleTimeQuery(String userMessage) {
 			case "toronto":
 			case "ontario":
 			case "canada":
+			case "quebec": // Added for direct match
 				zoneId = ZoneId.of("America/Toronto"); // Default to a major city for country
 				break;
 			case "dubai":
@@ -542,10 +732,8 @@ private String handleTimeQuery(String userMessage) {
 				zoneId = ZoneId.of("Africa/Johannesburg");
 				break;
 			case "singapore":
-				zoneId = ZoneId.of("Asia/Singapore");
-				break;
 			case "hong_kong":
-				zoneId = ZoneId.of("Asia/Hong_Kong");
+				zoneId = ZoneId.of("Asia/Singapore");
 				break;
 			case "brazil":
 			case "saopaulo":
@@ -556,7 +744,6 @@ private String handleTimeQuery(String userMessage) {
 			case "buenos_aires":
 				zoneId = ZoneId.of("America/Argentina/Buenos_Aires");
 				break;
-			// Add more hand-picked common locations here if desired
 			default:
 				// 2. Try to directly interpret the extracted location as a ZoneId (e.g., "America/Los_Angeles")
 				try {
@@ -612,7 +799,7 @@ private String handleTimeQuery(String userMessage) {
 					           capitalizeFirstLetterOfEachWord(locationForTime) +
 					           ". The current server time is " + LocalTime.now().format(timeFormatter) + ".";
 		} else {
-			if (userMessage.toLowerCase().contains("the time there")){
+			if (userMessage.toLowerCase().contains("the time there")) {
 				return "Please specify 'there' as a location, for example tell me a location after the question"; // Or "Where is 'there'?"
 			}
 			// No location mentioned, give server local time
@@ -628,6 +815,18 @@ private String generateResponse(String predictedIntent, String userMessage) {
 	String response;
 	String currentMessageLocation = null; // Initialize
 	
+	String lowerUserMessage = userMessage.toLowerCase();
+	if (lowerUserMessage.contains("current president") ||
+			    lowerUserMessage.contains("current population") ||
+			    lowerUserMessage.contains("current leader")) {
+		predictedIntent = "factual_query";
+	} else if (lowerUserMessage.contains("how to") || // Broadened to 'contains' for more flexibility
+			           lowerUserMessage.startsWith("what is the best way to") ||
+			           lowerUserMessage.startsWith("show me how to") ||
+			           lowerUserMessage.startsWith("explain how to") ||
+			           lowerUserMessage.startsWith("tell me how to")) { // Explicitly added this common phrase
+		predictedIntent = "factual_query";
+	}
 	// --- Step 1: Handle Follow-up Input if AI is Awaiting Information ---
 	if (this.awaitingInformationType != null) {
 		String providedInfo = userMessage.trim();
@@ -636,6 +835,7 @@ private String generateResponse(String predictedIntent, String userMessage) {
 		if ("expression_for_arithmetic".equals(this.awaitingInformationType)) {
 			try {
 				double result = evaluateArithmeticExpression(providedInfo);
+				// Use original user message part for response, as `providedInfo` might be heavily sanitized
 				response = "The result of " + providedInfo + " is " + result + ".";
 				this.awaitingInformationType = null; // Reset state
 				this.originalQueryForFollowUp = null;
@@ -734,16 +934,16 @@ private String generateResponse(String predictedIntent, String userMessage) {
 			break;
 		case "joke_request":
 			if (!this.jokeResponses.isEmpty()) {
-			// Fetch a random joke if available
-			response = this.jokeResponses.get(this.randomGenerator.nextInt(this.jokeResponses.size()));
-			// Optionally, add a conversational touch if the user's name is known
-			if (this.userName != null) {
-				response += " How about that one, " + this.userName + "?";
+				// Fetch a random joke if available
+				response = this.jokeResponses.get(this.randomGenerator.nextInt(this.jokeResponses.size()));
+				// Optionally, add a conversational touch if the user's name is known
+				if (this.userName != null) {
+					response += " How about that one, " + this.userName + "?";
+				}
+			} else {
+				// Fallback if both greetingResponses and jokeResponses are empty
+				response = "Hello!" + (this.userName != null ? " " + this.userName + "!" : " I'm a bit short on material today.");
 			}
-		} else {
-			// Fallback if both greetingResponses and jokeResponses are empty
-			response = "Hello!" + (this.userName != null ? " " + this.userName + "!" : " I'm a bit short on material today.");
-		}
 			break;
 		case "weather_query":
 			if (this.extractedLocation != null) { // Location found in current message or carried from previous turn (if logic allows)
@@ -757,16 +957,15 @@ private String generateResponse(String predictedIntent, String userMessage) {
 			break;
 		
 		case "arithmetic_query":
-			// Use the new method to extract the expression
-			String expressionToEvaluate = extractArithmeticExpression(userMessage);
+			String cleanedExpression = extractArithmeticExpression(userMessage);
 			
-			if (expressionToEvaluate != null && !expressionToEvaluate.isEmpty()) {
+			if (cleanedExpression != null && !cleanedExpression.trim().isEmpty()) {
 				try {
-					double result = evaluateArithmeticExpression(expressionToEvaluate);
-					// The expressionToEvaluate is already somewhat sanitized by extractArithmeticExpression
-					// and evaluateArithmeticExpression will do its own more specific sanitization.
-					// So, we use expressionToEvaluate directly in the response.
-					response = "The result of " + expressionToEvaluate + " is " + result + ".";
+					double result = evaluateArithmeticExpression(cleanedExpression);
+					// For display, use the original user message but remove common prefixes for cleaner output
+					String responseDisplay = userMessage.toLowerCase();
+					responseDisplay = responseDisplay.replaceAll("^(what is the |what is |calculate |compute |solve |evaluate |how much is |how many is |for )", "").trim();
+					response = "The result of " + responseDisplay + " is " + result + ".";
 				} catch (IllegalArgumentException e) {
 					System.err.println("Arithmetic evaluation error: " + e.getMessage());
 					if (e.getMessage() != null && e.getMessage().startsWith("EMPTY_EXPRESSION")) {
@@ -774,10 +973,10 @@ private String generateResponse(String predictedIntent, String userMessage) {
 						this.awaitingInformationType = "expression_for_arithmetic"; // Set state
 						this.originalQueryForFollowUp = userMessage;
 					} else {
-						response = "I'm sorry, I couldn't evaluate that. Please make sure it's a valid arithmetic expression (e.g., '2 + 2').";
-						// Optionally, you could set awaitingInformationType here if you want to re-prompt for any invalid expression
-						// this.awaitingInformationType = "expression_for_arithmetic";
-						// this.originalQueryForFollowUp = userMessage;
+						response = "I'm sorry, I couldn't evaluate that. Please make sure it's a valid arithmetic expression (e.g., '2 + 2' or 'square root of 16').";
+						// Keep awaitingInformationType set if the error is syntax related and we want to re-prompt.
+						this.awaitingInformationType = "expression_for_arithmetic";
+						this.originalQueryForFollowUp = userMessage;
 					}
 				} catch (UnsupportedOperationException e) {
 					System.err.println("Arithmetic evaluation failed: " + e.getMessage());
@@ -793,29 +992,36 @@ private String generateResponse(String predictedIntent, String userMessage) {
 			response = handleTimeQuery(userMessage); // Call the new method
 			break;
 		case "factual_query":
-			String query = userMessage.toLowerCase();
 			String extractedQuery = extractFactualQuery(userMessage);
-			if (extractedQuery == null || extractedQuery.trim().isEmpty()){
+			
+			if (extractedQuery == null || extractedQuery.trim().isEmpty()) {
 				response = "I can answer factual questions, but I didn't quite understand what fact you're looking for. Could you rephrase?";
-			}else{
-				if (query.contains("define ") || query.contains("what is the meaning of ") || query.contains("meaning of ")){
-					String wordToDefine = query.replace("define ", "").replace("what is the meaning of ", "").replace("meaning of ", "").trim();
-					if (!wordToDefine.isEmpty()){
+			} else {
+				// Prioritize specific factual queries first based on original user message phrasing
+				if (lowerUserMessage.contains("define ") || lowerUserMessage.contains("meaning of ") || lowerUserMessage.contains("explain the word ")) {
+					// Extract just the word to define, removing "the word", "define", "meaning of", "explain the word"
+					String wordToDefine = extractedQuery.replace("the word", "").trim(); // Use extractedQuery here
+					// Additional cleanup for definition queries specifically
+					wordToDefine = wordToDefine.replaceAll("^(define|meaning of|what is the meaning of|explain the word)\\s+", "").trim();
+					
+					
+					if (!wordToDefine.isEmpty()) {
 						response = fetchDictionaryDefinition(wordToDefine);
-					}else {
-						response = "What would you like me to define";
+					} else {
+						response = "What word would you like me to define?";
 					}
-				}else if ((query.matches(".*\\b\\d+\\b.*") &&(query.contains("fact about") || query.contains("tell me about the number")))){
+				} else if (lowerUserMessage.matches(".*\\b\\d+\\b.*") &&
+						           (lowerUserMessage.contains("fact about") || lowerUserMessage.contains("tell me about the number"))) {
+					// Attempt to extract the number
 					Pattern numberPattern = Pattern.compile("(\\d+)");
-					Matcher numberMatcher = numberPattern.matcher(query);
-					if (numberMatcher.find()){
-						String number = numberMatcher.group();
-						
-						response = fetchNumberFacts(number,"trivia");
+					Matcher numberMatcher = numberPattern.matcher(lowerUserMessage);
+					if (numberMatcher.find()) {
+						String number = numberMatcher.group(1);
+						response = fetchNumberFact(number, "trivia"); // Default to 'trivia' for now
 					} else {
 						response = "Could you please specify which number you'd like a fact about?";
 					}
-				}else {
+				} else {
 					// Default to DuckDuckGo for general factual queries
 					response = fetchDuckDuckGoAnswer(extractedQuery);
 				}
@@ -856,6 +1062,7 @@ private String generateResponse(String predictedIntent, String userMessage) {
 				response = "I understand. How can I help?";
 			}
 			break;
+		case "unknown":
 		default:
 			if (!this.unknownResponses.isEmpty()) {
 				response = this.unknownResponses.get(this.randomGenerator.nextInt(this.unknownResponses.size()));
@@ -867,40 +1074,84 @@ private String generateResponse(String predictedIntent, String userMessage) {
 	
 	// This clearing logic might be redundant or could be refined based on how `extractedLocation`
 	// is used across different intents and follow-ups.
-	// For now, it's mostly handled within specific cases or when `awaitingInformationType` is reset.
 	// if (this.awaitingInformationType == null && !"weather_query".equals(predictedIntent) && !"followup_location".equals(predictedIntent)) {
 	// }
 	
 	return response;
 }
 
-private double evaluateArithmeticExpression(String userMessage) {
-	
-	ScriptEngineManager  manager = new ScriptEngineManager();
+/**
+ * Evaluates an arithmetic expression using JavaScript's ScriptEngine.
+ * Handles basic arithmetic operations and conversions for "square root" and "power of".
+ *
+ * @param expression The arithmetic expression as a string (e.g., "16", "square root 16", "5 + 3").
+ * @return The double result of the evaluation.
+ * @throws IllegalArgumentException If the expression is invalid or cannot be evaluated.
+ * @throws UnsupportedOperationException If the JavaScript engine is not available.
+ */
+private double evaluateArithmeticExpression(String expression) {
+	ScriptEngineManager manager = new ScriptEngineManager();
 	ScriptEngine engine = manager.getEngineByName("JavaScript");
 	
 	if (engine == null) {
 		System.err.println("Engine not found, cannot evaluate expression");
 		throw new UnsupportedOperationException("JavaScript engine (e.g., Nashorn or Graal.js) not available to evaluate expression.");
 	}
+	
+	String processedExpression = expression.toLowerCase();
+	
+	// Convert natural language mathematical phrases to JavaScript `Math` functions
+	// Using word boundaries (\b) makes these replacements safer and more accurate.
+	processedExpression = processedExpression.replaceAll("\\b(square root of|square root|sqrt of|sqrt)\\s+(\\d+(\\.\\d+)?)", "Math.sqrt($2)");
+	processedExpression = processedExpression.replaceAll("(\\d+(\\.\\d+)?)\\s+(to the power of|power of|power)\\s+(\\d+(\\.\\d+)?)", "Math.pow($1,$4)");
+	processedExpression = processedExpression.replaceAll("(\\d+(\\.\\d+)?)\\s+cubed", "Math.pow($1,3)");
+	processedExpression = processedExpression.replaceAll("(\\d+(\\.\\d+)?)\\s+squared", "Math.pow($1,2)");
+	
+	// Replace common words for operators, ensuring spaces for clarity
+	processedExpression = processedExpression.replaceAll("\\s+plus\\s+", " + ");
+	processedExpression = processedExpression.replaceAll("\\s+minus\\s+", " - ");
+	processedExpression = processedExpression.replaceAll("\\s+times\\s+", " * ");
+	processedExpression = processedExpression.replaceAll("\\s+multiplied by\\s+", " * ");
+	processedExpression = processedExpression.replaceAll("\\s+divided by\\s+", " / ");
+	processedExpression = processedExpression.replaceAll("\\s+over\\s+", " / ");
+	processedExpression = processedExpression.replaceAll("\\s+mod\\s+", " % ");
+	
+	// Handle the power operator if written with '^'
+	processedExpression = processedExpression.replaceAll("\\^", "**");
+	
 	try {
-		String sanitizedExpression = userMessage.replaceAll("[^0-9.+\\-*/()\\s]", "");
-		if (sanitizedExpression.trim().isEmpty()) {
-			throw new IllegalArgumentException("EMPTY_EXPRESSION_AFTER_SANITIZATION: " + userMessage);
+		// *** REVISED SANITIZATION LOGIC ***
+		// This new regex is simpler and more reliable. It removes any "word"
+		// (containing letters and apostrophes) that is NOT one of our allowed keywords.
+		// `(?i)` makes it case-insensitive. `E` is included for scientific notation (e.g., 1.2E3).
+		String finalSanitizedExpression = processedExpression
+				                                  .replaceAll("\\b(?i)(?!(?:Math|sqrt|pow|log|abs|E))([a-zA-Z']+)\\b", "") // Remove invalid words
+				                                  .replaceAll("\\s+", " ") // Collapse multiple spaces into one
+				                                  .trim();
+		
+		// Ensure correct casing for "Math" functions after sanitization
+		finalSanitizedExpression = finalSanitizedExpression.replace("math", "Math");
+		
+		// Basic check for empty or invalid-looking expressions after processing
+		if (finalSanitizedExpression.isEmpty() || finalSanitizedExpression.matches("^[+\\-*/()%\\s]+$")) {
+			throw new IllegalArgumentException("EMPTY_EXPRESSION_AFTER_PROCESSING: " + expression);
 		}
-		Object result = engine.eval(sanitizedExpression);
+		if (finalSanitizedExpression.equalsIgnoreCase("Math")) {
+			throw new IllegalArgumentException("INVALID_MATH_FUNCTION_CALL: " + expression);
+		}
+		
+		Object result = engine.eval(finalSanitizedExpression);
 		
 		if (result instanceof Number) {
 			return ((Number) result).doubleValue();
 		} else {
-			System.err.println("Expression did not evaluate to a numeric value: " + sanitizedExpression + " (Evaluated to: " + result + ")");
-			throw new IllegalArgumentException("NON_NUMERIC_RESULT: " + sanitizedExpression);
+			System.err.println("Expression did not evaluate to a numeric value: " + finalSanitizedExpression + " (Evaluated to: " + result + ")");
+			throw new IllegalArgumentException("NON_NUMERIC_RESULT: " + expression);
 		}
 	} catch (ScriptException e) {
-		System.err.println("Error evaluating arithmetic expression '" + userMessage + "': " + e.getMessage());
-		throw new IllegalArgumentException("SYNTAX_ERROR: " + userMessage, e);
+		System.err.println("Error evaluating arithmetic expression '" + expression + "': " + e.getMessage());
+		throw new IllegalArgumentException("SYNTAX_ERROR: " + expression, e);
 	}
-	
 }
 
 private String extractNameFromMessage(String userMessage) {
@@ -936,12 +1187,12 @@ private String extractNameFromMessage(String userMessage) {
 		}
 		
 	}
-	if (extractedName == null || extractedName.isEmpty()){
+	if (extractedName == null || extractedName.isEmpty()) {
 		String trimmedMessage = userMessage.trim();
 		String lowerTrimmedMessage = trimmedMessage.toLowerCase();
 		
 		String[] leadingFluff = {"hi ", "hello ", "hey ", "it's "};
-		for (String fluff : leadingFluff) {
+		for (String fluff : leadingFluff) { // Corrected: Use 'leadingFluff'
 			if (lowerTrimmedMessage.startsWith(fluff)) {
 				trimmedMessage = trimmedMessage.substring(fluff.length()).trim();
 				lowerTrimmedMessage = trimmedMessage.toLowerCase();
@@ -1006,37 +1257,127 @@ private String extractNameFromMessage(String userMessage) {
 	return extractedName;
 }
 
+/**
+ * Extracts a mathematical expression from the user's message.
+ * This method is now more aggressive in stripping non-mathematical phrasing,
+ * leaving only the core expression to be evaluated.
+ *
+ * @param userMessage The original message from the user.
+ * @return The potential arithmetic expression string, or null if none is clearly found.
+ */
 private String extractArithmeticExpression(String userMessage) {
 	String lowerUserMessage = userMessage.toLowerCase();
-	String[] prefixes = {"calculate ", "compute ", "solve ", "evaluate ", "what is ", "how much is ", "how many is ","for "};
-	boolean prefixFound = false;
 	
-	for (String prefix : prefixes){
-		if (lowerUserMessage.startsWith(prefix)){
-			prefixFound = true;
-			String potentialExpression = lowerUserMessage.substring(prefix.length()).trim();
-			
-			if (potentialExpression.isEmpty()){
-				return null;
-			}
-			
-			if (potentialExpression.matches(".*[0-9+\\-*/().^].*")){
-				return potentialExpression;
-			}else {
-				return null;
-			}
+	// Define a comprehensive list of prefixes and surrounding words to strip
+	// Added "of " to handle phrases like "square root of X"
+	String[] prefixesAndSuffixesToRemove = {
+			"calculate ", "compute ", "solve ", "evaluate ", "what is the ", "what is ", "how much is ", "how many is ", "for ",
+			"can you calculate ", "can you compute ", "can you solve ", "can you evaluate ",
+			"please calculate ", "please compute ", "please solve ", "please evaluate ",
+			"the value of ", "the result of ", "find the ", "tell me the ", "of " // Added "of "
+	};
+	
+	String processedMessage = userMessage;
+	
+	// Strip prefixes/suffixes iteratively
+	for (String phrase : prefixesAndSuffixesToRemove) {
+		// Use word boundary \b to avoid partial matches within words
+		// Also, consider the beginning of the string for the prefix
+		Pattern pattern = Pattern.compile("^" + Pattern.quote(phrase) + "|\\b" + Pattern.quote(phrase) + "\\b", Pattern.CASE_INSENSITIVE);
+		Matcher matcher = pattern.matcher(processedMessage);
+		if (matcher.find()) {
+			processedMessage = matcher.replaceAll("").trim();
 		}
 	}
-	if (!prefixFound && userMessage.matches(".*[0-9].*")){
-		String expression = userMessage.replaceAll("[^0-9.+\\-*/().^\\s]", "").trim();
-		
-		if (expression.isEmpty() || expression.matches("^[.+\\-*/()^\\s]+$") ||
-				    (expression.chars().filter(ch -> ch == '(').count() != expression.chars().filter(ch -> ch == ')').count())) {
-			return null; // If it is, consider it invalid and return null
-		}
-		return expression;
+	
+	// Additional cleaning for phrases that might remain and interfere
+	// These are more general words that are often part of a question but not the math itself.
+	processedMessage = processedMessage.replaceAll("\\bthe\\b", "").trim(); // Remove standalone "the"
+	
+	// Handle specific mathematical phrases after stripping prefixes
+	// These need to be handled carefully as they are now the "core" of the expression
+	// They will be translated into Math. functions in evaluateArithmeticExpression
+	Pattern squareRootPattern = Pattern.compile(".*(square root|sqrt).*\\d+(\\.\\d+)?.*", Pattern.CASE_INSENSITIVE);
+	Pattern powerPattern = Pattern.compile(".*\\d+(\\.\\d+)?.*(to the power of|cubed|squared).*\\d*(\\.\\d+)?.*", Pattern.CASE_INSENSITIVE); // X squared/cubed, X to the power of Y
+	
+	// Check for common arithmetic operations (e.g., +, -, *, /)
+	Pattern arithmeticPattern = Pattern.compile(".*\\d+.*[+\\-*/%].*\\d+.*");
+	
+	// If it's a simple number (e.g., "16" as a follow-up if context implies math)
+	Pattern simpleNumber = Pattern.compile("^-?\\d+(\\.\\d+)?$");
+	
+	if (arithmeticPattern.matcher(processedMessage).matches() ||
+			    squareRootPattern.matcher(processedMessage).matches() ||
+			    powerPattern.matcher(processedMessage).matches() ||
+			    simpleNumber.matcher(processedMessage).matches()) {
+		return processedMessage;
 	}
-	return null;
+	
+	return null; // No clear arithmetic expression found
+}
+
+
+/**
+ * Extracts the core query for factual lookups.
+ * It removes common question prefixes and generic phrases.
+ *
+ * @param userMessage The original message from the user.
+ * @return The cleaned factual query, or null if it's too generic after cleaning.
+ */
+private String extractFactualQuery(String userMessage) {
+	String lowerMessage = userMessage.toLowerCase();
+	
+	// Create a mutable list of prefixes to sort
+	List<String> prefixesToRemove = new ArrayList<>(Arrays.asList(
+			"what is ", "who is ", "where is ", "when is ", "how is ", "why is ",
+			"tell me about ", "can you tell me about ", "do you know about ",
+			"what's ", "who's ", "where's ", "when's ", "how's ", "why's ",
+			"define ", "meaning of ", "what is the meaning of ", "fact about ", "tell me a fact about ",
+			"tell me about the number ", "what is the ", // generic for "what is the capital of..."
+			"can you explain ", "explain ", "give me information on ", "information about ",
+			"query about ", "search for ", "look up ", "find out about ", "what do you know about ",
+			"the word ", // Specific for dictionary lookups
+			"tell me about the ", "who is the ", "what is the ", "what is a ", "who is a ",
+			"how to ", "tell me how to ", "what is the best way to ", "show me how to ", "explain how to ",
+			// --- NEW: Prefixes for processes and requirements ---
+			"what are the steps to ", "steps to ", "how can i ", "what do i need to ", "requirements for ",
+			"prerequisites for ", "how do i ", "what's needed to ", "what's required to ", "what equipment do i need to ",
+			"what materials do i need to ", "what supplies do i need to ", "what are the ingredients for ", "ingredients for ",
+			"materials for ", "supplies for ", "equipment for "
+			// --- End new prefixes ---
+	));
+	
+	// Sort prefixes by length, descending, to match the most specific one first.
+	prefixesToRemove.sort(Comparator.comparingInt(String::length).reversed());
+	
+	String cleanedQuery = userMessage;
+	for (String prefix : prefixesToRemove) {
+		if (lowerMessage.startsWith(prefix)) {
+			// Once the longest matching prefix is found, remove it and stop.
+			cleanedQuery = userMessage.substring(prefix.length()).trim();
+			break;
+		}
+	}
+	
+	// Remove trailing question marks and other punctuation
+	cleanedQuery = cleanedQuery.replaceAll("[.!?]$", "").trim();
+	
+	// Remove very generic trailing words that might remain
+	String[] genericSuffixes = {"please", "can you", "for me", "right now"};
+	for (String suffix : genericSuffixes) {
+		if (cleanedQuery.toLowerCase().endsWith(" " + suffix)) {
+			cleanedQuery = cleanedQuery.substring(0, cleanedQuery.length() - suffix.length() - 1).trim();
+		}
+	}
+	
+	// *** REVISED LOGIC: Allow single-word queries ***
+	// If after all cleaning, the query is empty, return null.
+	// A single word (like a name or concept) is a valid query.
+	if (cleanedQuery.isEmpty()) {
+		return null;
+	}
+	
+	return cleanedQuery;
 }
 
 // Helper method to capitalize the first letter of each word in a string
@@ -1058,172 +1399,6 @@ private String capitalizeFirstLetterOfEachWord(String input) {
 		}
 	}
 	return result.toString();
-}
-
-private String fetchDuckDuckGoAnswer(String query){
-	try{
-		String encodedQuery = URLEncoder.encode(query,StandardCharsets.UTF_8);
-		String apiUrl = String.format("%s?q=%s&format=json&t=XavierAI", DUCKDUCKGO_API_BASE_URL, encodedQuery);
-
-		URL url = new URL(apiUrl);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("GET");
-		connection.setRequestProperty("User-Agent",USER_AGENT);
-
-		int responseCode = connection.getResponseCode();
-		if (responseCode == HttpURLConnection.HTTP_OK){
-			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			String inputLine;
-			StringBuilder response = new StringBuilder();
-			while ((inputLine = in.readLine()) != null){
-				response.append(inputLine);
-			}
-			in.close();
-			
-			JSONObject  jsonResponse = new JSONObject(response.toString());
-			String abstractText = jsonResponse.getString("AbstractText");
-			String abstractSource = jsonResponse.getString("AbstractSource");
-			String abstractURL = jsonResponse.getString("AbstractURL");
-			
-			if (!abstractText.isEmpty()){
-				StringBuilder result = new StringBuilder(abstractText);
-				if (!abstractSource.isEmpty()){
-					result.append(" (Source: ").append(abstractSource);
-					if (!abstractURL.isEmpty()){
-						result.append(", ").append(abstractURL);
-					}
-					result.append(")");
-				}
-				return result.toString();
-			} else if (jsonResponse.has("RelatedTopics") && !jsonResponse.getJSONArray("RelatedTopics").isEmpty()) {
-				JSONObject firstRelated = jsonResponse.getJSONArray("RelatedTopics").optJSONObject(0);
-				if (firstRelated != null && firstRelated.has("Text")){
-					return firstRelated.getString("Text");
-				}
-			}
-			return "I couldn't find a direct answer for ' " + query + "'.";
-			
-		}else {
-			System.err.println("DuckDuckGo API Error. Response Code: " + responseCode);
-			return "I encountered an issue fetching factual data. Please try again later.";
-			
-		}
-	}catch (IOException e){
-		System.err.println("Network error while fetching DuckDuckGo answer: " + e.getMessage());
-		return "I'm sorry, but I'm unable to connect to the internet at the moment. Please check your network connection and try again.";
-	}catch (JSONException e){
-		System.err.println(" Error parsing DuckDuckGo JSON: " +  e.getMessage());
-		return "I'm sorry, but I'm unable to process the information I received. Please try again.";
-	}
-}
-private String fetchDictionaryDefinition(String word) {
-	try{
-		String encodedWord = URLEncoder.encode(word, StandardCharsets.UTF_8);
-		String apiUrl = String.format("%s%s", FREE_DICTIONARY_API_BASE_URL, encodedWord);
-		
-		URL url = new URL(apiUrl);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("GET");
-		connection.setRequestProperty("User-Agent", USER_AGENT);
-		
-		int responseCode = connection.getResponseCode();
-		if (responseCode == HttpURLConnection.HTTP_OK){
-			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			String inputLine;
-			StringBuilder response = new StringBuilder();
-			while ((inputLine = in.readLine()) != null){
-				response.append(inputLine);
-			}
-			in.close();
-			
-			JSONArray jsonResponse = new JSONArray(response.toString());
-			
-			if (!jsonResponse.isEmpty()){
-				JSONObject entry = jsonResponse.getJSONObject(0);
-				JSONArray meanings = entry.getJSONArray("meanings");
-				if (!meanings.isEmpty()){
-					StringBuilder definition = new StringBuilder("The Meaning of '" + word + "' is:\n");
-					for (int i = 0; i < meanings.length(); i ++){
-						JSONObject meaning = meanings.getJSONObject(i);
-						String partOfSpeech = meaning.getString("partOfSpeech");
-						definition.append("- ").append(partOfSpeech).append(":\n");
-						JSONArray definitionsArray = meaning.getJSONArray("definitions");
-						for (int j = 0; j < Math.min(definitionsArray.length(),2); j++){
-							definition.append(" ").append(j + 1).append(". ").append(definitionsArray.getJSONObject(j).getString("definition")).append("\n");
-							
-						}
-					}
-					return definition.toString().trim();
-				}
-			}
-			return "I couldn't find a definition for '" + word + "'.";
-		} else if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
-			return "I'm sorry, but I couldn't find a definition for '" + word + "'.";
-		} else {
-			System.err.println("Free Dictionary API Error. Response Code: " + responseCode);
-			return "I'm sorry, but I couldn't fetch a definition right now.";
-		}
-	}catch (IOException e){
-		System.err.println("Network error while fetching dictionary definition: " + e.getMessage());
-		return "I'm having trouble connecting to the dictionary service. Please check your internet connection.";
-	}catch (JSONException e){
-		System.err.println("Error parsing Free Dictionary JSON: " + e.getMessage());
-		return "I received unexpected data from the dictionary service. Please try again later.";
-	}
-}
-
-private String fetchNumberFacts(String number, String type) {
-	try{
-		String apiUrl = String.format("%s%s/%s", NUMBERS_API_BASE_URL, URLEncoder.encode(number, StandardCharsets.UTF_8), type);
-		
-		URL url = new URL(apiUrl);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("GET");
-		connection.setRequestProperty("User-Agent",USER_AGENT);
-		
-		int responseCode = connection.getResponseCode();
-		if (responseCode == HttpURLConnection.HTTP_OK){
-			BufferedReader in  = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			String inputLine;
-			StringBuilder response = new StringBuilder();
-			
-			while ((inputLine = in.readLine()) != null){
-				response.append(inputLine);
-			}
-			in.close();
-			return response.toString().trim();
-		}else {
-			System.err.println("Numbers API Error. Response Code: " + responseCode);
-			return "I'm sorry, but I'm unable to fetch number facts right now.";
-		}
-	}catch (IOException e){
-		System.err.println("Network error while fetching number facts: " + e.getMessage());
-		return "I'm sorry, but I'm having trouble connecting to the number facts service. Please check your internet connection.";
-	}
-}
-private String extractFactualQuery(String userMessage){
-	String lowerMessage = userMessage.toLowerCase();
-	
-	String[] prefixesToRemove = {
-			"what is ", "who is ", "where is ", "when is ", "how is ", "why is ",
-			"tell me about ", "can you tell me about ", "do you know about ",
-			"what's ", "who's ", "where's ", "when's ", "how's ", "why's ",
-			"define ", "meaning of ", "what is the meaning of ", "fact about ", "tell me a fact about ",
-			"tell me about the number ", "what is the " // generic for "what is the capital of..."
-	};
-	
-	for (String prefix: prefixesToRemove){
-		if (lowerMessage.startsWith(prefix)){
-			return userMessage.substring(prefix.length()).trim();
-		}
-	}
-	if (userMessage.endsWith("?") || lowerMessage.matches(".*\\b(what|who|where|when|how|why)\\b.*")){
-		return userMessage.trim();
-	}
-	if (userMessage.split("\\s+").length < 3 && userMessage.contains("?")){
-		return null;
-	}
-	return userMessage.trim();
 }
 
 }

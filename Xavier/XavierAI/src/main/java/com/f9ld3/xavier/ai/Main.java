@@ -139,7 +139,7 @@ private void initializeAI() {
 				isAIReady = true;
 				userInputField.setEnabled(true);
 				sendButton.setEnabled(true);
-				appendToChat("AI Friend (Xavier)", "Hello! How can I help you today?");
+				appendToChat("Xavier ", "Hello! How can I help you today?");
 				userInputField.requestFocus();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -195,7 +195,7 @@ private void processUserInput() throws Exception {
 	userInputField.setText("");
 	
 	if (userMessage.equalsIgnoreCase("exit")) {
-		appendToChat("AI Friend (Xavier)", "Goodbye! It was nice chatting with you.");
+		appendToChat("Xavier ", "Goodbye! It was nice chatting with you.");
 		userInputField.setEnabled(false);
 		sendButton.setEnabled(false);
 		// Optionally close after a delay
@@ -203,7 +203,7 @@ private void processUserInput() throws Exception {
 	} else {
 		// Get AI response and update GUI
 		String aiResponse = xavierAI.processMessage(userMessage);
-		appendToChat("AI Friend (Xavier)", aiResponse);
+		appendToChat("Xavier ", aiResponse);
 	}
 }
 
