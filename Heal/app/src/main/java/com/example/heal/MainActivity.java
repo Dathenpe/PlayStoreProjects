@@ -89,7 +89,7 @@ import ui.RecordFragment;
 import ui.ReminderBroadcastReceiver;
 import ui.SettingsFragment;
 
- class FragmentHistoryItem{
+class FragmentHistoryItem{
     public int navId;
     public String title;
 
@@ -174,6 +174,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private LinkedHashMap<Integer,FragmentHistoryItem> fragmentHistoryMap;
 
+    private TextView emptyRecentlyVisitedTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -189,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         View headerView = navigationView.getHeaderView(0);
         recentlyVisitedChipContainer = headerView.findViewById(R.id.recently_visited_chip_container);
+        emptyRecentlyVisitedTextView = headerView.findViewById(R.id.empty_recently_visited_text_view);
 
         loadFragmentHistory();
         updateRecentlyVisitedChips();
@@ -202,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (savedInstanceState == null) {
                 loadFragment(new HomeFragment(), R.id.nav_home);
                 navigationView.setCheckedItem(R.id.nav_home);
-                toolbar.setTitle("Home Room");
+                toolbar.setTitle("Heal");
                 Log.d(TAG, "MainActivity: onCreate - Loading HomeFragment (not first launch, savedInstanceState is null)");
             } else {
                 currentNavId = savedInstanceState.getInt("currentNavId", R.id.nav_home);
@@ -220,9 +223,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         bottomSheetView = findViewById(R.id.bottom_sheet_container);
         overlayView = findViewById(R.id.overlay_view);
         ImageButton closeDrawerButton = headerView.findViewById(R.id.nav_close_button);
-         if (closeDrawerButton != null) {
+        if (closeDrawerButton != null) {
             closeDrawerButton.setOnClickListener(v -> drawerLayout.closeDrawer(GravityCompat.START));
-         }
+        }
         if (bottomSheetView != null) {
             bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView);
 
@@ -426,27 +429,69 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             List <FragmentHistoryItem> historyForDisplay = new ArrayList<>(fragmentHistoryMap.values());
             Collections.reverse(historyForDisplay);
 
-            for (FragmentHistoryItem item : historyForDisplay){
-                Chip chip = (Chip) LayoutInflater.from(this).inflate(R.layout.chip_recently_visited,recentlyVisitedChipContainer,false);
-                chip.setText(item.title);
-                chip.setTag(item.navId);
+            if (historyForDisplay.isEmpty()){
+                emptyRecentlyVisitedTextView.setVisibility(View.VISIBLE);
+                recentlyVisitedChipContainer.setVisibility(View.GONE);
+            }else {
+                emptyRecentlyVisitedTextView.setVisibility(View.GONE);
+                recentlyVisitedChipContainer.setVisibility(View.VISIBLE);
 
-                chip.setOnClickListener(v ->{
-                    int clickedNavId = (int) v.getTag();
+                for (FragmentHistoryItem item : historyForDisplay){
+                    Chip chip = (Chip) LayoutInflater.from(this).inflate(R.layout.chip_recently_visited,recentlyVisitedChipContainer,false);
+                    chip.setText(item.title);
+                    chip.setTag(item.navId);
 
-                    onNavigationItemSelected(navigationView.getMenu().findItem(clickedNavId));
-                    drawerLayout.closeDrawer(GravityCompat.START);
-                });
+                    chip.setOnClickListener(v ->{
+                        int clickedNavId = (int) v.getTag();
+                        if (clickedNavId == R.id.nav_coping_exercises || clickedNavId == R.id.nav_journal_entries || clickedNavId == R.id.nav_mood_checkin || clickedNavId == R.id.nav_saved_strategies){
+                        loadFragmentFromChip(clickedNavId);
+                        } else if (clickedNavId == R.id.nav_emergency_contacts) {
+                            loadContacts();
+                        }else {
+                            onNavigationItemSelected(navigationView.getMenu().findItem(clickedNavId));
+                            drawerLayout.closeDrawer(GravityCompat.START);
+                        }
+                    });
 
-                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                );
+                    LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
 
-                layoutParams.setMarginEnd((int) getResources().getDimension(R.dimen.chip_margin_end));
-                recentlyVisitedChipContainer.addView(chip,layoutParams);
+                    layoutParams.setMarginEnd((int) getResources().getDimension(R.dimen.chip_margin_end));
+                    recentlyVisitedChipContainer.addView(chip,layoutParams);
+                }
             }
             Log.d(TAG, "Chips updated. Displaying " + historyForDisplay.size() + " chips.");
+        }
+    }
+
+    private void loadFragmentFromChip(int navId) {
+        Fragment targetFragment = null;
+        String toolbarTitle = null;
+
+        if (bottomSheetBehavior != null && bottomSheetBehavior.getState() == STATE_EXPANDED){
+            bottomSheetBehavior.setState(STATE_HIDDEN);
+            clearBottomFragment();
+        }
+        if (navId == R.id.nav_coping_exercises){
+            targetFragment = new CopingExercisesFragment();
+            toolbarTitle = "Coping Exercises";
+        } else if (navId == R.id.nav_mood_checkin) {
+            targetFragment = new MoodCheckinFragment();
+            toolbarTitle = "My Mood History";
+        } else if (navId == R.id.nav_saved_strategies) {
+            targetFragment = new SavedStrategiesFragment();
+            toolbarTitle = "My Coping Strategies";
+        } else if (navId == R.id.nav_journal_entries) {
+            targetFragment = new JournalEntriesFragment();
+            toolbarTitle = "My Journal Entries";
+        }
+        if (targetFragment != null){
+            loadFragment(targetFragment, navId);
+            toolbar.setTitle(toolbarTitle);
+            drawerLayout.closeDrawer(GravityCompat.START);
+            navigationView.setCheckedItem(R.id.nav_records);
         }
     }
 
@@ -551,7 +596,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         closeSettings();
-         if (currentFragment instanceof HomeFragment) {
+        if (currentFragment instanceof HomeFragment) {
             new AlertDialog.Builder(this)
                     .setTitle("Exit Application")
                     .setMessage("Are you sure you want to exit the application?")
@@ -608,7 +653,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 shakeView(Fab);
                 shouldLoadFragment = true;
             }
-            historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
+            //historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
         } else if (id == R.id.nav_records) {
             toolbarTitle = "Data Records";
             if (!(currentFragment instanceof RecordFragment)) {
@@ -684,23 +729,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         toolbar.setTitle(toolbarTitle);
-        if (previousMenuItem != item) {
-            if (previousItemView != null) {
-                previousItemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-            }
-            previousMenuItem = item;
-            previousItemView = currentItemView;
-
-            if (previousItemView != null && id != R.id.nav_send && id != R.id.nav_share) {
-                // Highlight the newly selected item, but not send/share
-                currentItemView.setBackgroundColor(getResources().getColor(R.color.orange));
-            }
-        } else {
-            // If re-selecting the same item, ensure it's still highlighted (unless it's send/share)
-            if (currentItemView != null && id != R.id.nav_send && id != R.id.nav_share) {
-                currentItemView.setBackgroundColor(getResources().getColor(R.color.orange));
-            }
-        }
+//        if (previousMenuItem != item) {
+//            if (previousItemView != null) {
+//                previousItemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+//            }
+//            previousMenuItem = item;
+//            previousItemView = currentItemView;
+//
+//            if (previousItemView != null && id != R.id.nav_send && id != R.id.nav_share) {
+//                // Highlight the newly selected item, but not send/share
+//                currentItemView.setBackgroundColor(getResources().getColor(R.color.orange));
+//            }
+//        } else {
+//            // If re-selecting the same item, ensure it's still highlighted (unless it's send/share)
+//            if (currentItemView != null && id != R.id.nav_send && id != R.id.nav_share) {
+//                currentItemView.setBackgroundColor(getResources().getColor(R.color.orange));
+//            }
+//        }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -854,11 +899,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fm.executePendingTransactions();
         }
         if (Fab != null && Fab.getVisibility() != View.VISIBLE){
-           Handler handler = new Handler();
-           handler.postDelayed(() ->{
-               Fab.setVisibility(View.VISIBLE);
-               shakeView(Fab);
-           },200);
+            Handler handler = new Handler();
+            handler.postDelayed(() ->{
+                Fab.setVisibility(View.VISIBLE);
+                shakeView(Fab);
+            },200);
         }
     }
     public void closeSettings() {
@@ -933,13 +978,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return;
         }
         loadBottomFragment(new SettingsFragment());
-       Handler handler = new Handler();
-       handler.postDelayed(()->{
-           bottomSheetBehavior.setState(STATE_EXPANDED);
-           if (Fab != null && Fab.getVisibility() != View.GONE) {
-               Fab.setVisibility(View.GONE);
-           }
-       },50);
+        Handler handler = new Handler();
+        handler.postDelayed(()->{
+            bottomSheetBehavior.setState(STATE_EXPANDED);
+            if (Fab != null && Fab.getVisibility() != View.GONE) {
+                Fab.setVisibility(View.GONE);
+            }
+        },50);
         Log.d(TAG, "loadBottomSettingsFragment: Settings fragment loaded and bottom sheet expanded.");
     }
     public void saveNameToLocalStorage(String name) {
@@ -957,16 +1002,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
     public void shakeView(View view) {
-       if (Fab != null && Fab.getVisibility() != View.GONE) {
-           float startTranslationY = getResources().getDimensionPixelSize(R.dimen.fab_slide_up_distance);
-           ObjectAnimator slideUp = ObjectAnimator.ofFloat(view, "translationY", startTranslationY, 0f);
-           slideUp.setDuration(400); // Adjust duration for desired slowness
-           slideUp.setInterpolator(new AccelerateDecelerateInterpolator()); // Smooth acceleration/deceleration
+        if (Fab != null && Fab.getVisibility() != View.GONE) {
+            float startTranslationY = getResources().getDimensionPixelSize(R.dimen.fab_slide_up_distance);
+            ObjectAnimator slideUp = ObjectAnimator.ofFloat(view, "translationY", startTranslationY, 0f);
+            slideUp.setDuration(400); // Adjust duration for desired slowness
+            slideUp.setInterpolator(new AccelerateDecelerateInterpolator()); // Smooth acceleration/deceleration
 
-           AnimatorSet animatorSet = new AnimatorSet();
-           animatorSet.play(slideUp);
-           animatorSet.start();
-       }
+            AnimatorSet animatorSet = new AnimatorSet();
+            animatorSet.play(slideUp);
+            animatorSet.start();
+        }
     }
     public void invertShakeView(View view) {
         if (view != null && view.getVisibility() == View.VISIBLE) {
@@ -1030,7 +1075,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     navigationView.setCheckedItem(R.id.nav_home);
                 }
                 if (toolbar != null) {
-                    toolbar.setTitle("Home Room");
+                    toolbar.setTitle("Heal");
                 }
                 Log.d(TAG, "MainActivity: welcomeMessage - Loading HomeFragment after timer start (final step).");
             });

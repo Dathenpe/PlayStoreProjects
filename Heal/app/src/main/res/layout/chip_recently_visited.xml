@@ -10,4 +10,5 @@
     app:chipStrokeColor="?attr/colorPrimary"
     app:chipStrokeWidth="1dp"
     app:chipBackgroundColor="@android:color/transparent"
-    style="@style/Widget.MaterialComponents.Chip.Action" />
+    style="@style/Widget.MaterialComponents.Chip.Action"
+    android:minHeight="40dp"/>

@@ -56,7 +56,7 @@
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
     android:paddingVertical="15dp"
-    android:paddingTop="8dp"
+    android:paddingTop="4dp"
     android:paddingBottom="8dp"
     android:layout_marginTop="8dp">
 
@@ -65,14 +65,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingTop="8dp"
+        android:paddingTop="4dp"
         android:paddingBottom="8dp"
         android:paddingVertical="15dp">
 
-
     </LinearLayout>
 </ui.InterceptTouchHorizontalScrollView> <!-- CHANGED LINE HERE -->
-
+<TextView
+        android:id="@+id/empty_recently_visited_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="4dp"
+        android:text="No recent activities yet. Start exploring!"
+        android:textColor="@color/dark_gold_secondary"
+        android:textSize="14sp"
+        android:visibility="gone" />
 <View
 android:layout_width="match_parent"
 android:layout_height="1dp"
