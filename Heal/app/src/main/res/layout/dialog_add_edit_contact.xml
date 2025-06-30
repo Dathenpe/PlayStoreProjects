@@ -6,43 +6,76 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
-    android:gravity="center_horizontal">
-    <TextView
-    android:layout_width="wrap_content"
+    android:gravity="center_horizontal"
+    android:elevation="8dp"
+    android:clipToPadding="false"
+    android:clipChildren="false">
+
+    <!-- Added ScrollView here to make content scrollable when keyboard appears -->
+<ScrollView
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:fillViewport="true">
+
+<com.google.android.material.card.MaterialCardView
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="Add/Edit Contact"
-    android:id="@+id/dialogTitle"
-    android:textAppearance="?attr/textAppearanceTitleLarge"
-    android:layout_marginBottom="16dp"
-    android:textColor="?attr/colorOnSurface"/>
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+android:layout_marginBottom="8dp">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/dialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add/Edit Contact"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+    android:layout_marginBottom="32dp"
+    android:textColor="?attr/colorOnSurface"
+    android:gravity="center_horizontal" />
+
     <de.hdodenhof.circleimageview.CircleImageView
-    android:id="@+id/addEditContactImageView"
-    android:layout_width="120dp"
-    android:layout_height="120dp"
-    android:layout_marginBottom="12dp"
+        android:id="@+id/addEditContactImageView"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
     android:scaleType="centerCrop"
     android:src="@drawable/ic_default_contact_avatar"
-    app:civ_border_color="?attr/colorOutline" app:civ_border_width="3dp"
+    app:civ_border_color="?attr/colorSecondary"
+    app:civ_border_width="3dp"
     tools:src="@tools:sample/avatars" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonSelectImage"
-        style="?attr/materialButtonOutlinedStyle" android:layout_width="wrap_content"
+        style="?attr/materialButtonOutlinedStyle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
         android:text="Select Image"
         android:textSize="14sp"
-        android:layout_marginBottom="16dp"
-        android:textColor="?attr/colorPrimary"/> <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent"
+        android:layout_marginBottom="32dp"
+        android:textColor="?attr/colorPrimary"
+        app:strokeColor="?attr/colorPrimary" /> <!-- Added stroke color for consistency -->
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="20dp"
         android:hint="Contact Name"
-        app:boxCornerRadiusBottomEnd="8dp"
-        app:boxCornerRadiusBottomStart="8dp"
-        app:boxCornerRadiusTopEnd="8dp"
-        app:boxCornerRadiusTopStart="8dp">
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextContactName"
@@ -52,14 +85,15 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox" android:layout_width="match_parent"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="40dp"
         android:hint="Phone Number"
-        app:boxCornerRadiusBottomEnd="8dp"
-        app:boxCornerRadiusBottomStart="8dp"
-        app:boxCornerRadiusTopEnd="8dp"
-        app:boxCornerRadiusTopStart="8dp">
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextPhoneNumber"
@@ -82,13 +116,24 @@
             android:paddingVertical="12dp"
             android:text="Add Contact"
             android:textSize="16sp"
-            app:backgroundTint="?attr/colorPrimary" android:textColor="?attr/colorOnPrimary" /> <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonClearFields"
-        style="?attr/materialButtonOutlinedStyle" android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingVertical="12dp"
-        android:text="Clear"
-        android:textSize="16sp"
-        android:textColor="?attr/colorPrimary"/> </LinearLayout>
+            app:backgroundTint="?attr/colorPrimary"
+            android:textColor="?attr/colorOnPrimary"
+            app:cornerRadius="12dp" /> <!-- Added corner radius for buttons -->
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonClearFields"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingVertical="12dp"
+            android:text="Clear"
+            android:textSize="16sp"
+            android:textColor="?attr/colorPrimary"
+            app:cornerRadius="12dp"
+            app:strokeColor="?attr/colorPrimary" /> <!-- Added corner radius and stroke color -->
+    </LinearLayout>
 </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
+    </ScrollView>
+    </LinearLayout>

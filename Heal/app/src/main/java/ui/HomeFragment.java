@@ -802,13 +802,6 @@ public class HomeFragment extends Fragment {
         private String moodText;
         private long timestamp;
 
-        public MoodEntry(String day, int moodLevel, String moodText) {
-            this.day = day;
-            this.moodLevel = moodLevel;
-            this.moodText = moodText;
-            this.timestamp = System.currentTimeMillis();
-        }
-
         public MoodEntry(String day, int moodLevel, String moodText, long timestamp) {
             this.day = day;
             this.moodLevel = moodLevel;
@@ -835,6 +828,12 @@ public class HomeFragment extends Fragment {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putLong(KEY_LAST_CHECKIN, System.currentTimeMillis()); // Save current time in milliseconds
         editor.apply();
+        SharedPreferences appPrefs = getContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor2 = appPrefs.edit();
+        editor2.putLong(MainActivity.KEY_LAST_MOOD_CHECKIN_DATE, System.currentTimeMillis());
+        editor2.apply();
+        Log.d("MoodCheckinFragment", "Last mood check-in date updated to: " + new java.util.Date(System.currentTimeMillis()).toString());
+
     }
     private void loadLastCheckinTime() {
         if (context == null) return;
@@ -842,7 +841,7 @@ public class HomeFragment extends Fragment {
         lastCheckinTime = prefs.getLong(KEY_LAST_CHECKIN, 0); // Load the stored time, default to 0 if not found
     }
 
-    private boolean isCheckinAllowed() {
+    public boolean isCheckinAllowed() {
         if (lastCheckinTime == 0) {
             return true;
         }

@@ -296,10 +296,10 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginEnd="8dp"
-                            android:text="Emergency Contact"
+                            android:text="Emergency Contacts"
                             android:id="@+id/emergency_contact_button"
                             android:textColor="?attr/colorOnPrimary"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             app:backgroundTint="?attr/colorPrimary"
                             app:cornerRadius="8dp" />
 
@@ -311,7 +311,7 @@
                             android:text="Coping Exercises"
                             android:id="@+id/coping_exercises_button"
                             android:textColor="?attr/colorOnTertiaryContainer"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             app:backgroundTint="?attr/colorTertiaryContainer"
                             app:cornerRadius="8dp" />
                     </LinearLayout>
@@ -322,7 +322,7 @@
                         android:layout_marginTop="8dp"
                         android:text="More Resources"
                         android:textColor="?attr/colorOnSurface"
-                        android:textSize="14sp"
+                        android:textSize="12sp"
                         android:id="@+id/more_resources_button"
                         app:backgroundTint="?attr/colorSurface"
                         app:strokeColor="?attr/colorOutline"
@@ -382,7 +382,7 @@
                         android:id="@+id/mood_value_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Current Value: 5"
+                        android:text="Current Value: 0"
                         android:textColor="?attr/colorOnSurface"
                         android:textSize="14sp"
                         android:layout_gravity="center_horizontal"
@@ -471,7 +471,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
-                        android:text="Journaling Prompt"
+                        android:text="My Journal"
                         android:textColor="?attr/colorPrimary"
                         android:textSize="18sp"
                         android:layout_marginBottom="8dp"/>
@@ -496,7 +496,9 @@
                         android:background="@drawable/rounded_input_field_light"
                         android:textColor="?attr/colorOnSurface"
                         android:textSize="16sp"
-                        android:textColorHint="?attr/colorOnSurfaceVariant" />
+                        android:textColorHint="?attr/colorOnSurfaceVariant"
+                        android:inputType="textMultiLine"
+                    android:scrollbars="vertical" />
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/save_journal_button"
                         android:layout_width="wrap_content"

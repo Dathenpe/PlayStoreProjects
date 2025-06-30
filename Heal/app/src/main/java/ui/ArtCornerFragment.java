@@ -5,21 +5,18 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.heal.MainActivity;
 import com.example.heal.R;
 
 import viewmodels.GeneralViewModel;
 
-public class GalleryFragment extends Fragment {
+public class ArtCornerFragment extends Fragment {
 
     private MainActivity mainActivity;
     private Context context;
@@ -47,6 +44,8 @@ public class GalleryFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mainActivity.toolbar.setTitle("Art Corner");
+        mainActivity.MenuTrigger.setVisibility(View.GONE);
+        mainActivity.invertShakeView(mainActivity.Fab);
         mainActivity.navigationView.setCheckedItem(R.id.nav_gallery);
         View loadingProgressBar = view.findViewById(R.id.loading_progress_bar);
         View galleryScrollView = view.findViewById(R.id.gallery_scroll_view);
@@ -62,5 +61,23 @@ public class GalleryFragment extends Fragment {
                 galleryScrollView.setVisibility(View.VISIBLE); // Show content when loading finishes
             }
         });
+    }
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if (mainActivity != null){
+            mainActivity.MenuTrigger.setVisibility(View.VISIBLE);
+            mainActivity.Fab.setVisibility(View.VISIBLE);
+            mainActivity.shakeView(mainActivity.Fab);
+        }
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
+        if (mainActivity != null){
+            mainActivity.toolbar.setTitle("Art Corner");
+            mainActivity.MenuTrigger.setVisibility(View.GONE);
+            mainActivity.invertShakeView(mainActivity.Fab);
+        }
     }
 }

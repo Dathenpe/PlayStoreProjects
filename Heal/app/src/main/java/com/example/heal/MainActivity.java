@@ -40,6 +40,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -83,7 +84,7 @@ import records.JournalEntriesFragment;
 import records.MoodCheckinFragment;
 import records.SavedStrategiesFragment;
 import ui.AIFragment;
-import ui.GalleryFragment;
+import ui.ArtCornerFragment;
 import ui.HomeFragment;
 import ui.RecordFragment;
 import ui.ReminderBroadcastReceiver;
@@ -175,6 +176,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private LinkedHashMap<Integer,FragmentHistoryItem> fragmentHistoryMap;
 
     private TextView emptyRecentlyVisitedTextView;
+    private LinearLayout recentlySentNotificationsContainer;
+    private TextView emptyNotificationsTextView;
+    private static final String REMINDER_CHANNEL_ID = "reminder_channel";
+    private static final int REMINDER_NOTIFICATION_ID_7AM = 100;
+    private static final int REMINDER_NOTIFICATION_ID_11AM = 101;
+    private static final int REMINDER_NOTIFICATION_ID_6PM = 102;
+    private static final int REMINDER_NOTIFICATION_ID_9PM = 103;
+
+    public static final String PREFS_NOTIFICATIONS = "notifications_prefs";
+    public static final String KEY_RECENT_NOTIFICATIONS = "recent_notifications";
+    public static final String KEY_LAST_MOOD_CHECKIN_DATE = "last_mood_checkin_date";
+
+    private ScrollView recentlySentNotificationsScrollView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,9 +207,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View headerView = navigationView.getHeaderView(0);
         recentlyVisitedChipContainer = headerView.findViewById(R.id.recently_visited_chip_container);
         emptyRecentlyVisitedTextView = headerView.findViewById(R.id.empty_recently_visited_text_view);
+        recentlySentNotificationsContainer = headerView.findViewById(R.id.recently_sent_notifications_container);
+        emptyNotificationsTextView = headerView.findViewById(R.id.empty_notifications_text_view);
+        recentlySentNotificationsScrollView = headerView.findViewById(R.id.recently_sent_notifications_scroll_view);
+        ImageButton clearNotificationsButton = headerView.findViewById(R.id.clear_notifications_button);
 
         loadFragmentHistory();
         updateRecentlyVisitedChips();
+        createNotificationChannel();
+        updateRecentlySentNotificationsDisplay();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean reminderEnabled = sharedPreferences.getBoolean("reminder_enabled", false);
+        if (reminderEnabled) {
+            scheduleReminder();
+        } else {
+            cancelAllReminders(); // Cancel if reminders are disabled
+        }
 
         settingse = getSharedPreferences(PREFS_NAME,0);
         boolean isFirstLaunch = settingse.getBoolean(FIRST_LAUNCH_KEY, true);
@@ -215,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
         loadEmergencyContacts();
-        checkAndScheduleReminder();
+        //checkAndScheduleReminder();
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
@@ -368,6 +396,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 addEditDialog.show(getSupportFragmentManager(), "AddEditContactDialog");
             });
         }
+        if (clearNotificationsButton != null) {
+            SharedPreferences prefs = getSharedPreferences(PREFS_NOTIFICATIONS, Context.MODE_PRIVATE);
+            Gson gson = new Gson();
+            String json = prefs.getString(KEY_RECENT_NOTIFICATIONS, "[]");
+            Type type = new TypeToken<List<String>>() {}.getType();
+            List<String> notifications = gson.fromJson(json, type);
+
+            clearNotificationsButton.setOnClickListener(v -> {
+                if (notifications.isEmpty()){
+                    Toast.makeText(this, "No Notifications to clear", Toast.LENGTH_SHORT).show();
+                }else {
+                    new AlertDialog.Builder(this)
+                            .setTitle("Clear Notifications")
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setMessage("Are you sure you want to clear all recently sent notifications?")
+                            .setPositiveButton("Clear", (dialog, which) -> {
+                                SharedPreferences pref = getSharedPreferences(PREFS_NOTIFICATIONS, Context.MODE_PRIVATE);
+                                pref.edit().remove(KEY_RECENT_NOTIFICATIONS).apply();
+                                updateRecentlySentNotificationsDisplay();
+                                Toast.makeText(this, "Notifications cleared.", Toast.LENGTH_SHORT).show();
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
+                }
+            });
+
+        }
+
     }
 
     @Override
@@ -447,6 +503,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         loadFragmentFromChip(clickedNavId);
                         } else if (clickedNavId == R.id.nav_emergency_contacts) {
                             loadContacts();
+                            drawerLayout.closeDrawer(GravityCompat.START);
+                            navigationView.setCheckedItem(R.id.nav_records);
                         }else {
                             onNavigationItemSelected(navigationView.getMenu().findItem(clickedNavId));
                             drawerLayout.closeDrawer(GravityCompat.START);
@@ -673,8 +731,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
         } else if (id == R.id.nav_gallery) {
             toolbarTitle = "Art Corner";
-            if (!(currentFragment instanceof GalleryFragment)) {
-                targetFragment = new GalleryFragment();
+            if (!(currentFragment instanceof ArtCornerFragment)) {
+                targetFragment = new ArtCornerFragment();
                 MenuTrigger.setVisibility(View.VISIBLE);
                 Fab.setVisibility(View.VISIBLE);
                 shakeView(Fab);
@@ -924,54 +982,205 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d(TAG, "closeSettings: Bottom sheet is not expanded. No action needed.");
         }
     }
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//    private void createNotificationChannel() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            String name = "Reminder Notifications";
+//            String description = "Daily reminders for your well-being,you are important and you should take care of yourself";
+//            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+//            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+//            channel.setDescription(description);
+//            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+//            notificationManager.createNotificationChannel(channel);
+//        }
+//    }
+//    private void scheduleReminderNotification() {
+//        createNotificationChannel();
+//
+//        Intent notificationIntent = new Intent(this, ReminderBroadcastReceiver.class);
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, REMINDER_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+//
+//        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.set(Calendar.HOUR_OF_DAY, 11);
+//        calendar.set(Calendar.MINUTE, 25);
+//        calendar.set(Calendar.SECOND, 0);
+//
+//        if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
+//            calendar.add(Calendar.DAY_OF_YEAR, 1);
+//        }
+//
+//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), REPEAT_INTERVAL, pendingIntent);
+//    }
+//    private void cancelReminderNotification() {
+//        Intent notificationIntent = new Intent(this, ReminderBroadcastReceiver.class);
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, REMINDER_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+//
+//        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+//        alarmManager.cancel(pendingIntent);
+//    }
+//    private boolean getSavedReminderState() {
+//        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+//        return sharedPreferences.getBoolean("reminder_enabled", false);
+//    }
+//    private void checkAndScheduleReminder() {
+//        if (getSavedReminderState()) {
+//            scheduleReminderNotification();
+//        } else {
+//            cancelReminderNotification();
+//        }
+//    }
+
+    public void scheduleReminder(){
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, ReminderBroadcastReceiver.class);
+
+        int[][] reminderTimes = {
+                {7, 0, REMINDER_NOTIFICATION_ID_7AM},   // 7:00 AM
+                {11, 0, REMINDER_NOTIFICATION_ID_11AM},  // 11:00 AM
+                {18, 0, REMINDER_NOTIFICATION_ID_6PM},  // 6:00 PM
+                {21, 0, REMINDER_NOTIFICATION_ID_9PM}   // 9:00 PM
+        };
+
+        for (int[] times : reminderTimes) {
+            int hour = times[0];
+            int minute = times[1];
+            int requestCode = times[2];
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(System.currentTimeMillis());
+            calendar.set(Calendar.HOUR_OF_DAY, hour);
+            calendar.set(Calendar.MINUTE, minute);
+            calendar.set(Calendar.SECOND, 0);
+
+            if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
+             calendar.add(Calendar.DAY_OF_YEAR, 1);
+            }
+
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this,requestCode,intent,PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+            } else {
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+            }
+            Log.d(TAG, "Scheduled reminder for " + hour + ":" + minute + " with request code " + requestCode);
+        }
+    }
+    public void cancelAllReminders(){
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, ReminderBroadcastReceiver.class);
+
+        int[] requestCodes = {
+                REMINDER_NOTIFICATION_ID_7AM,
+                REMINDER_NOTIFICATION_ID_11AM,
+                REMINDER_NOTIFICATION_ID_6PM,
+                REMINDER_NOTIFICATION_ID_9PM
+        };
+        for (int requestCode : requestCodes) {
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            alarmManager.cancel(pendingIntent);
+            pendingIntent.cancel();
+        }
+    }
+    public void createNotificationChannel(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             String name = "Reminder Notifications";
             String description = "Daily reminders for your well-being,you are important and you should take care of yourself";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel(REMINDER_CHANNEL_ID, name, importance);
             channel.setDescription(description);
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
     }
-    private void scheduleReminderNotification() {
-        createNotificationChannel();
-
-        Intent notificationIntent = new Intent(this, ReminderBroadcastReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, REMINDER_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 11);
-        calendar.set(Calendar.MINUTE, 25);
-        calendar.set(Calendar.SECOND, 0);
-
-        if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
-            calendar.add(Calendar.DAY_OF_YEAR, 1);
-        }
-
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), REPEAT_INTERVAL, pendingIntent);
-    }
-    private void cancelReminderNotification() {
-        Intent notificationIntent = new Intent(this, ReminderBroadcastReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, REMINDER_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(pendingIntent);
-    }
-    private boolean getSavedReminderState() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        return sharedPreferences.getBoolean("reminder_enabled", false);
-    }
-    private void checkAndScheduleReminder() {
-        if (getSavedReminderState()) {
-            scheduleReminderNotification();
-        } else {
-            cancelReminderNotification();
+    public void onReminderSettingChanged(boolean enabled){
+        if (enabled){
+            scheduleReminder();
+        }else {
+            cancelAllReminders();
         }
     }
+
+    public void addSentNotification(String message){
+        SharedPreferences prefs = getSharedPreferences(PREFS_NOTIFICATIONS, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = prefs.getString(KEY_RECENT_NOTIFICATIONS, "[]");
+        Type type = new TypeToken<List<String>>() {}.getType();
+        List<String> notifications = gson.fromJson(json, type);
+
+        if (notifications == null){
+            notifications = new ArrayList<>();
+        }
+
+        String timeStamp = android.text.format.DateFormat.format("MMM dd, hh:mm a", System.currentTimeMillis()).toString();
+        notifications.add(timeStamp + " : " + message);
+
+        while (notifications.size() > 5){
+            notifications.remove(notifications.size() -1);
+        }
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(KEY_RECENT_NOTIFICATIONS, gson.toJson(notifications));
+        editor.apply();
+        updateRecentlySentNotificationsDisplay();
+    }
+    public void updateRecentlySentNotificationsDisplay(){
+        if (recentlySentNotificationsContainer == null || emptyNotificationsTextView == null) {
+            Log.e(TAG, "Notification display containers are null.");
+            return;
+        }
+        recentlySentNotificationsContainer.removeAllViews();
+        SharedPreferences prefs = getSharedPreferences(PREFS_NOTIFICATIONS, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = prefs.getString(KEY_RECENT_NOTIFICATIONS, "[]");
+        Type type = new TypeToken<List<String>>() {}.getType();
+        List<String> notifications = gson.fromJson(json, type);
+
+        if (notifications == null || notifications.isEmpty()){
+            recentlySentNotificationsScrollView.setVisibility(View.GONE);
+            recentlySentNotificationsContainer.setVisibility(View.GONE);
+            emptyNotificationsTextView.setVisibility(View.VISIBLE);
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+            boolean reminderEnabled = sharedPreferences.getBoolean("reminder_enabled", false);
+            if (reminderEnabled) {
+               emptyNotificationsTextView.setText("No Notifications Sent Yet");
+            } else {
+                emptyNotificationsTextView.setText("Enable Notifications In Settings To Recieve Notifications");
+            }
+        }else {
+            recentlySentNotificationsScrollView.setVisibility(View.VISIBLE);
+            emptyNotificationsTextView.setVisibility(View.GONE);
+            recentlySentNotificationsContainer.setVisibility(View.VISIBLE);
+            for (String notification : notifications){
+                TextView tv = new TextView(this);
+                tv.setLayoutParams(new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                ));
+                tv.setPadding(16, 16, 16, 16);
+                String before = "• " + notification;
+                tv.setText(before);
+                tv.setTextColor(ContextCompat.getColor(this, R.color.black)); // Use your color resource
+                tv.setTextSize(14);
+                int margin = (int) getResources().getDimension(R.dimen.default_margin_small); // Define this in dimens.xml
+                ((LinearLayout.LayoutParams) tv.getLayoutParams()).setMargins(
+                        (int) getResources().getDimension(R.dimen.activity_horizontal_margin), // Left margin
+                        (int) getResources().getDimension(R.dimen.default_margin_extra_small), // Top margin
+                        (int) getResources().getDimension(R.dimen.activity_horizontal_margin), // Right margin
+                        (int) getResources().getDimension(R.dimen.default_margin_extra_small) // Bottom margin
+                );
+                recentlySentNotificationsContainer.addView(tv);
+            }
+        }
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Update display when returning to MainActivity (e.g., drawer is opened again)
+        updateRecentlySentNotificationsDisplay();
+    }
+
     public void loadBottomSettingsFragment() {
         if (bottomSheetBehavior == null) {
             Log.e(TAG, "loadBottomSettingsFragment: bottomSheetBehavior is null. Cannot load settings fragment.");

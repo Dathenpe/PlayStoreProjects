@@ -49,29 +49,29 @@
         android:textStyle="bold" />
 
     <ui.InterceptTouchHorizontalScrollView
-    android:id="@+id/recently_visited_scroll_view"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:scrollbars="none"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:paddingVertical="15dp"
-    android:paddingTop="4dp"
-    android:paddingBottom="8dp"
-    android:layout_marginTop="8dp">
-
-    <LinearLayout
-        android:id="@+id/recently_visited_chip_container"
-        android:layout_width="wrap_content"
+        android:id="@+id/recently_visited_scroll_view"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:scrollbars="none"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingVertical="15dp"
         android:paddingTop="4dp"
-        android:paddingBottom="8dp"
-        android:paddingVertical="15dp">
+        android:paddingBottom="4dp"
+        android:layout_marginTop="2dp">
 
-    </LinearLayout>
-</ui.InterceptTouchHorizontalScrollView> <!-- CHANGED LINE HERE -->
-<TextView
+        <LinearLayout
+            android:id="@+id/recently_visited_chip_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:paddingVertical="10dp">
+
+        </LinearLayout>
+    </ui.InterceptTouchHorizontalScrollView>
+    <TextView
         android:id="@+id/empty_recently_visited_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -82,68 +82,71 @@
         android:textColor="@color/dark_gold_secondary"
         android:textSize="14sp"
         android:visibility="gone" />
-<View
-android:layout_width="match_parent"
-android:layout_height="1dp"
-android:background="#E0E0E0"
-android:layout_marginTop="16dp"
-android:layout_marginStart="16dp"
-android:layout_marginEnd="16dp" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E0E0E0"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
 
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="horizontal"
-android:gravity="center_vertical"
-android:layout_marginTop="16dp"
-android:paddingStart="16dp"
-android:paddingEnd="16dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
-<TextView
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:layout_weight="1"
-    android:text="RECENTLY SENT NOTIFICATIONS"
-    android:textColor="@color/gray"
-    android:textSize="12sp"
-    android:textStyle="bold" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="RECENTLY SENT NOTIFICATIONS"
+            android:textColor="@color/gray"
+            android:textSize="12sp"
+            android:textStyle="bold" />
 
-<ImageButton
-    android:id="@+id/clear_notifications_button"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackgroundBorderless"
-    android:contentDescription="Clear Notifications"
-    android:src="@android:drawable/ic_menu_delete"
-    app:tint="@color/gray" />
-</LinearLayout>
-
-<TextView
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:layout_marginStart="16dp"
-android:layout_marginEnd="16dp"
-android:layout_marginTop="8dp"
-android:text="• Notification 1: Your daily meditation is ready."
-android:textColor="@color/black"
-android:textSize="14sp" />
-
-<TextView
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:layout_marginStart="16dp"
-android:layout_marginEnd="16dp"
-android:layout_marginTop="4dp"
-android:text="• Notification 2: Don't forget your exercises!"
-android:textColor="@color/black"
-android:textSize="14sp" />
-
-<View
-android:layout_width="match_parent"
-android:layout_height="1dp"
-android:background="#E0E0E0"
-android:layout_marginTop="16dp"
-android:layout_marginStart="16dp"
-android:layout_marginEnd="16dp" />
-
+        <ImageButton
+            android:id="@+id/clear_notifications_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Clear Notifications"
+            android:src="@android:drawable/ic_menu_delete"
+            app:tint="@color/gray" />
     </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/recently_sent_notifications_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:scrollbars="vertical"
+        android:layout_marginTop="2dp">
+
+        <LinearLayout
+            android:id="@+id/recently_sent_notifications_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp">
+        </LinearLayout>
+    </ScrollView>
+    <TextView
+        android:id="@+id/empty_notifications_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
+        android:text="No notifications sent yet."
+        android:textColor="@color/dark_gold_secondary"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+
+</LinearLayout>

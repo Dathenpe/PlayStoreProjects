@@ -101,10 +101,10 @@ public class AddEditContactDialogFragment extends DialogFragment {
                 layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
                 // Set the height to WRAP_CONTENT (or MATCH_PARENT if you want it to fill height too)
                 layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                layoutParams.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
                 window.setAttributes(layoutParams);
-
                 // Optional: To remove the default dialog padding/margins if they exist
-                // window.setBackgroundDrawableResource(android.R.color.transparent);
+                 window.setBackgroundDrawableResource(android.R.color.transparent);
             }
         }
     }
@@ -183,13 +183,13 @@ public class AddEditContactDialogFragment extends DialogFragment {
             } else {
                 addEditContactImageView.setImageResource(R.drawable.ic_default_contact_avatar);
             }
-            dialogTitle.setText("Edit Contact");
+            dialogTitle.setText("Edit Emergency Contact");
             buttonAddSaveContact.setText("Save Changes");
             if (getContext() != null) {
                 Toast.makeText(getContext(), "Editing: " + editingContact.getName(), Toast.LENGTH_SHORT).show();
             }
         } else {
-            dialogTitle.setText("Add Contact");
+            dialogTitle.setText("Add Emergency Contact");
             buttonAddSaveContact.setText("Add Contact");
             addEditContactImageView.setImageResource(R.drawable.ic_default_contact_avatar);
         }

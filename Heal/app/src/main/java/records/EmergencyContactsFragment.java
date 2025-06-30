@@ -28,6 +28,8 @@ import com.example.heal.MainActivity;
 import com.example.heal.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class EmergencyContactsFragment extends Fragment implements EmergencyContactsAdapter.OnContactActionListener {
@@ -103,6 +105,7 @@ public class EmergencyContactsFragment extends Fragment implements EmergencyCont
         recyclerViewEmergencyContacts.setAdapter(adapter);
         emptyStateTextView = view.findViewById(R.id.emptyStateTextView);
         updateEmptyStateVisibility();
+        sortContactsAlphabetically();
         adapter.notifyDataSetChanged();
     }
 
@@ -113,12 +116,25 @@ public class EmergencyContactsFragment extends Fragment implements EmergencyCont
         }
         this.contactList.clear();
         this.contactList.addAll(updatedList);
+        sortContactsAlphabetically();
         adapter.updateContacts(this.contactList);
         updateEmptyStateVisibility();
     }
 
-    // --- OnContactActionListener methods (from RecyclerView adapter) ---
+    private void sortContactsAlphabetically(){
+        if (contactList != null && !contactList.isEmpty()) {
+            Collections.sort(contactList, new Comparator<EmergencyContact>() {
+                @Override
+                public int compare(EmergencyContact c1, EmergencyContact c2) {
+                    String name1 = c1.getName() != null ? c1.getName() : "";
+                    String name2 = c2.getName() != null ? c2.getName() : "";
+                    return name1.compareToIgnoreCase(name2);
+                }
+            });
+        }
+    }
 
+    // --- OnContactActionListener methods (from RecyclerView adapter) ---
     @Override
     public void onEditClick(EmergencyContact contact) {
         AddEditContactDialogFragment dialogFragment = AddEditContactDialogFragment.newInstance(contact);
