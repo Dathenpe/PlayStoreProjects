@@ -156,16 +156,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private int currentWelcomeDialogStep = 0;
 
-    private final String[] WELCOME_TITLES ={
-            "Welcome To Heal",
-            "Your Journey Starts Now",
-            "Counter & Control"
+    private final String[] WELCOME_TITLES = {
+            "Welcome to Heal: Your Path to Wellness",
+            "Tracking Your Progress, Celebrating Milestones",
+            "You're In Control: Tools & Support",
+            "Discover Your Strengths: Coping & More"
     };
 
     private final String[] WelcomeMessages = {
-            "Welcome to Heal! This app is designed to support you on your journey.",
-            "We'll start a relapse counter for you now. This helps track your progress and celebrate your milestones.",
-            "You can reset the counter anytime you feel the need. Let's embark on this healing journey together!"
+            "Welcome to Heal! We're here to provide a supportive space and tools to help you navigate your journey towards well-being and recovery.",
+            "Let's begin by setting up your progress tracker. It’s a simple way to acknowledge your efforts and celebrate every step forward on your path. Heal also offers tools like Journaling and Mood Check-ins to reflect on your path.",
+            "You're in control. The progress tracker is yours to manage. Alongside it, remember to set up your Emergency Contacts for quick support, and explore personalized Coping Strategies.",
+            "Discover effective Coping Strategies tailored for you. You can prioritize them for easy access. Remember, Heal also offers a space for your Journal Entries, creative expression in the Art Corner, and helpful Reminders."
     };
 
     private static final String PREFS_RECENTLY_VISITED =  "RecentlyVisitedPrefs";

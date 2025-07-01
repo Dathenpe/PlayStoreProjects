@@ -24,6 +24,8 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import ui.HomeFragment.MoodEntry;
@@ -87,6 +89,12 @@ public class MoodCheckinFragment extends Fragment {
         } else {
             moodEntries = new ArrayList<>();
         }
+        Collections.sort(moodEntries, new Comparator<MoodEntry>() {
+            @Override
+            public int compare(MoodEntry m1, MoodEntry m2) {
+                return Long.compare(m2.getTimestamp(), m1.getTimestamp()); // Newest first
+            }
+        });
         updateEmptyStateVisibility();
     }
 

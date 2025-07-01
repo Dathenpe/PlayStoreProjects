@@ -48,6 +48,7 @@ import com.google.android.material.slider.Slider;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -660,7 +661,7 @@ public class HomeFragment extends Fragment {
             allJournalEntries = new ArrayList<>();
         }
     }
-    public static class JournalEntry {
+    public static class JournalEntry implements Serializable {
         private String formattedTimestamp;
         private String text;
         private long creationTimestampMillis;

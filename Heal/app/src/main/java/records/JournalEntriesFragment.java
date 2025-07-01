@@ -1,17 +1,11 @@
 package records;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.InputType;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,7 +28,9 @@ import java.util.List;
 import records.JournalEntryAdapter.OnJournalEntryClickListener;
 import ui.HomeFragment;
 
-public class JournalEntriesFragment extends Fragment implements OnJournalEntryClickListener {
+public class JournalEntriesFragment extends Fragment implements
+        OnJournalEntryClickListener, // For clicking on entries in the list
+        EditJournalEntryDialogFragment.OnJournalEntryModifiedListener { // For receiving updates from the edit dialog
 
     private RecyclerView recyclerView;
     private JournalEntryAdapter adapter;
@@ -59,7 +55,7 @@ public class JournalEntriesFragment extends Fragment implements OnJournalEntryCl
         if (context instanceof MainActivity) {
             mainActivity = (MainActivity) context;
         } else {
-            Toast.makeText(context, "Error: CopingExercisesFragment attached to wrong activity", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Error: JournalEntriesFragment attached to wrong activity", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -79,7 +75,6 @@ public class JournalEntriesFragment extends Fragment implements OnJournalEntryCl
         recyclerView.setAdapter(adapter);
 
         updateEmptyState();
-
 
         return view;
     }
@@ -126,97 +121,66 @@ public class JournalEntriesFragment extends Fragment implements OnJournalEntryCl
 
     @Override
     public void onJournalEntryClick(HomeFragment.JournalEntry entry) {
-        showEditJournalEntryDialog(entry);
+        // Launch the new EditJournalEntryDialogFragment
+        EditJournalEntryDialogFragment dialogFragment = EditJournalEntryDialogFragment.newInstance(entry);
+        dialogFragment.setTargetFragment(this, 0); // Set target fragment to receive results
+        dialogFragment.show(getParentFragmentManager(), "EditJournalEntryDialog");
     }
 
-    private void showEditJournalEntryDialog(HomeFragment.JournalEntry entryToEdit) {
-        if (getContext() == null) return;
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Edit Journal Entry");
-
-        LinearLayout layout = new LinearLayout(getContext());
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 30, 50, 30);
-
-        TextView timestampTv = new TextView(getContext());
-        timestampTv.setText(entryToEdit.getTimestamp()); // Use getFormattedTimestamp()
-        timestampTv.setTextSize(14f);
-        timestampTv.setTextColor(getResources().getColor(R.color.text_color_secondary));
-        timestampTv.setPadding(0,0,0,16);
-        layout.addView(timestampTv);
-
-        final EditText journalEditText = new EditText(getContext());
-        journalEditText.setText(entryToEdit.getText());
-        journalEditText.setHint("Write your journal entry here...");
-        journalEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
-        journalEditText.setLines(1);
-        journalEditText.setMaxLines(12);
-        journalEditText.setGravity(Gravity.TOP | Gravity.START); // Corrected line!
-        journalEditText.setPadding(20, 20, 20, 20);
-        journalEditText.setTextColor(getResources().getColor(R.color.text_color_primary));
-        journalEditText.setTextSize(16f);
-
-        ScrollView scrollView = new ScrollView(getContext());
-        scrollView.addView(journalEditText);
-        layout.addView(scrollView);
-
-
-        builder.setView(layout);
-
-        // Save Button
-        builder.setPositiveButton("Save", (dialog, which) -> {
-            String updatedText = journalEditText.getText().toString().trim();
-            if (!updatedText.isEmpty()) {
-                // Find the existing entry and update it
-                for (int i = 0; i < journalEntries.size(); i++) {
-                    if (journalEntries.get(i).getTimestamp().equals(entryToEdit.getTimestamp()) &&
-                            journalEntries.get(i).getText().equals(entryToEdit.getText())) { // Basic check, ideally use a unique ID
-                        journalEntries.set(i, new HomeFragment.JournalEntry(
-                                entryToEdit.getTimestamp(),    // Original formatted timestamp string
-                                updatedText,                            // New journal text
-                                entryToEdit.getCreationTimestampMillis() // Original raw long timestamp
-                        ));
-                        break;
-                    }
-                }
-                saveJournalEntries();
-                loadJournalEntries();
-                adapter.updateData(journalEntries);
-                Toast.makeText(getContext(), "Journal entry updated!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), "Journal entry cannot be empty.", Toast.LENGTH_SHORT).show();
+    // --- Implementation of OnJournalEntryModifiedListener ---
+    @Override
+    public void onJournalEntrySaved(HomeFragment.JournalEntry updatedEntry) {
+        // Find the entry and update it
+        boolean found = false;
+        for (int i = 0; i < journalEntries.size(); i++) {
+            // Assuming timestamp + creationTimestampMillis is a unique identifier
+            if (journalEntries.get(i).getTimestamp().equals(updatedEntry.getTimestamp()) &&
+                    journalEntries.get(i).getCreationTimestampMillis() == updatedEntry.getCreationTimestampMillis()) {
+                journalEntries.set(i, updatedEntry);
+                found = true;
+                break;
             }
-        });
-
-        builder.setNegativeButton("Delete", (dialog, which) -> {
-            new AlertDialog.Builder(getContext())
-                    .setTitle("Delete Entry")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setMessage("Are you sure you want to delete this journal entry?, this action cannot be undone.")
-                    .setPositiveButton("Yes", (dialogDelete, whichDelete) -> {
-                        journalEntries.remove(entryToEdit);
-                        saveJournalEntries();
-                        loadJournalEntries();
-                        adapter.updateData(journalEntries);
-                        updateEmptyState();
-                        Toast.makeText(getContext(), "Journal entry deleted.", Toast.LENGTH_SHORT).show();
-                    })
-                    .setNegativeButton("No", null)
-                    .show();
-        });
-
-        builder.setNeutralButton("Cancel", (dialog, which) -> dialog.dismiss());
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        }
+        if (found) {
+            saveJournalEntries();
+            loadJournalEntries(); // Reload and re-sort to ensure correct order
+            adapter.updateData(journalEntries);
+            Toast.makeText(getContext(), "Journal entry updated!", Toast.LENGTH_SHORT).show();
+        } else {
+            // This case should ideally not happen if the entry was clicked from the list
+            // but could be handled (e.g., add as new, or show error)
+            Toast.makeText(getContext(), "Error: Could not find entry to update.", Toast.LENGTH_SHORT).show();
+        }
     }
+
+    @Override
+    public void onJournalEntryDeleted(String entryTimestamp) {
+        // Find and remove the entry
+        HomeFragment.JournalEntry entryToRemove = null;
+        for (HomeFragment.JournalEntry entry : journalEntries) {
+            if (entry.getTimestamp().equals(entryTimestamp)) { // Using timestamp as ID
+                entryToRemove = entry;
+                break;
+            }
+        }
+        if (entryToRemove != null) {
+            journalEntries.remove(entryToRemove);
+            saveJournalEntries();
+            loadJournalEntries(); // Reload and re-sort
+            adapter.updateData(journalEntries);
+            updateEmptyState();
+            Toast.makeText(getContext(), "Journal entry deleted.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), "Error: Could not find entry to delete.", Toast.LENGTH_SHORT).show();
+        }
+    }
+    // --- End of OnJournalEntryModifiedListener implementation ---
 
     @Override
     public void onResume() {
         mainActivity.toolbar.setTitle("My Journal Entries");
         super.onResume();
-        loadJournalEntries();
+        loadJournalEntries(); // Ensure data is fresh when returning to the fragment
         if (adapter != null) {
             adapter.updateData(journalEntries);
         }

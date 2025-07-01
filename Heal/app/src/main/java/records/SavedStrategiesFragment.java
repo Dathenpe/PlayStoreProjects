@@ -139,7 +139,7 @@ public class SavedStrategiesFragment extends Fragment
         final EditText input = new EditText(getContext());
         input.setHint("Enter your new coping strategy");
         builder.setView(input);
-
+        builder.setIcon(android.R.drawable.ic_menu_edit);
         builder.setPositiveButton("Add", (dialog, which) -> {
             String newStrategy = input.getText().toString().trim();
             if (!newStrategy.isEmpty()) {
@@ -165,7 +165,7 @@ public class SavedStrategiesFragment extends Fragment
     private void showEditStrategyDialog(int position, String currentStrategy) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Edit Strategy");
-
+        builder.setIcon(android.R.drawable.ic_menu_edit);
         final EditText input = new EditText(getContext());
         input.setText(currentStrategy);
         builder.setView(input);
