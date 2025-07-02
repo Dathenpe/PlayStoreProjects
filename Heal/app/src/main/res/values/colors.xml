@@ -19,7 +19,7 @@
     <color name="md_theme_onError">#FFFFFF</color>
     <color name="md_theme_errorContainer">#FFDAD6</color>
     <color name="md_theme_onErrorContainer">#410002</color>
-
+    <color name="selected_tool_background">#E0E0E0</color>
     <color name="md_theme_background">#FFFBFF</color>
     <color name="md_theme_onBackground">#1F1B16</color>
     <color name="md_theme_surface">#FFFBFF</color>

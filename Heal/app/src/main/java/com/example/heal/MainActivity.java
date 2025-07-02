@@ -78,6 +78,7 @@ import java.util.concurrent.TimeUnit;
 
 import records.AddEditContactDialogFragment;
 import records.CopingExercisesFragment;
+import records.DrawingCanvasFragment;
 import records.EmergencyContact;
 import records.EmergencyContactsFragment;
 import records.JournalEntriesFragment;
@@ -112,7 +113,7 @@ class FragmentHistoryItem{
     }
 }
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        AddEditContactDialogFragment.OnContactSavedListener {
+        AddEditContactDialogFragment.OnContactSavedListener,DrawingCanvasFragment.OnDrawingSavedListener  {
 
     private static final String KEY_LAST_RELAPSE_DATE = "lastRelapseDate" ;
     private static final String PREFS_RELAPSE = "RelapseCounterPrefs" ;
@@ -220,11 +221,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         updateRecentlySentNotificationsDisplay();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean reminderEnabled = sharedPreferences.getBoolean("reminder_enabled", false);
-        if (reminderEnabled) {
-            scheduleReminder();
-        } else {
-            cancelAllReminders(); // Cancel if reminders are disabled
-        }
+        onReminderSettingChanged(reminderEnabled);
 
         settingse = getSharedPreferences(PREFS_NAME,0);
         boolean isFirstLaunch = settingse.getBoolean(FIRST_LAUNCH_KEY, true);
@@ -659,6 +656,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (currentFragment instanceof HomeFragment) {
             new AlertDialog.Builder(this)
                     .setTitle("Exit Application")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
                     .setMessage("Are you sure you want to exit the application?")
                     .setPositiveButton("Yes", (dialog, which) -> finish())
                     .setNegativeButton("No", (dialog, which) -> {
@@ -666,7 +664,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     })
                     .setCancelable(true)
                     .show();
-        } else {
+        } else if (currentFragment instanceof DrawingCanvasFragment){
+            new AlertDialog.Builder(this)
+                    .setTitle("Exit Canvas")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setMessage("Are you sure you want to exit without saving ?")
+                    .setPositiveButton("Yes", (dialog, which) -> finish())
+                    .setNegativeButton("No", (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .setCancelable(true)
+                    .show();
+        }
+        else {
             super.onBackPressed();
         }
     }
@@ -1294,4 +1304,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+    @Override
+    public void onDrawingSaved(String imageUri, String artworkName) {
+
+    }
+
 }
