@@ -20,8 +20,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
-import com.example.heal.MainActivity;
-import com.example.heal.R;
+import com.f9ld3.heal.MainActivity;
+import com.f9ld3.heal.R;
 import com.google.android.material.materialswitch.MaterialSwitch;
 
 public class SettingsFragment extends Fragment {

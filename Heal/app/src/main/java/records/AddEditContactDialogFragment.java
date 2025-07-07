@@ -22,7 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.bumptech.glide.Glide;
-import com.example.heal.R;
+import com.f9ld3.heal.R;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.UUID;

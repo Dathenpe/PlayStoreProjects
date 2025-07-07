@@ -16,8 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
-import com.example.heal.MainActivity;
-import com.example.heal.R;
+import com.f9ld3.heal.MainActivity;
+import com.f9ld3.heal.R;
 
 public class CopingExercisesFragment extends Fragment {
 

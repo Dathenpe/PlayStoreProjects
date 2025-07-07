@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSurface"
-    tools:context="records.DrawingCanvasFragment">
+    tools:context="drawing.DrawingCanvasFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,7 +13,6 @@
         android:orientation="vertical"
         android:padding="8dp">
 
-        <!-- Drawing Tools Section -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -28,7 +27,6 @@
                 android:orientation="vertical"
                 android:padding="12dp">
 
-                <!-- Top Row: Tools and Undo/Redo -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -84,7 +82,6 @@
 
                 </LinearLayout>
 
-                <!-- Brush Size SeekBar -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -111,8 +108,8 @@
                 </LinearLayout>
 
 
-                <!-- Color Palette -->
                 <HorizontalScrollView
+                    android:id="@+id/color_palette_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:scrollbars="none">
@@ -122,14 +119,12 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:paddingVertical="4dp">
-                        <!-- Color circles will be added programmatically -->
                     </LinearLayout>
                 </HorizontalScrollView>
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Drawing Canvas -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -139,14 +134,13 @@
             app:cardElevation="2dp"
             android:layout_marginBottom="8dp">
 
-            <records.DrawingView
+            <drawing.DrawingView
                 android:id="@+id/drawingView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@android:color/white" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Action Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

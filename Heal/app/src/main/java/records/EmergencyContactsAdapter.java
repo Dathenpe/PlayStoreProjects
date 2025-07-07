@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
-import com.example.heal.R;
+import com.f9ld3.heal.R;
 import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 

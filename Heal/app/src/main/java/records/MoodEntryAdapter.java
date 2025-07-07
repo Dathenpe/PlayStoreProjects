@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.heal.R; // Ensure this path is correct for your project
+import com.f9ld3.heal.R; // Ensure this path is correct for your project
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

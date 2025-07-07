@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.heal"
+    namespace = "com.f9ld3.heal"
     compileSdk = 35
 
     defaultConfig {

@@ -1,9 +1,9 @@
-package records;
+package drawing;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory; // Added import
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -25,8 +26,8 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-import com.example.heal.MainActivity;
-import com.example.heal.R;
+import com.f9ld3.heal.MainActivity;
+import com.f9ld3.heal.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,6 +49,7 @@ public class DrawingCanvasFragment extends Fragment {
     private Button buttonClearCanvas;
     private Button buttonSaveDrawing;
     private LinearLayout colorPalette;
+    private HorizontalScrollView colorPaletteContainer; // Reference for the container
     private SeekBar brushSizeSeekBar;
     private TextView brushSizeTextView;
 
@@ -116,6 +118,7 @@ public class DrawingCanvasFragment extends Fragment {
         buttonClearCanvas = view.findViewById(R.id.buttonClearCanvas);
         buttonSaveDrawing = view.findViewById(R.id.buttonSaveDrawing);
         colorPalette = view.findViewById(R.id.colorPalette);
+        colorPaletteContainer = view.findViewById(R.id.color_palette_container); // Initialize the container
         brushSizeSeekBar = view.findViewById(R.id.brushSizeSeekBar);
         brushSizeTextView = view.findViewById(R.id.brushSizeTextView);
 
@@ -142,6 +145,7 @@ public class DrawingCanvasFragment extends Fragment {
         buttonPen.setOnClickListener(v -> {
             drawingView.setDrawingMode(DrawingView.DrawingMode.PEN);
             updateToolButtonStyles(buttonPen, buttonEraser); // Update styles
+            colorPaletteContainer.setVisibility(View.VISIBLE); // Show color palette
             // Reset brush size to 20 when pen is selected
             final int defaultBrushSize = 20;
             drawingView.setBrushSize(defaultBrushSize);
@@ -152,6 +156,7 @@ public class DrawingCanvasFragment extends Fragment {
         buttonEraser.setOnClickListener(v -> {
             drawingView.setDrawingMode(DrawingView.DrawingMode.ERASER);
             updateToolButtonStyles(buttonEraser, buttonPen); // Update styles
+            colorPaletteContainer.setVisibility(View.GONE); // Hide color palette
             // Reset brush size to 20 when eraser is selected
             final int defaultBrushSize = 20;
             drawingView.setBrushSize(defaultBrushSize);
@@ -187,6 +192,7 @@ public class DrawingCanvasFragment extends Fragment {
         buttonClearCanvas.setOnClickListener(v -> {
             new AlertDialog.Builder(getContext())
                     .setTitle("Clear Canvas")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
                     .setMessage("Are you sure you want to clear the entire canvas? This action cannot be undone.")
                     .setPositiveButton("Clear", (dialog, which) -> drawingView.clearCanvas())
                     .setNegativeButton("Cancel", null)

@@ -1,4 +1,4 @@
-package com.example.heal;
+package com.f9ld3.heal;
 
 import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED;
 import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_DRAGGING;
@@ -14,8 +14,10 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -50,13 +52,16 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.chip.Chip;
@@ -74,11 +79,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import records.AddEditContactDialogFragment;
 import records.CopingExercisesFragment;
-import records.DrawingCanvasFragment;
+import drawing.DrawingCanvasFragment;
 import records.EmergencyContact;
 import records.EmergencyContactsFragment;
 import records.JournalEntriesFragment;
@@ -87,6 +91,8 @@ import records.SavedStrategiesFragment;
 import ui.AIFragment;
 import ui.ArtCornerFragment;
 import ui.HomeFragment;
+import ui.InterceptTouchRecyclerView;
+import ui.NotificationAdapter;
 import ui.RecordFragment;
 import ui.ReminderBroadcastReceiver;
 import ui.SettingsFragment;
@@ -144,10 +150,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private EditText recipientEditText;
     private EditText messageEditText;
     private TextView userNameDisplayTextView;
-    private static final String CHANNEL_ID = "reminder_channel";
-    private static final int REMINDER_NOTIFICATION_ID = 1;
-    private static final int REMINDER_REQUEST_CODE = 102;
-    private static final long REPEAT_INTERVAL = TimeUnit.DAYS.toMillis(1);
+
     private int currentNavId = R.id.nav_home;
     private static final String FIRST_LAUNCH_KEY = "firstLaunch";
 
@@ -179,9 +182,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private LinkedHashMap<Integer,FragmentHistoryItem> fragmentHistoryMap;
 
     private TextView emptyRecentlyVisitedTextView;
-    private LinearLayout recentlySentNotificationsContainer;
+    private InterceptTouchRecyclerView recyclerViewNotifications; // Changed to InterceptTouchRecyclerView
+    private NotificationAdapter notificationAdapter;
     private TextView emptyNotificationsTextView;
-    private static final String REMINDER_CHANNEL_ID = "reminder_channel";
+    public static final String REMINDER_CHANNEL_ID = "reminder_channel";
     private static final int REMINDER_NOTIFICATION_ID_7AM = 100;
     private static final int REMINDER_NOTIFICATION_ID_11AM = 101;
     private static final int REMINDER_NOTIFICATION_ID_6PM = 102;
@@ -194,10 +198,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ScrollView recentlySentNotificationsScrollView;
 
 
+    private BroadcastReceiver notificationUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ReminderBroadcastReceiver.ACTION_NOTIFICATION_RECEIVED.equals(intent.getAction())) {
+                Log.d(TAG, "Local broadcast received: NOTIFICATION_RECEIVED. Updating notification display.");
+                updateRecentlySentNotificationsDisplay();
+            }
+        }
+    };
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        NotificationManagerCompat.from(this).cancelAll();
+        Log.d(TAG, "All notifications cleared on app launch.");
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(notificationUpdateReceiver,
+                new IntentFilter(ReminderBroadcastReceiver.ACTION_NOTIFICATION_RECEIVED));
+
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -210,15 +232,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         View headerView = navigationView.getHeaderView(0);
         recentlyVisitedChipContainer = headerView.findViewById(R.id.recently_visited_chip_container);
         emptyRecentlyVisitedTextView = headerView.findViewById(R.id.empty_recently_visited_text_view);
-        recentlySentNotificationsContainer = headerView.findViewById(R.id.recently_sent_notifications_container);
+
+        // Initialize RecyclerView and Adapter
+        recyclerViewNotifications = headerView.findViewById(R.id.recyclerViewNotifications);
+        recyclerViewNotifications.setLayoutManager(new LinearLayoutManager(this));
+        notificationAdapter = new NotificationAdapter(new ArrayList<>());
+        recyclerViewNotifications.setAdapter(notificationAdapter);
+        // Explicitly enable nested scrolling for the RecyclerView
+        recyclerViewNotifications.setNestedScrollingEnabled(true);
+
+
         emptyNotificationsTextView = headerView.findViewById(R.id.empty_notifications_text_view);
-        recentlySentNotificationsScrollView = headerView.findViewById(R.id.recently_sent_notifications_scroll_view);
+
+
         ImageButton clearNotificationsButton = headerView.findViewById(R.id.clear_notifications_button);
 
-        loadFragmentHistory();
+        loadFragmentHistory(); // This method now correctly loads recently visited chips
         updateRecentlyVisitedChips();
         createNotificationChannel();
-        updateRecentlySentNotificationsDisplay();
+        updateRecentlySentNotificationsDisplay(); // Initial load of notifications
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean reminderEnabled = sharedPreferences.getBoolean("reminder_enabled", false);
         onReminderSettingChanged(reminderEnabled);
@@ -242,7 +274,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
         loadEmergencyContacts();
-        //checkAndScheduleReminder();
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
@@ -311,9 +342,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MenuTrigger = findViewById(R.id.menu_trigger);
         MenuTrigger = findViewById(R.id.menu_trigger);
         MenuTrigger.setOnClickListener(v -> {
-            // Reset the flag at the beginning of each click
             isSettingsOpened = false;
-
             PopupMenu popupMenu = new PopupMenu(MainActivity.this, v);
             popupMenu.getMenuInflater().inflate(R.menu.overflow_menu, popupMenu.getMenu());
 
@@ -348,7 +377,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             });
 
             popupMenu.show();
-            // Keep the overlay logic for when the popup itself is shown
             if (overlayView.getVisibility() == View.GONE) {
                 setStatusBarColor(R.color.status_bar_overlay_dark);
                 overlayView.setVisibility(View.VISIBLE);
@@ -403,7 +431,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             List<String> notifications = gson.fromJson(json, type);
 
             clearNotificationsButton.setOnClickListener(v -> {
-                if (notifications.isEmpty()){
+                if (emptyNotificationsTextView.getVisibility() == View.VISIBLE){
                     Toast.makeText(this, "No Notifications to clear", Toast.LENGTH_SHORT).show();
                 }else {
                     new AlertDialog.Builder(this)
@@ -431,8 +459,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         saveFragmentHistory();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        NotificationManagerCompat.from(this).cancelAll();
+        Log.d(TAG, "All notifications cleared on app resume.");
+        updateRecentlySentNotificationsDisplay();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(notificationUpdateReceiver);
+    }
+
     private void loadFragmentHistory(){
         SharedPreferences sharedPreferences = getSharedPreferences(PREFS_RECENTLY_VISITED,Context.MODE_PRIVATE);
+        // CORRECTED: Use KEY_RECENTLY_VISITED to load fragment history
         String json = sharedPreferences.getString(KEY_RECENTLY_VISITED,null);
         fragmentHistoryMap = new LinkedHashMap<>();
 
@@ -499,7 +542,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     chip.setOnClickListener(v ->{
                         int clickedNavId = (int) v.getTag();
                         if (clickedNavId == R.id.nav_coping_exercises || clickedNavId == R.id.nav_journal_entries || clickedNavId == R.id.nav_mood_checkin || clickedNavId == R.id.nav_saved_strategies){
-                        loadFragmentFromChip(clickedNavId);
+                            loadFragmentFromChip(clickedNavId);
                         } else if (clickedNavId == R.id.nav_emergency_contacts) {
                             loadContacts();
                             drawerLayout.closeDrawer(GravityCompat.START);
@@ -669,7 +712,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .setTitle("Exit Canvas")
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setMessage("Are you sure you want to exit without saving ?")
-                    .setPositiveButton("Yes", (dialog, which) -> finish())
+                    .setPositiveButton("Yes", (dialog, which) ->getSupportFragmentManager().popBackStack())
                     .setNegativeButton("No", (dialog, which) -> {
                         dialog.dismiss();
                     })
@@ -706,28 +749,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Fragment targetFragment = null;
         String toolbarTitle = "";
         boolean shouldLoadFragment = false;
-        FragmentHistoryItem historyItemToAdd = null; // Declare here
+        FragmentHistoryItem historyItemToAdd = null;
 
         if (bottomSheetBehavior != null && bottomSheetBehavior.getState() == STATE_EXPANDED) {
             bottomSheetBehavior.setState(STATE_HIDDEN);
             clearBottomFragment();
         }
 
-        // Determine the target fragment and title, and create history item
         if (id == R.id.nav_home) {
             toolbarTitle = "Heal";
-            if (!(currentFragment instanceof HomeFragment)) {
+            if (!(currentFragment instanceof HomeFragment) && !(currentFragment instanceof DrawingCanvasFragment)) {
                 targetFragment = new HomeFragment();
                 MenuTrigger.setVisibility(View.VISIBLE);
                 Fab.setVisibility(View.VISIBLE);
                 shakeView(Fab);
                 shouldLoadFragment = true;
             }
-            //historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
         } else if (id == R.id.nav_records) {
             toolbarTitle = "Data Records";
             if (!(currentFragment instanceof RecordFragment)) {
-                // Pop back stack if navigating from a nested records fragment
                 if (currentFragment instanceof EmergencyContactsFragment || currentFragment instanceof CopingExercisesFragment ||
                         currentFragment instanceof JournalEntriesFragment || currentFragment instanceof MoodCheckinFragment ||
                         currentFragment instanceof SavedStrategiesFragment) {
@@ -742,9 +782,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
         } else if (id == R.id.nav_gallery) {
-            toolbarTitle = "Art Corner";
-            if (!(currentFragment instanceof ArtCornerFragment)) {
+            if (!(currentFragment instanceof ArtCornerFragment) && !(currentFragment instanceof DrawingCanvasFragment)) {
                 targetFragment = new ArtCornerFragment();
+                toolbarTitle = "Art Corner";
                 MenuTrigger.setVisibility(View.VISIBLE);
                 Fab.setVisibility(View.VISIBLE);
                 shakeView(Fab);
@@ -752,9 +792,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
         } else if (id == R.id.nav_ai) {
-            toolbarTitle = "Xavier"; // Assuming this is the title for AIFragment
             if (!(currentFragment instanceof AIFragment)) {
                 targetFragment = new AIFragment();
+                toolbarTitle = "Xavier";
                 invertShakeView(Fab);
                 MenuTrigger.setVisibility(View.GONE);
                 bottomSheetBehavior.setState(STATE_HIDDEN);
@@ -764,8 +804,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
         } else if (id == R.id.nav_send) {
-            toolbarTitle = "Heal"; // This might be a temporary title before popup
-            if (!(currentFragment instanceof HomeFragment)) {
+            toolbarTitle = "Heal";
+            if (!(currentFragment instanceof HomeFragment) && !(currentFragment instanceof DrawingCanvasFragment)) {
                 targetFragment = new HomeFragment();
                 shouldLoadFragment = true;
                 Handler handler = new Handler(Looper.getMainLooper());
@@ -773,10 +813,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } else {
                 showSendPopup();
             }
-            // For send/share, don't add to history if it's just showing a popup/action
-            // If it always loads HomeFragment first, then Home will be added, which is fine.
         } else if (id == R.id.nav_share) {
-            toolbarTitle = "Heal"; // This might be a temporary title before share action
+            toolbarTitle = "Heal";
             if (!(currentFragment instanceof HomeFragment)) {
                 targetFragment = new HomeFragment();
                 shouldLoadFragment = true;
@@ -784,38 +822,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String myAppLink = "https://play.google.com/store/apps/details?id=com.example.myapp";
             String shareMessage = "Check out this awesome app!";
             Share(myAppLink, shareMessage);
-            // Don't add to history for share action
         }
 
         if (shouldLoadFragment && targetFragment != null) {
             loadFragment(targetFragment, id);
         }
 
-        // Add to history AFTER fragment loading logic, but only if it's a "trackable" fragment
         if (historyItemToAdd != null) {
-            // CORRECTED LINE: Pass navId and title separately
             addFragmentToHistory(historyItemToAdd.navId, historyItemToAdd.title);
         }
 
-
         toolbar.setTitle(toolbarTitle);
-//        if (previousMenuItem != item) {
-//            if (previousItemView != null) {
-//                previousItemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-//            }
-//            previousMenuItem = item;
-//            previousItemView = currentItemView;
-//
-//            if (previousItemView != null && id != R.id.nav_send && id != R.id.nav_share) {
-//                // Highlight the newly selected item, but not send/share
-//                currentItemView.setBackgroundColor(getResources().getColor(R.color.orange));
-//            }
-//        } else {
-//            // If re-selecting the same item, ensure it's still highlighted (unless it's send/share)
-//            if (currentItemView != null && id != R.id.nav_send && id != R.id.nav_share) {
-//                currentItemView.setBackgroundColor(getResources().getColor(R.color.orange));
-//            }
-//        }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -985,7 +1002,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             bottomSheetBehavior.setState(STATE_HIDDEN);
             overlayView.setVisibility(View.GONE);
             setStatusBarColor(R.color.transparent);
-            if (Fab.getVisibility() == View.GONE){
+            if (Fab != null && Fab.getVisibility() == View.GONE){
                 Fab.setVisibility(View.VISIBLE);
                 shakeView(Fab);
             }
@@ -994,64 +1011,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Log.d(TAG, "closeSettings: Bottom sheet is not expanded. No action needed.");
         }
     }
-//    private void createNotificationChannel() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            String name = "Reminder Notifications";
-//            String description = "Daily reminders for your well-being,you are important and you should take care of yourself";
-//            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-//            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-//            channel.setDescription(description);
-//            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-//            notificationManager.createNotificationChannel(channel);
-//        }
-//    }
-//    private void scheduleReminderNotification() {
-//        createNotificationChannel();
-//
-//        Intent notificationIntent = new Intent(this, ReminderBroadcastReceiver.class);
-//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, REMINDER_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-//
-//        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-//
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.set(Calendar.HOUR_OF_DAY, 11);
-//        calendar.set(Calendar.MINUTE, 25);
-//        calendar.set(Calendar.SECOND, 0);
-//
-//        if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
-//            calendar.add(Calendar.DAY_OF_YEAR, 1);
-//        }
-//
-//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), REPEAT_INTERVAL, pendingIntent);
-//    }
-//    private void cancelReminderNotification() {
-//        Intent notificationIntent = new Intent(this, ReminderBroadcastReceiver.class);
-//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, REMINDER_REQUEST_CODE, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-//
-//        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-//        alarmManager.cancel(pendingIntent);
-//    }
-//    private boolean getSavedReminderState() {
-//        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-//        return sharedPreferences.getBoolean("reminder_enabled", false);
-//    }
-//    private void checkAndScheduleReminder() {
-//        if (getSavedReminderState()) {
-//            scheduleReminderNotification();
-//        } else {
-//            cancelReminderNotification();
-//        }
-//    }
 
     public void scheduleReminder(){
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, ReminderBroadcastReceiver.class);
+        intent.setAction("com.example.heal.REMINDER_ALARM");
 
         int[][] reminderTimes = {
-                {7, 0, REMINDER_NOTIFICATION_ID_7AM},   // 7:00 AM
-                {11, 0, REMINDER_NOTIFICATION_ID_11AM},  // 11:00 AM
-                {18, 0, REMINDER_NOTIFICATION_ID_6PM},  // 6:00 PM
-                {21, 0, REMINDER_NOTIFICATION_ID_9PM}   // 9:00 PM
+                {7, 0, REMINDER_NOTIFICATION_ID_7AM},
+                {11, 0, REMINDER_NOTIFICATION_ID_11AM},
+                {18, 0, REMINDER_NOTIFICATION_ID_6PM},
+                {21, 0, REMINDER_NOTIFICATION_ID_9PM}
         };
 
         for (int[] times : reminderTimes) {
@@ -1066,7 +1036,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             calendar.set(Calendar.SECOND, 0);
 
             if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
-             calendar.add(Calendar.DAY_OF_YEAR, 1);
+                calendar.add(Calendar.DAY_OF_YEAR, 1);
             }
 
             PendingIntent pendingIntent = PendingIntent.getBroadcast(this,requestCode,intent,PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
@@ -1082,6 +1052,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void cancelAllReminders(){
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, ReminderBroadcastReceiver.class);
+        intent.setAction("com.example.heal.REMINDER_ALARM");
 
         int[] requestCodes = {
                 REMINDER_NOTIFICATION_ID_7AM,
@@ -1126,7 +1097,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         String timeStamp = android.text.format.DateFormat.format("MMM dd, hh:mm a", System.currentTimeMillis()).toString();
-        notifications.add(timeStamp + " : " + message);
+        notifications.add(0, timeStamp + " : " + message);
 
         while (notifications.size() > 5){
             notifications.remove(notifications.size() -1);
@@ -1135,62 +1106,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(KEY_RECENT_NOTIFICATIONS, gson.toJson(notifications));
         editor.apply();
-        updateRecentlySentNotificationsDisplay();
     }
+
     public void updateRecentlySentNotificationsDisplay(){
-        if (recentlySentNotificationsContainer == null || emptyNotificationsTextView == null) {
-            Log.e(TAG, "Notification display containers are null.");
+        if (recyclerViewNotifications == null || emptyNotificationsTextView == null) {
+            Log.e(TAG, "Notification display RecyclerView or TextView are null.");
             return;
         }
-        recentlySentNotificationsContainer.removeAllViews();
+
         SharedPreferences prefs = getSharedPreferences(PREFS_NOTIFICATIONS, Context.MODE_PRIVATE);
         Gson gson = new Gson();
         String json = prefs.getString(KEY_RECENT_NOTIFICATIONS, "[]");
         Type type = new TypeToken<List<String>>() {}.getType();
         List<String> notifications = gson.fromJson(json, type);
 
-        if (notifications == null || notifications.isEmpty()){
-            recentlySentNotificationsScrollView.setVisibility(View.GONE);
-            recentlySentNotificationsContainer.setVisibility(View.GONE);
+        if (notifications == null) {
+            notifications = new ArrayList<>();
+        }
+
+        if (notifications.isEmpty()){
+            recyclerViewNotifications.setVisibility(View.GONE);
             emptyNotificationsTextView.setVisibility(View.VISIBLE);
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
             boolean reminderEnabled = sharedPreferences.getBoolean("reminder_enabled", false);
             if (reminderEnabled) {
-               emptyNotificationsTextView.setText("No Notifications Sent Yet");
+                emptyNotificationsTextView.setText("No Notifications Sent Yet");
             } else {
                 emptyNotificationsTextView.setText("Enable Notifications In Settings To Recieve Notifications");
             }
         }else {
-            recentlySentNotificationsScrollView.setVisibility(View.VISIBLE);
+            recyclerViewNotifications.setVisibility(View.VISIBLE);
             emptyNotificationsTextView.setVisibility(View.GONE);
-            recentlySentNotificationsContainer.setVisibility(View.VISIBLE);
-            for (String notification : notifications){
-                TextView tv = new TextView(this);
-                tv.setLayoutParams(new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                ));
-                tv.setPadding(16, 16, 16, 16);
-                String before = "• " + notification;
-                tv.setText(before);
-                tv.setTextColor(ContextCompat.getColor(this, R.color.black)); // Use your color resource
-                tv.setTextSize(14);
-                int margin = (int) getResources().getDimension(R.dimen.default_margin_small); // Define this in dimens.xml
-                ((LinearLayout.LayoutParams) tv.getLayoutParams()).setMargins(
-                        (int) getResources().getDimension(R.dimen.activity_horizontal_margin), // Left margin
-                        (int) getResources().getDimension(R.dimen.default_margin_extra_small), // Top margin
-                        (int) getResources().getDimension(R.dimen.activity_horizontal_margin), // Right margin
-                        (int) getResources().getDimension(R.dimen.default_margin_extra_small) // Bottom margin
-                );
-                recentlySentNotificationsContainer.addView(tv);
-            }
+            notificationAdapter.updateData(notifications);
         }
-    }
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Update display when returning to MainActivity (e.g., drawer is opened again)
-        updateRecentlySentNotificationsDisplay();
     }
 
     public void loadBottomSettingsFragment() {
@@ -1226,8 +1174,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (Fab != null && Fab.getVisibility() != View.GONE) {
             float startTranslationY = getResources().getDimensionPixelSize(R.dimen.fab_slide_up_distance);
             ObjectAnimator slideUp = ObjectAnimator.ofFloat(view, "translationY", startTranslationY, 0f);
-            slideUp.setDuration(400); // Adjust duration for desired slowness
-            slideUp.setInterpolator(new AccelerateDecelerateInterpolator()); // Smooth acceleration/deceleration
+            slideUp.setDuration(400);
+            slideUp.setInterpolator(new AccelerateDecelerateInterpolator());
 
             AnimatorSet animatorSet = new AnimatorSet();
             animatorSet.play(slideUp);
@@ -1255,7 +1203,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
     private void showWelcomeDialogStep(int step) {
-        // Basic bounds check
         if (step < 0 || step >= WelcomeMessages.length) {
             Log.w(TAG, "showWelcomeDialogStep: Step " + step + " is out of bounds.");
             return;
@@ -1309,5 +1256,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onDrawingSaved(String imageUri, String artworkName) {
 
     }
-
 }

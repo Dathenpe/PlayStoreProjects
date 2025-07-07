@@ -1,4 +1,4 @@
-package com.example.heal;
+package com.f9ld3.heal;
 
 import android.content.Context;
 

@@ -8,7 +8,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.heal.R;
+import com.f9ld3.heal.R;
 
 import java.util.List;
 

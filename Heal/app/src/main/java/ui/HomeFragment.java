@@ -36,8 +36,8 @@ import androidx.preference.PreferenceManager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.example.heal.MainActivity;
-import com.example.heal.R;
+import com.f9ld3.heal.MainActivity;
+import com.f9ld3.heal.R;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;

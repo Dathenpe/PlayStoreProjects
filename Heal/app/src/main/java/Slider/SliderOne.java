@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.heal.R; // Replace with your actual R class path
+import com.f9ld3.heal.R; // Replace with your actual R class path
 
 public class SliderOne extends Fragment {
 

@@ -19,7 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment; // Import Fragment
 
-import com.example.heal.R;
+import com.f9ld3.heal.R;
 import com.google.android.material.textfield.TextInputEditText;
 
 import ui.HomeFragment; // Import HomeFragment for JournalEntry

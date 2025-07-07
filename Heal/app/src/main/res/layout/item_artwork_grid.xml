@@ -4,44 +4,50 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+    app:strokeColor="?attr/colorOutline"
+    app:strokeWidth="1dp">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:orientation="vertical"
+        android:padding="12dp">
 
         <ImageView
             android:id="@+id/imageViewArtwork"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:scaleType="centerCrop"
+            android:layout_height="160dp"
+            android:background="?attr/colorSurfaceContainer"
+            android:backgroundTint="?attr/colorSurfaceContainerLow"
+            android:clipToOutline="true"
             android:contentDescription="Artwork thumbnail"
-            android:background="?attr/colorSurfaceContainer" />
+            android:scaleType="centerCrop"
+            android:src="@drawable/abstract_1" /> <!-- Add a placeholder drawable for empty state -->
 
         <TextView
             android:id="@+id/textViewArtworkName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/imageViewArtwork"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="8dp"
             android:gravity="center"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textAppearance="?attr/textAppearanceTitleSmall"
             android:textColor="?attr/colorOnSurface"
-            android:text="Artwork Name"
+            android:text="Beautiful Abstract Art Piece"
             android:maxLines="1"
-            android:ellipsize="end"/>
+            android:ellipsize="end" />
 
         <TextView
             android:id="@+id/textViewArtworkTimestamp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/textViewArtworkName"
+            android:layout_marginTop="4dp"
             android:gravity="center"
-            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
             android:textColor="?attr/colorOnSurfaceVariant"
-            android:text="Timestamp" />
+            android:text="July 7, 2025 - 1:30 PM" />
 
-    </RelativeLayout>
+    </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

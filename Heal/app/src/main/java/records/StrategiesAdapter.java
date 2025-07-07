@@ -9,7 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.heal.R; // Adjust your package name
+import com.f9ld3.heal.R; // Adjust your package name
 
 import java.util.List;
 

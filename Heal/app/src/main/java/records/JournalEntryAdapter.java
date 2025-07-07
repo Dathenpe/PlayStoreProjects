@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.heal.R;
+import com.f9ld3.heal.R;
 import java.util.List;
 
 import ui.HomeFragment; // Import your HomeFragment to access the JournalEntry inner class

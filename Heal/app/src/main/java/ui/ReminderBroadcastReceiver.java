@@ -11,10 +11,11 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager; // Import LocalBroadcastManager
 import androidx.preference.PreferenceManager;
 
-import com.example.heal.MainActivity;
-import com.example.heal.R;
+import com.f9ld3.heal.MainActivity;
+import com.f9ld3.heal.R;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -27,6 +28,7 @@ import java.util.Random;
 public class ReminderBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = "ReminderReceiver";
+    public static final String ACTION_NOTIFICATION_RECEIVED = "com.example.heal.NOTIFICATION_RECEIVED"; // Custom action for local broadcast
 
     private static final String[] REMINDER_MESSAGES = {
             "It's time for your daily mood check-in!",
@@ -84,21 +86,41 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "ReminderBroadcastReceiver onReceive called.");
+        Log.d(TAG, "ReminderBroadcastReceiver onReceive called. Action: " + intent.getAction());
+
+        // Re-schedule alarms if device booted or package replaced
+        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction()) || Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) {
+            Log.d(TAG, "Device booted or package replaced. Re-scheduling reminders.");
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+            boolean reminderEnabled = sharedPreferences.getBoolean("reminder_enabled", false);
+            if (reminderEnabled) {
+                // To re-schedule alarms after boot/package replaced, we need to ensure MainActivity's
+                // scheduleReminder method is called. Since we cannot directly call Activity methods
+                // from a BroadcastReceiver if the Activity is not running, we rely on MainActivity's
+                // onCreate/onResume to re-schedule.
+                // For a truly robust solution that doesn't rely on the Activity being launched,
+                // you would typically use WorkManager or a dedicated Service to re-schedule.
+                // For now, we'll assume MainActivity's lifecycle handles it.
+                Log.d(TAG, "Boot/Package Replaced: Reminder setting is " + reminderEnabled + ". MainActivity will re-schedule on launch.");
+                // Optionally, you could start MainActivity here if it's critical for scheduling
+                // Intent launchMainActivity = new Intent(context, MainActivity.class);
+                // launchMainActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                // context.startActivity(launchMainActivity);
+            }
+            return; // Exit as we've handled boot/package replaced
+        }
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean reminderEnabled = sharedPreferences.getBoolean("reminder_enabled", false);
         Log.d(TAG, "Reminder enabled setting: " + reminderEnabled);
 
-        // Check if a mood check-in has been done today
-        SharedPreferences appPrefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE); // Using a general app_prefs for cross-fragment data
+        SharedPreferences appPrefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE);
         long lastMoodCheckinDateMillis = appPrefs.getLong(MainActivity.KEY_LAST_MOOD_CHECKIN_DATE, 0);
 
         Calendar lastCheckinCalendar = Calendar.getInstance();
         lastCheckinCalendar.setTimeInMillis(lastMoodCheckinDateMillis);
 
         Calendar todayCalendar = Calendar.getInstance();
-        // Reset time to start of day for comparison
         todayCalendar.set(Calendar.HOUR_OF_DAY, 0);
         todayCalendar.set(Calendar.MINUTE, 0);
         todayCalendar.set(Calendar.SECOND, 0);
@@ -114,64 +136,58 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
         Log.d(TAG, "Last mood check-in: " + (lastMoodCheckinDateMillis > 0 ? new java.util.Date(lastMoodCheckinDateMillis).toString() : "Never"));
         Log.d(TAG, "Has checked in today: " + hasCheckedInToday);
 
-        // Only send if reminder is enabled and no check-in today
         if (reminderEnabled && !hasCheckedInToday) {
-            // Create an Intent to launch MainActivity when the notification is clicked
             Intent launchIntent = new Intent(context, MainActivity.class);
             launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            // Optional: add data to the intent if you want to navigate to a specific fragment
-            // launchIntent.putExtra("fragment_to_load", "MoodCheckinFragment");
 
             PendingIntent pendingIntent = PendingIntent.getActivity(
                     context,
-                    0, // Request code, use 0 or a unique one if you have multiple launch points
+                    0,
                     launchIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE // Use FLAG_IMMUTABLE
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
             );
 
             Random random = new Random();
             String notificationMessage = REMINDER_MESSAGES[random.nextInt(REMINDER_MESSAGES.length)];
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "reminder_channel")
-                    .setSmallIcon(R.drawable.heal) // Replace with your notification icon setSmallIcon() takes a monochrome vector drawable (Android 5.0+). The system tints it white.
-                        //make a fist vector drawable,(xml)
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, MainActivity.REMINDER_CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_logo_mono) // Ensure this drawable exists and is monochrome
                     .setContentTitle("Heal: Daily Check-in")
                     .setContentText(notificationMessage)
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                    .setContentIntent(pendingIntent) // Set the PendingIntent to make it clickable
-                    .setAutoCancel(true); // Automatically closes the notification when tapped
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true);
 
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
             if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU ||
                     ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-                int notificationId = (int) System.currentTimeMillis(); // Use a unique ID for each notification
+                int notificationId = (int) System.currentTimeMillis();
                 notificationManager.notify(notificationId, builder.build());
                 Log.d(TAG, "Notification sent with ID: " + notificationId);
 
-                // Save this notification to recently sent list
-                if (context instanceof MainActivity) {
-                    ((MainActivity) context).addSentNotification(notificationMessage);
-                } else {
-                    // If context is not MainActivity (e.g., when app is closed), we need a different way to save.
-                    // A simpler way for this example: directly use SharedPreferences.
-                    SharedPreferences prefs = context.getSharedPreferences(MainActivity.PREFS_NOTIFICATIONS, Context.MODE_PRIVATE);
-                    Gson gson = new Gson();
-                    String json = prefs.getString(MainActivity.KEY_RECENT_NOTIFICATIONS, "[]");
-                    Type type = new TypeToken<List<String>>() {}.getType();
-                    List<String> notifications = gson.fromJson(json, type);
+                // ALWAYS save notification to SharedPreferences directly from here
+                SharedPreferences prefs = context.getSharedPreferences(MainActivity.PREFS_NOTIFICATIONS, Context.MODE_PRIVATE);
+                Gson gson = new Gson();
+                String json = prefs.getString(MainActivity.KEY_RECENT_NOTIFICATIONS, "[]");
+                Type type = new TypeToken<List<String>>() {}.getType();
+                List<String> notifications = gson.fromJson(json, type);
 
-                    if (notifications == null) {
-                        notifications = new ArrayList<>();
-                    }
-                    String timestamp = android.text.format.DateFormat.format("MMM dd, hh:mm a", System.currentTimeMillis()).toString();
-                    notifications.add(0, timestamp + ": " + notificationMessage);
-                    while (notifications.size() > 5) {
-                        notifications.remove(notifications.size() - 1);
-                    }
-                    prefs.edit().putString(MainActivity.KEY_RECENT_NOTIFICATIONS, gson.toJson(notifications)).apply();
-                    Log.d(TAG, "Notification saved to shared preferences.");
+                if (notifications == null) {
+                    notifications = new ArrayList<>();
                 }
+                String timestamp = android.text.format.DateFormat.format("MMM dd, hh:mm a", System.currentTimeMillis()).toString();
+                notifications.add(0, timestamp + ": " + notificationMessage);
+                while (notifications.size() > 5) {
+                    notifications.remove(notifications.size() - 1);
+                }
+                prefs.edit().putString(MainActivity.KEY_RECENT_NOTIFICATIONS, gson.toJson(notifications)).apply();
+                Log.d(TAG, "Notification saved to shared preferences.");
+
+                // Send a local broadcast to notify MainActivity to update its UI
+                Intent localBroadcastIntent = new Intent(ACTION_NOTIFICATION_RECEIVED);
+                LocalBroadcastManager.getInstance(context).sendBroadcast(localBroadcastIntent);
+                Log.d(TAG, "Local broadcast sent: " + ACTION_NOTIFICATION_RECEIVED);
 
             } else {
                 Log.w(TAG, "Notification permission not granted, cannot show notification.");

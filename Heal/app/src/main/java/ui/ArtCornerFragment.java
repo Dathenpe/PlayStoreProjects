@@ -29,8 +29,8 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
-import com.example.heal.MainActivity;
-import com.example.heal.R;
+import com.f9ld3.heal.MainActivity;
+import com.f9ld3.heal.R;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -43,7 +43,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import records.DrawingCanvasFragment;
+import drawing.DrawingCanvasFragment;
 import viewmodels.GeneralViewModel;
 
 public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment.OnDrawingSavedListener {
@@ -63,6 +63,7 @@ public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment
     private static final String PREFS_ARTWORK = "artwork_prefs";
     private static final String KEY_ARTWORK_ENTRIES = "artwork_entries";
     private Gson gson = new Gson();
+
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -91,7 +92,7 @@ public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment
         }
 
         ProgressBar loadingProgressBar = view.findViewById(R.id.loading_progress_bar);
-        View galleryScrollView = view.findViewById(R.id.gallery_scroll_view);
+        View galleryScrollView = view.findViewById(R.id.art_corner_coordinator_layout);
 
         GeneralViewModel viewModel = new ViewModelProvider(this).get(GeneralViewModel.class);
 
@@ -306,6 +307,7 @@ public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment
 
         new AlertDialog.Builder(getContext())
                 .setTitle("Delete Artwork")
+                .setIcon(android.R.drawable.ic_dialog_alert)
                 .setMessage("Are you sure you want to delete '" + entry.getArtworkName() + "'? This action cannot be undone.")
                 .setPositiveButton("Delete", (dialog, which) -> deleteArtwork(entry))
                 .setNegativeButton("Cancel", null)
