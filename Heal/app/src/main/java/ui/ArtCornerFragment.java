@@ -9,11 +9,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.DisplayMetrics; // Import DisplayMetrics
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,13 +38,16 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import drawing.DrawingCanvasFragment;
 import viewmodels.GeneralViewModel;
@@ -118,6 +124,11 @@ public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment
 
         buttonNewCanvas.setOnClickListener(v -> {
             DrawingCanvasFragment drawingCanvasFragment = new DrawingCanvasFragment();
+            // Pass existing artwork names to the drawing fragment for unique name generation
+            Bundle args = new Bundle();
+            args.putSerializable("existingArtworkNames", (Serializable) getExistingArtworkNames());
+            drawingCanvasFragment.setArguments(args);
+
             // Set this fragment as the target fragment for the DrawingCanvasFragment
             // This is how DrawingCanvasFragment will call onDrawingSaved on this fragment
             drawingCanvasFragment.setTargetFragment(this, 0);
@@ -129,6 +140,19 @@ public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment
 
         loadArtwork(); // Initial load of artwork
         updateEmptyStateVisibility();
+    }
+
+    /**
+     * Retrieves a set of all current artwork names.
+     * This is used by DrawingCanvasFragment to generate unique names.
+     * @return A Set of strings, each representing an artwork name.
+     */
+    private Set<String> getExistingArtworkNames() {
+        Set<String> names = new HashSet<>();
+        for (ArtworkEntry entry : artworkList) {
+            names.add(entry.getArtworkName());
+        }
+        return names;
     }
 
     private void updateEmptyStateVisibility() {
@@ -226,7 +250,8 @@ public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment
     private void showArtworkDetailsDialog(ArtworkEntry entry) {
         if (getContext() == null) return;
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        // Use the custom TransparentDialog style for the AlertDialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.TransparentDialog);
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_artwork_view, null); // Use the custom layout
         builder.setView(dialogView);
@@ -267,6 +292,31 @@ public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment
 
         AlertDialog dialog = builder.create();
 
+        // Set the dialog window's width to account for padding
+        Window window = dialog.getWindow();
+        if (window != null && getContext() != null) {
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(window.getAttributes());
+
+            // Get screen width
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            if (getActivity() != null) {
+                getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            } else {
+                displayMetrics.widthPixels = getResources().getDisplayMetrics().widthPixels;
+            }
+            // Set dialog width to MATCH_PARENT, letting the XML layout's padding handle the margins
+            layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+
+            // Ensure no extra margins are applied by the window itself
+            layoutParams.horizontalMargin = 0;
+
+            window.setAttributes(layoutParams);
+            // Ensure the background is transparent so the rounded corners of the card are visible
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
         buttonEdit.setOnClickListener(v -> {
             dialog.dismiss();
             editArtwork(entry);
@@ -289,6 +339,8 @@ public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment
         Bundle args = new Bundle();
         args.putString("imageUriToLoad", entry.getImageUri()); // Pass the URI to load
         args.putString("artworkNameToLoad", entry.getArtworkName()); // Pass the name to load
+        // Pass existing artwork names to the drawing fragment for unique name generation
+        args.putSerializable("existingArtworkNames", (Serializable) getExistingArtworkNames());
         drawingCanvasFragment.setArguments(args);
         drawingCanvasFragment.setTargetFragment(this, 0); // Still use setTargetFragment for callback
 
@@ -367,7 +419,7 @@ public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment
         loadArtwork(); // Reload artwork to ensure the list is up-to-date when returning to fragment
     }
 
-    public static class ArtworkEntry implements java.io.Serializable {
+    public static class ArtworkEntry implements Serializable { // Make ArtworkEntry Serializable
         private String imageUri;
         private String timestamp;
         private long creationTimestampMillis;

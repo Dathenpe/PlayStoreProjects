@@ -34,7 +34,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 public class DrawingCanvasFragment extends Fragment {
 
@@ -58,6 +60,9 @@ public class DrawingCanvasFragment extends Fragment {
     // Variables to hold the loaded artwork URI and name if editing
     private String loadedImageUri = null;
     private String loadedArtworkName = null;
+
+    // Set to hold existing artwork names, passed from ArtCornerFragment
+    private Set<String> existingArtworkNames = new HashSet<>();
 
     public interface OnDrawingSavedListener {
         void onDrawingSaved(String imageUri, String artworkName);
@@ -122,11 +127,19 @@ public class DrawingCanvasFragment extends Fragment {
         brushSizeSeekBar = view.findViewById(R.id.brushSizeSeekBar);
         brushSizeTextView = view.findViewById(R.id.brushSizeTextView);
 
-        // Check for arguments (if editing an existing artwork)
+        // Check for arguments (if editing an existing artwork or receiving existing names)
         Bundle args = getArguments();
         if (args != null) {
             loadedImageUri = args.getString("imageUriToLoad");
             loadedArtworkName = args.getString("artworkNameToLoad");
+            // Retrieve the set of existing artwork names
+            if (args.containsKey("existingArtworkNames")) {
+                existingArtworkNames = (Set<String>) args.getSerializable("existingArtworkNames");
+                if (existingArtworkNames == null) {
+                    existingArtworkNames = new HashSet<>();
+                }
+            }
+
             if (loadedImageUri != null) {
                 mainActivity.toolbar.setTitle("Editing Artwork");
                 loadArtworkForEditing(loadedImageUri);
@@ -344,8 +357,15 @@ public class DrawingCanvasFragment extends Fragment {
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         input.setLayoutParams(lp);
         input.setHint("Enter artwork name");
-        // Set the loaded artwork name as default if editing, otherwise "My Artwork"
-        input.setText(loadedArtworkName != null ? loadedArtworkName : "My Artwork");
+
+        String defaultArtworkName;
+        if (loadedArtworkName != null) {
+            defaultArtworkName = loadedArtworkName; // If editing, use the existing name
+        } else {
+            // For new artwork, generate a unique name
+            defaultArtworkName = getUniqueArtworkName("My Artwork", existingArtworkNames);
+        }
+        input.setText(defaultArtworkName);
         input.setSingleLine(true);
         input.setPadding(paddingPx, paddingPx, paddingPx, paddingPx); // Apply padding directly to EditText
 
@@ -360,10 +380,39 @@ public class DrawingCanvasFragment extends Fragment {
             if (artworkName.isEmpty()) {
                 artworkName = "My Artwork"; // Fallback to default if user clears it
             }
+            // If it's a new artwork and the user didn't change the default, ensure it's still unique
+            if (loadedImageUri == null) {
+                artworkName = getUniqueArtworkName(artworkName, existingArtworkNames);
+            }
             performSave(bitmapToSave, artworkName);
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
         builder.show();
+    }
+
+    /**
+     * Generates a unique artwork name by appending a number if the base name already exists.
+     * For example, if "My Artwork" exists, it returns "My Artwork (2)".
+     *
+     * @param baseName The desired base name (e.g., "My Artwork").
+     * @param existingNames A set of names that already exist.
+     * @return A unique artwork name.
+     */
+    private String getUniqueArtworkName(String baseName, Set<String> existingNames) {
+        String uniqueName = baseName;
+        int counter = 1;
+        // If we are editing, the loadedArtworkName should be excluded from the existingNames check
+        // to allow saving with the same name if no other artwork shares it.
+        Set<String> namesToCheck = new HashSet<>(existingNames);
+        if (loadedArtworkName != null) {
+            namesToCheck.remove(loadedArtworkName);
+        }
+
+        while (namesToCheck.contains(uniqueName)) {
+            counter++;
+            uniqueName = baseName + " (" + counter + ")";
+        }
+        return uniqueName;
     }
 
     /**
@@ -409,6 +458,7 @@ public class DrawingCanvasFragment extends Fragment {
             // If new artwork, create a new file
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
             // Sanitize artworkName to be safe for filenames (replace non-alphanumeric/dot/hyphen with underscore)
+            // The artworkName here is already unique for display, but file names need to be safe.
             String sanitizedArtworkName = artworkName.replaceAll("[^a-zA-Z0-9.\\-]", "_");
             filename = sanitizedArtworkName + "_" + sdf.format(new Date()) + ".png";
             File newFile = new File(picturesDir, filename);

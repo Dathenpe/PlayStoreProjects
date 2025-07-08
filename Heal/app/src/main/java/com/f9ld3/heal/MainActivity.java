@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.provider.Settings;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
@@ -80,9 +81,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import drawing.DrawingCanvasFragment;
 import records.AddEditContactDialogFragment;
 import records.CopingExercisesFragment;
-import drawing.DrawingCanvasFragment;
 import records.EmergencyContact;
 import records.EmergencyContactsFragment;
 import records.JournalEntriesFragment;
@@ -186,10 +187,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NotificationAdapter notificationAdapter;
     private TextView emptyNotificationsTextView;
     public static final String REMINDER_CHANNEL_ID = "reminder_channel";
-    private static final int REMINDER_NOTIFICATION_ID_7AM = 100;
-    private static final int REMINDER_NOTIFICATION_ID_11AM = 101;
-    private static final int REMINDER_NOTIFICATION_ID_6PM = 102;
-    private static final int REMINDER_NOTIFICATION_ID_9PM = 103;
+    public static final int REMINDER_NOTIFICATION_ID_7AM = 100;
+    public static final int REMINDER_NOTIFICATION_ID_11AM = 101;
+    public static final int REMINDER_NOTIFICATION_ID_6PM = 102;
+    public static final int REMINDER_NOTIFICATION_ID_9PM = 103;
 
     public static final String PREFS_NOTIFICATIONS = "notifications_prefs";
     public static final String KEY_RECENT_NOTIFICATIONS = "recent_notifications";
@@ -738,6 +739,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+        // Check if the user is on the drawing canvas
+        if (currentFragment instanceof DrawingCanvasFragment) {
+            drawerLayout.closeDrawer(GravityCompat.START); // Close the drawer immediately
+
+            // Show a confirmation dialog before navigating away
+            new AlertDialog.Builder(this)
+                    .setTitle("Exit Canvas")
+                    .setMessage("Are you sure you want to leave without saving? Your changes will be lost.")
+                    .setPositiveButton("Leave", (dialog, which) -> {
+                        // User chose to leave. Now, perform the navigation.
+                        // We pop the back stack to exit the canvas, then navigate to the new fragment.
+                        getSupportFragmentManager().popBackStack();
+                        performNavigation(item); // Call a helper to handle the actual navigation
+                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> {
+                        // User chose to stay.
+                        // Un-check the item they just clicked in the drawer to reflect that navigation was cancelled.
+                        navigationView.setCheckedItem(R.id.nav_gallery);
+                    })
+                    .setOnCancelListener(dialog -> {
+                        // Also handle if the user taps outside the dialog
+                        navigationView.setCheckedItem(R.id.nav_gallery);
+                    })
+                    .show();
+
+            return true; // The event is handled by showing the dialog
+        }
+
+        // If not on the canvas, proceed with navigation as normal
+        performNavigation(item);
+        return true;
+    }
+
+    /**
+     * Helper method containing the original navigation logic to avoid code duplication.
+     */
+    private void performNavigation(MenuItem item){
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         int id = item.getItemId();
         View currentItemView = navigationView.findViewById(id);
 
@@ -745,7 +786,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             previousItemView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
         }
 
-        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         Fragment targetFragment = null;
         String toolbarTitle = "";
         boolean shouldLoadFragment = false;
@@ -758,7 +798,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.nav_home) {
             toolbarTitle = "Heal";
-            if (!(currentFragment instanceof HomeFragment) && !(currentFragment instanceof DrawingCanvasFragment)) {
+            if (!(currentFragment instanceof HomeFragment)) {
                 targetFragment = new HomeFragment();
                 MenuTrigger.setVisibility(View.VISIBLE);
                 Fab.setVisibility(View.VISIBLE);
@@ -782,9 +822,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
         } else if (id == R.id.nav_gallery) {
-            if (!(currentFragment instanceof ArtCornerFragment) && !(currentFragment instanceof DrawingCanvasFragment)) {
+            toolbarTitle = "Art Corner";
+            // The check for DrawingCanvasFragment is no longer needed here as it's handled above
+            if (!(currentFragment instanceof ArtCornerFragment)) {
                 targetFragment = new ArtCornerFragment();
-                toolbarTitle = "Art Corner";
                 MenuTrigger.setVisibility(View.VISIBLE);
                 Fab.setVisibility(View.VISIBLE);
                 shakeView(Fab);
@@ -792,9 +833,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
         } else if (id == R.id.nav_ai) {
+            toolbarTitle = "Xavier";
             if (!(currentFragment instanceof AIFragment)) {
                 targetFragment = new AIFragment();
-                toolbarTitle = "Xavier";
                 invertShakeView(Fab);
                 MenuTrigger.setVisibility(View.GONE);
                 bottomSheetBehavior.setState(STATE_HIDDEN);
@@ -805,7 +846,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
         } else if (id == R.id.nav_send) {
             toolbarTitle = "Heal";
-            if (!(currentFragment instanceof HomeFragment) && !(currentFragment instanceof DrawingCanvasFragment)) {
+            if (!(currentFragment instanceof HomeFragment)) {
                 targetFragment = new HomeFragment();
                 shouldLoadFragment = true;
                 Handler handler = new Handler(Looper.getMainLooper());
@@ -832,9 +873,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             addFragmentToHistory(historyItemToAdd.navId, historyItemToAdd.title);
         }
 
+
         toolbar.setTitle(toolbarTitle);
         drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
     }
 
 
@@ -1012,9 +1053,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void scheduleReminder(){
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, ReminderBroadcastReceiver.class);
+    // Corrected: Made static to be callable from BroadcastReceiver
+    public static void scheduleReminder(Context context){
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+        // Add permission check for Android 12+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (!alarmManager.canScheduleExactAlarms()) {
+                Log.w(TAG, "Cannot schedule exact alarms. User needs to grant permission.");
+                // In a real app, you'd guide the user to settings here.
+                // For this fix, we log a warning. The next method handles the user-facing part.
+                return;
+            }
+        }
+
+        Intent intent = new Intent(context, ReminderBroadcastReceiver.class);
         intent.setAction("com.example.heal.REMINDER_ALARM");
 
         int[][] reminderTimes = {
@@ -1039,19 +1092,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 calendar.add(Calendar.DAY_OF_YEAR, 1);
             }
 
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this,requestCode,intent,PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-            } else {
-                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
-            }
+            // Use setExactAndAllowWhileIdle for all supported versions for consistency
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+
             Log.d(TAG, "Scheduled reminder for " + hour + ":" + minute + " with request code " + requestCode);
         }
     }
-    public void cancelAllReminders(){
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, ReminderBroadcastReceiver.class);
+
+    // Corrected: Made static
+    public static void cancelAllReminders(Context context){
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, ReminderBroadcastReceiver.class);
         intent.setAction("com.example.heal.REMINDER_ALARM");
 
         int[] requestCodes = {
@@ -1061,11 +1114,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 REMINDER_NOTIFICATION_ID_9PM
         };
         for (int requestCode : requestCodes) {
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
             alarmManager.cancel(pendingIntent);
             pendingIntent.cancel();
+            Log.d(TAG, "Cancelled reminder with request code " + requestCode);
         }
     }
+
     public void createNotificationChannel(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             String name = "Reminder Notifications";
@@ -1077,11 +1132,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             notificationManager.createNotificationChannel(channel);
         }
     }
+
     public void onReminderSettingChanged(boolean enabled){
         if (enabled){
-            scheduleReminder();
-        }else {
-            cancelAllReminders();
+            // Add permission check before scheduling
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                if (!alarmManager.canScheduleExactAlarms()) {
+                    // Guide user to settings
+                    new AlertDialog.Builder(this)
+                            .setTitle("Permission Needed")
+                            .setMessage("To ensure your reminders are delivered on time, please allow the app to schedule exact alarms.")
+                            .setPositiveButton("Go to Settings", (dialog, which) -> {
+                                Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                                startActivity(intent);
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
+                } else {
+                    scheduleReminder(this);
+                }
+            } else {
+                scheduleReminder(this);
+            }
+        } else {
+            cancelAllReminders(this);
         }
     }
 
