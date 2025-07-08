@@ -68,8 +68,8 @@
         app:cornerRadius="8dp"
         app:icon="@android:drawable/ic_input_add"
         app:iconGravity="textStart"
-        app:backgroundTint="@color/gold_secondary"
-        android:textColor="@color/black" />
+        app:backgroundTint="@color/md_theme_primary"
+        android:textColor="@color/white" />
 
     <ProgressBar
         android:id="@+id/loading_progress_bar"

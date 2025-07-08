@@ -266,8 +266,8 @@ public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment
         RequestOptions requestOptions = new RequestOptions()
                 .diskCacheStrategy(DiskCacheStrategy.NONE) // Do not cache, always load fresh
                 .skipMemoryCache(true) // Do not use memory cache
-                .placeholder(R.drawable.ic_default_contact_avatar) // Placeholder for loading
-                .error(R.drawable.ic_default_contact_avatar); // Error placeholder
+                .placeholder(android.R.drawable.ic_menu_report_image)
+                .error(android.R.drawable.ic_menu_report_image);
 
         Glide.with(getContext())
                 .load(Uri.parse(entry.getImageUri())) // Load using the Uri object directly
@@ -326,6 +326,25 @@ public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment
             dialog.dismiss();
             confirmAndDeleteArtwork(entry);
         });
+        if (window != null && getContext() != null) {
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(window.getAttributes());
+
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            if (getActivity() != null) {
+                getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            } else {
+                displayMetrics.widthPixels = getResources().getDisplayMetrics().widthPixels;
+            }
+
+            layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            layoutParams.horizontalMargin = 0;
+
+            window.setAttributes(layoutParams);
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+            window.getDecorView().setPadding(0, 0, 0, 0); // 👈 Add this
+        }
 
         dialog.show();
     }
@@ -499,8 +518,9 @@ public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment
             RequestOptions requestOptions = new RequestOptions()
                     .diskCacheStrategy(DiskCacheStrategy.NONE) // Do not cache, always load fresh
                     .skipMemoryCache(true) // Do not use memory cache
-                    .placeholder(R.drawable.ic_default_contact_avatar) // Placeholder for loading
-                    .error(R.drawable.ic_default_contact_avatar); // Error placeholder
+                    .placeholder(android.R.drawable.ic_menu_report_image)
+                    .error(android.R.drawable.ic_menu_report_image);
+
 
             Glide.with(holder.imageView.getContext())
                     .load(Uri.parse(entry.getImageUri())) // Load using the Uri object directly

@@ -74,7 +74,7 @@ public class DrawingView extends View {
         eraserPreviewPaint.setStyle(Paint.Style.STROKE);
         eraserPreviewPaint.setStrokeJoin(Paint.Join.ROUND);
         eraserPreviewPaint.setStrokeCap(Paint.Cap.ROUND);
-        // Set a very light grey color for the preview
+        // Set a very light grey color for the preview to indicate erasing area
         eraserPreviewPaint.setColor(Color.parseColor("#E0E0E0")); // Using #E0E0E0 for a light grey
     }
 
@@ -83,20 +83,18 @@ public class DrawingView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         if (w > 0 && h > 0) {
             // Only create new canvasBitmap if it's null or dimensions change significantly
-            // This prevents recreating it unnecessarily during minor layout changes
             if (canvasBitmap == null || canvasBitmap.getWidth() != w || canvasBitmap.getHeight() != h) {
                 canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
                 drawCanvas = new Canvas(canvasBitmap);
                 // Initial fill with white for the bitmap if it's a new canvas (not loaded artwork)
-                // The redrawCanvas method will handle drawing the baseBitmap if it exists.
+                // This is only done once when the bitmap is created, not on every redraw.
                 if (baseBitmap == null) {
                     drawCanvas.drawColor(Color.WHITE);
                 }
             }
             // If a baseBitmap exists, ensure it's drawn onto the canvasBitmap when size changes
-            if (baseBitmap != null) {
-                redrawCanvas(); // Redraw to scale baseBitmap if view size changed
-            }
+            // This will be handled by redrawCanvas, which is called after size changes if needed.
+            redrawCanvas(); // Always redraw on size change to ensure content scales correctly
         }
     }
 
@@ -106,6 +104,7 @@ public class DrawingView extends View {
             canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
         }
         // Draw the current path being traced based on the mode
+        // This is for the real-time preview, before the path is "committed" to the canvasBitmap
         if (currentMode == DrawingMode.PEN) {
             canvas.drawPath(drawPath, drawPaint);
         } else if (currentMode == DrawingMode.ERASER) {
@@ -128,28 +127,28 @@ public class DrawingView extends View {
                 drawPath.lineTo(touchX, touchY);
                 break;
             case MotionEvent.ACTION_UP:
-                // When the finger is lifted, save the path with the *actual* drawing paint settings
+                // When the finger is lifted, save the path with the current drawing paint settings
                 // Create a new Paint object to capture the current settings (color, xfermode, brush size)
-                Paint currentPaint = new Paint(drawPaint);
-                PathData newPath = new PathData(new Path(drawPath), currentPaint);
+                Paint paintForPath = new Paint(drawPaint); // Capture current drawPaint state
+                PathData newPath = new PathData(new Path(drawPath), paintForPath, currentMode);
                 paths.add(newPath);
-                // Draw the new path onto the canvasBitmap
-                drawCanvas.drawPath(newPath.path, newPath.paint);
+
                 drawPath.reset(); // Reset the current path for the next stroke
+                redrawCanvas(); // Redraw the entire canvas to apply the new path (including erase effects)
                 break;
             default:
                 return false;
         }
-        invalidate(); // Request a redraw of the view
+        invalidate(); // Request a redraw of the view to show the current path preview
         return true;
     }
 
     public void setCurrentColor(int newColor) {
         paintColor = newColor;
-        drawPaint.setColor(paintColor);
-        // Ensure Xfermode is null when setting pen color or after switching from eraser
+        // Only update drawPaint color if in PEN mode, otherwise it's transparent for ERASER
         if (currentMode == DrawingMode.PEN) {
-            drawPaint.setXfermode(null);
+            drawPaint.setColor(paintColor);
+            drawPaint.setXfermode(null); // Ensure no xfermode for pen
         }
     }
 
@@ -169,14 +168,16 @@ public class DrawingView extends View {
     public void setDrawingMode(DrawingMode mode) {
         currentMode = mode;
         if (currentMode == DrawingMode.ERASER) {
-            // For actual erasing, use transparent color with PorterDuff.Mode.CLEAR
-            drawPaint.setColor(Color.TRANSPARENT); // Color doesn't matter much for CLEAR mode
+            drawPaint.setColor(Color.TRANSPARENT); // Color doesn't matter for CLEAR mode
             drawPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         } else {
             drawPaint.setColor(paintColor); // Revert to the selected paint color
             drawPaint.setXfermode(null); // Clear xfermode for normal drawing
             setBrushSize(lastBrushSize); // Restore last pen brush size
         }
+        // Force a redraw to ensure the visual state reflects the new mode (e.g., if eraser was selected,
+        // any lingering preview from pen mode is gone, or vice versa).
+        invalidate();
     }
 
     public void undo() {
@@ -195,24 +196,26 @@ public class DrawingView extends View {
 
     /**
      * Redraws the entire canvas bitmap from scratch, including the base image (if any)
-     * and all paths in the 'paths' list.
+     * and all paths in the 'paths' list. This is the authoritative drawing method.
      */
     private void redrawCanvas() {
         // Clear the canvasBitmap to transparent
-        drawCanvas.drawColor(Color.WHITE, PorterDuff.Mode.CLEAR);
+        // This ensures a clean slate before redrawing the base image and all paths.
+        drawCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
-        // If a base bitmap exists (for editing), draw it first
+        // If a base bitmap exists (for editing), draw it first to establish the background
         if (baseBitmap != null) {
             // Scale baseBitmap to fit current view dimensions if necessary
             Bitmap scaledBaseBitmap = Bitmap.createScaledBitmap(baseBitmap, getWidth(), getHeight(), true);
             drawCanvas.drawBitmap(scaledBaseBitmap, 0, 0, null);
         } else {
-            // Otherwise, fill with white for new drawings
+            // Otherwise, fill with white for new drawings as the default background
             drawCanvas.drawColor(Color.WHITE);
         }
 
         // Now draw all the paths on top of the base or white background
         for (PathData pathData : paths) {
+            // Use the paint stored with the path, which already has the correct Xfermode
             drawCanvas.drawPath(pathData.path, pathData.paint);
         }
         invalidate(); // Request a redraw of the view
@@ -223,7 +226,7 @@ public class DrawingView extends View {
         undonePaths.clear();
         if (drawCanvas != null) {
             // Clear the canvasBitmap to transparent
-            drawCanvas.drawColor(Color.WHITE, PorterDuff.Mode.CLEAR);
+            drawCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
             // Redraw the base bitmap if it exists, or fill with white if new canvas
             if (baseBitmap != null) {
                 Bitmap scaledBaseBitmap = Bitmap.createScaledBitmap(baseBitmap, getWidth(), getHeight(), true);
@@ -285,10 +288,12 @@ public class DrawingView extends View {
     private static class PathData {
         Path path;
         Paint paint;
+        DrawingMode mode; // Store the drawing mode for this path
 
-        PathData(Path path, Paint paint) {
+        PathData(Path path, Paint paint, DrawingMode mode) {
             this.path = path;
             this.paint = paint;
+            this.mode = mode;
         }
     }
 }
