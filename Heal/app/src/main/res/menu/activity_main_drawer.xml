@@ -45,5 +45,6 @@
         <item android:id="@+id/nav_saved_strategies" android:title="Coping Strategies" android:visible="false"/>
         <item android:id="@+id/nav_journal_entries" android:title="Journal Entries" android:visible="false"/>
         <item android:id="@+id/nav_emergency_contacts" android:title="Emergency Contacts" android:visible="false"/>
+        <item android:id="@+id/nav_relapse_history" android:title="My Relapse History" android:visible="false"/>
     </group>
 </menu>

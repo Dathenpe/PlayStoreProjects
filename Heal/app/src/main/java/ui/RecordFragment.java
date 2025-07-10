@@ -19,6 +19,7 @@ import com.f9ld3.heal.R;
 import records.CopingExercisesFragment;
 import records.JournalEntriesFragment;
 import records.MoodCheckinFragment;
+import records.RelapseHistoryFragment;
 import records.SavedStrategiesFragment;
 import viewmodels.GeneralViewModel;
 
@@ -29,6 +30,7 @@ public class RecordFragment extends Fragment {
     private FrameLayout savedStrategiesContainer;
     private FrameLayout journalEntriesContainer;
     private FrameLayout emergencyContactsContainer;
+    private FrameLayout relapseHistoryContainer;
 
     private ScrollView recordScrollView;
 
@@ -66,6 +68,7 @@ public class RecordFragment extends Fragment {
         savedStrategiesContainer = view.findViewById(R.id.saved_strategies_container);
         journalEntriesContainer = view.findViewById(R.id.journal_entries_container);
         emergencyContactsContainer = view.findViewById(R.id.emergency_contacts_container);
+        relapseHistoryContainer = view.findViewById(R.id.relapse_history_container);
         View loadingProgressBar = view.findViewById(R.id.loading_progress_bar);
         recordScrollView = view.findViewById(R.id.record_scroll_view);
 
@@ -110,6 +113,11 @@ public class RecordFragment extends Fragment {
         emergencyContactsContainer.setOnClickListener(v -> {
             mainActivity.toolbar.setTitle("My Emergency Contacts");
             mainActivity.loadContacts();
+        });
+        relapseHistoryContainer.setOnClickListener(v -> {
+            mainActivity.loadFragment(new RelapseHistoryFragment(), R.id.nav_relapse_history); // Use a new nav ID if you add one
+            mainActivity.toolbar.setTitle("My Relapse History");
+            mainActivity.addFragmentToHistory(R.id.nav_relapse_history, "My Relapse History");
         });
     }
 }

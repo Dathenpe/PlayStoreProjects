@@ -130,6 +130,29 @@
                 android:textColor="?attr/colorOnErrorContainer" style="?attr/textAppearanceTitleLarge" />
         </com.google.android.material.card.MaterialCardView>
 
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="8dp"
+            android:id="@+id/relapse_history_container"
+            app:cardBackgroundColor="@color/gray"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            android:clickable="true"
+            android:focusable="true">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:padding="24dp"
+                android:text="Relapse History"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                style="?attr/textAppearanceTitleLarge" />
+        </com.google.android.material.card.MaterialCardView>
+
     </GridLayout>
 </ScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

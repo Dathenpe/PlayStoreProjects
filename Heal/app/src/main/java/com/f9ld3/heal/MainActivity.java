@@ -88,6 +88,7 @@ import records.EmergencyContact;
 import records.EmergencyContactsFragment;
 import records.JournalEntriesFragment;
 import records.MoodCheckinFragment;
+import records.RelapseHistoryFragment;
 import records.SavedStrategiesFragment;
 import ui.AIFragment;
 import ui.ArtCornerFragment;
@@ -542,7 +543,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     chip.setOnClickListener(v ->{
                         int clickedNavId = (int) v.getTag();
-                        if (clickedNavId == R.id.nav_coping_exercises || clickedNavId == R.id.nav_journal_entries || clickedNavId == R.id.nav_mood_checkin || clickedNavId == R.id.nav_saved_strategies){
+                        if (clickedNavId == R.id.nav_coping_exercises || clickedNavId == R.id.nav_journal_entries || clickedNavId == R.id.nav_mood_checkin || clickedNavId == R.id.nav_saved_strategies || clickedNavId == R.id.nav_relapse_history){
                             loadFragmentFromChip(clickedNavId);
                         } else if (clickedNavId == R.id.nav_emergency_contacts) {
                             loadContacts();
@@ -587,6 +588,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (navId == R.id.nav_journal_entries) {
             targetFragment = new JournalEntriesFragment();
             toolbarTitle = "My Journal Entries";
+        } else if (navId == R.id.nav_relapse_history) {
+            targetFragment = new RelapseHistoryFragment();
+            toolbarTitle = "My Relapse History";
         }
         if (targetFragment != null){
             loadFragment(targetFragment, navId);
@@ -810,7 +814,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (!(currentFragment instanceof RecordFragment)) {
                 if (currentFragment instanceof EmergencyContactsFragment || currentFragment instanceof CopingExercisesFragment ||
                         currentFragment instanceof JournalEntriesFragment || currentFragment instanceof MoodCheckinFragment ||
-                        currentFragment instanceof SavedStrategiesFragment) {
+                        currentFragment instanceof SavedStrategiesFragment || currentFragment instanceof RelapseHistoryFragment) {
                     FragmentManager fragmentManager = getSupportFragmentManager();
                     fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 }

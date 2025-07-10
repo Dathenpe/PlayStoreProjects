@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -144,6 +145,12 @@ public class HomeFragment extends Fragment {
     private Runnable relapseCounterRunnable;
 
     private boolean moodSeekBarTouched = false;
+
+    // --- NEW: Variables for Relapse History ---
+    private static final String PREFS_RELAPSE_HISTORY = "relapse_history_prefs";
+    private static final String KEY_RELAPSE_ENTRIES = "relapse_entries";
+    private List<RelapseEntry> relapseHistory = new ArrayList<>();
+    // --- END NEW ---
 
 
     @Override
@@ -377,6 +384,9 @@ public class HomeFragment extends Fragment {
         setupMoodCheckin();
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
+        // --- NEW: Load relapse history ---
+        loadRelapseHistory();
+        // --- END NEW ---
     }
     @Override
     public void onResume() {
@@ -715,15 +725,15 @@ public class HomeFragment extends Fragment {
             public void onClick(View v) {
                 if (isCheckinAllowed()) {
                     if(moodInputText.length() != 0 ){
-                       if (moodSeekBarTouched == true){
-                           saveMoodData();
-                           saveLastCheckinTime();
-                           checkDailyCheckin();
-                           Handler handler = new Handler();
-                           handler.postDelayed(() -> setupMoodCheckin(),1000);
-                       }else {
-                           Toast.makeText(mainActivity, "Move the mood bar first", Toast.LENGTH_SHORT).show();
-                       }
+                        if (moodSeekBarTouched == true){
+                            saveMoodData();
+                            saveLastCheckinTime();
+                            checkDailyCheckin();
+                            Handler handler = new Handler();
+                            handler.postDelayed(() -> setupMoodCheckin(),1000);
+                        }else {
+                            Toast.makeText(mainActivity, "Move the mood bar first", Toast.LENGTH_SHORT).show();
+                        }
                     }else{
                         Toast.makeText(mainActivity, "Mood input cannot be empty", Toast.LENGTH_SHORT).show();
                     }
@@ -955,21 +965,122 @@ public class HomeFragment extends Fragment {
         resetRelapseButton.setText("Reset Counter");
     }
 
+    // --- MODIFIED: showResetRelapseConfirmationDialog now calls showWhyResetDialog ---
     private void showResetRelapseConfirmationDialog() {
+        if (context == null) return;
         new AlertDialog.Builder(context)
                 .setTitle("Reset Counter")
                 .setMessage("Are you sure you want to reset the relapse counter? This action cannot be undone.")
                 .setPositiveButton("Reset", (dialog, which) -> {
-                    resetRelapseCounter();
-                    Handler handler = new Handler();
-                    handler.postDelayed(() ->{
-                        Toast.makeText(context, "Relapse counter reset!", Toast.LENGTH_SHORT).show();
-                    },1000);
+                    showWhyResetDialog(); // Ask for a reason before resetting
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> {
-                    dialog.dismiss();
-                })
+                .setNegativeButton("Cancel", null)
                 .create()
                 .show();
+    }
+
+    // --- NEW: Dialog to ask for the reason ---
+    private void showWhyResetDialog() {
+        if (context == null) return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("A Moment of Reflection");
+        builder.setMessage("Taking a moment to note why you're resetting can be a powerful step. What led to this moment?");
+
+        final EditText input = new EditText(context);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        input.setLayoutParams(lp);
+        input.setHint("e.g., Felt overwhelmed, a specific trigger, etc.");
+        builder.setView(input);
+
+        builder.setPositiveButton("Save and Reset", (dialog, which) -> {
+            String reason = input.getText().toString().trim();
+            if (reason.isEmpty()) {
+                reason = "No reason provided."; // Default reason
+            }
+            saveRelapseEntry(reason);
+            resetRelapseCounter();
+            Toast.makeText(context, "Counter has been reset. Your reflections are saved.", Toast.LENGTH_LONG).show();
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
+
+    // --- NEW: Method to save the relapse entry ---
+    private void saveRelapseEntry(String reason) {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_RELAPSE, Context.MODE_PRIVATE);
+        long lastRelapseTime = prefs.getLong(KEY_LAST_RELAPSE_DATE, 0L);
+
+        if (lastRelapseTime == 0L) return; // Don't save if the counter was never started
+
+        long durationMillis = System.currentTimeMillis() - lastRelapseTime;
+        String formattedDuration = formatDuration(durationMillis);
+        String timestamp = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault()).format(new Date());
+
+        RelapseEntry newEntry = new RelapseEntry(timestamp, formattedDuration, reason, System.currentTimeMillis());
+        relapseHistory.add(0, newEntry); // Add to the start of the list
+        saveRelapseHistory();
+    }
+
+    // --- NEW: Helper method to format duration ---
+    private String formatDuration(long millis) {
+        long days = TimeUnit.MILLISECONDS.toDays(millis);
+        long hours = TimeUnit.MILLISECONDS.toHours(millis) % 24;
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis) % 60;
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) % 60;
+
+        return String.format(Locale.getDefault(),
+                "%d d, %d h, %d m, %d s",
+                days, hours, minutes, seconds);
+    }
+
+    // --- NEW: Methods to load and save relapse history ---
+    private void loadRelapseHistory() {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_RELAPSE_HISTORY, Context.MODE_PRIVATE);
+        String json = prefs.getString(KEY_RELAPSE_ENTRIES, null);
+        if (json != null) {
+            Type type = new TypeToken<List<RelapseEntry>>() {}.getType();
+            relapseHistory = gson.fromJson(json, type);
+            if (relapseHistory == null) {
+                relapseHistory = new ArrayList<>();
+            }
+        } else {
+            relapseHistory = new ArrayList<>();
+        }
+    }
+
+    private void saveRelapseHistory() {
+        if (context == null) return;
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_RELAPSE_HISTORY, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        String json = gson.toJson(relapseHistory);
+        editor.putString(KEY_RELAPSE_ENTRIES, json);
+        editor.apply();
+    }
+
+    // --- NEW: Inner class for RelapseEntry ---
+    public static class RelapseEntry implements Serializable {
+        private String timestamp;
+        private String duration;
+        private String reason;
+        private long creationTimestampMillis;
+
+        public RelapseEntry(String timestamp, String duration, String reason, long creationTimestampMillis) {
+            this.timestamp = timestamp;
+            this.duration = duration;
+            this.reason = reason;
+            this.creationTimestampMillis = creationTimestampMillis;
+        }
+
+        public String getTimestamp() { return timestamp; }
+        public String getDuration() { return duration; }
+        public String getReason() { return reason; }
+        public long getCreationTimestampMillis() { return creationTimestampMillis; }
     }
 }
