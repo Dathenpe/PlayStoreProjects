@@ -1,0 +1,8 @@
+london
+paris
+new york
+tokyo
+sydney
+cairo
+lagos
+berlin

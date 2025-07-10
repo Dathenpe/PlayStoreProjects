@@ -1,10 +1,9 @@
-package com.f9ld3.xavier.ai; // IMPORTANT: Ensure this matches your package name
+package com.f9ld3.xavier.ai.V1; // IMPORTANT: Ensure this matches your package name
 
 // Weka imports (used only in trainAndSaveModel)
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.Evaluation;
 import weka.classifiers.trees.J48;
-import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
 import weka.core.converters.ArffLoader;
@@ -15,10 +14,8 @@ import weka.filters.unsupervised.attribute.StringToWordVector;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;

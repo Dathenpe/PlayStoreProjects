@@ -1,4 +1,4 @@
-package com.f9ld3.xavier.ai; // IMPORTANT: Ensure this matches your package name
+package com.f9ld3.xavier.ai.V1; // IMPORTANT: Ensure this matches your package name
 
 import org.json.JSONArray;
 import weka.classifiers.Classifier;
@@ -33,7 +33,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors; // Added for stream operations
 
 /**
  * XavierCoreAI: Encapsulates the core AI logic for intent classification,

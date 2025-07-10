@@ -1,0 +1,26 @@
+    greeting,hello
+    greeting,hi there
+    greeting,how are you
+    goodbye,bye bye
+    goodbye,see you later
+    time_query,what time is it
+    time_query,can you tell me the time
+    date_query,what is today's date
+    date_query,show me the date
+    weather_query,what's the weather like
+    weather_query,is it sunny outside
+    weather_query,how is the weather today
+    weather_query,what is the forecast
+    weather_query,do I need an umbrella
+    weather_query,tell me about the weather
+    calculator_query,what is 5 plus 3
+    calculator_query,calculate 10 times 2
+    calculator_query,compute 100 divided by 4
+    calculator_query,what's 50 minus 25
+    calculator_query,7 plus 8
+    calculator_query,what is 20 x 20
+    follow_up,what about in london
+    follow_up,how about for paris
+    follow_up,and for new york
+    follow_up,and in tokyo
+    follow_up,what about tomorrow
