@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Pressed state -->
+    <item android:state_pressed="true">
+        <shape android:shape="oval">
+            <solid android:color="#00838F"/> <!-- Darker cyan when pressed -->
+            <stroke android:width="2dp" android:color="#00BCD4"/>
+            <corners android:radius="30dp"/>
+            <padding android:left="10dp" android:top="10dp" android:right="10dp" android:bottom="10dp"/>
+            <gradient
+                android:startColor="#00838F"
+                android:endColor="#006064"
+                android:angle="270" />
+            <stroke android:width="2dp" android:color="#00BCD4"/>
+            <size android:width="60dp" android:height="60dp"/>
+        </shape>
+    </item>
+    <!-- Default state -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#00BCD4"/> <!-- Cyan background -->
+            <stroke android:width="2dp" android:color="#00BCD4"/>
+            <corners android:radius="30dp"/>
+            <padding android:left="10dp" android:top="10dp" android:right="10dp" android:bottom="10dp"/>
+            <gradient
+                android:startColor="#00BCD4"
+                android:endColor="#00ACC1"
+                android:angle="270" />
+            <stroke android:width="2dp" android:color="#FFFFFF"/>
+            <size android:width="60dp" android:height="60dp"/>
+        </shape>
+    </item>
+</selector>

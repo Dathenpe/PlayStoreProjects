@@ -17,8 +17,8 @@
             android:title="@string/records_and_exercises" />
         <item
             android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Art Corner" />
+            android:icon="@drawable/outline_castle_24"
+            android:title="Fun Corner" />
         <item
             android:id="@+id/nav_ai"
             android:icon="@drawable/robot"

@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:background="?attr/colorSurface">
 
+    <!-- This LinearLayout holds the main content that will be hidden during loading -->
     <LinearLayout
         android:id="@+id/gallery_content_view"
         android:layout_width="match_parent"
@@ -14,15 +15,18 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Header -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="64dp"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:text="Your Artworks"
             android:textAppearance="?attr/textAppearanceTitleLarge"
             android:textColor="?attr/colorOnSurface" />
 
+        <!-- This FrameLayout allows the RecyclerView and the empty state TextView to occupy
+             the same space, making it easy to toggle their visibility. -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -31,8 +35,11 @@
                 android:id="@+id/recyclerViewArtwork"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="80dp"
                 tools:listitem="@layout/item_artwork_grid" />
 
+            <!-- Empty State TextView -->
             <TextView
                 android:id="@+id/emptyStateArtworkTextView"
                 android:layout_width="match_parent"
@@ -47,25 +54,20 @@
 
     </LinearLayout>
 
-    <com.google.android.material.button.MaterialButton
+    <!-- Floating Action Button for creating a new canvas -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/buttonNewCanvas"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:elevation="5dp"
-        android:text="New Canvas"
-        android:paddingVertical="12dp"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:textSize="18sp"
-        app:cornerRadius="8dp"
-        app:icon="@android:drawable/ic_input_add"
-        app:iconGravity="textStart"
-        app:backgroundTint="@color/md_theme_primary"
-        android:textColor="@color/white" />
+        android:layout_margin="16dp"
+        android:contentDescription="New Artwork"
+        app:srcCompat="@android:drawable/ic_menu_add"
+        app:tint="@color/gray"
+        app:rippleColor=""
+        app:backgroundTint="@color/md_theme_primary" />
 
+    <!-- Loading indicator, centered on the screen -->
     <ProgressBar
         android:id="@+id/loading_progress_bar"
         style="?android:attr/progressBarStyleLarge"

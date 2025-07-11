@@ -91,7 +91,7 @@ import records.MoodCheckinFragment;
 import records.RelapseHistoryFragment;
 import records.SavedStrategiesFragment;
 import ui.AIFragment;
-import ui.ArtCornerFragment;
+import ui.FunCornerFragment;
 import ui.HomeFragment;
 import ui.InterceptTouchRecyclerView;
 import ui.NotificationAdapter;
@@ -826,10 +826,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
         } else if (id == R.id.nav_gallery) {
-            toolbarTitle = "Art Corner";
-            // The check for DrawingCanvasFragment is no longer needed here as it's handled above
-            if (!(currentFragment instanceof ArtCornerFragment)) {
-                targetFragment = new ArtCornerFragment();
+            toolbarTitle = "Fun Corner";
+
+            if (!(currentFragment instanceof FunCornerFragment)) {
+                targetFragment = new FunCornerFragment();
                 MenuTrigger.setVisibility(View.VISIBLE);
                 Fab.setVisibility(View.VISIBLE);
                 shakeView(Fab);
