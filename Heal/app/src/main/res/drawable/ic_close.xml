@@ -3,8 +3,9 @@
     android:height="24dp"
     android:viewportWidth="24.0"
     android:viewportHeight="24.0"
-    android:tint="?attr/colorControlNormal">  <!-- Use tint for better theme integration -->
+    android:tint="?attr/colorControlNormal"> <!-- Or your desired color -->
+
     <path
         android:fillColor="@android:color/white"
-    android:pathData="M12,4V1L8,5l4,4V6c3.31,0 6,2.69 6,6s-2.69,6 -6,6 -6,-2.69 -6,-6H4c0,4.42 3.58,8 8,8s8,-3.58 8,-8 -3.58,-8 -8,-8z"/>
+    android:pathData="M19,6.41L17.59,5 12,10.59 6.41,5 5,6.41 10.59,12 5,17.59 6.41,19 12,13.41 17.59,19 19,17.59 13.41,12z"/>
 </vector>

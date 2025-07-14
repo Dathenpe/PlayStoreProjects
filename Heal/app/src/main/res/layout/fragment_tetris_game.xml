@@ -1,184 +1,233 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center_horizontal"
-    android:background="#222222"
+    android:background="?attr/colorSurface"
     tools:context="funcorner.TetrisGameFragment">
 
-    <TextView
-        android:id="@+id/game_title"
-        android:layout_width="wrap_content"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/score_card"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="TETRIS"
-        android:textColor="#FFFFFF"
-        android:textSize="48sp"
-        android:textStyle="bold"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="16dp"
-        android:shadowColor="#00BCD4"
-        android:shadowDx="2"
-        android:shadowDy="2"
-        android:shadowRadius="3" />
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="16dp">
-
-        <TextView
-            android:id="@+id/score_text_view"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Score: 0"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginEnd="32dp" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
 
-        <TextView
-            android:id="@+id/level_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Level: 1"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/score_text_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Score: 0"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="?attr/colorOnSurface" />
+
+            <TextView
+                android:id="@+id/level_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Level: 1"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="?attr/colorOnSurface" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_show_high_scores"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:contentDescription="Show High Scores"
+                app:icon="@drawable/ic_leaderboard" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <FrameLayout
+        android:id="@+id/game_board_container"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/tetris_board_background"
-        android:padding="4dp">
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/score_card"
+        app:layout_constraintBottom_toTopOf="@+id/fab_main_toggle"
+        app:layout_constraintVertical_bias="0.3" >
 
-        <!-- Custom Tetris View for drawing the game -->
         <tetris.TetrisView
             android:id="@+id/tetris_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="#000000" />
+            android:layout_gravity="center" />
     </FrameLayout>
 
-    <TextView
-        android:id="@+id/game_over_text"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_main_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="GAME OVER!"
-        android:textColor="#FF0000"
-        android:textSize="40sp"
-        android:textStyle="bold"
-        android:visibility="gone"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="10dp"
-        android:shadowColor="#FF0000"
-        android:shadowDx="2"
-        android:shadowDy="2"
-        android:shadowRadius="3" />
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="Open Game Controls"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_gamepad"
+        app:elevation="0dp"
+        app:pressedTranslationZ="0dp" />
 
-    <TextView
-        android:id="@+id/pause_text"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_pause_play"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="PAUSED"
-        android:textColor="#00BCD4"
-        android:textSize="40sp"
-        android:textStyle="bold"
-        android:visibility="gone"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="10dp"
-        android:shadowColor="#00BCD4"
-        android:shadowDx="2"
-        android:shadowDy="2"
-        android:shadowRadius="3" />
-
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="Pause/Play"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/ic_pause_white_24dp"
+        app:elevation="0dp"
+        app:pressedTranslationZ="0dp" />
 
     <LinearLayout
+        android:id="@+id/fab_menu_actions"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="center_vertical"
-        android:layout_marginTop="20dp">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"  android:gravity="center_vertical" android:layout_marginEnd="8dp"   android:layout_marginBottom="16dp" android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toStartOf="@+id/fab_main_toggle" app:layout_constraintHorizontal_bias="1.0" app:layout_constraintStart_toEndOf="@+id/fab_pause_play" tools:visibility="visible">
 
-        <!-- Control Buttons -->
-        <LinearLayout
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_rotate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="10dp">
+            android:layout_marginEnd="8dp" android:contentDescription="Rotate"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_rotate_right_white_24dp"
+            app:elevation="0dp"
+            app:pressedTranslationZ="0dp" />
 
-            <ImageButton
-                android:id="@+id/button_rotate"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:src="@drawable/ic_rotate_right_white_24dp"
-                android:background="@drawable/button_background"
-                android:padding="12dp"
-                android:scaleType="fitCenter"
-                android:contentDescription="Rotate"
-                android:layout_marginEnd="20dp"
-                app:tint="#FFFFFF" />
-
-            <ImageButton
-                android:id="@+id/button_pause_play"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:src="@drawable/ic_pause_white_24dp"
-                android:background="@drawable/button_background"
-                android:padding="12dp"
-                android:scaleType="fitCenter"
-                android:contentDescription="Pause/Play"
-                app:tint="#FFFFFF" />
-
-        </LinearLayout>
-
-        <LinearLayout
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center_horizontal">
+            android:layout_marginEnd="8dp"
+            android:contentDescription="Move Left"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_arrow_left_white_24dp"
+            app:elevation="0dp"
+            app:pressedTranslationZ="0dp" />
 
-            <ImageButton
-                android:id="@+id/button_left"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:src="@drawable/ic_arrow_left_white_24dp"
-                android:background="@drawable/button_background"
-                android:padding="12dp"
-                android:scaleType="fitCenter"
-                android:contentDescription="Move Left"
-                android:layout_marginEnd="10dp"
-                app:tint="#FFFFFF" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="Move Down"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_arrow_down_white_24dp"
+            app:elevation="0dp"
+            app:pressedTranslationZ="0dp" />
 
-            <ImageButton
-                android:id="@+id/button_down"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:src="@drawable/ic_arrow_down_white_24dp"
-                android:background="@drawable/button_background"
-                android:padding="12dp"
-                android:scaleType="fitCenter"
-                android:contentDescription="Move Down"
-                android:layout_marginEnd="10dp"
-                app:tint="#FFFFFF" />
-
-            <ImageButton
-                android:id="@+id/button_right"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:src="@drawable/ic_arrow_right_white_24dp"
-                android:background="@drawable/button_background"
-                android:padding="12dp"
-                android:scaleType="fitCenter"
-                android:contentDescription="Move Right"
-                app:tint="#FFFFFF" />
-        </LinearLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="Move Right"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_arrow_right_white_24dp"
+            app:elevation="0dp"
+            app:pressedTranslationZ="0dp" />
 
     </LinearLayout>
 
-</LinearLayout>
+    <FrameLayout
+        android:id="@+id/overlay_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#A6000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="gone">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/paused_card"
+            style="@style/Widget.Material3.CardView.Elevated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            app:cardBackgroundColor="?attr/colorSecondaryContainer"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp">
+
+            <TextView
+                android:id="@+id/pause_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingHorizontal="48dp"
+                android:paddingVertical="32dp"
+                android:text="PAUSED\n(Tap to Resume)"
+                android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                android:textColor="?attr/colorOnSecondaryContainer" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/game_over_card"
+            style="@style/Widget.Material3.CardView.Elevated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            app:cardBackgroundColor="?attr/colorErrorContainer"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:id="@+id/game_over_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="GAME OVER!"
+                    android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                    android:textColor="?attr/colorOnErrorContainer" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_restart"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Restart Game"
+                    app:icon="@drawable/ic_refresh" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

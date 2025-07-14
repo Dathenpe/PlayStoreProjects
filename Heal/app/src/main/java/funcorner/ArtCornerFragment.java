@@ -94,20 +94,22 @@ public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment
         ProgressBar loadingProgressBar = view.findViewById(R.id.loading_progress_bar);
         // *** CORRECTED: Reference the content view that should be hidden/shown ***
         View galleryContentView = view.findViewById(R.id.gallery_content_view);
-
+        buttonNewCanvas = view.findViewById(R.id.buttonNewCanvas);
         GeneralViewModel viewModel = new ViewModelProvider(this).get(GeneralViewModel.class);
 
         viewModel.isLoading.observe(getViewLifecycleOwner(), isLoading -> {
             if (isLoading) {
                 loadingProgressBar.setVisibility(View.VISIBLE);
+                buttonNewCanvas.setVisibility(View.GONE);
                 galleryContentView.setVisibility(View.GONE); // Hide content
             } else {
                 loadingProgressBar.setVisibility(View.GONE);
+                buttonNewCanvas.setVisibility(View.VISIBLE);
                 galleryContentView.setVisibility(View.VISIBLE); // Show content
             }
         });
 
-        buttonNewCanvas = view.findViewById(R.id.buttonNewCanvas);
+
         recyclerViewArtwork = view.findViewById(R.id.recyclerViewArtwork);
         emptyStateArtworkTextView = view.findViewById(R.id.emptyStateArtworkTextView);
 

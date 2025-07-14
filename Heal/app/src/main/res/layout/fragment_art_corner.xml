@@ -64,7 +64,7 @@
         android:contentDescription="New Artwork"
         app:srcCompat="@android:drawable/ic_menu_add"
         app:tint="@color/gray"
-        app:rippleColor=""
+        app:rippleColor="@color/cardview_light_background"
         app:backgroundTint="@color/md_theme_primary" />
 
     <!-- Loading indicator, centered on the screen -->

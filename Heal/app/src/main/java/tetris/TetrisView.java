@@ -18,7 +18,7 @@ public class TetrisView extends View {
     // Constants for game board dimensions
     private static final int BOARD_WIDTH = 10;
     private static final int BOARD_HEIGHT = 20;
-    private static final int BLOCK_SIZE_DP = 25; // Size of each Tetris block in DP
+    private static final int BLOCK_SIZE_DP = 25; // Reference DP size for blocks
 
     private Paint blockPaint; // Paint for drawing individual blocks
     private Paint borderPaint; // Paint for drawing the board border
@@ -26,7 +26,7 @@ public class TetrisView extends View {
     private Tetromino currentPiece; // The currently falling Tetromino
     private int pieceX, pieceY; // Position of the current piece
 
-    private int blockSizePx; // Block size in pixels, calculated based on density
+    private int blockSizePx; // Block size in pixels, calculated dynamically
 
     public TetrisView(Context context) {
         super(context);
@@ -44,7 +44,7 @@ public class TetrisView extends View {
     }
 
     /**
-     * Initializes paints and calculates block size based on screen density.
+     * Initializes paints. blockSizePx will be calculated in onMeasure.
      * @param context The context.
      */
     private void init(Context context) {
@@ -55,9 +55,6 @@ public class TetrisView extends View {
         borderPaint.setColor(Color.DKGRAY); // Dark gray border
         borderPaint.setStyle(Paint.Style.STROKE);
         borderPaint.setStrokeWidth(2); // 2 pixel stroke width
-
-        // Calculate block size in pixels based on device density
-        blockSizePx = (int) (BLOCK_SIZE_DP * context.getResources().getDisplayMetrics().density);
     }
 
     /**
@@ -83,13 +80,31 @@ public class TetrisView extends View {
     }
 
     /**
-     * Overrides onMeasure to set the view's dimensions based on board size.
+     * Overrides onMeasure to dynamically calculate block size and view dimensions
+     * to fit the available width AND height while maintaining aspect ratio.
      * @param widthMeasureSpec The width measure specification.
      * @param heightMeasureSpec The height measure specification.
      */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // Calculate the desired width and height based on board dimensions and block size
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+
+        // Calculate potential blockSizePx based on available width
+        int potentialBlockSizePxFromWidth = (widthSize - getPaddingLeft() - getPaddingRight()) / BOARD_WIDTH;
+
+        // Calculate potential blockSizePx based on available height
+        int potentialBlockSizePxFromHeight = (heightSize - getPaddingTop() - getPaddingBottom()) / BOARD_HEIGHT;
+
+        // Choose the smaller of the two to ensure the entire board fits within the given dimensions
+        blockSizePx = Math.min(potentialBlockSizePxFromWidth, potentialBlockSizePxFromHeight);
+
+        // Ensure blockSizePx is at least 1 to avoid division by zero or tiny blocks
+        if (blockSizePx <= 0) {
+            blockSizePx = 1;
+        }
+
+        // Calculate the desired width and height based on board dimensions and the chosen blockSizePx
         int desiredWidth = BOARD_WIDTH * blockSizePx + getPaddingLeft() + getPaddingRight();
         int desiredHeight = BOARD_HEIGHT * blockSizePx + getPaddingTop() + getPaddingBottom();
 
