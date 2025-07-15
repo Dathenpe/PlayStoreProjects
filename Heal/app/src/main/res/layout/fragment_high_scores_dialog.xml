@@ -28,13 +28,13 @@
             android:layout_width="match_parent"
             android:layout_height="160dp">
             <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/high_scores_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:nestedScrollingEnabled="true"
-            android:scrollbars="vertical"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/item_high_score" />
+                android:id="@+id/high_scores_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:nestedScrollingEnabled="true"
+                android:scrollbars="vertical"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_high_score_memory_match" /> <!-- Changed tools:listitem to match your item layout -->
 
             <TextView
                 android:id="@+id/empty_state_text_view"

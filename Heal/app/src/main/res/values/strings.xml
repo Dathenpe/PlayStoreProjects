@@ -32,4 +32,15 @@
     <string name="records_and_exercises">Records and Exercises</string>
     <string name="coping_exercises">Coping Exercises</string>
     <string name="nothing_here_yet_start_exploring">Nothing Here Yet, Start Exploring</string>
+
+    <string-array name="memory_match_themes">
+        <item>Fruits</item>
+        <item>Cars</item>
+        <item>Animals</item>
+        <item>Sports</item>
+        <item>Food</item>
+        <item>Flags</item>
+        <item>Space</item>
+        <item>Music</item>
+    </string-array>
 </resources>

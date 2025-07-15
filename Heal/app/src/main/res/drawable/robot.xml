@@ -8,42 +8,42 @@
     <!-- Main body -->
     <path
         android:strokeColor="@android:color/white"
-    android:strokeWidth="2"
+    android:strokeWidth="4"
     android:pathData="M16,16h32v32h-32z" />
 
     <!-- Inner square / face -->
     <path
         android:strokeColor="@android:color/white"
-        android:strokeWidth="2"
+        android:strokeWidth="4"
         android:pathData="M24,24h16v16h-16z" />
 
     <!-- Left foot -->
     <path
         android:strokeColor="@android:color/white"
-        android:strokeWidth="2"
+        android:strokeWidth="4"
         android:pathData="M20,48h8v8h-8z" />
 
     <!-- Right foot -->
     <path
         android:strokeColor="@android:color/white"
-        android:strokeWidth="2"
+        android:strokeWidth="4"
         android:pathData="M36,48h8v8h-8z" />
 
     <!-- Antenna -->
     <path
         android:strokeColor="@android:color/white"
-        android:strokeWidth="2"
+        android:strokeWidth="4"
         android:pathData="M28,12h8v4h-8z" />
 
     <!-- Left arm -->
     <path
         android:strokeColor="@android:color/white"
-        android:strokeWidth="2"
+        android:strokeWidth="4"
         android:pathData="M12,20h4v24h-4z" />
 
     <!-- Right arm -->
     <path
         android:strokeColor="@android:color/white"
-        android:strokeWidth="2"
+        android:strokeWidth="4"
         android:pathData="M48,20h4v24h-4z" />
 </vector>

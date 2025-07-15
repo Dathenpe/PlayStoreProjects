@@ -20,14 +20,16 @@ import com.f9ld3.heal.R;
 import drawing.DrawingCanvasFragment;
 import funcorner.ArtCornerFragment;
 import funcorner.TetrisGameFragment;
+import funcorner.MemoryMatchGameFragment; // Import the new MemoryMatchGameFragment
 import viewmodels.GeneralViewModel;
 
 public class FunCornerFragment extends Fragment implements DrawingCanvasFragment.OnDrawingSavedListener {
 
     private static final String TAG = "FunCornerFragment";
     private MainActivity mainActivity;
-    private FrameLayout tetrisGameContainer; // This will be the clickable card
-    private FrameLayout artCornerCardContainer; // This will be the clickable card
+    private FrameLayout tetrisGameContainer;
+    private FrameLayout artCornerCardContainer;
+    private FrameLayout memoryMatchGameContainer; // Declare the Memory Match game container
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -59,46 +61,45 @@ public class FunCornerFragment extends Fragment implements DrawingCanvasFragment
         // Initialize the clickable containers (MaterialCardViews acting as FrameLayouts)
         tetrisGameContainer = view.findViewById(R.id.tetris_game_container);
         artCornerCardContainer = view.findViewById(R.id.art_corner_card_container);
-         ProgressBar loadingProgressBar = view.findViewById(R.id.loading_progress_bar);
-         View funCornerScrollView = view.findViewById(R.id.fun_corner_scroll_view); // Assuming you add a ScrollView ID
+        memoryMatchGameContainer = view.findViewById(R.id.memory_match_game_container); // Initialize the Memory Match game container
 
-         GeneralViewModel viewModel = new ViewModelProvider(this).get(GeneralViewModel.class);
-         viewModel.isLoading.observe(getViewLifecycleOwner(), isLoading -> {
-             if (isLoading) {
-                 loadingProgressBar.setVisibility(View.VISIBLE);
-                 funCornerScrollView.setVisibility(View.GONE);
-             } else {
-                 loadingProgressBar.setVisibility(View.GONE);
-                 funCornerScrollView.setVisibility(View.VISIBLE);
-             }
-         });
+        ProgressBar loadingProgressBar = view.findViewById(R.id.loading_progress_bar);
+        View funCornerScrollView = view.findViewById(R.id.fun_corner_scroll_view);
 
+        GeneralViewModel viewModel = new ViewModelProvider(this).get(GeneralViewModel.class);
+        viewModel.isLoading.observe(getViewLifecycleOwner(), isLoading -> {
+            if (isLoading) {
+                loadingProgressBar.setVisibility(View.VISIBLE);
+                funCornerScrollView.setVisibility(View.GONE);
+            } else {
+                loadingProgressBar.setVisibility(View.GONE);
+                funCornerScrollView.setVisibility(View.VISIBLE);
+            }
+        });
 
-        // Set up click listeners for each card
         tetrisGameContainer.setOnClickListener(v -> {
-            // Load the Tetris game fragment
-            mainActivity.loadFragment(new TetrisGameFragment(), R.id.nav_gallery); // Using nav_gallery for now, you might add a specific ID for Tetris
+            mainActivity.loadFragment(new TetrisGameFragment(), R.id.nav_gallery);
             mainActivity.toolbar.setTitle("Tetris Game");
             mainActivity.addFragmentToHistory(R.id.nav_gallery, "Tetris Game");
         });
 
         artCornerCardContainer.setOnClickListener(v -> {
-            // Load the Art Corner fragment
-            mainActivity.loadFragment(new ArtCornerFragment(), R.id.nav_gallery); // Using nav_gallery for Art Corner
+            mainActivity.loadFragment(new ArtCornerFragment(), R.id.nav_gallery);
             mainActivity.toolbar.setTitle("Art Corner");
             mainActivity.addFragmentToHistory(R.id.nav_gallery, "Art Corner");
+        });
+
+        memoryMatchGameContainer.setOnClickListener(v -> {
+            mainActivity.loadFragment(new MemoryMatchGameFragment(), R.id.nav_gallery); // You might want a specific ID for Memory Match
+            mainActivity.toolbar.setTitle("Memory Match Game");
+            mainActivity.addFragmentToHistory(R.id.nav_gallery, "Memory Match Game");
         });
     }
 
     @Override
     public void onDrawingSaved(String imageUri, String artworkName) {
-        // This method is called when a drawing is saved from DrawingCanvasFragment.
-        // If ArtCornerFragment is loaded as a child fragment, its listener will
-        // propagate here. You can decide how to handle it.
         if (mainActivity != null) {
             Toast.makeText(mainActivity, "Artwork saved: " + artworkName, Toast.LENGTH_SHORT).show();
-            // Optionally, you might want to refresh the Art Corner display if it's visible
-            // or navigate back to it.
         }
     }
 

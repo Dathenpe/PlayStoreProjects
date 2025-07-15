@@ -95,7 +95,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Art Corner"
+                        android:text="Paint Section"
                         android:textAppearance="?attr/textAppearanceTitleLarge"
                         android:textColor="?attr/colorOnSecondaryContainer"
                         android:gravity="center" />
@@ -143,9 +143,9 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Another Game Card (e.g., Word Scramble) -->
+            <!-- Word Scramble Game Card -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/another_game_container"
+                android:id="@+id/word_scramble_game_container"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_rowWeight="1"
@@ -167,8 +167,8 @@
                     <ImageView
                         android:layout_width="64dp"
                         android:layout_height="64dp"
-                        android:src="@drawable/ic_gamepad"
-                        android:contentDescription="Another Game Icon"
+                        android:src="@drawable/outline_crossword_24"
+                        android:contentDescription="Word Scramble Game Icon"
                         android:layout_marginBottom="8dp"
                         app:tint="?attr/colorOnErrorContainer" />
 

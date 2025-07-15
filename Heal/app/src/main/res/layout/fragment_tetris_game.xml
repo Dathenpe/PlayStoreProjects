@@ -48,10 +48,10 @@
                 android:id="@+id/button_show_high_scores"
                 style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="wrap_content"
+                android:text="🏆"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:contentDescription="Show High Scores"
-                app:icon="@drawable/ic_leaderboard" />
+                android:contentDescription="Show High Scores" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

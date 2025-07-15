@@ -40,7 +40,6 @@ android {
 }
 
 dependencies {
-    implementation ("com.google.android.material:material:1.12.0")
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
     implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
@@ -53,7 +52,7 @@ dependencies {
     implementation ("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
     implementation(libs.appcompat)
-    // implementation(libs.material)
+    implementation(libs.material)
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)

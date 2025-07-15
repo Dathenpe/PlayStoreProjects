@@ -1,7 +1,6 @@
-package tetris;
+package memorymatch;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -16,47 +15,53 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.f9ld3.heal.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class HighScoresDialogFragment extends DialogFragment {
+import funcorner.MemoryMatchGameFragment;
+
+public class HighScoreDialogFragment extends DialogFragment {
 
     private static final String ARG_HIGH_SCORES = "high_scores";
-    private ArrayList<HighScore> highScores;
-    private OnDismissListener dismissListener; // Declare the listener
 
-    // Interface for dismiss callback
-    public interface OnDismissListener {
-        void onDismiss(); // This method will be called when the dialog is dismissed
+    private RecyclerView highScoresRecyclerView;
+    private TextView emptyStateTextView;
+    private HighScoreAdapter adapter;
+    private List<MemoryMatchGameFragment.HighScoreEntry> highScores;
+
+    public HighScoreDialogFragment() {
+        // Required empty public constructor
     }
 
-    public static HighScoresDialogFragment newInstance(ArrayList<HighScore> highScores) {
-        HighScoresDialogFragment fragment = new HighScoresDialogFragment();
+    public static HighScoreDialogFragment newInstance(List<MemoryMatchGameFragment.HighScoreEntry> highScores, String localUserId) {
+        HighScoreDialogFragment fragment = new HighScoreDialogFragment();
         Bundle args = new Bundle();
-        args.putParcelableArrayList(ARG_HIGH_SCORES, highScores);
+        ArrayList<MemoryMatchGameFragment.HighScoreEntry> serializableScores = new ArrayList<>(highScores);
+        args.putSerializable(ARG_HIGH_SCORES, serializableScores);
+        // localUserId parameter is no longer used for display/highlighting, but kept for method signature compatibility
         fragment.setArguments(args);
         return fragment;
-    }
-
-    // Setter for the dismiss listener
-    public void setOnDismissListener(OnDismissListener listener) {
-        this.dismissListener = listener;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            highScores = getArguments().getParcelableArrayList(ARG_HIGH_SCORES);
+            highScores = (List<MemoryMatchGameFragment.HighScoreEntry>) getArguments().getSerializable(ARG_HIGH_SCORES);
+        } else {
+            highScores = new ArrayList<>();
         }
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // Inflate the new dialog layout
         return inflater.inflate(R.layout.dialog_high_scores, container, false);
     }
 
@@ -64,25 +69,26 @@ public class HighScoresDialogFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        RecyclerView recyclerView = view.findViewById(R.id.high_scores_recycler_view);
-        TextView emptyStateTextView = view.findViewById(R.id.empty_state_text_view); // Find the new TextView
+        highScoresRecyclerView = view.findViewById(R.id.high_scores_recycler_view);
+        emptyStateTextView = view.findViewById(R.id.empty_state_text_view);
         Button closeButton = view.findViewById(R.id.button_close_dialog);
 
-        // Check if the list of high scores is empty
+        highScoresRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        // Pass null for localUserId since it's no longer used in adapter for highlighting
+        adapter = new HighScoreAdapter(highScores, null);
+        highScoresRecyclerView.setAdapter(adapter);
+
         if (highScores == null || highScores.isEmpty()) {
-            // If it's empty, hide the RecyclerView and show the empty state text
-            recyclerView.setVisibility(View.GONE);
             emptyStateTextView.setVisibility(View.VISIBLE);
+            highScoresRecyclerView.setVisibility(View.GONE);
         } else {
-            // If there are scores, show the RecyclerView and set up the adapter
-            recyclerView.setVisibility(View.VISIBLE);
             emptyStateTextView.setVisibility(View.GONE);
-            HighScoreAdapter adapter = new HighScoreAdapter(highScores);
-            recyclerView.setAdapter(adapter);
+            highScoresRecyclerView.setVisibility(View.VISIBLE);
         }
 
         closeButton.setOnClickListener(v -> dismiss());
     }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -97,17 +103,10 @@ public class HighScoresDialogFragment extends DialogFragment {
                 layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
                 layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
                 // Set horizontal margin to 0 to prevent any default system margins
-                layoutParams.horizontalMargin = 0;
+                layoutParams.horizontalMargin = 0; // This is key for full width
                 window.setAttributes(layoutParams);
             }
         }
     }
 
-    @Override
-    public void onDismiss(@NonNull DialogInterface dialog) {
-        super.onDismiss(dialog);
-        if (dismissListener != null) {
-            dismissListener.onDismiss(); // Notify the listener when dismissed
-        }
-    }
 }
