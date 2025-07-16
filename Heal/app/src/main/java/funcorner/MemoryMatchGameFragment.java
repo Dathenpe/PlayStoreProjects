@@ -72,9 +72,6 @@ public class MemoryMatchGameFragment extends Fragment {
 
     private static final String PREFS_NAME = "MemoryMatchGamePrefs";
     private static final String HIGH_SCORES_KEY = "high_scores";
-    // Removed LOCAL_USER_ID_KEY as we're no longer storing user ID for high scores
-    // private static final String LOCAL_USER_ID_KEY = "local_user_id";
-    // private String localUserId; // Removed localUserId field
 
     // --- Emoji Arrays for New Themes ---
     private static final String[] FRUIT_EMOJIS = {
@@ -387,6 +384,7 @@ public class MemoryMatchGameFragment extends Fragment {
 
                     animateMatch(firstCard);
                     animateMatch(secondCard);
+                    Toast.makeText(getContext(), "That's a match", Toast.LENGTH_SHORT).show();
 
                     if (matchesFound == totalPairs) {
                         stopTimer();

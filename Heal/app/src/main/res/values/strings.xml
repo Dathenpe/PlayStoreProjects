@@ -43,4 +43,17 @@
         <item>Space</item>
         <item>Music</item>
     </string-array>
+    <string name="game_info_content">
+        Welcome to Word Scramble!\n\n
+        How to Play:
+        Unscramble the letters to form the correct word. Tap on letters to add them to your guess. Tap a selected letter in the guess area to remove it, or use the backspace button. Long-press backspace to clear your entire guess.\n\n
+        Scoring:\n
+        You get 10 points for each correct word.\n\n
+        Clues:\n
+        You start with 5 clues per game session. You can use up to 2 clues per word. In Endless Mode, you earn one clue every 3rounds. A clue inputs the next correct letter where applicable\n\n
+        Game Modes:\n
+        - Endless: Play as many rounds as you like. Your score is saved when you choose to "Save and Quit".\n
+        - 10 Rounds / 20 Rounds: Complete the set number of rounds. Your score is automatically saved at the end of the game.\n\n
+        Good luck and have fun!
+    </string>
 </resources>

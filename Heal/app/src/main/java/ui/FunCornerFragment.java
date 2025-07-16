@@ -20,7 +20,8 @@ import com.f9ld3.heal.R;
 import drawing.DrawingCanvasFragment;
 import funcorner.ArtCornerFragment;
 import funcorner.TetrisGameFragment;
-import funcorner.MemoryMatchGameFragment; // Import the new MemoryMatchGameFragment
+import funcorner.MemoryMatchGameFragment;
+import funcorner.WordScrambleGameFragment; // Import the new WordScrambleGameFragment
 import viewmodels.GeneralViewModel;
 
 public class FunCornerFragment extends Fragment implements DrawingCanvasFragment.OnDrawingSavedListener {
@@ -29,7 +30,8 @@ public class FunCornerFragment extends Fragment implements DrawingCanvasFragment
     private MainActivity mainActivity;
     private FrameLayout tetrisGameContainer;
     private FrameLayout artCornerCardContainer;
-    private FrameLayout memoryMatchGameContainer; // Declare the Memory Match game container
+    private FrameLayout memoryMatchGameContainer;
+    private FrameLayout wordScrambleGameContainer; // Declare the Word Scramble game container
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -61,7 +63,8 @@ public class FunCornerFragment extends Fragment implements DrawingCanvasFragment
         // Initialize the clickable containers (MaterialCardViews acting as FrameLayouts)
         tetrisGameContainer = view.findViewById(R.id.tetris_game_container);
         artCornerCardContainer = view.findViewById(R.id.art_corner_card_container);
-        memoryMatchGameContainer = view.findViewById(R.id.memory_match_game_container); // Initialize the Memory Match game container
+        memoryMatchGameContainer = view.findViewById(R.id.memory_match_game_container);
+        wordScrambleGameContainer = view.findViewById(R.id.word_scramble_game_container); // Initialize the Word Scramble game container
 
         ProgressBar loadingProgressBar = view.findViewById(R.id.loading_progress_bar);
         View funCornerScrollView = view.findViewById(R.id.fun_corner_scroll_view);
@@ -90,9 +93,16 @@ public class FunCornerFragment extends Fragment implements DrawingCanvasFragment
         });
 
         memoryMatchGameContainer.setOnClickListener(v -> {
-            mainActivity.loadFragment(new MemoryMatchGameFragment(), R.id.nav_gallery); // You might want a specific ID for Memory Match
+            mainActivity.loadFragment(new MemoryMatchGameFragment(), R.id.nav_gallery);
             mainActivity.toolbar.setTitle("Memory Match Game");
             mainActivity.addFragmentToHistory(R.id.nav_gallery, "Memory Match Game");
+        });
+
+        // Set OnClickListener for the Word Scramble game container
+        wordScrambleGameContainer.setOnClickListener(v -> {
+            mainActivity.loadFragment(new WordScrambleGameFragment(), R.id.nav_gallery);
+            mainActivity.toolbar.setTitle("Word Scramble Game");
+            mainActivity.addFragmentToHistory(R.id.nav_gallery, "Word Scramble Game");
         });
     }
 
