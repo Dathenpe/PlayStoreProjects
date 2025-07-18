@@ -16,7 +16,7 @@
             android:icon="@drawable/ic_record"
             android:title="@string/records_and_exercises" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/nav_fun_corner"
             android:icon="@drawable/outline_castle_24"
             android:title="Fun Corner" />
         <item
@@ -46,5 +46,10 @@
         <item android:id="@+id/nav_journal_entries" android:title="Journal Entries" android:visible="false"/>
         <item android:id="@+id/nav_emergency_contacts" android:title="Emergency Contacts" android:visible="false"/>
         <item android:id="@+id/nav_relapse_history" android:title="My Relapse History" android:visible="false"/>
+
+        <item android:id="@+id/nav_paint" android:title="Art Corner" android:visible="false"/>
+        <item android:id="@+id/nav_memory_match" android:title="Memory Match Game" android:visible="false"/>
+        <item android:id="@+id/nav_tetris" android:title="Tetris" android:visible="false"/>
+        <item android:id="@+id/nav_word_scramble" android:title="Word Scramble Game" android:visible="false"/>
     </group>
 </menu>

@@ -29,6 +29,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.f9ld3.heal.MainActivity;
 import com.f9ld3.heal.R;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
@@ -129,6 +130,9 @@ public class WordScrambleGameFragment extends Fragment {
     private boolean isPaused = false;
     private boolean isGameOver = false;
     private boolean isBusyWithFeedback = false; // New flag to prevent input during feedback animation
+
+    private MainActivity mainActivity;
+    private Context context;
 
     private final Gson gson = new Gson();
 
@@ -1123,6 +1127,10 @@ public class WordScrambleGameFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        if (mainActivity != null) {
+            mainActivity.MenuTrigger.setVisibility(View.GONE);
+            mainActivity.Fab.setVisibility(View.GONE);
+        }
         // Only pause the game if it's not already over and not already paused
         if (!isGameOver && !isPaused) {
             togglePauseGame(); // Pause game when fragment is paused
@@ -1133,5 +1141,23 @@ public class WordScrambleGameFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         stopTimer(); // Ensure timer is stopped when view is destroyed
+    }
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.context = context;
+        if (context instanceof MainActivity) {
+            mainActivity = (MainActivity) context;
+        } else {
+            Toast.makeText(context, "Error: Fragment attached to wrong activity", Toast.LENGTH_SHORT).show();
+        }
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mainActivity != null) {
+            mainActivity.MenuTrigger.setVisibility(View.GONE);
+            mainActivity.Fab.setVisibility(View.GONE);
+        }
     }
 }

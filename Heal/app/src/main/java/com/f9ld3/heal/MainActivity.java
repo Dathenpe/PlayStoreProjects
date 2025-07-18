@@ -82,6 +82,10 @@ import java.util.List;
 import java.util.Map;
 
 import drawing.DrawingCanvasFragment;
+import funcorner.PaintFragment;
+import funcorner.MemoryMatchGameFragment;
+import funcorner.TetrisGameFragment;
+import funcorner.WordScrambleGameFragment;
 import records.AddEditContactDialogFragment;
 import records.CopingExercisesFragment;
 import records.EmergencyContact;
@@ -543,7 +547,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     chip.setOnClickListener(v ->{
                         int clickedNavId = (int) v.getTag();
-                        if (clickedNavId == R.id.nav_coping_exercises || clickedNavId == R.id.nav_journal_entries || clickedNavId == R.id.nav_mood_checkin || clickedNavId == R.id.nav_saved_strategies || clickedNavId == R.id.nav_relapse_history){
+                        if (clickedNavId == R.id.nav_coping_exercises || clickedNavId == R.id.nav_journal_entries || clickedNavId == R.id.nav_mood_checkin ||
+                                clickedNavId == R.id.nav_saved_strategies || clickedNavId == R.id.nav_relapse_history ||
+                                clickedNavId == R.id.nav_word_scramble || clickedNavId == R.id.nav_tetris || clickedNavId == R.id.nav_memory_match || clickedNavId == R.id.nav_paint){
                             loadFragmentFromChip(clickedNavId);
                         } else if (clickedNavId == R.id.nav_emergency_contacts) {
                             loadContacts();
@@ -579,24 +585,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (navId == R.id.nav_coping_exercises){
             targetFragment = new CopingExercisesFragment();
             toolbarTitle = "Coping Exercises";
+            navigationView.setCheckedItem(R.id.nav_records);
         } else if (navId == R.id.nav_mood_checkin) {
             targetFragment = new MoodCheckinFragment();
             toolbarTitle = "My Mood History";
+            navigationView.setCheckedItem(R.id.nav_records);
         } else if (navId == R.id.nav_saved_strategies) {
             targetFragment = new SavedStrategiesFragment();
             toolbarTitle = "My Coping Strategies";
+            navigationView.setCheckedItem(R.id.nav_records);
         } else if (navId == R.id.nav_journal_entries) {
             targetFragment = new JournalEntriesFragment();
             toolbarTitle = "My Journal Entries";
+            navigationView.setCheckedItem(R.id.nav_records);
         } else if (navId == R.id.nav_relapse_history) {
             targetFragment = new RelapseHistoryFragment();
             toolbarTitle = "My Relapse History";
+            navigationView.setCheckedItem(R.id.nav_records);
+        } else if (navId == R.id.nav_word_scramble) {
+            targetFragment = new WordScrambleGameFragment();
+            toolbarTitle = "Word Scramble Game";
+            navigationView.setCheckedItem(R.id.nav_fun_corner);
+        }else if (navId == R.id.nav_tetris) {
+            targetFragment = new TetrisGameFragment();
+            toolbarTitle = "Tetris";
+            navigationView.setCheckedItem(R.id.nav_fun_corner);
+        }else if (navId == R.id.nav_memory_match) {
+            targetFragment = new MemoryMatchGameFragment();
+            toolbarTitle = "Memory Match Game";
+            navigationView.setCheckedItem(R.id.nav_fun_corner);
+        }else if (navId == R.id.nav_paint) {
+            targetFragment = new PaintFragment();
+            toolbarTitle = "Paint";
+            navigationView.setCheckedItem(R.id.nav_fun_corner);
         }
         if (targetFragment != null){
             loadFragment(targetFragment, navId);
             toolbar.setTitle(toolbarTitle);
             drawerLayout.closeDrawer(GravityCompat.START);
-            navigationView.setCheckedItem(R.id.nav_records);
         }
     }
 
@@ -723,6 +749,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     })
                     .setCancelable(true)
                     .show();
+        }else if (currentFragment instanceof TetrisGameFragment){
+            new AlertDialog.Builder(this)
+                    .setTitle("Exit Tetris")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setMessage("Are you sure you want to quit your game")
+                    .setPositiveButton("Yes", (dialog, which) ->getSupportFragmentManager().popBackStack())
+                    .setNegativeButton("No", (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .setCancelable(true)
+                    .show();
+        }else if (currentFragment instanceof MemoryMatchGameFragment){
+            new AlertDialog.Builder(this)
+                    .setTitle("Exit Memory Match")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setMessage("Are you sure you want to quit your game")
+                    .setPositiveButton("Yes", (dialog, which) ->getSupportFragmentManager().popBackStack())
+                    .setNegativeButton("No", (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .setCancelable(true)
+                    .show();
+        }else if (currentFragment instanceof WordScrambleGameFragment){
+            new AlertDialog.Builder(this)
+                    .setTitle("Exit WordScramble")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setMessage("Are you sure you want to quit your game")
+                    .setPositiveButton("Yes", (dialog, which) ->getSupportFragmentManager().popBackStack())
+                    .setNegativeButton("No", (dialog, which) -> {
+                        dialog.dismiss();
+                    })
+                    .setCancelable(true)
+                    .show();
         }
         else {
             super.onBackPressed();
@@ -762,15 +821,86 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .setNegativeButton("Cancel", (dialog, which) -> {
                         // User chose to stay.
                         // Un-check the item they just clicked in the drawer to reflect that navigation was cancelled.
-                        navigationView.setCheckedItem(R.id.nav_gallery);
+                        navigationView.setCheckedItem(R.id.nav_fun_corner);
                     })
                     .setOnCancelListener(dialog -> {
                         // Also handle if the user taps outside the dialog
-                        navigationView.setCheckedItem(R.id.nav_gallery);
+                        navigationView.setCheckedItem(R.id.nav_fun_corner);
                     })
                     .show();
 
             return true; // The event is handled by showing the dialog
+        } else if (currentFragment instanceof TetrisGameFragment) {
+            drawerLayout.closeDrawer(GravityCompat.START); // Close the drawer immediately
+
+            // Show a confirmation dialog before navigating away
+            new AlertDialog.Builder(this)
+                    .setTitle("Exit Tetris")
+                    .setMessage("Are you sure you want to quit your game")        
+                    .setPositiveButton("Leave", (dialog, which) -> {
+                        // User chose to leave. Now, perform the navigation.
+                        // We pop the back stack to exit the canvas, then navigate to the new fragment.
+                        getSupportFragmentManager().popBackStack();
+                        performNavigation(item); // Call a helper to handle the actual navigation
+                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> {
+                        // User chose to stay.
+                        // Un-check the item they just clicked in the drawer to reflect that navigation was cancelled.
+                        navigationView.setCheckedItem(R.id.nav_fun_corner);
+                    })
+                    .setOnCancelListener(dialog -> {
+                        // Also handle if the user taps outside the dialog
+                        navigationView.setCheckedItem(R.id.nav_fun_corner);
+                    })
+                    .show();
+
+            return true; // The event is handled by showing the dialog
+        } else if (currentFragment instanceof MemoryMatchGameFragment) {
+            drawerLayout.closeDrawer(GravityCompat.START); // Close the drawer immediately
+            new AlertDialog.Builder(this)
+                    .setTitle("Exit Memory Match")
+                    .setMessage("Are you sure you want to quit your game")
+                    .setPositiveButton("Leave", (dialog, which) -> {
+                        // User chose to leave. Now, perform the navigation.
+                        // We pop the back stack to exit the canvas, then navigate to the new fragment.
+                        getSupportFragmentManager().popBackStack();
+                        performNavigation(item); // Call a helper to handle the actual navigation
+                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> {
+                        // User chose to stay.
+                        // Un-check the item they just clicked in the drawer to reflect that navigation was cancelled.
+                        navigationView.setCheckedItem(R.id.nav_fun_corner);
+                    })
+                    .setOnCancelListener(dialog -> {
+                        // Also handle if the user taps outside the dialog
+                        navigationView.setCheckedItem(R.id.nav_fun_corner);
+                    })
+                    .show();
+
+            return true; // The event is handled by showing the dialog    
+        }else if (currentFragment instanceof WordScrambleGameFragment) {
+            drawerLayout.closeDrawer(GravityCompat.START); // Close the drawer immediately
+            new AlertDialog.Builder(this)
+                    .setTitle("Exit WordScramble")
+                    .setMessage("Are you sure you want to quit your game")
+                    .setPositiveButton("Leave", (dialog, which) -> {
+                        // User chose to leave. Now, perform the navigation.
+                        // We pop the back stack to exit the canvas, then navigate to the new fragment.
+                        getSupportFragmentManager().popBackStack();
+                        performNavigation(item); // Call a helper to handle the actual navigation
+                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> {
+                        // User chose to stay.
+                        // Un-check the item they just clicked in the drawer to reflect that navigation was cancelled.
+                        navigationView.setCheckedItem(R.id.nav_fun_corner);
+                    })
+                    .setOnCancelListener(dialog -> {
+                        // Also handle if the user taps outside the dialog
+                        navigationView.setCheckedItem(R.id.nav_fun_corner);
+                    })
+                    .show();
+
+            return true; // The event is handled by showing the dialog    
         }
 
         // If not on the canvas, proceed with navigation as normal
@@ -825,7 +955,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 shouldLoadFragment = true;
             }
             historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_fun_corner) {
             toolbarTitle = "Fun Corner";
 
             if (!(currentFragment instanceof FunCornerFragment)) {
@@ -1004,9 +1134,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (navId == R.id.nav_records) {
             toolbar.setTitle("Data Records");
             navigationView.setCheckedItem(R.id.nav_records);
-        } else if (navId == R.id.nav_gallery) {
+        } else if (navId == R.id.nav_fun_corner) {
             toolbar.setTitle("Art Corner");
-            navigationView.setCheckedItem(R.id.nav_gallery);
+            navigationView.setCheckedItem(R.id.nav_fun_corner);
         } else if (navId == R.id.nav_ai) {
             navigationView.setCheckedItem(R.id.nav_ai);
         } else if (navId == R.id.nav_send || navId == R.id.nav_share) {

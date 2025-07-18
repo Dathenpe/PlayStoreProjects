@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/recordFragment">
+    app:startDestination="@id/homeFragment">
 
     <fragment
         android:id="@+id/recordFragment"
@@ -76,5 +76,83 @@
             android:id="@+id/action_journalEntriesFragment_to_recordFragment"
             app:destination="@id/recordFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="ui.HomeFragment"
+        android:label="HomeFragment" >
+        <action
+            android:id="@+id/action_homeFragment_to_recordFragment"
+            app:destination="@id/recordFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_funCornerFragment"
+            app:destination="@id/funCornerFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_AIFragment"
+            app:destination="@id/AIFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/funCornerFragment"
+        android:name="ui.FunCornerFragment"
+        android:label="fragment_fun_corner"
+        tools:layout="@layout/fragment_fun_corner" >
+        <action
+            android:id="@+id/action_funCornerFragment_to_artCornerFragment"
+            app:destination="@id/artCornerFragment" />
+        <action
+            android:id="@+id/action_funCornerFragment_to_wordScrambleGameFragment"
+            app:destination="@id/wordScrambleGameFragment" />
+        <action
+            android:id="@+id/action_funCornerFragment_to_memoryMatchGameFragment"
+            app:destination="@id/memoryMatchGameFragment" />
+        <action
+            android:id="@+id/action_funCornerFragment_to_tetrisGameFragment"
+            app:destination="@id/tetrisGameFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/tetrisGameFragment"
+        android:name="funcorner.TetrisGameFragment"
+        android:label="fragment_tetris_game"
+        tools:layout="@layout/fragment_tetris_game" >
+        <action
+            android:id="@+id/action_tetrisGameFragment_to_funCornerFragment"
+            app:destination="@id/funCornerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/artCornerFragment"
+        android:name="funcorner.PaintFragment"
+        android:label="ArtCornerFragment" >
+        <action
+            android:id="@+id/action_artCornerFragment_to_funCornerFragment"
+            app:destination="@id/funCornerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/memoryMatchGameFragment"
+        android:name="funcorner.MemoryMatchGameFragment"
+        android:label="fragment_memory_match_game"
+        tools:layout="@layout/fragment_memory_match_game" >
+        <action
+            android:id="@+id/action_memoryMatchGameFragment_to_funCornerFragment"
+            app:destination="@id/funCornerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/wordScrambleGameFragment"
+        android:name="funcorner.WordScrambleGameFragment"
+        android:label="fragment_word_scramble_game"
+        tools:layout="@layout/fragment_word_scramble_game" >
+        <action
+            android:id="@+id/action_wordScrambleGameFragment_to_funCornerFragment"
+            app:destination="@id/funCornerFragment" />
+    </fragment>
+    <navigation android:id="@+id/navigation"
+        app:startDestination="@id/mainActivity2">
+        <activity
+            android:id="@+id/mainActivity2"
+            android:name="com.f9ld3.heal.MainActivity"
+            android:label="MainActivity" />
+    </navigation>
+    <fragment
+        android:id="@+id/AIFragment"
+        android:name="ui.AIFragment"
+        android:label="AIFragment" />
 
 </navigation>

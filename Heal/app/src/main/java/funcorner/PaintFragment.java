@@ -46,9 +46,9 @@ import java.util.Set;
 import drawing.DrawingCanvasFragment;
 import viewmodels.GeneralViewModel;
 
-public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment.OnDrawingSavedListener {
+public class PaintFragment extends Fragment implements DrawingCanvasFragment.OnDrawingSavedListener {
 
-    private static final String TAG = "ArtCornerFragment";
+    private static final String TAG = "PaintFragment";
 
     private MainActivity mainActivity;
     private Context context;
@@ -87,9 +87,6 @@ public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (mainActivity != null) {
-            mainActivity.toolbar.setTitle("Art Corner");
-        }
 
         ProgressBar loadingProgressBar = view.findViewById(R.id.loading_progress_bar);
         // *** CORRECTED: Reference the content view that should be hidden/shown ***
@@ -314,7 +311,7 @@ public class ArtCornerFragment extends Fragment implements DrawingCanvasFragment
     public void onResume() {
         super.onResume();
         if (mainActivity != null) {
-            mainActivity.toolbar.setTitle("Art Corner");
+            mainActivity.toolbar.setTitle("Paint");
             mainActivity.MenuTrigger.setVisibility(View.GONE);
             mainActivity.Fab.setVisibility(View.GONE);
         }

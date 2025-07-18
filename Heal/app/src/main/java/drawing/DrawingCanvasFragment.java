@@ -61,7 +61,7 @@ public class DrawingCanvasFragment extends Fragment {
     private String loadedImageUri = null;
     private String loadedArtworkName = null;
 
-    // Set to hold existing artwork names, passed from ArtCornerFragment
+    // Set to hold existing artwork names, passed from PaintFragment
     private Set<String> existingArtworkNames = new HashSet<>();
 
     public interface OnDrawingSavedListener {
@@ -79,7 +79,7 @@ public class DrawingCanvasFragment extends Fragment {
             Toast.makeText(context, "Error: DrawingCanvasFragment attached to wrong activity", Toast.LENGTH_SHORT).show();
         }
 
-        // Correctly get the target fragment, which should be ArtCornerFragment
+        // Correctly get the target fragment, which should be PaintFragment
         Fragment targetFragment = getTargetFragment();
         if (targetFragment instanceof OnDrawingSavedListener) {
             listener = (OnDrawingSavedListener) targetFragment;

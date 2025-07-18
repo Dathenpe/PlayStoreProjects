@@ -18,7 +18,7 @@ import com.f9ld3.heal.MainActivity;
 import com.f9ld3.heal.R;
 
 import drawing.DrawingCanvasFragment;
-import funcorner.ArtCornerFragment;
+import funcorner.PaintFragment;
 import funcorner.TetrisGameFragment;
 import funcorner.MemoryMatchGameFragment;
 import funcorner.WordScrambleGameFragment; // Import the new WordScrambleGameFragment
@@ -81,28 +81,50 @@ public class FunCornerFragment extends Fragment implements DrawingCanvasFragment
         });
 
         tetrisGameContainer.setOnClickListener(v -> {
-            mainActivity.loadFragment(new TetrisGameFragment(), R.id.nav_gallery);
-            mainActivity.toolbar.setTitle("Tetris Game");
-            mainActivity.addFragmentToHistory(R.id.nav_gallery, "Tetris Game");
+            mainActivity.loadFragment(new TetrisGameFragment(), R.id.nav_tetris);
+            mainActivity.toolbar.setTitle("Tetris");
+            mainActivity.addFragmentToHistory(R.id.nav_tetris, "Tetris");
+            if (mainActivity.MenuTrigger != null && mainActivity.Fab != null ||
+                    mainActivity.MenuTrigger.getVisibility() == View.VISIBLE &&
+                            mainActivity.Fab.getVisibility() == View.VISIBLE) {
+                mainActivity.MenuTrigger.setVisibility(View.GONE);
+                mainActivity.Fab.setVisibility(View.GONE);
+            }
         });
 
         artCornerCardContainer.setOnClickListener(v -> {
-            mainActivity.loadFragment(new ArtCornerFragment(), R.id.nav_gallery);
-            mainActivity.toolbar.setTitle("Art Corner");
-            mainActivity.addFragmentToHistory(R.id.nav_gallery, "Art Corner");
+            mainActivity.loadFragment(new PaintFragment(), R.id.nav_paint);
+            mainActivity.toolbar.setTitle("Paint");
+            mainActivity.addFragmentToHistory(R.id.nav_paint, "Paint");
+            if (mainActivity.MenuTrigger != null && mainActivity.Fab != null ||
+                    mainActivity.MenuTrigger.getVisibility() == View.VISIBLE &&
+                            mainActivity.Fab.getVisibility() == View.VISIBLE) {
+                mainActivity.MenuTrigger.setVisibility(View.GONE);
+                mainActivity.Fab.setVisibility(View.GONE);
+            }
         });
 
         memoryMatchGameContainer.setOnClickListener(v -> {
-            mainActivity.loadFragment(new MemoryMatchGameFragment(), R.id.nav_gallery);
+            mainActivity.loadFragment(new MemoryMatchGameFragment(), R.id.nav_memory_match);
             mainActivity.toolbar.setTitle("Memory Match Game");
-            mainActivity.addFragmentToHistory(R.id.nav_gallery, "Memory Match Game");
+            mainActivity.addFragmentToHistory(R.id.nav_memory_match, "Memory Match Game");
+            if (mainActivity.MenuTrigger != null && mainActivity.Fab != null ||
+                    mainActivity.MenuTrigger.getVisibility() == View.VISIBLE &&
+                            mainActivity.Fab.getVisibility() == View.VISIBLE) {
+                mainActivity.MenuTrigger.setVisibility(View.GONE);
+                mainActivity.Fab.setVisibility(View.GONE);
+            }
         });
 
         // Set OnClickListener for the Word Scramble game container
         wordScrambleGameContainer.setOnClickListener(v -> {
-            mainActivity.loadFragment(new WordScrambleGameFragment(), R.id.nav_gallery);
-            mainActivity.toolbar.setTitle("Word Scramble Game");
-            mainActivity.addFragmentToHistory(R.id.nav_gallery, "Word Scramble Game");
+            mainActivity.loadFragment(new WordScrambleGameFragment(), R.id.nav_word_scramble);
+            if (mainActivity.MenuTrigger != null && mainActivity.Fab != null ||
+                    mainActivity.MenuTrigger.getVisibility() == View.VISIBLE &&
+                            mainActivity.Fab.getVisibility() == View.VISIBLE) {
+                mainActivity.MenuTrigger.setVisibility(View.GONE);
+                mainActivity.Fab.setVisibility(View.GONE);
+            }
         });
     }
 
