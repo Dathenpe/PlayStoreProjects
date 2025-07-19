@@ -812,6 +812,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             new AlertDialog.Builder(this)
                     .setTitle("Exit Canvas")
                     .setMessage("Are you sure you want to leave without saving? Your changes will be lost.")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
                     .setPositiveButton("Leave", (dialog, which) -> {
                         // User chose to leave. Now, perform the navigation.
                         // We pop the back stack to exit the canvas, then navigate to the new fragment.
@@ -836,6 +837,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Show a confirmation dialog before navigating away
             new AlertDialog.Builder(this)
                     .setTitle("Exit Tetris")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
                     .setMessage("Are you sure you want to quit your game")        
                     .setPositiveButton("Leave", (dialog, which) -> {
                         // User chose to leave. Now, perform the navigation.
@@ -860,6 +862,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             new AlertDialog.Builder(this)
                     .setTitle("Exit Memory Match")
                     .setMessage("Are you sure you want to quit your game")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
                     .setPositiveButton("Leave", (dialog, which) -> {
                         // User chose to leave. Now, perform the navigation.
                         // We pop the back stack to exit the canvas, then navigate to the new fragment.
@@ -883,6 +886,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             new AlertDialog.Builder(this)
                     .setTitle("Exit WordScramble")
                     .setMessage("Are you sure you want to quit your game")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
                     .setPositiveButton("Leave", (dialog, which) -> {
                         // User chose to leave. Now, perform the navigation.
                         // We pop the back stack to exit the canvas, then navigate to the new fragment.

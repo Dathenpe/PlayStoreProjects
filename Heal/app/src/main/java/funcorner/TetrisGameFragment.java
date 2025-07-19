@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.f9ld3.heal.MainActivity;
 import com.f9ld3.heal.R;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -90,6 +91,8 @@ public class TetrisGameFragment extends Fragment implements HighScoresDialogFrag
     private ArrayList<HighScore> highScores;
     private SharedPreferences sharedPreferences;
     private final Gson gson = new Gson();
+    private Context context;
+    private MainActivity mainActivity;
 
     public TetrisGameFragment() {
         // Required empty public constructor
@@ -102,6 +105,16 @@ public class TetrisGameFragment extends Fragment implements HighScoresDialogFrag
         gameHandler = new Handler(Looper.getMainLooper());
         sharedPreferences = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         loadHighScores();
+    }
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.context = context;
+        if (context instanceof MainActivity) {
+            mainActivity = (MainActivity) context;
+        } else {
+            Toast.makeText(context, "Error: Fragment attached to wrong activity", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -143,8 +156,9 @@ public class TetrisGameFragment extends Fragment implements HighScoresDialogFrag
         gamepadControlsLayout = view.findViewById(R.id.fab_menu_actions);
 
         overlayContainer.setOnClickListener(v -> {
+            // If the user taps the overlay, it's a manual resume, so show toast.
             if (isPaused && !isGameOver) {
-                togglePause();
+                resumeGameAndHideUI(true); // User clicked to resume from overlay, show toast
             }
         });
     }
@@ -161,7 +175,13 @@ public class TetrisGameFragment extends Fragment implements HighScoresDialogFrag
         });
 
         // Pause/Play FAB
-        fabPausePlay.setOnClickListener(v -> togglePause());
+        fabPausePlay.setOnClickListener(v -> {
+            if (isPaused) {
+                resumeGameAndHideUI(true); // User clicked to resume, show toast
+            } else {
+                pauseGameAndShowUI(true); // User clicked to pause, show toast
+            }
+        });
 
         // Action FABs (inside the menu)
         fabRotate.setOnClickListener(v -> {
@@ -406,40 +426,62 @@ public class TetrisGameFragment extends Fragment implements HighScoresDialogFrag
         Toast.makeText(getContext(), "Game Over! Score: " + score, Toast.LENGTH_LONG).show();
     }
 
-    private void togglePause() {
-        if (isGameOver) return;
+    /**
+     * Pauses the game logic only (stops timer, sets flag). Does NOT affect UI or show toasts.
+     */
+    private void pauseGame() {
+        if (isGameOver || isPaused) return; // Don't pause if already over or paused
 
-        isPaused = !isPaused;
-        if (isPaused) {
-            gameHandler.removeCallbacks(gameRunnable);
-            overlayContainer.setVisibility(View.VISIBLE);
-            pausedCard.setVisibility(View.VISIBLE);
-            gameOverCard.setVisibility(View.GONE);
-            fabPausePlay.setImageResource(R.drawable.ic_play_arrow_white_24dp);
-            fabPausePlay.setContentDescription("Play");
-            if (isFabMenuOpen) closeFabMenu();
-            setGameControlsEnabled(false);
-            fabPausePlay.setEnabled(true);
+        isPaused = true;
+        gameHandler.removeCallbacks(gameRunnable);
+    }
+
+    /**
+     * Pauses the game logic AND updates UI to show "Game Paused" with a toast.
+     */
+    private void pauseGameAndShowUI(boolean showToast) {
+        pauseGame(); // Handle logic first
+
+        overlayContainer.setVisibility(View.VISIBLE);
+        pausedCard.setVisibility(View.VISIBLE);
+        gameOverCard.setVisibility(View.GONE);
+        fabPausePlay.setImageResource(R.drawable.ic_play_arrow_white_24dp);
+        fabPausePlay.setContentDescription("Play");
+        if (isFabMenuOpen) closeFabMenu();
+        setGameControlsEnabled(false);
+        fabPausePlay.setEnabled(true); // Keep pause/play button enabled to resume
+
+        if (showToast) {
             Toast.makeText(getContext(), "Game Paused", Toast.LENGTH_SHORT).show();
-        } else {
-            overlayContainer.setVisibility(View.GONE);
-            pausedCard.setVisibility(View.GONE);
-            fabPausePlay.setImageResource(R.drawable.ic_pause_white_24dp);
-            fabPausePlay.setContentDescription("Pause");
-            setGameControlsEnabled(true);
-            startGameLoop();
-            Toast.makeText(getContext(), "Game Resumed", Toast.LENGTH_SHORT).show();
         }
     }
 
-    // New method to pause game logic only, without showing the pause UI
-    private void pauseGameLogicOnly() {
-        if (isGameOver || isPaused) return;
-        isPaused = true;
-        gameHandler.removeCallbacks(gameRunnable);
-        setGameControlsEnabled(false);
-        fabPausePlay.setEnabled(true);
-        if (isFabMenuOpen) closeFabMenu();
+    /**
+     * Resumes the game logic only (starts timer, sets flag). Does NOT affect UI or show toasts.
+     */
+    private void resumeGame() {
+        if (isGameOver || !isPaused) return; // Don't resume if game over or not paused
+
+        isPaused = false;
+        startGameLoop();
+    }
+
+    /**
+     * Resumes the game logic AND hides "Game Paused" UI with a toast.
+     * @param showToast If true, a "Game Resumed" toast will be shown.
+     */
+    private void resumeGameAndHideUI(boolean showToast) {
+        resumeGame(); // Handle logic first
+
+        overlayContainer.setVisibility(View.GONE);
+        pausedCard.setVisibility(View.GONE);
+        fabPausePlay.setImageResource(R.drawable.ic_pause_white_24dp);
+        fabPausePlay.setContentDescription("Pause");
+        setGameControlsEnabled(true);
+
+        if (showToast) {
+            Toast.makeText(getContext(), "Game Resumed", Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -449,7 +491,7 @@ public class TetrisGameFragment extends Fragment implements HighScoresDialogFrag
         fabLeft.setEnabled(enabled);
         fabRight.setEnabled(enabled);
         fabDown.setEnabled(enabled);
-        fabPausePlay.setEnabled(!isGameOver);
+        fabPausePlay.setEnabled(!isGameOver); // Always allow pause/play unless game is over
 
         if (!enabled && isFabMenuOpen) {
             closeFabMenu();
@@ -457,11 +499,15 @@ public class TetrisGameFragment extends Fragment implements HighScoresDialogFrag
     }
 
     private void showHighScoresDialog() {
-        pauseGameLogicOnly();
-        pausedCard.setVisibility(View.GONE);
-        fabPausePlay.setImageResource(R.drawable.ic_play_arrow_white_24dp);
-        overlayContainer.setVisibility(View.GONE);
-        Toast.makeText(getContext(), "Game Paused", Toast.LENGTH_SHORT).show();
+        // Pause the game logic and show the UI, but without the toast for this specific action
+        if (!isPaused && !isGameOver) {
+            pauseGameAndShowUI(false); // Pause without toast
+        }
+        // Ensure paused card is hidden if it was shown by pauseGameAndShowUI(false)
+        pausedCard.setVisibility(View.GONE); // Explicitly hide the paused card
+        fabPausePlay.setImageResource(R.drawable.ic_play_arrow_white_24dp); // Show play icon
+        overlayContainer.setVisibility(View.GONE); // Hide overlay
+        Toast.makeText(getContext(), "Game Paused (High Scores)", Toast.LENGTH_SHORT).show(); // Specific toast for high scores
         HighScoresDialogFragment dialog = HighScoresDialogFragment.newInstance(highScores);
         dialog.setOnDismissListener(this);
         dialog.show(getParentFragmentManager(), "HighScoresDialog");
@@ -469,8 +515,9 @@ public class TetrisGameFragment extends Fragment implements HighScoresDialogFrag
 
     @Override
     public void onDismiss() {
+        // Resume game when high scores dialog is dismissed, show toast
         if (isPaused && !isGameOver) {
-            togglePause();
+            resumeGameAndHideUI(true);
         }
     }
 
@@ -501,8 +548,10 @@ public class TetrisGameFragment extends Fragment implements HighScoresDialogFrag
     @Override
     public void onPause() {
         super.onPause();
-        if (!isGameOver && !isPaused) {
-            togglePause();
+        // If the game is running and not over, pause its logic only.
+        // This will NOT show the overlay or toast.
+        if (!isPaused && !isGameOver) {
+            pauseGame();
         }
     }
 
@@ -510,5 +559,19 @@ public class TetrisGameFragment extends Fragment implements HighScoresDialogFrag
     public void onDestroyView() {
         super.onDestroyView();
         gameHandler.removeCallbacks(gameRunnable);
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        mainActivity.toolbar.setTitle("Tetris");
+        mainActivity.navigationView.setCheckedItem(R.id.nav_fun_corner);
+        mainActivity.MenuTrigger.setVisibility(View.GONE);
+        mainActivity.Fab.setVisibility(View.GONE);
+
+        // If the game was paused by onPause (e.g., app minimized) and the UI is NOT visible,
+        // automatically resume it without a toast.
+        if (isPaused && !isGameOver && overlayContainer.getVisibility() != View.VISIBLE) {
+            resumeGame(); // Auto-resume logic only, no UI or toast
+        }
     }
 }

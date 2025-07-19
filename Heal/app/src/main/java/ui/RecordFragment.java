@@ -120,4 +120,13 @@ public class RecordFragment extends Fragment {
             mainActivity.addFragmentToHistory(R.id.nav_relapse_history, "My Relapse History");
         });
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        mainActivity.toolbar.setTitle("Data Records");
+        mainActivity.navigationView.setCheckedItem(R.id.nav_records);
+        mainActivity.MenuTrigger.setVisibility(View.VISIBLE);
+        mainActivity.Fab.setVisibility(View.VISIBLE);
+    }
+
 }

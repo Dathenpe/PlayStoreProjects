@@ -144,14 +144,4 @@ public class FunCornerFragment extends Fragment implements DrawingCanvasFragment
             mainActivity.Fab.setVisibility(View.GONE);
         }
     }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mainActivity != null) {
-            mainActivity.MenuTrigger.setVisibility(View.VISIBLE);
-            mainActivity.Fab.setVisibility(View.VISIBLE);
-            mainActivity.shakeView(mainActivity.Fab);
-        }
-    }
 }

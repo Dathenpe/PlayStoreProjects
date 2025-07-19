@@ -179,6 +179,9 @@ public class JournalEntriesFragment extends Fragment implements
     @Override
     public void onResume() {
         mainActivity.toolbar.setTitle("My Journal Entries");
+        mainActivity.navigationView.setCheckedItem(R.id.nav_records);
+        mainActivity.MenuTrigger.setVisibility(View.VISIBLE);
+        mainActivity.Fab.setVisibility(View.VISIBLE);
         super.onResume();
         loadJournalEntries(); // Ensure data is fresh when returning to the fragment
         if (adapter != null) {

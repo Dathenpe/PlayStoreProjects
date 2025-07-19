@@ -7,18 +7,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.f9ld3.heal.MainActivity;
 import com.f9ld3.heal.R;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import ui.HomeFragment; // Assuming RelapseEntry is an inner class of HomeFragment or in the ui package
+
+import ui.HomeFragment;
 
 public class RelapseHistoryFragment extends Fragment {
 
@@ -27,6 +33,8 @@ public class RelapseHistoryFragment extends Fragment {
     private List<HomeFragment.RelapseEntry> relapseHistory;
     private TextView emptyStateTextView;
     private Gson gson = new Gson();
+    private MainActivity mainActivity;
+    private Context context;
 
     private static final String PREFS_RELAPSE_HISTORY = "relapse_history_prefs";
     private static final String KEY_RELAPSE_ENTRIES = "relapse_entries";
@@ -34,6 +42,16 @@ public class RelapseHistoryFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof MainActivity) {
+            mainActivity = (MainActivity) context;
+        } else {
+            Toast.makeText(context, "Error: CopingExercisesFragment attached to wrong activity", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Nullable
@@ -124,5 +142,13 @@ public class RelapseHistoryFragment extends Fragment {
                 reasonTextView = itemView.findViewById(R.id.relapse_reason_text_view);
             }
         }
+    }
+    @Override
+    public void onResume(){
+        mainActivity.toolbar.setTitle("My Relapse History");
+        mainActivity.navigationView.setCheckedItem(R.id.nav_records);
+        mainActivity.MenuTrigger.setVisibility(View.VISIBLE);
+        mainActivity.Fab.setVisibility(View.VISIBLE);
+        super.onResume();
     }
 }

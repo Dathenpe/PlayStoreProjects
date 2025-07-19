@@ -148,7 +148,16 @@ public class WordScrambleGameFragment extends Fragment {
         selectedLetterIndices = new ArrayList<>();
         loadWordsFromFile();
     }
-
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.context = context;
+        if (context instanceof MainActivity) {
+            mainActivity = (MainActivity) context;
+        } else {
+            Toast.makeText(context, "Error: Fragment attached to wrong activity", Toast.LENGTH_SHORT).show();
+        }
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -247,15 +256,20 @@ public class WordScrambleGameFragment extends Fragment {
         });
         highScoresButton.setOnClickListener(v -> showHighScoresDialog());
         pauseButton.setOnClickListener(v -> {
-            // No confirmation dialog for pausing, direct toggle
-            togglePauseGame();
-        });
-        overlayContainer.setOnClickListener(v -> {
-            // Only allow tap to resume if currently paused, not if game is over
             if (isPaused) {
-                togglePauseGame();
+                resumeGameAndHideUI(true); // User clicked to resume, show toast
+            } else {
+                pauseGameAndShowUI(true); // User clicked to pause, show toast
             }
         });
+
+        overlayContainer.setOnClickListener(v -> {
+            // If the user taps the overlay, it's a manual resume, so show toast.
+            if (isPaused && !isGameOver) {
+                resumeGameAndHideUI(true); // User clicked to resume from overlay, show toast
+            }
+        });
+
         restartGameOverButton.setOnClickListener(v -> {
             // No confirmation dialog for restart from game over screen
             resetGame();
@@ -264,7 +278,7 @@ public class WordScrambleGameFragment extends Fragment {
         });
 
         // Set up new pause dialog button listeners
-        resumeGameButton.setOnClickListener(v -> togglePauseGame());
+        resumeGameButton.setOnClickListener(v -> resumeGameAndHideUI(true)); // Resume button in dialog
         restartGamePausedButton.setOnClickListener(v -> {
             showConfirmationDialog("Restart Game",
                     "Are you sure you want to restart the game? Your current progress will be lost.",
@@ -995,6 +1009,15 @@ public class WordScrambleGameFragment extends Fragment {
      * Displays the high scores dialog.
      */
     private void showHighScoresDialog() {
+        // Pause the game logic and show the UI, but without the toast for this specific action
+        if (!isPaused && !isGameOver) {
+            pauseGameAndShowUI(false); // Pause without toast
+        }
+        // Ensure paused card is hidden if it was shown by pauseGameAndShowUI(false)
+        pausedCard.setVisibility(View.GONE); // Explicitly hide the paused card
+        pauseButton.setIconResource(R.drawable.ic_play_arrow_white_24dp); // Show play icon
+        overlayContainer.setVisibility(View.GONE); // Hide overlay
+        Toast.makeText(getContext(), "Game Paused (High Scores)", Toast.LENGTH_SHORT).show(); // Specific toast for high scores
         List<HighScoreEntry> scores = loadHighScores();
         // Pass the original scores directly to the dialog's newInstance method,
         // and pass null for localUserId as it's not used in this game's HighScoreDialogFragment.
@@ -1003,30 +1026,59 @@ public class WordScrambleGameFragment extends Fragment {
     }
 
     /**
-     * Toggles the game's paused state.
+     * Pauses the game logic only (stops timer, sets flag). Does NOT affect UI or show toasts.
      */
-    private void togglePauseGame() {
-        if (isGameOver) return; // Cannot pause if game is over
+    private void pauseGame() {
+        if (isGameOver || isPaused) return; // Don't pause if already over or paused
 
-        isPaused = !isPaused;
-        if (isPaused) {
-            stopTimer();
-            timeWhenPaused = System.currentTimeMillis() - startTime;
-            overlayContainer.setVisibility(View.VISIBLE);
-            pausedCard.setVisibility(View.VISIBLE);
-            gameOverCard.setVisibility(View.GONE); // Explicitly hide game over card
-            setGameControlsEnabled(false);
-            pauseButton.setIconResource(R.drawable.ic_play_arrow_white_24dp); // Change icon to play
+        isPaused = true;
+        stopTimer();
+        timeWhenPaused = System.currentTimeMillis() - startTime;
+    }
+
+    /**
+     * Pauses the game logic AND updates UI to show "Game Paused" with a toast.
+     * @param showToast If true, a "Game Paused" toast will be shown.
+     */
+    private void pauseGameAndShowUI(boolean showToast) {
+        pauseGame(); // Handle logic first
+
+        pauseButton.setIconResource(R.drawable.ic_play_arrow_white_24dp); // Change icon to play
+        overlayContainer.setVisibility(View.VISIBLE);
+        pausedCard.setVisibility(View.VISIBLE);
+        gameOverCard.setVisibility(View.GONE); // Explicitly hide game over card
+        setGameControlsEnabled(false); // Disable controls when paused
+
+        if (showToast) {
             Toast.makeText(getContext(), "Game Paused", Toast.LENGTH_SHORT).show();
-        } else {
-            startTimer();
-            overlayContainer.setVisibility(View.GONE);
-            pausedCard.setVisibility(View.GONE);
-            setGameControlsEnabled(true);
-            pauseButton.setIconResource(R.drawable.ic_pause_white_24dp); // Change icon to pause
+        }
+    }
+
+    /**
+     * Resumes the game logic only (starts timer, sets flag). Does NOT affect UI or show toasts.
+     */
+    private void resumeGame() {
+        if (isGameOver || !isPaused) return; // Don't resume if game over or not paused
+
+        isPaused = false;
+        startTimer();
+    }
+
+    /**
+     * Resumes the game logic AND hides "Game Paused" UI with a toast.
+     * @param showToast If true, a "Game Resumed" toast will be shown.
+     */
+    private void resumeGameAndHideUI(boolean showToast) {
+        resumeGame(); // Handle logic first
+
+        pauseButton.setIconResource(R.drawable.ic_pause_white_24dp); // Change icon to pause
+        overlayContainer.setVisibility(View.GONE);
+        pausedCard.setVisibility(View.GONE);
+        setGameControlsEnabled(true); // Re-enable controls when resumed
+
+        if (showToast) {
             Toast.makeText(getContext(), "Game Resumed", Toast.LENGTH_SHORT).show();
         }
-        updateClueButtonText(); // Update clue button state based on pause
     }
 
     /**
@@ -1131,9 +1183,9 @@ public class WordScrambleGameFragment extends Fragment {
             mainActivity.MenuTrigger.setVisibility(View.GONE);
             mainActivity.Fab.setVisibility(View.GONE);
         }
-        // Only pause the game if it's not already over and not already paused
-        if (!isGameOver && !isPaused) {
-            togglePauseGame(); // Pause game when fragment is paused
+        // Pause the game logic only (no UI, no toast) when fragment is minimized/exited
+        if (!isPaused && !isGameOver) {
+            pauseGame();
         }
     }
 
@@ -1143,21 +1195,17 @@ public class WordScrambleGameFragment extends Fragment {
         stopTimer(); // Ensure timer is stopped when view is destroyed
     }
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        this.context = context;
-        if (context instanceof MainActivity) {
-            mainActivity = (MainActivity) context;
-        } else {
-            Toast.makeText(context, "Error: Fragment attached to wrong activity", Toast.LENGTH_SHORT).show();
-        }
-    }
-    @Override
     public void onResume() {
         super.onResume();
         if (mainActivity != null) {
+            mainActivity.toolbar.setTitle("Word Scramble Game");
             mainActivity.MenuTrigger.setVisibility(View.GONE);
             mainActivity.Fab.setVisibility(View.GONE);
+        }
+        // If the game was paused by onPause (e.g., app minimized) and the UI is NOT visible,
+        // automatically resume it without a toast.
+        if (isPaused && !isGameOver && overlayContainer.getVisibility() != View.VISIBLE) {
+            resumeGame(); // Auto-resume logic only, no UI or toast
         }
     }
 }

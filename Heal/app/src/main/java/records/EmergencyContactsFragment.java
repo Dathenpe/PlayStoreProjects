@@ -232,6 +232,9 @@ public class EmergencyContactsFragment extends Fragment implements EmergencyCont
     @Override
     public void onResume(){
         mainActivity.toolbar.setTitle("My Emergency Contacts");
+        mainActivity.navigationView.setCheckedItem(R.id.nav_records);
+        mainActivity.MenuTrigger.setVisibility(View.VISIBLE);
+        mainActivity.Fab.setVisibility(View.VISIBLE);
         super.onResume();
         updateEmptyStateVisibility();
     }

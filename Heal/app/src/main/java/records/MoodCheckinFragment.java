@@ -150,6 +150,9 @@ public class MoodCheckinFragment extends Fragment {
     @Override
     public void onResume(){
         mainActivity.toolbar.setTitle("My Mood History");
+        mainActivity.navigationView.setCheckedItem(R.id.nav_records);
+        mainActivity.MenuTrigger.setVisibility(View.VISIBLE);
+        mainActivity.Fab.setVisibility(View.VISIBLE);
         super.onResume();
     }
 }

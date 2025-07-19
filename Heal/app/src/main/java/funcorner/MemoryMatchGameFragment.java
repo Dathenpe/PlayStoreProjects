@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.f9ld3.heal.MainActivity;
 import com.f9ld3.heal.R;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -75,12 +76,12 @@ public class MemoryMatchGameFragment extends Fragment {
 
     // --- Emoji Arrays for New Themes ---
     private static final String[] FRUIT_EMOJIS = {
-            "🍎", "🍌", "🍒", "🍓", "🍍", "🥝", "�", "🍉",
+            "🍎", "🍌", "🍒", "🍓", "🍍", "🥝", "", "🍉",
             "🍏", "🍋", "🍑", "🥭", "🍈", "🥥", "🍐", "🍊"
     };
 
     private static final String[] CAR_EMOJIS = {
-            "🚗", "🚕", "🚙", "🚌", "🏎️", "🚓", "🚑", "🚒",
+            "🚗", "🚕", "🚙", "🚌", "🏎️", "🚓", "�", "🚒",
             "🚚", "🚜", "🚲", "🛴", "🛵", "🏍️", "🚂", "🚀"
     };
 
@@ -118,6 +119,8 @@ public class MemoryMatchGameFragment extends Fragment {
     private String[] currentEmojis;
     private String currentTheme = "Fruits";
     private int selectedThemePosition = 0;
+    private Context context;
+    private MainActivity mainActivity;
 
     // Modified HighScoreEntry to store date instead of userId
     public static class HighScoreEntry implements java.io.Serializable {
@@ -133,7 +136,16 @@ public class MemoryMatchGameFragment extends Fragment {
             this.timestamp = timestamp;
         }
     }
-
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.context = context;
+        if (context instanceof MainActivity) {
+            mainActivity = (MainActivity) context;
+        } else {
+            Toast.makeText(context, "Error: Fragment attached to wrong activity", Toast.LENGTH_SHORT).show();
+        }
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -209,11 +221,17 @@ public class MemoryMatchGameFragment extends Fragment {
                     null);
         });
         highScoresButton.setOnClickListener(v -> showHighScoresDialog());
-        pauseButton.setOnClickListener(v -> togglePauseGame());
+        pauseButton.setOnClickListener(v -> {
+            if (isPaused) {
+                resumeGameAndHideUI(true); // User clicked to resume, show toast
+            } else {
+                pauseGameAndShowUI(true); // User clicked to pause, show toast
+            }
+        });
 
         overlayContainer.setOnClickListener(v -> {
             if (isPaused) {
-                togglePauseGame();
+                resumeGameAndHideUI(true); // User clicked to resume from overlay, show toast
             }
         });
 
@@ -492,49 +510,81 @@ public class MemoryMatchGameFragment extends Fragment {
     }
 
     private void showHighScoresDialog() {
+        // Pause the game logic and show the UI, but without the toast for this specific action
+        if (!isPaused) {
+            pauseGameAndShowUI(false); // Pause without toast
+        }
+        // Ensure paused card is hidden if it was shown by pauseGameAndShowUI(false)
+        pausedCard.setVisibility(View.GONE); // Explicitly hide the paused card
+        pauseButton.setText("Resume"); // Show resume text
+        overlayContainer.setVisibility(View.GONE); // Hide overlay
+        Toast.makeText(getContext(), "Game Paused (High Scores)", Toast.LENGTH_SHORT).show(); // Specific toast for high scores
         List<HighScoreEntry> scores = loadHighScores();
         // Pass null for localUserId as it's no longer used for highlighting
         memorymatch.HighScoreDialogFragment dialogFragment = memorymatch.HighScoreDialogFragment.newInstance(scores, null);
         dialogFragment.show(getParentFragmentManager(), "high_scores_dialog");
     }
 
-    private void togglePauseGame() {
-        if (isPaused) {
-            resumeGame();
-        } else {
-            pauseGame();
-        }
-    }
-
+    /**
+     * Pauses the game logic only (stops timer, sets flag). Does NOT affect UI or show toasts.
+     */
     private void pauseGame() {
-        if (!timerRunning) return;
+        if ( isPaused) return; // Don't pause if already over or paused
 
         isPaused = true;
         stopTimer();
         timeWhenPaused = System.currentTimeMillis() - startTime;
-        pauseButton.setText("Resume");
-        overlayContainer.setVisibility(View.VISIBLE);
-        pausedCard.setVisibility(View.VISIBLE);
-        gameOverCard.setVisibility(View.GONE);
-        Toast.makeText(getContext(), "Game Paused", Toast.LENGTH_SHORT).show();
-
         for (Button card : cards) {
             card.setEnabled(false);
         }
     }
 
+    /**
+     * Pauses the game logic AND updates UI to show "Game Paused" with a toast.
+     * @param showToast If true, a "Game Paused" toast will be shown.
+     */
+    private void pauseGameAndShowUI(boolean showToast) {
+        pauseGame(); // Handle logic first
+
+        pauseButton.setText("Resume");
+        overlayContainer.setVisibility(View.VISIBLE);
+        pausedCard.setVisibility(View.VISIBLE);
+        gameOverCard.setVisibility(View.GONE);
+
+        if (showToast) {
+            Toast.makeText(getContext(), "Game Paused", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Resumes the game logic only (starts timer, sets flag). Does NOT affect UI or show toasts.
+     */
     private void resumeGame() {
+        if (!isPaused) return; // Don't resume if game over or not paused
+
         isPaused = false;
         startTimer();
-        pauseButton.setText("Pause");
-        overlayContainer.setVisibility(View.GONE);
-        pausedCard.setVisibility(View.GONE);
-        Toast.makeText(getContext(), "Game Resumed", Toast.LENGTH_SHORT).show();
-
         for (Button card : cards) {
             card.setEnabled(true);
         }
     }
+
+    /**
+     * Resumes the game logic AND hides "Game Paused" UI with a toast.
+     * @param showToast If true, a "Game Resumed" toast will be shown.
+     */
+    private void resumeGameAndHideUI(boolean showToast) {
+        resumeGame(); // Handle logic first
+
+        pauseButton.setText("Pause");
+        overlayContainer.setVisibility(View.GONE);
+        pausedCard.setVisibility(View.GONE);
+
+        if (showToast) {
+            Toast.makeText(getContext(), "Game Resumed", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     private void showGameOverScreen() {
         overlayContainer.setVisibility(View.VISIBLE);
@@ -570,5 +620,28 @@ public class MemoryMatchGameFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         stopTimer();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Pause the game logic only (no UI, no toast) when fragment is minimized/exited
+        if (!isPaused) {
+            pauseGame();
+        }
+    }
+
+    @Override
+    public void onResume(){
+        mainActivity.toolbar.setTitle("Memory Match Game");
+        mainActivity.navigationView.setCheckedItem(R.id.nav_fun_corner);
+        mainActivity.MenuTrigger.setVisibility(View.GONE);
+        mainActivity.Fab.setVisibility(View.GONE);
+        super.onResume();
+        // If the game was paused by onPause (e.g., app minimized) and the UI is NOT visible,
+        // automatically resume it without a toast.
+        if (isPaused  && overlayContainer.getVisibility() != View.VISIBLE) {
+            resumeGame(); // Auto-resume logic only, no UI or toast
+        }
     }
 }

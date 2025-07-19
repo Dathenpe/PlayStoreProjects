@@ -399,6 +399,9 @@ public class HomeFragment extends Fragment {
         updateBarChart();
         startRelapseCounterUpdates();
         loadSavedUsername();
+        mainActivity.MenuTrigger.setVisibility(View.VISIBLE);
+        mainActivity.navigationView.setCheckedItem(R.id.nav_home);
+        mainActivity.Fab.setVisibility(View.VISIBLE);
     }
     @Override
     public void onPause() {

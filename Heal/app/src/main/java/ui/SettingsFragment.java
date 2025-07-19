@@ -4,12 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -92,29 +90,19 @@ public class SettingsFragment extends Fragment {
 
     private void showNameInputDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setIcon(android.R.drawable.ic_menu_edit);
         builder.setTitle("Edit Name");
         final EditText input = new EditText(getContext());
         input.setText(nameText.getText());
         mainActivity.closeSettings();
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            input.requestFocus();
-            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
-            }
-        }, 300);
-
         builder.setView(input);
 
         builder.setPositiveButton("OK", null);
 
         builder.setNegativeButton("Cancel", (dialog, which) -> {
             dialog.cancel();
-            InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            mainActivity.loadBottomSettingsFragment();
-            if (imm != null) {
-                imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
-            }
+            Handler handler = new Handler();
+            handler.postDelayed(() -> mainActivity.loadBottomSettingsFragment(), 100);
         });
         AlertDialog dialog = builder.create();
         dialog.show();
@@ -124,15 +112,10 @@ public class SettingsFragment extends Fragment {
             if (newName != null && !newName.isEmpty()) {
                 mainActivity.saveNameToLocalStorage(newName);
                 nameText.setText(newName);
-                Toast.makeText(getContext(), "Name saved successfully, your changes will apply after home-page reload", Toast.LENGTH_SHORT).show();
-                mainActivity.loadBottomSettingsFragment();
+                Toast.makeText(getContext(), "Name saved successfully", Toast.LENGTH_SHORT).show();
+                Handler handler = new Handler();
+                handler.postDelayed(() -> mainActivity.loadBottomSettingsFragment(), 100);
                 dialog.dismiss();
-
-                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
-                }
-
             } else {
                 Toast.makeText(getContext(), "Name cannot be empty, changes not saved", Toast.LENGTH_SHORT).show();
             }
