@@ -11,22 +11,26 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/home_scroll_view">
+        android:id="@+id/home_scroll_view"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingHorizontal="16dp">
 
+            <!-- Greeting Card -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/greeting_card_view"
+                style="@style/Widget.Material3.CardView.Filled"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="?attr/colorPrimaryContainer"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                android:layout_marginBottom="16dp"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -44,15 +48,16 @@
                         android:layout_weight="1"
                         android:fontFamily="sans-serif-light"
                         android:text="Hello, [User Name]!"
-                        android:textColor="@color/md_theme_secondary"
-                        android:textSize="28sp"
-                        android:textStyle="bold" />
+                        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                        android:textColor="?attr/colorOnPrimaryContainer"
+                        tools:textStyle="bold" /> <!-- tools:textStyle to keep visual in preview if needed -->
                     <ImageView
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:id="@+id/self_improvement_icon"
                         android:src="@drawable/outline_self_improvement_24"
-                        app:tint="?attr/colorOnPrimaryContainer" />
+                        app:tint="?attr/colorOnPrimaryContainer"
+                        android:contentDescription="Self improvement icon" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -62,18 +67,18 @@
                 android:layout_height="200dp"
                 android:layout_marginBottom="16dp"/>
 
-
+            <!-- Positive Action Tracker Card -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/tracker_card_view"
+                style="@style/Widget.Material3.CardView.Elevated"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
                 app:cardCornerRadius="8dp"
-                app:cardElevation="1dp"
                 android:layout_marginBottom="16dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="140dp"
+                    android:layout_height="wrap_content"
                     android:padding="16dp">
 
                     <TextView
@@ -82,8 +87,8 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
                         android:text="Taking Positive Steps"
-                        android:textColor="?attr/colorSecondary"
-                        android:textSize="18sp"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textColor="?attr/colorOnSurface"
                         app:layout_constraintEnd_toStartOf="@+id/steps_counter"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
@@ -95,32 +100,34 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-condensed-bold"
                         android:text="0"
+                        android:textAppearance="?attr/textAppearanceDisplaySmall"
                         android:textColor="?attr/colorPrimary"
-                        android:textSize="36sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/add_step_button"
+                        style="@style/Widget.Material3.Button"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="Log Positive Action"
-                        android:textColor="?attr/colorOnPrimary"
                         app:cornerRadius="8dp"
-                        app:backgroundTint="?attr/colorPrimary"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/tracker_title" />
+                        app:layout_constraintTop_toBottomOf="@+id/tracker_title"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Urge Management Card -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/urge_card_view"
+                style="@style/Widget.Material3.CardView.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="?attr/colorSurfaceContainer" app:cardCornerRadius="8dp"
-                app:cardElevation="1dp"
+                app:cardCornerRadius="8dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -135,16 +142,16 @@
                         android:layout_marginBottom="8dp"
                         android:fontFamily="sans-serif-medium"
                         android:text="Manage Urges"
-                        android:textColor="?attr/colorTertiary"
-                        android:textSize="18sp" />
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textColor="?attr/colorOnSurface" />
 
                     <TextView
                         android:id="@+id/urge_level_label"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Current Urge Level (0-10):"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="14sp" />
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
 
                     <TextView
                         android:id="@+id/urge_level_display"
@@ -153,22 +160,18 @@
                         android:layout_marginTop="4dp"
                         android:fontFamily="sans-serif-medium"
                         android:text="-"
-                        android:textColor="?attr/colorPrimary"
-                        android:textSize="20sp" />
+                        android:textAppearance="?attr/textAppearanceTitleLarge"
+                        android:textColor="?attr/colorPrimary" />
 
                     <com.google.android.material.slider.Slider
                         android:id="@+id/urge_level_seekbar"
+                        style="@style/Widget.Material3.Slider"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:valueFrom="0.0"
                         android:valueTo="10.0"
                         android:stepSize="1.0"
-                        android:contentDescription="Urge level slider from 0 to 10"
-                        app:thumbColor="@color/orange"
-                        app:trackColorActive="@color/orange"
-                        app:trackColorInactive="@color/lightgray"
-                        app:haloColor="@color/orange"
-                        style="@style/Widget.App.Slider"/>
+                        android:contentDescription="Urge level slider from 0 to 10" />
 
                     <TextView
                         android:id="@+id/coping_strategies_label"
@@ -176,60 +179,64 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="Coping Strategies Used:"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="14sp" />
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:orientation="horizontal"
-                        android:weightSum="3">
+                        android:gravity="center_vertical">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/coping_strategies_input"
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/coping_strategies_input_layout"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="2"
-                            android:maxLines="2"
-                            android:hint="e.g., Deep breathing, distraction"
-                            android:minHeight="48dp"
-                            android:padding="12dp"
-                            android:background="@drawable/rounded_input_field_light"
-                            android:textColor="?attr/colorOnSurface"
-                            android:textSize="16sp"
-                            android:textColorHint="?attr/colorOnSurfaceVariant" />
+                            android:layout_weight="1"
+                            android:hint="e.g., Deep breathing"
+                            app:endIconMode="clear_text">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/coping_strategies_input"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:maxLines="2"
+                                android:inputType="textCapSentences" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/save_coping_strategy_button"
-                            android:layout_width="0dp"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
-                            android:layout_weight="1"
                             android:text="Save"
-                            android:textColor="?attr/colorOnTertiary"
-                            app:backgroundTint="?attr/colorTertiary"
                             app:cornerRadius="8dp" />
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/see_more_strategies_button"
+                        style="@style/Widget.Material3.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="See More"
-                        android:textColor="?attr/colorOnSecondary"
-                        app:backgroundTint="?attr/colorSecondary"
                         android:visibility="gone"
                         app:cornerRadius="8dp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Relapse Counter Card -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/relapse_card_view"
+                style="@style/Widget.Material3.CardView.Filled"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="?attr/colorPrimaryContainer"  app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerHighest"
+                app:cardCornerRadius="12dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -242,17 +249,19 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Time Since Last Relapse" android:textAppearance="?attr/textAppearanceTitleMedium"
-                        android:textColor="?attr/colorOnPrimaryContainer" android:layout_marginBottom="8dp"/>
+                        android:text="Time Since Last Relapse"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textColor="?attr/colorOnErrorContainer"
+                        android:layout_marginBottom="8dp"/>
 
                     <TextView
                         android:id="@+id/relapse_counter_text_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0 Days 00 Hours 00 Minutes 00 Seconds"
-                        android:textSize="13sp"
+                        tools:text="0 Days 00 Hours 00 Minutes 00 Seconds"
                         android:textAppearance="?attr/textAppearanceDisplaySmall"
-                        android:textColor="?attr/colorOnPrimaryContainer" android:layout_marginBottom="16dp"/>
+                        android:textColor="?attr/colorOnErrorContainer"
+                        android:layout_marginBottom="16dp"/>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/reset_relapse_button"
@@ -260,14 +269,18 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Reset Counter"
-                        android:textColor="?attr/colorPrimary" app:strokeColor="?attr/colorPrimary"/> </LinearLayout>
+                        android:textColor="?attr/colorError"
+                        app:strokeColor="?attr/colorError"/>
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Quick Actions/Resources Card -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/resources_card_view"
+                style="@style/Widget.Material3.CardView.Elevated"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="?attr/colorSurfaceContainerHighest" app:cardCornerRadius="8dp"
-                app:cardElevation="1dp"
+                app:cardCornerRadius="8dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -280,65 +293,59 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
-                        android:text="Quick Actions Resources"
-                        android:textColor="?attr/colorTertiary"
-                        android:textSize="18sp"
+                        android:text="Quick Actions &amp; Resources"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="16dp"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="2">
+                        android:orientation="horizontal">
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/emergency_contact_button"
+                            style="@style/Widget.Material3.Button"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginEnd="8dp"
-                            android:text="Emergency Contacts"
-                            android:id="@+id/emergency_contact_button"
-                            android:textColor="?attr/colorOnPrimary"
-                            android:textSize="11sp"
-                            app:backgroundTint="?attr/colorPrimary"
+                            android:text="Contacts"
+                            android:textSize="12sp"
                             app:cornerRadius="8dp" />
 
                         <com.google.android.material.button.MaterialButton
+                            android:id="@+id/coping_exercises_button"
+                            style="@style/Widget.Material3.Button.TonalButton"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginStart="8dp"
-                            android:text="Coping Exercises"
-                            android:id="@+id/coping_exercises_button"
-                            android:textColor="?attr/colorOnTertiaryContainer"
-                            android:textSize="11sp"
-                            app:backgroundTint="?attr/colorTertiaryContainer"
+                            android:layout_marginStart="4dp"
+                            android:text="Exercises"
+                            android:textSize="12sp"
                             app:cornerRadius="8dp" />
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/more_resources_button"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="More Resources"
-                        android:textColor="?attr/colorOnSurface"
                         android:textSize="12sp"
-                        android:id="@+id/more_resources_button"
-                        app:backgroundTint="?attr/colorSurface"
-                        app:strokeColor="?attr/colorOutline"
-                        app:strokeWidth="1dp"
-                        style="?attr/materialButtonOutlinedStyle"
                         app:cornerRadius="8dp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Daily Check-in Card -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/checkin_card_view"
+                style="@style/Widget.Material3.CardView.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
                 app:cardCornerRadius="8dp"
-                app:cardElevation="1dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -352,71 +359,74 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
                         android:text="Daily Check-in"
-                        android:textColor="?attr/colorSecondary"
-                        android:textSize="18sp"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="8dp"/>
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="How joyful are you today?"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
                         android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="16sp"
                         android:layout_marginBottom="8dp"/>
 
                     <com.google.android.material.slider.Slider
                         android:id="@+id/mood_seek_bar"
+                        style="@style/Widget.Material3.Slider"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:valueFrom="0.0"
                         android:valueTo="10.0"
                         android:stepSize="1.0"
-                        android:contentDescription="Mood level slider from 0 to 10"
-                        app:thumbColor="@color/orange"
-                        app:trackColorActive="@color/orange"
-                        app:trackColorInactive="@color/lightgray"
-                        app:haloColor="@color/orange"
-                        style="@style/Widget.App.Slider"/>
+                        android:contentDescription="Mood level slider from 0 to 10"/>
 
                     <TextView
                         android:id="@+id/mood_value_label"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Current Value: 0"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="14sp"
+                        tools:text="Current Value: 5"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="16dp" />
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/mood_input_text"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/mood_input_layout"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Write a few words about your mood"
-                        android:minHeight="48dp"
-                        android:padding="12dp"
-                        android:background="@drawable/rounded_input_field_light"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="16sp"
-                        android:textColorHint="?attr/colorOnSurfaceVariant" />
+                        android:hint="Write a few words about your mood">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/mood_input_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapSentences|textMultiLine"
+                            android:gravity="top"
+                            android:minLines="3"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/submit_checkin_button"
+                        style="@style/Widget.Material3.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="end"
                         android:layout_marginTop="16dp"
                         android:text="Submit Check-in"
-                        android:textColor="?attr/colorOnSecondary"
-                        app:backgroundTint="?attr/colorSecondary"
                         app:cornerRadius="8dp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Quick Grounding Exercise Card -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/grounding_exercise_card_view"
+                style="@style/Widget.Material3.CardView.Elevated"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="?attr/colorSurfaceContainer" app:cardCornerRadius="8dp"
-                app:cardElevation="1dp"
+                app:cardCornerRadius="8dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -430,35 +440,36 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
                         android:text="Quick Grounding Exercise"
-                        android:textColor="?attr/colorTertiary"
-                        android:textSize="18sp"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="8dp"/>
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Focus on your senses to bring yourself to the present moment."
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
                         android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="16sp"
-                        android:layout_marginBottom="8dp"/>
+                        android:layout_marginBottom="16dp"/>
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/grounding_exercise_button"
+                        style="@style/Widget.Material3.Button.TonalButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Start Exercise"
-                        android:id="@+id/grounding_exercise_button"
-                        android:textColor="?attr/colorOnTertiary"
-                        app:backgroundTint="?attr/colorTertiary"
                         app:cornerRadius="8dp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- My Journal Card -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/journal_card_view"
+                style="@style/Widget.Material3.CardView.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="?attr/colorSurfaceContainerHighest" app:cardCornerRadius="8dp"
-                app:cardElevation="1dp"
+                app:cardCornerRadius="8dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -472,8 +483,8 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
                         android:text="My Journal"
-                        android:textColor="?attr/colorPrimary"
-                        android:textSize="18sp"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="8dp"/>
 
                     <TextView
@@ -481,43 +492,48 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Reflect on a small act of kindness you experienced or witnessed today."
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
                         android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="16sp"
                         android:layout_marginBottom="8dp"/>
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/journal_entry_text"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/journal_entry_layout"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Start writing here..."
-                        android:minHeight="120dp"
-                        android:padding="12dp"
-                        android:gravity="top|start"
-                        android:background="@drawable/rounded_input_field_light"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="16sp"
-                        android:textColorHint="?attr/colorOnSurfaceVariant"
-                        android:inputType="textMultiLine"
-                    android:scrollbars="vertical" />
+                        android:hint="Start writing here...">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/journal_entry_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minHeight="120dp"
+                            android:gravity="top|start"
+                            android:inputType="textMultiLine|textCapSentences"
+                            android:scrollbars="vertical" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/save_journal_button"
+                        style="@style/Widget.Material3.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="end"
                         android:layout_marginTop="16dp"
                         android:text="Save Entry"
-                        android:textColor="?attr/colorOnPrimary"
-                        app:backgroundTint="?attr/colorPrimary"
                         app:cornerRadius="8dp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Mood Over Time Card -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/mood_chart_card_view"
+                style="@style/Widget.Material3.CardView.Elevated"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
                 app:cardCornerRadius="8dp"
-                app:cardElevation="1dp">
+                android:layout_marginBottom="16dp"> <!-- Ensure last card also has bottom margin if ScrollView clipToPadding is false -->
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -530,8 +546,8 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="sans-serif-medium"
                         android:text="Mood Over Time"
-                        android:textColor="?attr/colorSecondary"
-                        android:textSize="18sp"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textColor="?attr/colorOnSurface"
                         android:layout_marginBottom="8dp"/>
 
                     <com.github.mikephil.charting.charts.BarChart
@@ -539,16 +555,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="300dp"
                         android:layout_marginTop="8dp"
-                        android:layout_marginBottom="15dp"
+                        android:layout_marginBottom="8dp"
                         android:contentDescription="Bar chart showing daily mood check-ins" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
                         android:text="Your reported mood levels over the past few days."
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="14sp" />
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -557,9 +572,9 @@
     </ScrollView>
     <ProgressBar
         android:id="@+id/loading_progress_bar"
+        style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone"
-        style="?android:attr/progressBarStyleLarge" />
+        android:visibility="gone" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

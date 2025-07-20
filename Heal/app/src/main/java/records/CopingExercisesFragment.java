@@ -1,36 +1,34 @@
 package records;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.f9ld3.heal.MainActivity;
 import com.f9ld3.heal.R;
+
+import ui.CustomMessageDialogFragment;
 
 public class CopingExercisesFragment extends Fragment {
 
     // Argument key
     private static final String ARG_SHOW_GROUNDING_DIALOG = "show_grounding_dialog";
 
-    // Existing CardViews
+    // UI Elements
     private CardView cardGroundingExercise;
     private CardView cardBreathingExercises;
     private CardView cardMindfulnessMeditation;
     private CardView cardPositiveAffirmations;
-
-    // NEW CardViews (8 more)
     private CardView cardJournaling;
     private CardView cardProgressiveMuscleRelaxation;
     private CardView cardGuidedImagery;
@@ -42,7 +40,6 @@ public class CopingExercisesFragment extends Fragment {
 
     private MainActivity mainActivity;
 
-    // --- Static factory method to create an instance with arguments ---
     public static CopingExercisesFragment newInstance(boolean showGroundingDialog) {
         CopingExercisesFragment fragment = new CopingExercisesFragment();
         Bundle args = new Bundle();
@@ -57,18 +54,33 @@ public class CopingExercisesFragment extends Fragment {
         if (context instanceof MainActivity) {
             mainActivity = (MainActivity) context;
         } else {
-            Toast.makeText(context, "Error: CopingExercisesFragment attached to wrong activity", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Error: Fragment attached to wrong activity", Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
-    public View onCreateView(
-            LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState
-    ) {
-        View view = inflater.inflate(R.layout.fragment_coping_exercises, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_coping_exercises, container, false);
+    }
 
-        // Initialize CardViews
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        initializeViews(view);
+        setupClickListeners();
+
+        if (getArguments() != null && getArguments().getBoolean(ARG_SHOW_GROUNDING_DIALOG, false)) {
+            // Defer showing the dialog to avoid IllegalStateException
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (isAdded() && getContext() != null) { // Ensure fragment is still attached and has context
+                    showGroundingExerciseDialog();
+                }
+            });
+        }
+    }
+
+    private void initializeViews(View view) {
         cardGroundingExercise = view.findViewById(R.id.cardGroundingExercise);
         cardBreathingExercises = view.findViewById(R.id.cardBreathingExercises);
         cardMindfulnessMeditation = view.findViewById(R.id.cardMindfulnessMeditation);
@@ -81,147 +93,49 @@ public class CopingExercisesFragment extends Fragment {
         cardBodyScanMeditation = view.findViewById(R.id.cardBodyScanMeditation);
         cardSelfCompassionBreak = view.findViewById(R.id.cardSelfCompassionBreak);
         cardDigitalDetox = view.findViewById(R.id.cardDigitalDetox);
-
-        return view;
     }
 
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        // Set up click listeners for all exercise cards
+    private void setupClickListeners() {
         cardGroundingExercise.setOnClickListener(v -> showGroundingExerciseDialog());
-        cardBreathingExercises.setOnClickListener(v -> showExerciseDialog(
-                "Breathing Exercises",
-                "Try 4-7-8 Breathing:\n\n" +
-                        "1.  Inhale quietly through your nose for a count of 4.\n" +
-                        "2.  Hold your breath for a count of 7.\n" +
-                        "3.  Exhale completely through your mouth, making a whoosh sound, for a count of 8.\n" +
-                        "4.  Repeat for 3-4 cycles. This technique can help calm the nervous system."
-        ));
-        cardMindfulnessMeditation.setOnClickListener(v -> showExerciseDialog(
-                "Mindfulness Meditation",
-                "Find a quiet place and sit comfortably. Close your eyes or soften your gaze.\n\n" +
-                        "1.  **Focus on your breath:** Notice the sensation of air entering and leaving your body.\n" +
-                        "2.  **Observe thoughts:** When your mind wanders, gently bring your attention back to your breath without judgment.\n" +
-                        "3.  **Notice sensations:** Expand your awareness to include sounds, bodily sensations, and emotions, observing them as they arise and pass.\n\n" +
-                        "Start with 5-10 minutes daily and gradually increase the duration."
-        ));
-        cardPositiveAffirmations.setOnClickListener(v -> showExerciseDialog(
-                "Positive Affirmations",
-                "Choose a few positive statements that resonate with you and repeat them daily. You can say them aloud, write them down, or think them silently.\n\n" +
-                        "Examples:\n" +
-                        "-   'I am strong and capable.'\n" +
-                        "-   'I choose peace and calm.'\n" +
-                        "-   'I am worthy of love and happiness.'\n" +
-                        "-   'I can handle whatever comes my way.'\n\n" +
-                        "Consistency is key to shifting your mindset."
-        ));
-        cardJournaling.setOnClickListener(v -> showExerciseDialog(
-                "Journaling for Emotional Release",
-                "Find a quiet time and space to write freely without judgment. You can write about:\n\n" +
-                        "1.  **Your feelings:** What emotions are you experiencing right now? Why do you think you feel this way?\n" +
-                        "2.  **Recent events:** Describe a challenging or positive event and how it impacted you.\n" +
-                        "3.  **Future aspirations:** What are your hopes, dreams, or goals? What steps can you take?\n\n" +
-                        "The goal is to express yourself authentically and gain insight into your inner world."
-        ));
-        cardProgressiveMuscleRelaxation.setOnClickListener(v -> showExerciseDialog(
-                "Progressive Muscle Relaxation (PMR)",
-                "Lie down or sit comfortably. You will systematically tense and relax different muscle groups.\n\n" +
-                        "1.  **Start with your feet:** Tense the muscles in your feet for 5 seconds, then completely relax them for 15-20 seconds.\n" +
-                        "2.  **Move up your body:** Continue with your calves, thighs, glutes, abdomen, chest, arms, hands, shoulders, neck, and face.\n" +
-                        "3.  **Notice the difference:** Pay attention to the contrast between tension and relaxation.\n\n" +
-                        "PMR helps release physical tension and promotes overall relaxation."
-        ));
-        cardGuidedImagery.setOnClickListener(v -> showExerciseDialog(
-                "Guided Imagery & Visualization",
-                "Find a comfortable position and close your eyes. Imagine a peaceful and safe place.\n\n" +
-                        "1.  **Engage your senses:** What do you see, hear, smell, feel, and perhaps even taste in this place?\n" +
-                        "2.  **Explore the scene:** Walk through your imagined space, noticing details.\n" +
-                        "3.  **Feel the calm:** Allow the feelings of peace and relaxation to wash over you.\n\n" +
-                        "You can find many guided imagery recordings online or create your own mental escape."
-        ));
-        cardGratitudePractice.setOnClickListener(v -> showExerciseDialog(
-                "Gratitude Practice",
-                "Take a few minutes each day to reflect on things you are grateful for. You can:\n\n" +
-                        "1.  **Keep a gratitude journal:** Write down 3-5 things you're thankful for each day.\n" +
-                        "2.  **Express thanks:** Tell someone you appreciate them or write a thank-you note.\n" +
-                        "3.  **Mindful appreciation:** Take a moment to truly appreciate a simple pleasure, like a warm drink or a beautiful sky.\n\n" +
-                        "Cultivating gratitude can significantly boost your mood and well-being."
-        ));
-        cardMindfulMovement.setOnClickListener(v -> showExerciseDialog(
-                "Mindful Movement (e.g., Stretching)",
-                "Engage in gentle physical activity, bringing full awareness to your body's sensations.\n\n" +
-                        "1.  **Slow stretching:** Gently stretch different parts of your body, noticing the feeling of elongation and release.\n" +
-                        "2.  **Walking meditation:** Walk slowly, paying attention to the sensation of your feet on the ground, your breath, and the environment around you.\n" +
-                        "3.  **Yoga or Tai Chi:** Explore these practices for a structured approach to mindful movement.\n\n" +
-                        "The goal is to connect with your body and its movements without judgment."
-        ));
-        cardBodyScanMeditation.setOnClickListener(v -> showExerciseDialog(
-                "Body Scan Meditation",
-                "Lie down comfortably or sit upright. Close your eyes.\n\n" +
-                        "1.  **Bring awareness to your feet:** Notice any sensations without trying to change them.\n" +
-                        "2.  **Slowly move your attention:** Gradually move your awareness up through your legs, torso, arms, hands, neck, and head.\n" +
-                        "3.  **Observe sensations:** Pay attention to tingling, warmth, coolness, pressure, or absence of sensation.\n\n" +
-                        "This practice helps you become more attuned to your body and release tension."
-        ));
-        cardSelfCompassionBreak.setOnClickListener(v -> showExerciseDialog(
-                "Self-Compassion Break",
-                "When you're struggling or feeling pain (emotional or physical), try this:\n\n" +
-                        "1.  **Mindfulness:** 'This is a moment of suffering.' (Acknowledge the pain).\n" +
-                        "2.  **Common Humanity:** 'Suffering is a part of life.' (Remember you're not alone).\n" +
-                        "3.  **Self-Kindness:** 'May I be kind to myself.' (Offer yourself comfort, e.g., a hand on your heart).\n\n" +
-                        "Treat yourself with the same kindness you would offer a dear friend."
-        ));
-        cardDigitalDetox.setOnClickListener(v -> showExerciseDialog(
-                "Digital Detox",
-                "Set aside dedicated time each day or week to disconnect from screens and digital devices.\n\n" +
-                        "1.  **Schedule screen-free time:** Designate specific hours or days for no phone, computer, or TV.\n" +
-                        "2.  **Engage in offline activities:** Read a book, go for a walk, spend time in nature, pursue a hobby, or connect with loved ones in person.\n" +
-                        "3.  **Notice the difference:** Pay attention to how you feel mentally and emotionally when disconnected.\n\n" +
-                        "A digital detox can reduce mental fatigue and improve focus."
-        ));
-
-        // Optional: Set toolbar title
-        if (mainActivity != null) {
-            mainActivity.toolbar.setTitle("Coping Exercises");
-        }
-
-        // --- Check if the grounding dialog should be shown ---
-        if (getArguments() != null && getArguments().getBoolean(ARG_SHOW_GROUNDING_DIALOG, false)) {
-            showGroundingExerciseDialog();
-            // Clear the argument so it doesn't show again on rotation/re-creation
-            getArguments().remove(ARG_SHOW_GROUNDING_DIALOG);
-        }
+        cardBreathingExercises.setOnClickListener(v -> showBreathingExercisesDialog());
+        cardMindfulnessMeditation.setOnClickListener(v -> showMindfulnessMeditationDialog());
+        cardPositiveAffirmations.setOnClickListener(v -> showPositiveAffirmationsDialog());
+        cardJournaling.setOnClickListener(v -> showJournalingDialog());
+        cardProgressiveMuscleRelaxation.setOnClickListener(v -> showProgressiveMuscleRelaxationDialog());
+        cardGuidedImagery.setOnClickListener(v -> showGuidedImageryDialog());
+        cardGratitudePractice.setOnClickListener(v -> showGratitudePracticeDialog());
+        cardMindfulMovement.setOnClickListener(v -> showMindfulMovementDialog());
+        cardBodyScanMeditation.setOnClickListener(v -> showBodyScanMeditationDialog());
+        cardSelfCompassionBreak.setOnClickListener(v -> showSelfCompassionBreakDialog());
+        cardDigitalDetox.setOnClickListener(v -> showDigitalDetoxDialog());
     }
 
-    private void showExerciseDialog(String title, String instructions) {
-        if (getContext() == null) return;
+    private void showExerciseDialog(String title, String message) {
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                title,
+                message,
+                "Close",
+                null // Negative button text is null, CustomMessageDialogFragment will hide it
+        );
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle(title);
+        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                dialogFragment.dismiss();
+            }
 
-        LinearLayout layout = new LinearLayout(getContext());
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 30, 50, 30);
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                dialogFragment.dismiss();
+            }
+        });
 
-        TextView instructionsTv = new TextView(getContext());
-        instructionsTv.setText(instructions);
-        instructionsTv.setTextSize(16f);
-        instructionsTv.setTextColor(getResources().getColor(R.color.text_color_primary));
-        instructionsTv.setMovementMethod(new ScrollingMovementMethod());
-
-        ScrollView scrollView = new ScrollView(getContext());
-        scrollView.addView(instructionsTv);
-        layout.addView(scrollView);
-
-        builder.setView(layout);
-
-        builder.setPositiveButton("Got It!", (dialog, which) -> dialog.dismiss());
-        builder.show();
+        dialog.show(getParentFragmentManager(), "CustomMessageDialogFragment");
+        // Removed: getParentFragmentManager().executePendingTransactions(); // This caused the IllegalStateException
+        // Removed: dialog.getDialog().findViewById(R.id.buttonNegative).setVisibility(View.GONE); // Handled by CustomMessageDialogFragment
     }
 
     private void showGroundingExerciseDialog() {
-        // This now simply calls the generic showExerciseDialog with specific content
         showExerciseDialog(
                 "5-4-3-2-1 Grounding Exercise",
                 "When you feel overwhelmed, anxious, or disconnected, try the 5-4-3-2-1 technique:\n\n" +
@@ -233,18 +147,129 @@ public class CopingExercisesFragment extends Fragment {
         );
     }
 
-    private void showToast(String message) {
-        if (getContext() != null) {
-            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-        }
+    private void showBreathingExercisesDialog() {
+        showExerciseDialog(
+                "Breathing Exercises",
+                "Deep breathing can calm your nervous system. Try this simple exercise:\n\n" +
+                        "1.  **Inhale:** Breathe in slowly through your nose for 4 seconds.\n\n" +
+                        "2.  **Hold:** Hold your breath for 7 seconds.\n\n" +
+                        "3.  **Exhale:** Breathe out slowly through your mouth for 8 seconds.\n\n" +
+                        "Repeat this cycle 3-5 times."
+        );
+    }
+
+    private void showMindfulnessMeditationDialog() {
+        showExerciseDialog(
+                "Mindfulness Meditation",
+                "Mindfulness helps you focus on the present moment. Find a quiet place and:\n\n" +
+                        "1.  Sit comfortably and close your eyes.\n\n" +
+                        "2.  Focus on your breath, noticing the sensation of air entering and leaving your body.\n\n" +
+                        "3.  When your mind wanders, gently guide your attention back to your breath without judgment.\n\n" +
+                        "Start with 5 minutes and gradually increase the duration."
+        );
+    }
+
+    private void showPositiveAffirmationsDialog() {
+        showExerciseDialog(
+                "Positive Affirmations",
+                "Challenge negative thoughts with positive statements. Repeat these or create your own:\n\n" +
+                        "•   \"I am capable and strong.\"\n\n" +
+                        "•   \"I can handle whatever comes my way.\"\n\n" +
+                        "•   \"I choose to be happy and love myself today.\"\n\n" +
+                        "•   \"My feelings are valid, but they do not control me.\""
+        );
+    }
+
+    private void showJournalingDialog() {
+        showExerciseDialog(
+                "Journaling for Clarity",
+                "Writing down your thoughts and feelings can provide relief and insight. Try these prompts:\n\n" +
+                        "•   What is on my mind right now?\n\n" +
+                        "•   What am I grateful for today?\n\n" +
+                        "•   Describe a challenge I overcame.\n\n" +
+                        "Don't worry about grammar or structure, just write freely."
+        );
+    }
+
+    private void showProgressiveMuscleRelaxationDialog() {
+        showExerciseDialog(
+                "Progressive Muscle Relaxation",
+                "This technique reduces physical tension. Go through different muscle groups:\n\n" +
+                        "1.  **Tense:** Inhale and tense a muscle group (e.g., your hands) for 5-10 seconds.\n\n" +
+                        "2.  **Release:** Exhale and completely relax the muscle group, noticing the difference.\n\n" +
+                        "Work your way through your body: feet, legs, stomach, arms, shoulders, and face."
+        );
+    }
+
+    private void showGuidedImageryDialog() {
+        showExerciseDialog(
+                "Guided Imagery / Visualization",
+                "Use your imagination to transport yourself to a calm, safe place.\n\n" +
+                        "1.  Close your eyes and imagine a peaceful scene in detail (e.g., a beach, a forest).\n\n" +
+                        "2.  Engage all your senses: What do you see, hear, smell, feel, and taste?\n\n" +
+                        "3.  Spend a few minutes in your safe place, allowing yourself to relax."
+        );
+    }
+
+    private void showGratitudePracticeDialog() {
+        showExerciseDialog(
+                "Gratitude Practice",
+                "Shifting focus to gratitude can improve your mood. Each day, identify:\n\n" +
+                        "•   **Three things you are grateful for.** They can be big or small.\n\n" +
+                        "•   Reflect on why you are grateful for each one.\n\n" +
+                        "Consider keeping a gratitude journal to track them."
+        );
+    }
+
+    private void showMindfulMovementDialog() {
+        showExerciseDialog(
+                "Mindful Movement",
+                "Connect your body and mind with gentle movement.\n\n" +
+                        "•   **Stretching:** Gently stretch your muscles, paying attention to the sensations in your body.\n\n" +
+                        "•   **Yoga:** Follow a beginner's yoga routine, focusing on your breath with each pose.\n\n" +
+                        "•   **Walking:** Go for a walk and pay attention to the movement of your body and the environment around you."
+        );
+    }
+
+    private void showBodyScanMeditationDialog() {
+        showExerciseDialog(
+                "Body Scan Meditation",
+                "Bring awareness to different parts of your body without judgment.\n\n" +
+                        "1.  Lie down comfortably.\n\n" +
+                        "2.  Bring your attention to your toes, noticing any sensations (warmth, tingling, pressure).\n\n" +
+                        "3.  Slowly move your attention up through your body: feet, legs, torso, arms, and head.\n\n" +
+                        "This helps anchor you in your physical self."
+        );
+    }
+
+    private void showSelfCompassionBreakDialog() {
+        showExerciseDialog(
+                "Self-Compassion Break",
+                "Treat yourself with the same kindness you would offer a friend.\n\n" +
+                        "1.  **Acknowledge:** \"This is a moment of suffering.\"\n\n" +
+                        "2.  **Common Humanity:** \"Suffering is a part of life. Others feel this way too.\"\n\n" +
+                        "3.  **Kindness:** Place a hand over your heart and say, \"May I be kind to myself.\"\n\n"
+        );
+    }
+
+    private void showDigitalDetoxDialog() {
+        showExerciseDialog(
+                "Take a Short Digital Detox",
+                "Constant notifications and information can be overwhelming. Give your mind a break.\n\n" +
+                        "•   Set a timer for 15-30 minutes.\n\n" +
+                        "•   Put your phone and other devices away, preferably in another room.\n\n" +
+                        "•   Engage in an offline activity: read a book, listen to music, or simply sit in silence.\n\n"
+        );
     }
 
     @Override
-    public void onResume(){
-        mainActivity.toolbar.setTitle("Coping Exercises");
-        mainActivity.navigationView.setCheckedItem(R.id.nav_records);
-        mainActivity.MenuTrigger.setVisibility(View.VISIBLE);
-        mainActivity.Fab.setVisibility(View.VISIBLE);
+    public void onResume() {
         super.onResume();
+        if (mainActivity != null) {
+            mainActivity.toolbar.setTitle("Coping Exercises");
+            mainActivity.navigationView.setCheckedItem(R.id.nav_records);
+            mainActivity.MenuTrigger.setVisibility(View.VISIBLE);
+            mainActivity.Fab.setVisibility(View.VISIBLE);
+        }
     }
 }

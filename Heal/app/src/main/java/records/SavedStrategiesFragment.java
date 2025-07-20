@@ -1,7 +1,5 @@
-// records/SavedStrategiesFragment.java
 package records; // Adjust package as necessary
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -10,12 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,6 +23,9 @@ import com.f9ld3.heal.R;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import ui.CustomInputDialogFragment;
+import ui.CustomMessageDialogFragment;
 
 public class SavedStrategiesFragment extends Fragment
         implements StrategiesAdapter.OnStrategyDeleteListener, StrategiesAdapter.OnStrategyEditListener,StrategiesAdapter.OnStrategyClickListener { // Implement new interface
@@ -110,18 +111,29 @@ public class SavedStrategiesFragment extends Fragment
     @Override
     public void onDeleteStrategy(int position) {
         if (position != RecyclerView.NO_POSITION && position < allSavedStrategies.size()) {
-            new AlertDialog.Builder(getContext())
-                    .setTitle("Delete Strategy")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setMessage("Are you sure you want to delete this strategy?, this action cannot be undone.")
-                    .setPositiveButton("Yes", (dialog, which) -> {
-                        allSavedStrategies.remove(position);
-                        adapter.notifyItemRemoved(position);
-                        saveAllStrategiesToSharedPreferences();
-                        Toast.makeText(getContext(), "Strategy deleted!", Toast.LENGTH_SHORT).show();
-                    })
-                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                    .show();
+            // Replaced AlertDialog with CustomMessageDialogFragment
+            CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                    "Delete Strategy",
+                    "Are you sure you want to delete this strategy? This action cannot be undone.",
+                    "Yes",
+                    "No"
+            );
+            dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                @Override
+                public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                    allSavedStrategies.remove(position);
+                    adapter.notifyItemRemoved(position);
+                    saveAllStrategiesToSharedPreferences();
+                    Toast.makeText(getContext(), "Strategy deleted!", Toast.LENGTH_SHORT).show();
+                    dialogFragment.dismiss();
+                }
+
+                @Override
+                public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                    dialogFragment.dismiss();
+                }
+            });
+            dialog.show(getParentFragmentManager(), "DeleteStrategyDialog");
         }
     }
 
@@ -133,57 +145,78 @@ public class SavedStrategiesFragment extends Fragment
     }
 
     private void showAddStrategyDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Add New Strategy");
+        // Replaced AlertDialog with CustomInputDialogFragment
+        CustomInputDialogFragment dialog = CustomInputDialogFragment.newInstance(
+                "Add New Strategy",
+                "Enter your new coping strategy.",
+                "New Strategy", // Hint for the input field
+                "Add",
+                "Cancel"
+        );
 
-        final EditText input = new EditText(getContext());
-        input.setHint("Enter your new coping strategy");
-        builder.setView(input);
-        builder.setIcon(android.R.drawable.ic_menu_edit);
-        builder.setPositiveButton("Add", (dialog, which) -> {
-            String newStrategy = input.getText().toString().trim();
-            if (!newStrategy.isEmpty()) {
-                if (!allSavedStrategies.contains(newStrategy)){
-                    allSavedStrategies.add(newStrategy);
-                    saveAllStrategiesToSharedPreferences();
-                    adapter.notifyItemInserted(allSavedStrategies.size() - 1);
-                    Toast.makeText(getContext(), "Strategy added!", Toast.LENGTH_SHORT).show();
-                    recyclerView.scrollToPosition(allSavedStrategies.size() - 1);
-                }else {
-                    Toast.makeText(mainActivity, "Strategy already exists", Toast.LENGTH_SHORT).show();
+        dialog.setListener(new CustomInputDialogFragment.OnInputDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment, String inputText) {
+                String newStrategy = inputText.trim();
+                if (!newStrategy.isEmpty()) {
+                    if (!allSavedStrategies.contains(newStrategy)) {
+                        allSavedStrategies.add(newStrategy);
+                        saveAllStrategiesToSharedPreferences();
+                        adapter.notifyItemInserted(allSavedStrategies.size() - 1);
+                        Toast.makeText(getContext(), "Strategy added!", Toast.LENGTH_SHORT).show();
+                        recyclerView.scrollToPosition(allSavedStrategies.size() - 1);
+                    } else {
+                        Toast.makeText(mainActivity, "Strategy already exists", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Strategy cannot be empty.", Toast.LENGTH_SHORT).show();
                 }
+                dialogFragment.dismiss();
+            }
 
-            } else {
-                Toast.makeText(getContext(), "Strategy cannot be empty.", Toast.LENGTH_SHORT).show();
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                dialogFragment.dismiss();
             }
         });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-
-        builder.show();
+        dialog.show(getParentFragmentManager(), "AddStrategyDialog");
     }
 
     private void showEditStrategyDialog(int position, String currentStrategy) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Edit Strategy");
-        builder.setIcon(android.R.drawable.ic_menu_edit);
-        final EditText input = new EditText(getContext());
-        input.setText(currentStrategy);
-        builder.setView(input);
+        // Replaced AlertDialog with CustomInputDialogFragment
+        CustomInputDialogFragment dialog = CustomInputDialogFragment.newInstance(
+                "Edit Strategy",
+                "Edit your coping strategy.",
+                currentStrategy, // Pre-fill with current strategy
+                "Save",
+                "Cancel"
+        );
 
-        builder.setPositiveButton("Save", (dialog, which) -> {
-            String updatedStrategy = input.getText().toString().trim();
-            if (!updatedStrategy.isEmpty()) {
-                allSavedStrategies.set(position, updatedStrategy);
-                saveAllStrategiesToSharedPreferences();
-                adapter.notifyItemChanged(position);
-                Toast.makeText(getContext(), "Strategy updated!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getContext(), "Strategy cannot be empty.", Toast.LENGTH_SHORT).show();
+        dialog.setListener(new CustomInputDialogFragment.OnInputDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment, String inputText) {
+                String updatedStrategy = inputText.trim();
+                if (!updatedStrategy.isEmpty()) {
+                    if (!allSavedStrategies.contains(updatedStrategy) || allSavedStrategies.get(position).equals(updatedStrategy)) {
+                        allSavedStrategies.set(position, updatedStrategy);
+                        saveAllStrategiesToSharedPreferences();
+                        adapter.notifyItemChanged(position);
+                        Toast.makeText(getContext(), "Strategy updated!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(mainActivity, "Strategy already exists", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Strategy cannot be empty.", Toast.LENGTH_SHORT).show();
+                }
+                dialogFragment.dismiss();
+            }
+
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                dialogFragment.dismiss();
             }
         });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-
-        builder.show();
+        dialog.show(getParentFragmentManager(), "EditStrategyDialog");
     }
 
 
@@ -199,12 +232,24 @@ public class SavedStrategiesFragment extends Fragment
 
     @Override
     public void onStrategyClick(String strategyText) {
-        new AlertDialog.Builder(getContext())
-                .setTitle("Coping Strategy Details")
-                .setMessage(strategyText)
-                .setPositiveButton("Close", (dialog, which) -> {
-                    dialog.dismiss();
-                })
-                .show();
+        // Replaced AlertDialog with CustomMessageDialogFragment
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                "Coping Strategy Details",
+                strategyText,
+                "Close",
+                null // No negative button needed for a simple close
+        );
+        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                dialogFragment.dismiss();
+            }
+
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                // This won't be called as negative button is null
+            }
+        });
+        dialog.show(getParentFragmentManager(), "StrategyDetailsDialog");
     }
 }

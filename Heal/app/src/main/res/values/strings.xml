@@ -56,4 +56,46 @@
         - 10 Rounds / 20 Rounds: Complete the set number of rounds. Your score is automatically saved at the end of the game.\n\n
         Good luck and have fun!
     </string>
+    <!-- Content Descriptions for Images and Icons -->
+    <string name="self_improvement_icon_desc">An icon representing self improvement</string>
+    <string name="mood_chart_content_desc">Bar chart showing daily mood check-ins</string>
+    <string name="urge_slider_desc">Urge level slider from 0 to 10</string>
+    <string name="mood_slider_desc">Mood level slider from 0 to 10</string>
+
+    <!-- Greeting Card -->
+    <string name="greeting_text">Hello, %1$s!</string> <!-- %1$s is a placeholder for the user's name -->
+
+    <!-- Positive Action Tracker Card -->
+    <string name="positive_steps_title">Taking Positive Steps</string>
+    <string name="log_positive_action_button">Log Positive Action</string>
+
+    <!-- Urge Management Card -->
+    <string name="manage_urges_title">Manage Urges</string>
+    <string name="current_urge_level_label">Current Urge Level: %1$d</string> <!-- %1$d is for the number -->
+    <string name="coping_strategy_hint">Log a coping strategy</string>
+    <string name="save_button">Save</string>
+
+    <!-- Relapse Counter Card -->
+    <string name="relapse_time_title">Time Since Last Relapse</string>
+    <string name="reset_counter_button">Reset Counter</string>
+
+    <!-- Quick Actions/Resources Card -->
+    <string name="quick_resources_title">Quick Resources</string>
+    <string name="emergency_contacts_button">Contacts</string>
+    <string name="coping_exercises_button">Exercises</string>
+
+    <!-- Daily Check-in Card -->
+    <string name="daily_checkin_title">Daily Check-in</string>
+    <string name="joy_question">How joyful are you today?</string>
+    <string name="mood_input_hint">A few words about your mood…</string>
+    <string name="submit_button">Submit</string>
+
+    <!-- Journal Card -->
+    <string name="journal_title">My Journal</string>
+    <string name="journal_prompt">Reflect on a small act of kindness you experienced or witnessed today.</string>
+    <string name="journal_input_hint">Start writing here…</string>
+    <string name="save_entry_button">Save Entry</string>
+
+    <!-- Mood Chart Card -->
+    <string name="mood_over_time_title">Mood Over Time</string>
 </resources>

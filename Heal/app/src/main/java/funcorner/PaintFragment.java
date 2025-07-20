@@ -1,14 +1,12 @@
 package funcorner;
 
-import android.app.AlertDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -17,6 +15,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -44,6 +44,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import drawing.DrawingCanvasFragment;
+import ui.CustomMessageDialogFragment;
 import viewmodels.GeneralViewModel;
 
 public class PaintFragment extends Fragment implements DrawingCanvasFragment.OnDrawingSavedListener {
@@ -51,86 +52,79 @@ public class PaintFragment extends Fragment implements DrawingCanvasFragment.OnD
     private static final String TAG = "PaintFragment";
 
     private MainActivity mainActivity;
-    private Context context;
-
     private RecyclerView recyclerViewArtwork;
     private ArtworkAdapter artworkAdapter;
     private List<ArtworkEntry> artworkList;
     private TextView emptyStateArtworkTextView;
-
-    private FloatingActionButton buttonNewCanvas; // Changed to FloatingActionButton
+    private FloatingActionButton buttonNewCanvas;
+    private Gson gson = new Gson();
 
     private static final String PREFS_ARTWORK = "artwork_prefs";
     private static final String KEY_ARTWORK_ENTRIES = "artwork_entries";
-    private Gson gson = new Gson();
-
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        this.context = context;
         if (context instanceof MainActivity) {
             mainActivity = (MainActivity) context;
-        } else {
-            Toast.makeText(context, "Error: Fragment attached to wrong activity", Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
-    public View onCreateView(
-            LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState
-    ) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_art_corner, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        initializeViews(view);
+        setupRecyclerView();
+        setupViewModel(view);
+        buttonNewCanvas.setOnClickListener(v -> openDrawingCanvas(null));
+        loadArtwork();
+    }
 
-        ProgressBar loadingProgressBar = view.findViewById(R.id.loading_progress_bar);
-        // *** CORRECTED: Reference the content view that should be hidden/shown ***
-        View galleryContentView = view.findViewById(R.id.gallery_content_view);
-        buttonNewCanvas = view.findViewById(R.id.buttonNewCanvas);
-        GeneralViewModel viewModel = new ViewModelProvider(this).get(GeneralViewModel.class);
-
-        viewModel.isLoading.observe(getViewLifecycleOwner(), isLoading -> {
-            if (isLoading) {
-                loadingProgressBar.setVisibility(View.VISIBLE);
-                buttonNewCanvas.setVisibility(View.GONE);
-                galleryContentView.setVisibility(View.GONE); // Hide content
-            } else {
-                loadingProgressBar.setVisibility(View.GONE);
-                buttonNewCanvas.setVisibility(View.VISIBLE);
-                galleryContentView.setVisibility(View.VISIBLE); // Show content
-            }
-        });
-
-
+    private void initializeViews(View view) {
         recyclerViewArtwork = view.findViewById(R.id.recyclerViewArtwork);
         emptyStateArtworkTextView = view.findViewById(R.id.emptyStateArtworkTextView);
+        buttonNewCanvas = view.findViewById(R.id.buttonNewCanvas);
+    }
 
+    private void setupRecyclerView() {
         artworkList = new ArrayList<>();
         artworkAdapter = new ArtworkAdapter(artworkList, this::showArtworkDetailsDialog);
-        recyclerViewArtwork.setLayoutManager(new GridLayoutManager(context, 2));
+        recyclerViewArtwork.setLayoutManager(new GridLayoutManager(getContext(), 2));
         recyclerViewArtwork.setAdapter(artworkAdapter);
+    }
 
-        buttonNewCanvas.setOnClickListener(v -> {
-            DrawingCanvasFragment drawingCanvasFragment = new DrawingCanvasFragment();
-            Bundle args = new Bundle();
-            args.putSerializable("existingArtworkNames", (Serializable) getExistingArtworkNames());
-            drawingCanvasFragment.setArguments(args);
-            drawingCanvasFragment.setTargetFragment(this, 0);
-
-            getParentFragmentManager().beginTransaction()
-                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
-                    .replace(R.id.fragment_container, drawingCanvasFragment, "DrawingCanvasFragmentTag")
-                    .addToBackStack(null)
-                    .commit();
+    private void setupViewModel(View view) {
+        ProgressBar loadingProgressBar = view.findViewById(R.id.loading_progress_bar);
+        View galleryContentView = view.findViewById(R.id.gallery_content_view);
+        GeneralViewModel viewModel = new ViewModelProvider(this).get(GeneralViewModel.class);
+        viewModel.isLoading.observe(getViewLifecycleOwner(), isLoading -> {
+            loadingProgressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+            galleryContentView.setVisibility(isLoading ? View.GONE : View.VISIBLE);
+            buttonNewCanvas.setVisibility(isLoading ? View.GONE : View.VISIBLE);
         });
+    }
 
-        loadArtwork();
-        updateEmptyStateVisibility();
+    private void openDrawingCanvas(@Nullable ArtworkEntry entry) {
+        DrawingCanvasFragment drawingCanvasFragment = new DrawingCanvasFragment();
+        Bundle args = new Bundle();
+        args.putSerializable("existingArtworkNames", (Serializable) getExistingArtworkNames());
+        if (entry != null) {
+            args.putString("imageUriToLoad", entry.getImageUri());
+            args.putString("artworkNameToLoad", entry.getArtworkName());
+        }
+        drawingCanvasFragment.setArguments(args);
+        drawingCanvasFragment.setTargetFragment(this, 0);
+
+        getParentFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
+                .replace(R.id.fragment_container, drawingCanvasFragment, "DrawingCanvasFragmentTag")
+                .addToBackStack(null)
+                .commit();
     }
 
     private Set<String> getExistingArtworkNames() {
@@ -142,28 +136,18 @@ public class PaintFragment extends Fragment implements DrawingCanvasFragment.OnD
     }
 
     private void updateEmptyStateVisibility() {
-        if (artworkList.isEmpty()) {
-            emptyStateArtworkTextView.setVisibility(View.VISIBLE);
-            recyclerViewArtwork.setVisibility(View.GONE);
-        } else {
-            emptyStateArtworkTextView.setVisibility(View.GONE);
-            recyclerViewArtwork.setVisibility(View.VISIBLE);
-        }
+        boolean isEmpty = artworkList.isEmpty();
+        emptyStateArtworkTextView.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+        recyclerViewArtwork.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
     }
 
     private void loadArtwork() {
         if (getContext() == null) return;
-        android.content.SharedPreferences prefs = getContext().getSharedPreferences(PREFS_ARTWORK, Context.MODE_PRIVATE);
+        SharedPreferences prefs = getContext().getSharedPreferences(PREFS_ARTWORK, Context.MODE_PRIVATE);
         String json = prefs.getString(KEY_ARTWORK_ENTRIES, null);
-        if (json != null) {
-            Type type = new TypeToken<List<ArtworkEntry>>() {}.getType();
-            artworkList = gson.fromJson(json, type);
-            if (artworkList == null) {
-                artworkList = new ArrayList<>();
-            }
-        } else {
-            artworkList = new ArrayList<>();
-        }
+        Type type = new TypeToken<List<ArtworkEntry>>() {}.getType();
+        artworkList = gson.fromJson(json, type);
+        if (artworkList == null) artworkList = new ArrayList<>();
         Collections.sort(artworkList, (e1, e2) -> Long.compare(e2.getCreationTimestampMillis(), e1.getCreationTimestampMillis()));
         artworkAdapter.updateArtwork(artworkList);
         updateEmptyStateVisibility();
@@ -171,49 +155,33 @@ public class PaintFragment extends Fragment implements DrawingCanvasFragment.OnD
 
     private void saveArtworkList() {
         if (getContext() == null) return;
-        android.content.SharedPreferences prefs = getContext().getSharedPreferences(PREFS_ARTWORK, Context.MODE_PRIVATE);
-        android.content.SharedPreferences.Editor editor = prefs.edit();
-        String json = gson.toJson(artworkList);
-        editor.putString(KEY_ARTWORK_ENTRIES, json);
-        editor.apply();
-        Log.d(TAG, "Artwork list saved to SharedPreferences.");
+        SharedPreferences.Editor editor = getContext().getSharedPreferences(PREFS_ARTWORK, Context.MODE_PRIVATE).edit();
+        editor.putString(KEY_ARTWORK_ENTRIES, gson.toJson(artworkList)).apply();
     }
 
     @Override
     public void onDrawingSaved(String imageUri, String artworkName) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        String timestamp = sdf.format(new Date());
-
-        boolean updatedExisting = false;
-        for (int i = 0; i < artworkList.size(); i++) {
-            ArtworkEntry existingEntry = artworkList.get(i);
-            if (existingEntry.getImageUri().equals(imageUri)) {
-                existingEntry.setArtworkName(artworkName);
-                existingEntry.setTimestamp(timestamp);
-                existingEntry.setCreationTimestampMillis(System.currentTimeMillis());
-                updatedExisting = true;
-                Toast.makeText(getContext(), "Artwork '" + artworkName + "' updated!", Toast.LENGTH_SHORT).show();
+        boolean updated = false;
+        for (ArtworkEntry entry : artworkList) {
+            if (entry.getImageUri().equals(imageUri)) {
+                entry.setArtworkName(artworkName);
+                entry.setTimestamp(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
+                entry.setCreationTimestampMillis(System.currentTimeMillis());
+                updated = true;
                 break;
             }
         }
-
-        if (!updatedExisting) {
-            ArtworkEntry newEntry = new ArtworkEntry(imageUri, timestamp, System.currentTimeMillis(), artworkName);
-            artworkList.add(newEntry);
-            Toast.makeText(getContext(), "New artwork '" + artworkName + "' added to gallery!", Toast.LENGTH_SHORT).show();
+        if (!updated) {
+            artworkList.add(new ArtworkEntry(imageUri, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()), System.currentTimeMillis(), artworkName));
         }
-
         saveArtworkList();
         loadArtwork();
-        updateEmptyStateVisibility();
     }
 
     private void showArtworkDetailsDialog(ArtworkEntry entry) {
         if (getContext() == null) return;
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.TransparentDialog);
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_artwork_view, null);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_artwork_view, null);
         builder.setView(dialogView);
 
         ImageView detailImageView = dialogView.findViewById(R.id.detailImageViewArtwork);
@@ -222,86 +190,53 @@ public class PaintFragment extends Fragment implements DrawingCanvasFragment.OnD
         Button buttonEdit = dialogView.findViewById(R.id.buttonEditArtwork);
         Button buttonDelete = dialogView.findViewById(R.id.buttonDeleteArtwork);
 
-        RequestOptions requestOptions = new RequestOptions()
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .skipMemoryCache(true)
-                .placeholder(android.R.drawable.ic_menu_report_image)
-                .error(android.R.drawable.ic_menu_report_image);
-
-        Glide.with(getContext())
-                .load(Uri.parse(entry.getImageUri()))
-                .apply(requestOptions)
+        Glide.with(getContext()).load(Uri.parse(entry.getImageUri()))
+                .apply(new RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true))
                 .into(detailImageView);
-
         detailNameTextView.setText(entry.getArtworkName());
         detailTimestampTextView.setText(entry.getTimestamp());
 
         AlertDialog dialog = builder.create();
-
-        Window window = dialog.getWindow();
-        if (window != null) {
-            window.setBackgroundDrawableResource(android.R.color.transparent);
-        }
-
         buttonEdit.setOnClickListener(v -> {
             dialog.dismiss();
-            editArtwork(entry);
+            openDrawingCanvas(entry);
         });
-
         buttonDelete.setOnClickListener(v -> {
             dialog.dismiss();
             confirmAndDeleteArtwork(entry);
         });
-
         dialog.show();
-    }
-
-    private void editArtwork(ArtworkEntry entry) {
-        DrawingCanvasFragment drawingCanvasFragment = new DrawingCanvasFragment();
-        Bundle args = new Bundle();
-        args.putString("imageUriToLoad", entry.getImageUri());
-        args.putString("artworkNameToLoad", entry.getArtworkName());
-        args.putSerializable("existingArtworkNames", (Serializable) getExistingArtworkNames());
-        drawingCanvasFragment.setArguments(args);
-        drawingCanvasFragment.setTargetFragment(this, 0);
-
-        getParentFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
-                .replace(R.id.fragment_container, drawingCanvasFragment, "DrawingCanvasFragmentTag")
-                .addToBackStack(null)
-                .commit();
     }
 
     private void confirmAndDeleteArtwork(ArtworkEntry entry) {
         if (getContext() == null) return;
-
-        new AlertDialog.Builder(getContext())
-                .setTitle("Delete Artwork")
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setMessage("Are you sure you want to delete '" + entry.getArtworkName() + "'? This action cannot be undone.")
-                .setPositiveButton("Delete", (dialog, which) -> deleteArtwork(entry))
-                .setNegativeButton("Cancel", null)
-                .show();
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                "Delete Artwork",
+                "Are you sure you want to delete '" + entry.getArtworkName() + "'? This cannot be undone.",
+                "Delete",
+                "Cancel"
+        );
+        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                deleteArtwork(entry);
+            }
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                dialogFragment.dismiss();
+            }
+        });
+        dialog.show(getParentFragmentManager(), "DeleteArtworkConfirmation");
     }
 
     private void deleteArtwork(ArtworkEntry entry) {
         if (getContext() == null) return;
-
         File fileToDelete = new File(Uri.parse(entry.getImageUri()).getPath());
-        boolean deleted = false;
-        if (fileToDelete.exists()) {
-            deleted = fileToDelete.delete();
-        } else {
-            Log.w(TAG, "Attempted to delete non-existent file: " + fileToDelete.getAbsolutePath());
-            deleted = true;
-        }
-
-        if (deleted) {
+        if (fileToDelete.exists() && fileToDelete.delete()) {
             artworkList.remove(entry);
             saveArtworkList();
             loadArtwork();
-            updateEmptyStateVisibility();
-            Toast.makeText(getContext(), "Artwork '" + entry.getArtworkName() + "' deleted.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Artwork deleted.", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(getContext(), "Failed to delete artwork file.", Toast.LENGTH_SHORT).show();
         }
@@ -319,89 +254,55 @@ public class PaintFragment extends Fragment implements DrawingCanvasFragment.OnD
     }
 
     public static class ArtworkEntry implements Serializable {
-        private String imageUri;
-        private String timestamp;
+        private String imageUri, timestamp, artworkName;
         private long creationTimestampMillis;
-        private String artworkName;
-
         public ArtworkEntry(String imageUri, String timestamp, long creationTimestampMillis, String artworkName) {
             this.imageUri = imageUri;
             this.timestamp = timestamp;
             this.creationTimestampMillis = creationTimestampMillis;
             this.artworkName = artworkName;
         }
-
         public String getImageUri() { return imageUri; }
-        public void setImageUri(String imageUri) { this.imageUri = imageUri; }
         public String getTimestamp() { return timestamp; }
-        public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
         public long getCreationTimestampMillis() { return creationTimestampMillis; }
-        public void setCreationTimestampMillis(long creationTimestampMillis) { this.creationTimestampMillis = creationTimestampMillis; }
-        public String getArtworkName() { return artworkName != null ? artworkName : "Untitled Artwork"; }
+        public String getArtworkName() { return artworkName; }
         public void setArtworkName(String artworkName) { this.artworkName = artworkName; }
+        public void setTimestamp(String timestamp) { this.timestamp = timestamp; }
+        public void setCreationTimestampMillis(long creationTimestampMillis) { this.creationTimestampMillis = creationTimestampMillis; }
     }
 
-    public interface OnArtworkClickListener {
-        void onArtworkClick(ArtworkEntry entry);
-    }
+    public interface OnArtworkClickListener { void onArtworkClick(ArtworkEntry entry); }
 
     private class ArtworkAdapter extends RecyclerView.Adapter<ArtworkAdapter.ArtworkViewHolder> {
         private List<ArtworkEntry> localArtworkList;
         private OnArtworkClickListener clickListener;
-
-        public ArtworkAdapter(List<ArtworkEntry> artworkList, OnArtworkClickListener clickListener) {
-            this.localArtworkList = artworkList;
-            this.clickListener = clickListener;
+        ArtworkAdapter(List<ArtworkEntry> list, OnArtworkClickListener listener) {
+            this.localArtworkList = list;
+            this.clickListener = listener;
         }
-
-        public void updateArtwork(List<ArtworkEntry> newArtworkList) {
-            this.localArtworkList = newArtworkList;
+        void updateArtwork(List<ArtworkEntry> newList) {
+            this.localArtworkList = newList;
             notifyDataSetChanged();
         }
-
-        @NonNull
-        @Override
+        @NonNull @Override
         public ArtworkViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_artwork_grid, parent, false);
-            return new ArtworkViewHolder(view);
+            return new ArtworkViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_artwork_grid, parent, false));
         }
-
         @Override
         public void onBindViewHolder(@NonNull ArtworkViewHolder holder, int position) {
             ArtworkEntry entry = localArtworkList.get(position);
-
-            RequestOptions requestOptions = new RequestOptions()
-                    .diskCacheStrategy(DiskCacheStrategy.NONE)
-                    .skipMemoryCache(true)
-                    .placeholder(android.R.drawable.ic_menu_report_image)
-                    .error(android.R.drawable.ic_menu_report_image);
-
-            Glide.with(holder.imageView.getContext())
-                    .load(Uri.parse(entry.getImageUri()))
-                    .apply(requestOptions)
+            Glide.with(holder.imageView.getContext()).load(Uri.parse(entry.getImageUri()))
+                    .apply(new RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true))
                     .into(holder.imageView);
-
             holder.timestampTextView.setText(entry.getTimestamp());
             holder.artworkNameTextView.setText(entry.getArtworkName());
-
-            holder.itemView.setOnClickListener(v -> {
-                if (clickListener != null) {
-                    clickListener.onArtworkClick(entry);
-                }
-            });
+            holder.itemView.setOnClickListener(v -> clickListener.onArtworkClick(entry));
         }
-
-        @Override
-        public int getItemCount() {
-            return localArtworkList.size();
-        }
-
-        public class ArtworkViewHolder extends RecyclerView.ViewHolder {
-            public ImageView imageView;
-            public TextView timestampTextView;
-            public TextView artworkNameTextView;
-
-            public ArtworkViewHolder(@NonNull View itemView) {
+        @Override public int getItemCount() { return localArtworkList.size(); }
+        class ArtworkViewHolder extends RecyclerView.ViewHolder {
+            ImageView imageView;
+            TextView timestampTextView, artworkNameTextView;
+            ArtworkViewHolder(@NonNull View itemView) {
                 super(itemView);
                 imageView = itemView.findViewById(R.id.imageViewArtwork);
                 timestampTextView = itemView.findViewById(R.id.textViewArtworkTimestamp);

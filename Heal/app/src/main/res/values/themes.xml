@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Base.Theme.Heal" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/md_theme_primary</item>
@@ -35,6 +36,7 @@
         <item name="floatingActionButtonStyle">@style/Widget.Material3.FloatingActionButton.Primary</item>
 
     </style>
+
     <style name="TransparentDialog" parent="Theme.Material3.Light.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowNoTitle">true</item>
@@ -47,6 +49,7 @@
         <item name="android:windowMinWidthMajor">100%</item>
         <item name="android:windowMinWidthMinor">100%</item>
     </style>
+
     <style name="Theme.Heal" parent="Theme.Material3.DayNight.NoActionBar">
     </style>
 
@@ -60,12 +63,13 @@
 
     <style name="Theme.Heal.AppBarOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar" />
     <style name="Theme.Heal.PopupOverlay" parent="ThemeOverlay.Material3.Light" />
+
     <!-- Headline Medium -->
     <style name="TextAppearance.Material3.HeadlineMedium" parent="TextAppearance.MaterialComponents.Headline6">
         <item name="android:fontFamily">@font/inter_regular</item> <!-- Assuming 'inter_regular' font is available -->
         <item name="android:textSize">28sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:letterSpacing">0.00</item> <!-- Changed from 0.00em to 0.00 -->
+        <item name="android:letterSpacing">0.00</item>
         <item name="android:lineHeight">36sp</item>
     </style>
 
@@ -74,7 +78,7 @@
         <item name="android:fontFamily">@font/inter_regular</item>
         <item name="android:textSize">22sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:letterSpacing">0.00</item> <!-- Changed from 0.00em to 0.00 -->
+        <item name="android:letterSpacing">0.00</item>
         <item name="android:lineHeight">28sp</item>
     </style>
 
@@ -83,7 +87,7 @@
         <item name="android:fontFamily">@font/inter_medium</item> <!-- Often medium weight for titles -->
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:letterSpacing">0.02</item> <!-- Changed from 0.02em to 0.02 -->
+        <item name="android:letterSpacing">0.02</item>
         <item name="android:lineHeight">24sp</item>
     </style>
 
@@ -92,7 +96,7 @@
         <item name="android:fontFamily">@font/inter_regular</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:letterSpacing">0.03</item> <!-- Changed from 0.03em to 0.03 -->
+        <item name="android:letterSpacing">0.03</item>
         <item name="android:lineHeight">24sp</item>
     </style>
 
@@ -101,7 +105,7 @@
         <item name="android:fontFamily">@font/inter_regular</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:letterSpacing">0.02</item> <!-- Changed from 0.02em to 0.02 -->
+        <item name="android:letterSpacing">0.02</item>
         <item name="android:lineHeight">20sp</item>
     </style>
 
@@ -110,7 +114,7 @@
         <item name="android:fontFamily">@font/inter_regular</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:letterSpacing">0.04</item> <!-- Changed from 0.04em to 0.04 -->
+        <item name="android:letterSpacing">0.04</item>
         <item name="android:lineHeight">16sp</item>
     </style>
 
@@ -119,7 +123,7 @@
         <item name="android:fontFamily">@font/inter_medium</item>
         <item name="android:textSize">11sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:letterSpacing">0.05</item> <!-- Changed from 0.05em to 0.05 -->
+        <item name="android:letterSpacing">0.05</item>
         <item name="android:lineHeight">16sp</item>
     </style>
 
@@ -128,9 +132,7 @@
         <item name="android:fontFamily">@font/inter_medium</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:letterSpacing">0.01</item> <!-- Changed from 0.01em to 0.01 -->
+        <item name="android:letterSpacing">0.01</item>
         <item name="android:lineHeight">20sp</item>
     </style>
-
-
 </resources>

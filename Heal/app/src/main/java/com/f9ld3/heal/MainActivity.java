@@ -49,7 +49,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -57,6 +56,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -82,8 +82,8 @@ import java.util.List;
 import java.util.Map;
 
 import drawing.DrawingCanvasFragment;
-import funcorner.PaintFragment;
 import funcorner.MemoryMatchGameFragment;
+import funcorner.PaintFragment;
 import funcorner.TetrisGameFragment;
 import funcorner.WordScrambleGameFragment;
 import records.AddEditContactDialogFragment;
@@ -95,6 +95,7 @@ import records.MoodCheckinFragment;
 import records.RelapseHistoryFragment;
 import records.SavedStrategiesFragment;
 import ui.AIFragment;
+import ui.CustomMessageDialogFragment;
 import ui.FunCornerFragment;
 import ui.HomeFragment;
 import ui.InterceptTouchRecyclerView;
@@ -440,18 +441,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (emptyNotificationsTextView.getVisibility() == View.VISIBLE){
                     Toast.makeText(this, "No Notifications to clear", Toast.LENGTH_SHORT).show();
                 }else {
-                    new AlertDialog.Builder(this)
-                            .setTitle("Clear Notifications")
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setMessage("Are you sure you want to clear all recently sent notifications?")
-                            .setPositiveButton("Clear", (dialog, which) -> {
-                                SharedPreferences pref = getSharedPreferences(PREFS_NOTIFICATIONS, Context.MODE_PRIVATE);
-                                pref.edit().remove(KEY_RECENT_NOTIFICATIONS).apply();
-                                updateRecentlySentNotificationsDisplay();
-                                Toast.makeText(this, "Notifications cleared.", Toast.LENGTH_SHORT).show();
-                            })
-                            .setNegativeButton("Cancel", null)
-                            .show();
+                    // Replaced AlertDialog with CustomMessageDialogFragment
+                    CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                            "Clear Notifications",
+                            "Are you sure you want to clear all recently sent notifications?",
+                            "Clear",
+                            "Cancel"
+                    );
+                    dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                        @Override
+                        public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                            SharedPreferences pref = getSharedPreferences(PREFS_NOTIFICATIONS, Context.MODE_PRIVATE);
+                            pref.edit().remove(KEY_RECENT_NOTIFICATIONS).apply();
+                            updateRecentlySentNotificationsDisplay();
+                            Toast.makeText(MainActivity.this, "Notifications cleared.", Toast.LENGTH_SHORT).show();
+                            dialogFragment.dismiss();
+                        }
+
+                        @Override
+                        public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                            dialogFragment.dismiss();
+                        }
+                    });
+                    dialog.show(getSupportFragmentManager(), "ClearNotificationsDialog");
                 }
             });
 
@@ -728,60 +740,105 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         closeSettings();
         if (currentFragment instanceof HomeFragment) {
-            new AlertDialog.Builder(this)
-                    .setTitle("Exit Application")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setMessage("Are you sure you want to exit the application?")
-                    .setPositiveButton("Yes", (dialog, which) -> finish())
-                    .setNegativeButton("No", (dialog, which) -> {
-                        dialog.dismiss();
-                    })
-                    .setCancelable(true)
-                    .show();
+            // Replaced AlertDialog with CustomMessageDialogFragment
+            CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                    "Exit Application",
+                    "Are you sure you want to exit the application?",
+                    "Yes",
+                    "No"
+            );
+            dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                @Override
+                public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                    finish();
+                }
+
+                @Override
+                public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                    dialogFragment.dismiss();
+                }
+            });
+            dialog.show(getSupportFragmentManager(), "ExitAppDialog");
         } else if (currentFragment instanceof DrawingCanvasFragment){
-            new AlertDialog.Builder(this)
-                    .setTitle("Exit Canvas")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setMessage("Are you sure you want to exit without saving ?")
-                    .setPositiveButton("Yes", (dialog, which) ->getSupportFragmentManager().popBackStack())
-                    .setNegativeButton("No", (dialog, which) -> {
-                        dialog.dismiss();
-                    })
-                    .setCancelable(true)
-                    .show();
+            // Replaced AlertDialog with CustomMessageDialogFragment
+            CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                    "Exit Canvas",
+                    "Are you sure you want to exit without saving?",
+                    "Yes",
+                    "No"
+            );
+            dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                @Override
+                public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                    getSupportFragmentManager().popBackStack();
+                }
+
+                @Override
+                public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                    dialogFragment.dismiss();
+                }
+            });
+            dialog.show(getSupportFragmentManager(), "ExitCanvasDialog");
         }else if (currentFragment instanceof TetrisGameFragment){
-            new AlertDialog.Builder(this)
-                    .setTitle("Exit Tetris")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setMessage("Are you sure you want to quit your game")
-                    .setPositiveButton("Yes", (dialog, which) ->getSupportFragmentManager().popBackStack())
-                    .setNegativeButton("No", (dialog, which) -> {
-                        dialog.dismiss();
-                    })
-                    .setCancelable(true)
-                    .show();
+            // Replaced AlertDialog with CustomMessageDialogFragment
+            CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                    "Exit Tetris",
+                    "Are you sure you want to quit your game?",
+                    "Yes",
+                    "No"
+            );
+            dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                @Override
+                public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                    getSupportFragmentManager().popBackStack();
+                }
+
+                @Override
+                public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                    dialogFragment.dismiss();
+                }
+            });
+            dialog.show(getSupportFragmentManager(), "ExitTetrisDialog");
         }else if (currentFragment instanceof MemoryMatchGameFragment){
-            new AlertDialog.Builder(this)
-                    .setTitle("Exit Memory Match")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setMessage("Are you sure you want to quit your game")
-                    .setPositiveButton("Yes", (dialog, which) ->getSupportFragmentManager().popBackStack())
-                    .setNegativeButton("No", (dialog, which) -> {
-                        dialog.dismiss();
-                    })
-                    .setCancelable(true)
-                    .show();
+            // Replaced AlertDialog with CustomMessageDialogFragment
+            CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                    "Exit Memory Match",
+                    "Are you sure you want to quit your game?",
+                    "Yes",
+                    "No"
+            );
+            dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                @Override
+                public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                    getSupportFragmentManager().popBackStack();
+                }
+
+                @Override
+                public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                    dialogFragment.dismiss();
+                }
+            });
+            dialog.show(getSupportFragmentManager(), "ExitMemoryMatchDialog");
         }else if (currentFragment instanceof WordScrambleGameFragment){
-            new AlertDialog.Builder(this)
-                    .setTitle("Exit WordScramble")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setMessage("Are you sure you want to quit your game")
-                    .setPositiveButton("Yes", (dialog, which) ->getSupportFragmentManager().popBackStack())
-                    .setNegativeButton("No", (dialog, which) -> {
-                        dialog.dismiss();
-                    })
-                    .setCancelable(true)
-                    .show();
+            // Replaced AlertDialog with CustomMessageDialogFragment
+            CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                    "Exit WordScramble",
+                    "Are you sure you want to quit your game?",
+                    "Yes",
+                    "No"
+            );
+            dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                @Override
+                public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                    getSupportFragmentManager().popBackStack();
+                }
+
+                @Override
+                public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                    dialogFragment.dismiss();
+                }
+            });
+            dialog.show(getSupportFragmentManager(), "ExitWordScrambleDialog");
         }
         else {
             super.onBackPressed();
@@ -808,103 +865,109 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (currentFragment instanceof DrawingCanvasFragment) {
             drawerLayout.closeDrawer(GravityCompat.START); // Close the drawer immediately
 
-            // Show a confirmation dialog before navigating away
-            new AlertDialog.Builder(this)
-                    .setTitle("Exit Canvas")
-                    .setMessage("Are you sure you want to leave without saving? Your changes will be lost.")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setPositiveButton("Leave", (dialog, which) -> {
-                        // User chose to leave. Now, perform the navigation.
-                        // We pop the back stack to exit the canvas, then navigate to the new fragment.
-                        getSupportFragmentManager().popBackStack();
-                        performNavigation(item); // Call a helper to handle the actual navigation
-                    })
-                    .setNegativeButton("Cancel", (dialog, which) -> {
-                        // User chose to stay.
-                        // Un-check the item they just clicked in the drawer to reflect that navigation was cancelled.
-                        navigationView.setCheckedItem(R.id.nav_fun_corner);
-                    })
-                    .setOnCancelListener(dialog -> {
-                        // Also handle if the user taps outside the dialog
-                        navigationView.setCheckedItem(R.id.nav_fun_corner);
-                    })
-                    .show();
+            // Replaced AlertDialog with CustomMessageDialogFragment
+            CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                    "Exit Canvas",
+                    "Are you sure you want to leave without saving? Your changes will be lost.",
+                    "Leave",
+                    "Cancel"
+            );
+            dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                @Override
+                public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                    getSupportFragmentManager().popBackStack();
+                    performNavigation(item);
+                    dialogFragment.dismiss();
+                }
+
+                @Override
+                public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                    navigationView.setCheckedItem(R.id.nav_fun_corner);
+                    dialogFragment.dismiss();
+                }
+            });
+            dialog.show(getSupportFragmentManager(), "NavExitCanvasDialog");
 
             return true; // The event is handled by showing the dialog
         } else if (currentFragment instanceof TetrisGameFragment) {
             drawerLayout.closeDrawer(GravityCompat.START); // Close the drawer immediately
 
-            // Show a confirmation dialog before navigating away
-            new AlertDialog.Builder(this)
-                    .setTitle("Exit Tetris")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setMessage("Are you sure you want to quit your game")        
-                    .setPositiveButton("Leave", (dialog, which) -> {
-                        // User chose to leave. Now, perform the navigation.
-                        // We pop the back stack to exit the canvas, then navigate to the new fragment.
-                        getSupportFragmentManager().popBackStack();
-                        performNavigation(item); // Call a helper to handle the actual navigation
-                    })
-                    .setNegativeButton("Cancel", (dialog, which) -> {
-                        // User chose to stay.
-                        // Un-check the item they just clicked in the drawer to reflect that navigation was cancelled.
-                        navigationView.setCheckedItem(R.id.nav_fun_corner);
-                    })
-                    .setOnCancelListener(dialog -> {
-                        // Also handle if the user taps outside the dialog
-                        navigationView.setCheckedItem(R.id.nav_fun_corner);
-                    })
-                    .show();
+            // Replaced AlertDialog with CustomMessageDialogFragment
+            CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                    "Exit Tetris",
+                    "Are you sure you want to quit your game?",
+                    "Leave",
+                    "Cancel"
+            );
+            dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                @Override
+                public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                    getSupportFragmentManager().popBackStack();
+                    performNavigation(item);
+                    dialogFragment.dismiss();
+                }
+
+                @Override
+                public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                    navigationView.setCheckedItem(R.id.nav_fun_corner);
+                    dialogFragment.dismiss();
+                }
+            });
+            dialog.show(getSupportFragmentManager(), "NavExitTetrisDialog");
 
             return true; // The event is handled by showing the dialog
         } else if (currentFragment instanceof MemoryMatchGameFragment) {
             drawerLayout.closeDrawer(GravityCompat.START); // Close the drawer immediately
-            new AlertDialog.Builder(this)
-                    .setTitle("Exit Memory Match")
-                    .setMessage("Are you sure you want to quit your game")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setPositiveButton("Leave", (dialog, which) -> {
-                        // User chose to leave. Now, perform the navigation.
-                        // We pop the back stack to exit the canvas, then navigate to the new fragment.
-                        getSupportFragmentManager().popBackStack();
-                        performNavigation(item); // Call a helper to handle the actual navigation
-                    })
-                    .setNegativeButton("Cancel", (dialog, which) -> {
-                        // User chose to stay.
-                        // Un-check the item they just clicked in the drawer to reflect that navigation was cancelled.
-                        navigationView.setCheckedItem(R.id.nav_fun_corner);
-                    })
-                    .setOnCancelListener(dialog -> {
-                        // Also handle if the user taps outside the dialog
-                        navigationView.setCheckedItem(R.id.nav_fun_corner);
-                    })
-                    .show();
+            // Replaced AlertDialog with CustomMessageDialogFragment
+            CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                    "Exit Memory Match",
+                    "Are you sure you want to quit your game?",
+                    "Leave",
+                    "Cancel"
+            );
+            dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                @Override
+                public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                    getSupportFragmentManager().popBackStack();
+                    performNavigation(item);
+                    dialogFragment.dismiss();
+                }
 
-            return true; // The event is handled by showing the dialog    
+                @Override
+                public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                    navigationView.setCheckedItem(R.id.nav_fun_corner);
+                    dialogFragment.dismiss();
+                }
+            });
+            dialog.show(getSupportFragmentManager(), "NavExitMemoryMatchDialog");
+
+            return true; // The event is handled by showing the dialog
         }else if (currentFragment instanceof WordScrambleGameFragment) {
             drawerLayout.closeDrawer(GravityCompat.START); // Close the drawer immediately
-            new AlertDialog.Builder(this)
-                    .setTitle("Exit WordScramble")
-                    .setMessage("Are you sure you want to quit your game")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setPositiveButton("Leave", (dialog, which) -> {
-                        // User chose to leave. Now, perform the navigation.
-                        // We pop the back stack to exit the canvas, then navigate to the new fragment.
-                        getSupportFragmentManager().popBackStack();
-                        performNavigation(item); // Call a helper to handle the actual navigation
-                    })
-                    .setNegativeButton("Cancel", (dialog, which) -> {
-                        // User chose to stay.
-                        // Un-check the item they just clicked in the drawer to reflect that navigation was cancelled.
-                        navigationView.setCheckedItem(R.id.nav_fun_corner);
-                    })
-                    .setOnCancelListener(dialog -> {
-                        // Also handle if the user taps outside the dialog
-                        navigationView.setCheckedItem(R.id.nav_fun_corner);
-                    })
-                    .show();
+            // Replaced AlertDialog with CustomMessageDialogFragment
+            CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                    "Exit WordScramble",
+                    "Are you sure you want to quit your game?",
+                    "Leave",
+                    "Cancel"
+            );
+            dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                @Override
+                public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                    getSupportFragmentManager().popBackStack();
+                    performNavigation(item);
+                    dialogFragment.dismiss();
+                }
 
-            return true; // The event is handled by showing the dialog    
+                @Override
+                public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                    navigationView.setCheckedItem(R.id.nav_fun_corner);
+                    dialogFragment.dismiss();
+                }
+            });
+            dialog.show(getSupportFragmentManager(), "NavExitWordScrambleDialog");
+
+            return true; // The event is handled by showing the dialog
         }
 
         // If not on the canvas, proceed with navigation as normal
@@ -1278,15 +1341,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
                 if (!alarmManager.canScheduleExactAlarms()) {
                     // Guide user to settings
-                    new AlertDialog.Builder(this)
-                            .setTitle("Permission Needed")
-                            .setMessage("To ensure your reminders are delivered on time, please allow the app to schedule exact alarms.")
-                            .setPositiveButton("Go to Settings", (dialog, which) -> {
-                                Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
-                                startActivity(intent);
-                            })
-                            .setNegativeButton("Cancel", null)
-                            .show();
+                    // Replaced AlertDialog with CustomMessageDialogFragment
+                    CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                            "Permission Needed",
+                            "To ensure your reminders are delivered on time, please allow the app to schedule exact alarms.",
+                            "Go to Settings",
+                            "Cancel"
+                    );
+                    dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                        @Override
+                        public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                            Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                            startActivity(intent);
+                        }
+
+                        @Override
+                        public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                            dialogFragment.dismiss();
+                        }
+                    });
+                    dialog.show(getSupportFragmentManager(), "PermissionDialog");
                 } else {
                     scheduleReminder(this);
                 }
@@ -1422,47 +1496,72 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         currentWelcomeDialogStep = step;
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                .setTitle(WELCOME_TITLES[currentWelcomeDialogStep])
-                .setMessage(WelcomeMessages[currentWelcomeDialogStep])
-                .setCancelable(false);
-        if (currentWelcomeDialogStep > 0) {
-            builder.setNegativeButton("Previous", (dialog, which) -> {
+        String positiveButtonText;
+        String negativeButtonText = null;
 
-                showWelcomeDialogStep(currentWelcomeDialogStep - 1);
-            });
-        }
         if (currentWelcomeDialogStep < WelcomeMessages.length - 1) {
-            builder.setPositiveButton("Next", (dialog, which) -> {
-                showWelcomeDialogStep(currentWelcomeDialogStep + 1);
-            });
+            positiveButtonText = "Next";
         } else {
-            builder.setPositiveButton("Start", (dialog, which) -> {
-                dialog.dismiss();
-
-                SharedPreferences.Editor editor = settingse.edit();
-                editor.putBoolean(FIRST_LAUNCH_KEY, false);
-                editor.apply();
-
-                long initialRelapseTime = startRelapseCounter();
-
-                HomeFragment homeFragment = new HomeFragment();
-                Bundle args = new Bundle();
-                args.putLong(KEY_LAST_RELAPSE_DATE, initialRelapseTime);
-                homeFragment.setArguments(args);
-
-                loadFragment(homeFragment, R.id.nav_home);
-                if (navigationView != null) {
-                    navigationView.setCheckedItem(R.id.nav_home);
-                }
-                if (toolbar != null) {
-                    toolbar.setTitle("Heal");
-                }
-                Log.d(TAG, "MainActivity: welcomeMessage - Loading HomeFragment after timer start (final step).");
-            });
+            positiveButtonText = "Start";
         }
-        AlertDialog dialog = builder.create();
-        dialog.show();
+
+        if (currentWelcomeDialogStep > 0) {
+            negativeButtonText = "Previous";
+        }
+
+        Log.d(TAG, "showWelcomeDialogStep: Showing CustomMessageDialogFragment for welcome step " + step);
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                WELCOME_TITLES[currentWelcomeDialogStep],
+                WelcomeMessages[currentWelcomeDialogStep],
+                positiveButtonText,
+                negativeButtonText
+        );
+
+        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                if (currentWelcomeDialogStep < WelcomeMessages.length - 1) {
+                    dialogFragment.dismiss();
+                    showWelcomeDialogStep(currentWelcomeDialogStep + 1);
+                } else {
+                    // This is the "Start" button
+                    dialogFragment.dismiss();
+
+                    SharedPreferences.Editor editor = settingse.edit();
+                    editor.putBoolean(FIRST_LAUNCH_KEY, false);
+                    editor.apply();
+
+                    long initialRelapseTime = startRelapseCounter();
+
+                    HomeFragment homeFragment = new HomeFragment();
+                    Bundle args = new Bundle();
+                    args.putLong(KEY_LAST_RELAPSE_DATE, initialRelapseTime);
+                    homeFragment.setArguments(args);
+
+                    loadFragment(homeFragment, R.id.nav_home);
+                    if (navigationView != null) {
+                        navigationView.setCheckedItem(R.id.nav_home);
+                    }
+                    if (toolbar != null) {
+                        toolbar.setTitle("Heal");
+                    }
+                    Log.d(TAG, "MainActivity: welcomeMessage - Loading HomeFragment after timer start (final step).");
+                }
+            }
+
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                if (currentWelcomeDialogStep > 0) {
+                    dialogFragment.dismiss();
+                    showWelcomeDialogStep(currentWelcomeDialogStep - 1);
+                } else {
+                    // This case should ideally not be reached if negative button is null for step 0
+                    dialogFragment.dismiss();
+                }
+            }
+        });
+        dialog.setCancelable(false); // Make welcome dialogs non-cancelable by outside touch
+        dialog.show(getSupportFragmentManager(), "WelcomeDialogStep" + currentWelcomeDialogStep);
     }
 
     @Override

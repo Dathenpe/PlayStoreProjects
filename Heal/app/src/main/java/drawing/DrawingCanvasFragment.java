@@ -1,6 +1,5 @@
 package drawing;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -24,10 +22,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.f9ld3.heal.MainActivity;
 import com.f9ld3.heal.R;
+import ui.CustomInputDialogFragment;
+import ui.CustomMessageDialogFragment;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,17 +52,14 @@ public class DrawingCanvasFragment extends Fragment {
     private Button buttonClearCanvas;
     private Button buttonSaveDrawing;
     private LinearLayout colorPalette;
-    private HorizontalScrollView colorPaletteContainer; // Reference for the container
+    private HorizontalScrollView colorPaletteContainer;
     private SeekBar brushSizeSeekBar;
     private TextView brushSizeTextView;
 
-    private View selectedColorCircle; // To keep track of the currently selected color circle
+    private View selectedColorCircle;
 
-    // Variables to hold the loaded artwork URI and name if editing
     private String loadedImageUri = null;
     private String loadedArtworkName = null;
-
-    // Set to hold existing artwork names, passed from PaintFragment
     private Set<String> existingArtworkNames = new HashSet<>();
 
     public interface OnDrawingSavedListener {
@@ -79,24 +77,14 @@ public class DrawingCanvasFragment extends Fragment {
             Toast.makeText(context, "Error: DrawingCanvasFragment attached to wrong activity", Toast.LENGTH_SHORT).show();
         }
 
-        // Correctly get the target fragment, which should be PaintFragment
         Fragment targetFragment = getTargetFragment();
         if (targetFragment instanceof OnDrawingSavedListener) {
             listener = (OnDrawingSavedListener) targetFragment;
+        } else if (context instanceof OnDrawingSavedListener) {
+            listener = (OnDrawingSavedListener) context;
         } else {
-            // Fallback to parent activity if target fragment is not set or not the listener
-            if (context instanceof OnDrawingSavedListener) {
-                listener = (OnDrawingSavedListener) context;
-            } else {
-                throw new RuntimeException(context.toString() + " or target fragment must implement OnDrawingSavedListener");
-            }
+            throw new RuntimeException(context.toString() + " or target fragment must implement OnDrawingSavedListener");
         }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        listener = null;
     }
 
     @Nullable
@@ -109,12 +97,13 @@ public class DrawingCanvasFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (mainActivity != null) {
-            mainActivity.toolbar.setTitle("New Artwork");
-            mainActivity.MenuTrigger.setVisibility(View.GONE);
-            mainActivity.Fab.setVisibility(View.GONE);
-        }
+        initializeViews(view);
+        setupInitialState();
+        setupClickListeners();
+        setupColorPalette();
+    }
 
+    private void initializeViews(View view) {
         drawingView = view.findViewById(R.id.drawingView);
         buttonPen = view.findViewById(R.id.buttonPen);
         buttonEraser = view.findViewById(R.id.buttonEraser);
@@ -123,43 +112,44 @@ public class DrawingCanvasFragment extends Fragment {
         buttonClearCanvas = view.findViewById(R.id.buttonClearCanvas);
         buttonSaveDrawing = view.findViewById(R.id.buttonSaveDrawing);
         colorPalette = view.findViewById(R.id.colorPalette);
-        colorPaletteContainer = view.findViewById(R.id.color_palette_container); // Initialize the container
+        colorPaletteContainer = view.findViewById(R.id.color_palette_container);
         brushSizeSeekBar = view.findViewById(R.id.brushSizeSeekBar);
         brushSizeTextView = view.findViewById(R.id.brushSizeTextView);
+    }
 
-        // Check for arguments (if editing an existing artwork or receiving existing names)
+    private void setupInitialState() {
+        if (mainActivity != null) {
+            mainActivity.toolbar.setTitle("New Artwork");
+            mainActivity.MenuTrigger.setVisibility(View.GONE);
+            mainActivity.Fab.setVisibility(View.GONE);
+        }
+
         Bundle args = getArguments();
         if (args != null) {
             loadedImageUri = args.getString("imageUriToLoad");
             loadedArtworkName = args.getString("artworkNameToLoad");
-            // Retrieve the set of existing artwork names
             if (args.containsKey("existingArtworkNames")) {
                 existingArtworkNames = (Set<String>) args.getSerializable("existingArtworkNames");
-                if (existingArtworkNames == null) {
-                    existingArtworkNames = new HashSet<>();
-                }
+                if (existingArtworkNames == null) existingArtworkNames = new HashSet<>();
             }
-
             if (loadedImageUri != null) {
-                mainActivity.toolbar.setTitle("Editing Artwork");
+                if (mainActivity != null) mainActivity.toolbar.setTitle("Editing Artwork");
                 loadArtworkForEditing(loadedImageUri);
             }
         }
 
-
-        // Set initial drawing mode to PEN and update button styles
         drawingView.setDrawingMode(DrawingView.DrawingMode.PEN);
-        updateToolButtonStyles(buttonPen, buttonEraser); // Apply rounded background to selected tool
+        updateToolButtonStyles(buttonPen, buttonEraser);
 
-        // Set initial brush size text and seekbar progress
         brushSizeTextView.setText("Size: " + (int) drawingView.getBrushSize());
         brushSizeSeekBar.setProgress((int) drawingView.getBrushSize());
+    }
 
+    private void setupClickListeners() {
         buttonPen.setOnClickListener(v -> {
             drawingView.setDrawingMode(DrawingView.DrawingMode.PEN);
-            updateToolButtonStyles(buttonPen, buttonEraser); // Update styles
-            colorPaletteContainer.setVisibility(View.VISIBLE); // Show color palette
-            // Reset brush size to 20 when pen is selected
+            updateToolButtonStyles(buttonPen, buttonEraser);
+            colorPaletteContainer.setVisibility(View.VISIBLE);
             final int defaultBrushSize = 20;
             drawingView.setBrushSize(defaultBrushSize);
             brushSizeSeekBar.setProgress(defaultBrushSize);
@@ -168,100 +158,80 @@ public class DrawingCanvasFragment extends Fragment {
 
         buttonEraser.setOnClickListener(v -> {
             drawingView.setDrawingMode(DrawingView.DrawingMode.ERASER);
-            updateToolButtonStyles(buttonEraser, buttonPen); // Update styles
-            colorPaletteContainer.setVisibility(View.GONE); // Hide color palette
-            // Reset brush size to 20 when eraser is selected
+            updateToolButtonStyles(buttonEraser, buttonPen);
+            colorPaletteContainer.setVisibility(View.GONE);
             final int defaultBrushSize = 20;
             drawingView.setBrushSize(defaultBrushSize);
             brushSizeSeekBar.setProgress(defaultBrushSize);
             brushSizeTextView.setText("Size: " + defaultBrushSize);
         });
 
-        // Set up SeekBar listener for brush size
         brushSizeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // Ensure a minimum brush size (e.g., 1) to prevent zero size
                 int actualProgress = Math.max(1, progress);
                 brushSizeTextView.setText("Size: " + actualProgress);
                 drawingView.setBrushSize(actualProgress);
             }
-
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // Not needed for this functionality
-            }
-
+            public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // Not needed for this functionality
-            }
+            public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        // Set up Undo and Redo button listeners
         buttonUndo.setOnClickListener(v -> drawingView.undo());
         buttonRedo.setOnClickListener(v -> drawingView.redo());
 
-        buttonClearCanvas.setOnClickListener(v -> {
-            new AlertDialog.Builder(getContext())
-                    .setTitle("Clear Canvas")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setMessage("Are you sure you want to clear the entire canvas? This action cannot be undone.")
-                    .setPositiveButton("Clear", (dialog, which) -> drawingView.clearCanvas())
-                    .setNegativeButton("Cancel", null)
-                    .show();
-        });
-
+        buttonClearCanvas.setOnClickListener(v -> showClearCanvasConfirmation());
         buttonSaveDrawing.setOnClickListener(v -> showSaveDialog());
-
-        setupColorPalette();
     }
 
-    /**
-     * Loads an existing artwork bitmap into the DrawingView for editing.
-     * @param imageUri The URI of the image to load.
-     */
+    private void showClearCanvasConfirmation() {
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                "Clear Canvas",
+                "Are you sure you want to clear the entire canvas? This action cannot be undone.",
+                "Clear",
+                "Cancel"
+        );
+        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                drawingView.clearCanvas();
+            }
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                dialogFragment.dismiss();
+            }
+        });
+        dialog.show(getParentFragmentManager(), "ClearCanvasConfirmationDialog");
+    }
+
     private void loadArtworkForEditing(String imageUri) {
         try {
             File imgFile = new File(Uri.parse(imageUri).getPath());
             if (imgFile.exists()) {
                 Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                 if (bitmap != null) {
-                    // Post the loading to ensure the DrawingView has been laid out and has dimensions
-                    drawingView.post(() -> {
-                        drawingView.loadBitmap(bitmap);
-                        Log.d(TAG, "Loaded bitmap for editing: " + imageUri);
-                    });
+                    drawingView.post(() -> drawingView.loadBitmap(bitmap));
                 } else {
-                    Log.e(TAG, "BitmapFactory returned null for: " + imageUri);
                     Toast.makeText(getContext(), "Failed to load image for editing.", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Log.e(TAG, "Image file not found for editing: " + imageUri);
-                Toast.makeText(getContext(), "Image file not found for editing.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Image file not found.", Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error loading image for editing: " + imageUri, e);
-            Toast.makeText(getContext(), "Error loading image for editing: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Error loading image: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
-
-    /**
-     * Updates the background style of the tool buttons (pen/eraser) to show which one is selected.
-     * The selected button will have a rounded background, while the unselected one will be transparent.
-     * @param selectedButton The ImageButton that is currently selected.
-     * @param unselectedButton The ImageButton that is currently unselected.
-     */
     private void updateToolButtonStyles(ImageButton selectedButton, ImageButton unselectedButton) {
-        // Create a rounded background drawable for the selected state
+        if (getContext() == null) return;
         GradientDrawable selectedDrawable = new GradientDrawable();
         selectedDrawable.setShape(GradientDrawable.OVAL);
-        selectedDrawable.setColor(ContextCompat.getColor(getContext(), R.color.selected_tool_background)); // Use your desired selected color
+        selectedDrawable.setColor(ContextCompat.getColor(getContext(), R.color.selected_tool_background));
         selectedButton.setBackground(selectedDrawable);
-        selectedButton.setEnabled(false); // Disable selected button to show it's active
+        selectedButton.setEnabled(false);
 
-        // Set the unselected button's background to transparent
         GradientDrawable unselectedDrawable = new GradientDrawable();
         unselectedDrawable.setShape(GradientDrawable.OVAL);
         unselectedDrawable.setColor(Color.TRANSPARENT);
@@ -270,11 +240,11 @@ public class DrawingCanvasFragment extends Fragment {
     }
 
     private void setupColorPalette() {
+        if (getContext() == null) return;
         int[] colors = {
                 Color.BLACK, Color.RED, Color.GREEN, Color.BLUE,
                 Color.YELLOW, Color.CYAN, Color.MAGENTA, Color.GRAY,
-                Color.parseColor("#FFA500"), // Orange
-                Color.parseColor("#800080")  // Purple
+                Color.parseColor("#FFA500"), Color.parseColor("#800080")
         };
 
         for (final int color : colors) {
@@ -286,15 +256,13 @@ public class DrawingCanvasFragment extends Fragment {
             params.setMargins(8, 0, 8, 0);
             colorCircle.setLayoutParams(params);
 
-            // Set the initial (unselected) background using GradientDrawable
             GradientDrawable unselectedDrawable = new GradientDrawable();
             unselectedDrawable.setShape(GradientDrawable.OVAL);
             unselectedDrawable.setColor(color);
-            colorCircle.setBackground(unselectedDrawable); // Set background directly
-            colorCircle.setTag(color); // Store the actual color in the tag for easy retrieval
+            colorCircle.setBackground(unselectedDrawable);
+            colorCircle.setTag(color);
 
             colorCircle.setOnClickListener(v -> {
-                // Clear previous selection
                 if (selectedColorCircle != null) {
                     int previousColor = (int) selectedColorCircle.getTag();
                     GradientDrawable prevUnselectedDrawable = new GradientDrawable();
@@ -303,111 +271,67 @@ public class DrawingCanvasFragment extends Fragment {
                     selectedColorCircle.setBackground(prevUnselectedDrawable);
                 }
 
-                // Apply new selection: add a border
                 GradientDrawable selectedDrawable = new GradientDrawable();
                 selectedDrawable.setShape(GradientDrawable.OVAL);
                 selectedDrawable.setColor(color);
-                selectedDrawable.setStroke(6, ContextCompat.getColor(getContext(), R.color.text_color_secondary)); // 6px border using text_color_secondary
+                selectedDrawable.setStroke(6, ContextCompat.getColor(getContext(), R.color.text_color_secondary));
                 v.setBackground(selectedDrawable);
 
-                selectedColorCircle = v; // Update the reference to the newly selected circle
-
+                selectedColorCircle = v;
                 drawingView.setCurrentColor(color);
             });
             colorPalette.addView(colorCircle);
         }
 
-        // Set initial selection to black (assuming it's the first color added)
-        if (colors.length > 0 && colorPalette.getChildCount() > 0) {
-            View initialColorCircle = colorPalette.getChildAt(0); // Get the View for black color
-            if (initialColorCircle != null) {
-                initialColorCircle.performClick(); // Simulate a click to apply selection logic
-            }
+        if (colorPalette.getChildCount() > 0) {
+            colorPalette.getChildAt(0).performClick();
         }
     }
 
-    /**
-     * Displays a dialog to allow the user to enter a name for the artwork before saving.
-     * It also checks if the canvas is empty before proceeding with the save dialog.
-     */
     private void showSaveDialog() {
         if (getContext() == null) return;
 
-        // If we are editing an existing artwork, we can bypass the "empty canvas" check
-        // because the user might just be saving without making further changes.
         if (loadedImageUri == null && !drawingView.hasDrawnSomething()) {
             Toast.makeText(getContext(), "Canvas is empty. Nothing to save!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        final Bitmap bitmapToSave = drawingView.getBitmap();
-        if (bitmapToSave == null) {
-            Toast.makeText(getContext(), "Error: Bitmap is null. Nothing to save!", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        String defaultArtworkName = (loadedArtworkName != null)
+                ? loadedArtworkName
+                : getUniqueArtworkName("My Artwork", existingArtworkNames);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Save Artwork");
+        CustomInputDialogFragment dialog = CustomInputDialogFragment.newInstance(
+                "Save Artwork",
+                null, // No message needed
+                "Enter artwork name",
+                "Save",
+                "Cancel"
+        );
 
-        final EditText input = new EditText(getContext());
-        // Calculate padding in pixels from dp (16dp)
-        int paddingPx = (int) (16 * getResources().getDisplayMetrics().density);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        input.setLayoutParams(lp);
-        input.setHint("Enter artwork name");
-
-        String defaultArtworkName;
-        if (loadedArtworkName != null) {
-            defaultArtworkName = loadedArtworkName; // If editing, use the existing name
-        } else {
-            // For new artwork, generate a unique name
-            defaultArtworkName = getUniqueArtworkName("My Artwork", existingArtworkNames);
-        }
-        input.setText(defaultArtworkName);
-        input.setSingleLine(true);
-        input.setPadding(paddingPx, paddingPx, paddingPx, paddingPx); // Apply padding directly to EditText
-
-        LinearLayout dialogLayout = new LinearLayout(getContext());
-        dialogLayout.setOrientation(LinearLayout.VERTICAL);
-        dialogLayout.addView(input);
-
-        builder.setView(dialogLayout); // Set the custom view for the dialog
-
-        builder.setPositiveButton("Save", (dialog, which) -> {
-            String artworkName = input.getText().toString().trim();
-            if (artworkName.isEmpty()) {
-                artworkName = "My Artwork"; // Fallback to default if user clears it
+        dialog.setListener(new CustomInputDialogFragment.OnInputDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment, String inputText) {
+                String artworkName = inputText.isEmpty() ? "My Artwork" : inputText;
+                if (loadedImageUri == null) {
+                    artworkName = getUniqueArtworkName(artworkName, existingArtworkNames);
+                }
+                performSave(drawingView.getBitmap(), artworkName);
             }
-            // If it's a new artwork and the user didn't change the default, ensure it's still unique
-            if (loadedImageUri == null) {
-                artworkName = getUniqueArtworkName(artworkName, existingArtworkNames);
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                dialogFragment.dismiss();
             }
-            performSave(bitmapToSave, artworkName);
         });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-        builder.show();
+        dialog.show(getParentFragmentManager(), "SaveArtworkDialog");
     }
 
-    /**
-     * Generates a unique artwork name by appending a number if the base name already exists.
-     * For example, if "My Artwork" exists, it returns "My Artwork (2)".
-     *
-     * @param baseName The desired base name (e.g., "My Artwork").
-     * @param existingNames A set of names that already exist.
-     * @return A unique artwork name.
-     */
     private String getUniqueArtworkName(String baseName, Set<String> existingNames) {
         String uniqueName = baseName;
         int counter = 1;
-        // If we are editing, the loadedArtworkName should be excluded from the existingNames check
-        // to allow saving with the same name if no other artwork shares it.
         Set<String> namesToCheck = new HashSet<>(existingNames);
         if (loadedArtworkName != null) {
             namesToCheck.remove(loadedArtworkName);
         }
-
         while (namesToCheck.contains(uniqueName)) {
             counter++;
             uniqueName = baseName + " (" + counter + ")";
@@ -415,83 +339,38 @@ public class DrawingCanvasFragment extends Fragment {
         return uniqueName;
     }
 
-    /**
-     * Performs the actual saving of the bitmap to a file with the given artwork name.
-     *
-     * @param bitmap The bitmap to save.
-     * @param artworkName The name provided by the user for the artwork.
-     */
     private void performSave(Bitmap bitmap, String artworkName) {
-        if (getContext() == null) return;
-
-        // Bitmap is already checked in showSaveDialog, but good to have a safeguard
-        if (bitmap == null) {
-            Toast.makeText(getContext(), "Error: Bitmap is null during save.", Toast.LENGTH_SHORT).show();
+        if (getContext() == null || bitmap == null) {
+            Toast.makeText(getContext(), "Error saving artwork.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         File picturesDir = getContext().getExternalFilesDir("Artwork");
-        if (picturesDir == null) {
-            Toast.makeText(getContext(), "Could not access storage to save artwork.", Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "ExternalFilesDir 'Artwork' is null.");
+        if (picturesDir == null || (!picturesDir.exists() && !picturesDir.mkdirs())) {
+            Toast.makeText(getContext(), "Could not access storage.", Toast.LENGTH_SHORT).show();
             return;
         }
-        // Ensure the directory exists
-        if (!picturesDir.exists()) {
-            if (!picturesDir.mkdirs()) {
-                Toast.makeText(getContext(), "Could not create artwork directory.", Toast.LENGTH_SHORT).show();
-                Log.e(TAG, "Failed to create directory: " + picturesDir.getAbsolutePath());
-                return;
-            }
-        }
 
-        String filename;
-        Uri savedUri;
-
+        File fileToSave;
         if (loadedImageUri != null) {
-            // If editing, overwrite the existing file
-            File existingFile = new File(Uri.parse(loadedImageUri).getPath());
-            filename = existingFile.getName();
-            savedUri = Uri.fromFile(existingFile);
-            Log.d(TAG, "Overwriting existing artwork: " + existingFile.getAbsolutePath());
+            fileToSave = new File(Uri.parse(loadedImageUri).getPath());
         } else {
-            // If new artwork, create a new file
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
-            // Sanitize artworkName to be safe for filenames (replace non-alphanumeric/dot/hyphen with underscore)
-            // The artworkName here is already unique for display, but file names need to be safe.
-            String sanitizedArtworkName = artworkName.replaceAll("[^a-zA-Z0-9.\\-]", "_");
-            filename = sanitizedArtworkName + "_" + sdf.format(new Date()) + ".png";
-            File newFile = new File(picturesDir, filename);
-            savedUri = Uri.fromFile(newFile);
-            Log.d(TAG, "Saving new artwork to: " + newFile.getAbsolutePath());
+            String sanitizedName = artworkName.replaceAll("[^a-zA-Z0-9.\\-]", "_");
+            String fileName = sanitizedName + "_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()) + ".png";
+            fileToSave = new File(picturesDir, fileName);
         }
 
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(new File(Uri.parse(savedUri.toString()).getPath()));
+        try (FileOutputStream fos = new FileOutputStream(fileToSave)) {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fos.flush();
-
-            Log.d(TAG, "Artwork saved to URI: " + savedUri.toString() + " with name: " + artworkName);
-
             if (listener != null) {
-                listener.onDrawingSaved(savedUri.toString(), artworkName);
+                listener.onDrawingSaved(Uri.fromFile(fileToSave).toString(), artworkName);
             }
-            Toast.makeText(getContext(), "Artwork saved successfully!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Artwork saved!", Toast.LENGTH_SHORT).show();
             if (getParentFragmentManager() != null) {
                 getParentFragmentManager().popBackStack();
             }
         } catch (IOException e) {
-            Log.e(TAG, "Failed to save artwork: " + e.getMessage(), e);
-            Toast.makeText(getContext(), "Failed to save artwork: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        } finally {
-            try {
-                if (fos != null) {
-                    fos.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Toast.makeText(getContext(), "Failed to save artwork.", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -499,15 +378,9 @@ public class DrawingCanvasFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if (mainActivity != null) {
-            // Set title based on whether we are editing or creating new
-            if (loadedImageUri != null) {
-                mainActivity.toolbar.setTitle("Editing Artwork");
-            } else {
-                mainActivity.toolbar.setTitle("New Artwork");
-            }
+            mainActivity.toolbar.setTitle(loadedImageUri != null ? "Editing Artwork" : "New Artwork");
             mainActivity.MenuTrigger.setVisibility(View.GONE);
             mainActivity.Fab.setVisibility(View.GONE);
         }
     }
-
 }

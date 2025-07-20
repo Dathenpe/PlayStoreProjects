@@ -4,7 +4,6 @@ import static android.content.ContentValues.TAG;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -22,7 +21,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -31,6 +29,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
@@ -66,7 +65,6 @@ import Slider.SliderTwo;
 import records.CopingExercisesFragment;
 import records.SavedStrategiesFragment;
 import viewmodels.GeneralViewModel;
-
 
 public class HomeFragment extends Fragment {
 
@@ -285,38 +283,56 @@ public class HomeFragment extends Fragment {
                         Toast.makeText(context, "You seem quite agitated. Grounding exercises are important; please continue.", Toast.LENGTH_SHORT).show();
                         handler.postDelayed(() -> slider.setValue(0), 1500);
                     } else if (progress > 6 && progress <= 9) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                        builder.setTitle("Are you okay?");
-                        builder.setMessage("This is a high level of distress. Have you completed your grounding exercise? It can really help.");
-                        builder.setPositiveButton("Yes, completed", (dialog, which) -> {
-                            Toast.makeText(context, "Okay, that's good. Remember to use your grounding techniques whenever you feel overwhelmed.", Toast.LENGTH_SHORT).show();
-                            handler.postDelayed(() -> slider.setValue(0), 2000);
-                        });
-                        builder.setNegativeButton("Not yet", (dialog, which) -> {
-                            Toast.makeText(context, "It's crucial that you do it now. Your well-being is important.", Toast.LENGTH_SHORT).show();
-                            handler.postDelayed(() -> slider.setValue(0), 2000);
-                        });
-                        builder.setCancelable(false);
-                        AlertDialog dialog = builder.create();
-                        dialog.show();
-                    } else if (progress == 10) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                        builder.setTitle("This is very high!");
-                        builder.setMessage("You're experiencing a very high level of distress. Please complete your grounding exercise immediately. If you feel unsafe, seek help.");
-                        builder.setPositiveButton("Completed", (dialog, which) -> {
-                            Toast.makeText(context, "Please monitor your feelings, if you feel unsafe seek help.", Toast.LENGTH_SHORT).show();
-                            handler.postDelayed(() -> slider.setValue(0), 2000);
-                        });
-                        builder.setNegativeButton("Need Help", (dialog, which) -> {
-                            MainActivity mainActiviy = (MainActivity) getActivity();
-                            Toast.makeText(context, "Please seek help", Toast.LENGTH_SHORT).show();
-                            handler.postDelayed(() -> slider.setValue(0), 2000);
-                            handler.postDelayed(() -> { slider.setValue(0); mainActiviy.loadContacts(); }, 3000);
+                        // Replaced AlertDialog with CustomMessageDialogFragment
+                        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                                "Are you okay?",
+                                "This is a high level of distress. Have you completed your grounding exercise? It can really help.",
+                                "Yes, completed",
+                                "Not yet"
+                        );
+                        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                            @Override
+                            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                                Toast.makeText(context, "Okay, that's good. Remember to use your grounding techniques whenever you feel overwhelmed.", Toast.LENGTH_SHORT).show();
+                                handler.postDelayed(() -> slider.setValue(0), 2000);
+                                dialogFragment.dismiss();
+                            }
 
+                            @Override
+                            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                                Toast.makeText(context, "It's crucial that you do it now. Your well-being is important.", Toast.LENGTH_SHORT).show();
+                                handler.postDelayed(() -> slider.setValue(0), 2000);
+                                dialogFragment.dismiss();
+                            }
                         });
-                        builder.setCancelable(false);
-                        AlertDialog dialog = builder.create();
-                        dialog.show();
+                        dialog.setCancelable(false);
+                        dialog.show(getParentFragmentManager(), "UrgeLevelHighDialog");
+                    } else if (progress == 10) {
+                        // Replaced AlertDialog with CustomMessageDialogFragment
+                        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                                "This is very high!",
+                                "You're experiencing a very high level of distress. Please complete your grounding exercise immediately. If you feel unsafe, seek help.",
+                                "Completed",
+                                "Need Help"
+                        );
+                        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                            @Override
+                            public  void onDialogPositiveClick(DialogFragment dialogFragment) { // Changed here
+                                Toast.makeText(context, "Please monitor your feelings, if you feel unsafe seek help.", Toast.LENGTH_SHORT).show();
+                                handler.postDelayed(() -> slider.setValue(0), 2000);
+                                dialogFragment.dismiss();
+                            }
+
+                            @Override
+                            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                                Toast.makeText(context, "Please seek help", Toast.LENGTH_SHORT).show();
+                                handler.postDelayed(() -> slider.setValue(0), 2000);
+                                handler.postDelayed(() -> { slider.setValue(0); mainActivity.loadContacts(); }, 3000);
+                                dialogFragment.dismiss();
+                            }
+                        });
+                        dialog.setCancelable(false);
+                        dialog.show(getParentFragmentManager(), "UrgeLevelVeryHighDialog");
                     } else {
                         Toast.makeText(context, "Please move the slider", Toast.LENGTH_SHORT).show();
                     }
@@ -397,7 +413,7 @@ public class HomeFragment extends Fragment {
         checkDailyCheckin();
         loadMoodData();
         updateBarChart();
-        startRelapseCounterUpdates();
+        startRelapseCounterUpdates(); // Call the method
         loadSavedUsername();
         mainActivity.MenuTrigger.setVisibility(View.VISIBLE);
         mainActivity.navigationView.setCheckedItem(R.id.nav_home);
@@ -408,7 +424,7 @@ public class HomeFragment extends Fragment {
         super.onPause();
         stopAutoScroll();
         // Stop the relapse counter updates when the fragment is paused
-        stopRelapseCounterUpdates();
+        stopRelapseCounterUpdates(); // Call the method
     }
 
     private void startAutoScroll() {
@@ -971,46 +987,60 @@ public class HomeFragment extends Fragment {
     // --- MODIFIED: showResetRelapseConfirmationDialog now calls showWhyResetDialog ---
     private void showResetRelapseConfirmationDialog() {
         if (context == null) return;
-        new AlertDialog.Builder(context)
-                .setTitle("Reset Counter")
-                .setMessage("Are you sure you want to reset the relapse counter? This action cannot be undone.")
-                .setPositiveButton("Reset", (dialog, which) -> {
-                    showWhyResetDialog(); // Ask for a reason before resetting
-                })
-                .setNegativeButton("Cancel", null)
-                .create()
-                .show();
+        // Replaced AlertDialog with CustomMessageDialogFragment
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                "Reset Counter",
+                "Are you sure you want to reset the relapse counter? This action cannot be undone.",
+                "Reset",
+                "Cancel"
+        );
+        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                showWhyResetDialog(); // Ask for a reason before resetting
+                dialogFragment.dismiss();
+            }
+
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                dialogFragment.dismiss();
+            }
+        });
+        dialog.show(getParentFragmentManager(), "ResetCounterConfirmationDialog");
     }
 
     // --- NEW: Dialog to ask for the reason ---
     private void showWhyResetDialog() {
         if (context == null) return;
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("A Moment of Reflection");
-        builder.setMessage("Taking a moment to note why you're resetting can be a powerful step. What led to this moment?");
+        // Replaced AlertDialog with CustomInputDialogFragment
+        CustomInputDialogFragment dialog = CustomInputDialogFragment.newInstance(
+                "A Moment of Reflection",
+                "Taking a moment to note why you're resetting can be a powerful step. What led to this moment?",
+                "e.g., Felt overwhelmed, a specific trigger, etc.", // Hint text
+                "Save and Reset",
+                "Cancel"
+        );
 
-        final EditText input = new EditText(context);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        input.setLayoutParams(lp);
-        input.setHint("e.g., Felt overwhelmed, a specific trigger, etc.");
-        builder.setView(input);
-
-        builder.setPositiveButton("Save and Reset", (dialog, which) -> {
-            String reason = input.getText().toString().trim();
-            if (reason.isEmpty()) {
-                reason = "No reason provided."; // Default reason
+        dialog.setListener(new CustomInputDialogFragment.OnInputDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment, String inputText) {
+                String reason = inputText.trim();
+                if (reason.isEmpty()) {
+                    reason = "No reason provided."; // Default reason
+                }
+                saveRelapseEntry(reason);
+                resetRelapseCounter();
+                Toast.makeText(context, "Counter has been reset. Your reflections are saved.", Toast.LENGTH_LONG).show();
+                dialogFragment.dismiss();
             }
-            saveRelapseEntry(reason);
-            resetRelapseCounter();
-            Toast.makeText(context, "Counter has been reset. Your reflections are saved.", Toast.LENGTH_LONG).show();
+
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                dialogFragment.dismiss();
+            }
         });
-
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-
-        builder.show();
+        dialog.show(getParentFragmentManager(), "WhyResetDialog");
     }
 
     // --- NEW: Method to save the relapse entry ---

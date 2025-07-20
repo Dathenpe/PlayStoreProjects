@@ -1,8 +1,6 @@
 package records;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment; // Import DialogFragment
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,7 +28,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import ui.HomeFragment.MoodEntry;
- // Static import for simplicity if MoodEntry is public static in HomeFragment
+import ui.CustomMessageDialogFragment; // Import CustomMessageDialogFragment
 
 public class MoodCheckinFragment extends Fragment {
 
@@ -79,7 +78,6 @@ public class MoodCheckinFragment extends Fragment {
     private void loadMoodData() {
         String json = sharedPreferences.getString(KEY_MOOD_ENTRIES, null);
         if (json != null) {
-
             Type type = new TypeToken<List<MoodEntry>>() {}.getType();
             moodEntries = gson.fromJson(json, type);
             // Ensure the list is not null after deserialization
@@ -106,36 +104,42 @@ public class MoodCheckinFragment extends Fragment {
         editor.putString(KEY_MOOD_ENTRIES, json);
         editor.apply(); // Apply changes asynchronously
     }
+
     public void deleteMoodEntry(final int position) { // Make position final if used in inner classes
         if (position >= 0 && position < moodEntries.size()) {
             // Get the mood entry to be deleted for display in the dialog
             MoodEntry entryToDelete = moodEntries.get(position);
-            new AlertDialog.Builder(getContext())
-                    .setTitle("Delete Mood Entry") // Dialog title
 
-                    .setMessage("Are you sure you want to delete this mood entry for " + entryToDelete.getDay() + "?, this action cannot be undone.") // Confirmation message
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            moodEntries.remove(position);
-                            saveMoodDataToPreferences(); // Save the updated list to storage
-                            adapter.notifyItemRemoved(position); // Notify RecyclerView that an item has been removed
-                            adapter.notifyItemRangeChanged(position, moodEntries.size()); // Notify subsequent items of position changes
-                            Toast.makeText(getContext(), "Mood entry deleted!", Toast.LENGTH_SHORT).show();
-                            updateEmptyStateVisibility();
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // User clicked "No", just dismiss the dialog
-                            dialog.dismiss();
-                        }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_alert) // Optional: add an alert icon
-                    .show(); // Show the dialog
+            // Replaced AlertDialog with CustomMessageDialogFragment
+            CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                    "Delete Mood Entry", // Dialog title
+                    "Are you sure you want to delete this mood entry for " + entryToDelete.getDay() + "? This action cannot be undone.", // Confirmation message
+                    "Yes", // Positive button text
+                    "No" // Negative button text
+            );
+
+            dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                @Override
+                public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                    moodEntries.remove(position);
+                    saveMoodDataToPreferences(); // Save the updated list to storage
+                    adapter.notifyItemRemoved(position); // Notify RecyclerView that an item has been removed
+                    adapter.notifyItemRangeChanged(position, moodEntries.size()); // Notify subsequent items of position changes
+                    Toast.makeText(getContext(), "Mood entry deleted!", Toast.LENGTH_SHORT).show();
+                    updateEmptyStateVisibility();
+                    dialogFragment.dismiss(); // Dismiss the dialog
+                }
+
+                @Override
+                public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                    // User clicked "No", just dismiss the dialog
+                    dialogFragment.dismiss();
+                }
+            });
+            dialog.show(getParentFragmentManager(), "DeleteMoodEntryDialog"); // Show the dialog
         }
     }
+
     private void updateEmptyStateVisibility() {
         if (moodEntries.isEmpty()){
             emptyStateTextView.setVisibility(View.VISIBLE);

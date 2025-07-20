@@ -1,7 +1,6 @@
 package records;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,7 +9,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,11 +17,11 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.f9ld3.heal.MainActivity;
 import com.f9ld3.heal.R;
 
@@ -31,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import ui.CustomMessageDialogFragment;
 
 public class EmergencyContactsFragment extends Fragment implements EmergencyContactsAdapter.OnContactActionListener {
 
@@ -143,49 +143,65 @@ public class EmergencyContactsFragment extends Fragment implements EmergencyCont
 
     @Override
     public void onDeleteClick(EmergencyContact contact) {
-        new AlertDialog.Builder(getContext())
-                .setTitle("Delete Contact")
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setMessage("Are you sure you want to delete " + contact.getName() + "?, this action cannot be undone.")
-                .setPositiveButton("Delete", (dialog, which) -> {
-                    // Corrected approach for deletion: Delegate to MainActivity
-                    if (getContext() instanceof MainActivity) {
-                        ((MainActivity) getContext()).removeEmergencyContact(contact.getId());
-                    } else if (getContext() != null) {
-                        Toast.makeText(getContext(), "Error: Host activity not found for deletion.", Toast.LENGTH_SHORT).show();
-                    }
+        // Replaced AlertDialog with CustomMessageDialogFragment
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                "Delete Contact",
+                "Are you sure you want to delete " + contact.getName() + "? This action cannot be undone.",
+                "Delete",
+                "Cancel"
+        );
+        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                if (getContext() instanceof MainActivity) {
+                    ((MainActivity) getContext()).removeEmergencyContact(contact.getId());
+                } else if (getContext() != null) {
+                    Toast.makeText(getContext(), "Error: Host activity not found for deletion.", Toast.LENGTH_SHORT).show();
+                }
 
-                    if (getContext() != null) {
-                        updateEmptyStateVisibility();
-                        Toast.makeText(getContext(), contact.getName() + " deleted.", Toast.LENGTH_SHORT).show();
+                if (getContext() != null) {
+                    updateEmptyStateVisibility();
+                    Toast.makeText(getContext(), contact.getName() + " deleted.", Toast.LENGTH_SHORT).show();
+                }
+                dialogFragment.dismiss();
+            }
 
-                    }
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                dialogFragment.dismiss();
+            }
+        });
+        dialog.show(getParentFragmentManager(), "DeleteContactDialog");
     }
 
 
     @Override
     public void onImageClick(EmergencyContact contact) {
         if (contact.getImageUrl() != null && !contact.getImageUrl().isEmpty()) {
-            LayoutInflater inflater = getLayoutInflater();
-            View dialogView = inflater.inflate(R.layout.dialog_image_viewer, null);
-            ImageView fullScreenImageView = dialogView.findViewById(R.id.fullScreenImageView);
-            TextView imageViewerNameTextView = dialogView.findViewById(R.id.imageViewerNameTextView);
+            // Use the updated newInstance method of CustomMessageDialogFragment
+            CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                    "Image Viewer", // Title for the image viewer dialog
+                    null, // No message text needed, as the image and name are in the custom view
+                    "Close",
+                    null, // No negative button
+                    R.layout.dialog_image_viewer, // Pass the custom layout resource ID
+                    contact.getImageUrl(), // Pass image URL
+                    contact.getName() // Pass image name
+            );
 
-            Glide.with(this)
-                    .load(contact.getImageUrl())
-                    .placeholder(R.drawable.ic_default_contact_avatar)
-                    .error(R.drawable.ic_default_contact_avatar)
-                    .into(fullScreenImageView);
+            dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                @Override
+                public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                    dialogFragment.dismiss();
+                }
 
-            imageViewerNameTextView.setText(contact.getName());
+                @Override
+                public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                    // Not applicable for this dialog
+                }
+            });
+            dialog.show(getParentFragmentManager(), "ImageViewerDialog");
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setView(dialogView);
-            builder.setPositiveButton("Close", (dialog, which) -> dialog.dismiss());
-            builder.show();
         } else {
             if (getContext() != null) {
                 Toast.makeText(getContext(), "No image set for " + contact.getName(), Toast.LENGTH_SHORT).show();
