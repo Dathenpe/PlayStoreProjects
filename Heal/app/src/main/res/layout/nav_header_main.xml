@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:backgroundTint="@color/md_theme_primary"
+    app:backgroundTint="?attr/colorPrimary"
     android:orientation="vertical"
     android:paddingBottom="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Light">
@@ -11,7 +11,7 @@
         android:layout_marginTop="30dp"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:backgroundTint="@color/md_theme_primary"
+        app:backgroundTint="?attr/colorPrimary"
         android:paddingStart="16dp"
         android:paddingEnd="16dp">
 
@@ -21,8 +21,8 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="Heal"
-            android:backgroundTint="@color/md_theme_primary"
-            android:textColor="@color/black"
+            app:backgroundTint="?attr/colorPrimary"
+            android:textColor="?attr/colorOnPrimary"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -35,7 +35,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Close Navigation Drawer"
             android:src="@android:drawable/ic_delete"
-            app:tint="@color/gray" />
+            app:tint="?attr/colorOnPrimary" />
     </RelativeLayout>
 
     <TextView
@@ -44,7 +44,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:text="RECENTLY VISITED"
-        android:textColor="@color/gray"
+        android:textColor="?attr/colorOnSurfaceVariant"
         android:textSize="12sp"
         android:textStyle="bold" />
 
@@ -79,13 +79,13 @@
         android:layout_marginEnd="16dp"
         android:layout_marginTop="4dp"
         android:text="No recent activities yet. Start exploring!"
-        android:textColor="@color/dark_gold_secondary"
+        android:textColor="?attr/colorPrimary"
         android:textSize="14sp"
         android:visibility="gone" />
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#E0E0E0"
+        android:background="?attr/colorOutlineVariant"
         android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp" />
@@ -104,7 +104,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="RECENTLY SENT NOTIFICATIONS"
-            android:textColor="@color/gray"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:textSize="12sp"
             android:textStyle="bold" />
 
@@ -115,7 +115,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Clear Notifications"
             android:src="@android:drawable/ic_menu_delete"
-            app:tint="@color/gray" />
+            app:tint="?attr/colorOnSurfaceVariant" />
     </LinearLayout>
 
     <!-- Changed to custom InterceptTouchRecyclerView -->
@@ -137,7 +137,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginTop="8dp"
         android:text="No notifications sent yet."
-        android:textColor="@color/dark_gold_secondary"
+        android:textColor="?attr/colorPrimary"
         android:textSize="14sp"
         android:visibility="gone" />
 

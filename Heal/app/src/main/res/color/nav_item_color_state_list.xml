@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Color for checked state - now uses the theme's colorSecondary -->
+    <item android:color="@color/black" android:state_checked="true" />
+    <!-- Default color for unchecked state -->
+    <item android:color="@color/black" />
+</selector>

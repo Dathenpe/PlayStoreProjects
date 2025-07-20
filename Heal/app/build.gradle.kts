@@ -7,7 +7,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.heal"
+        applicationId = "com.f9ld3.heal"
         minSdk = 29
         targetSdk = 35
         versionCode = 1

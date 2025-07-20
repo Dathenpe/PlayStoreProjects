@@ -72,7 +72,7 @@ public class PaintFragment extends Fragment implements DrawingCanvasFragment.OnD
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_art_corner, container, false);
+        return inflater.inflate(R.layout.fragment_paint, container, false);
     }
 
     @Override

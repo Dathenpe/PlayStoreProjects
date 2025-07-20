@@ -8,151 +8,152 @@
     android:id="@+id/record_coordinator_layout"
     android:background="?attr/colorSurfaceContainerLow">
     <ProgressBar
-    android:id="@+id/loading_progress_bar"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:visibility="gone"
-    style="?android:attr/progressBarStyleLarge" />
-    <ScrollView
-    android:id="@+id/record_scroll_view"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true">
-
-    <GridLayout
-        android:layout_width="match_parent"
+        android:id="@+id/loading_progress_bar"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:columnCount="2"
-        android:padding="8dp" android:useDefaultMargins="false"
-        android:alignmentMode="alignBounds"
-        android:columnOrderPreserved="false">
+        android:indeterminateTint="?attr/colorPrimaryContainer"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        style="?android:attr/progressBarStyleLarge" />
+    <ScrollView
+        android:id="@+id/record_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="0dp"
+        <GridLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
-            android:layout_margin="8dp"
-            android:id="@+id/coping_exercises_container"
-            app:cardBackgroundColor="?attr/colorPrimaryContainer" app:cardCornerRadius="16dp" app:cardElevation="2dp" android:clickable="true"
-            android:focusable="true">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:padding="24dp"
-                android:text="Coping Exercises"
-                android:textColor="?attr/colorOnPrimaryContainer" style="?attr/textAppearanceTitleLarge" /> </com.google.android.material.card.MaterialCardView>
+            android:columnCount="2"
+            android:padding="8dp" android:useDefaultMargins="false"
+            android:alignmentMode="alignBounds"
+            android:columnOrderPreserved="false">
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
-            android:layout_margin="8dp"
-            android:id="@+id/daily_mood_checkings_container"
-            app:cardBackgroundColor="?attr/colorSecondaryContainer" app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            android:clickable="true"
-            android:focusable="true">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:padding="24dp"
-                android:text="Daily Mood Checkings"
-                android:textColor="?attr/colorOnSecondaryContainer" style="?attr/textAppearanceTitleLarge" />
-        </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:id="@+id/coping_exercises_container"
+                app:cardBackgroundColor="@color/beige" app:cardCornerRadius="16dp" app:cardElevation="2dp" android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:text="Coping Exercises"
+                    android:textColor="?attr/colorOnPrimaryContainer" style="?attr/textAppearanceTitleLarge" /> </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
-            android:layout_margin="8dp"
-            android:id="@+id/saved_strategies_container"
-            app:cardBackgroundColor="?attr/colorTertiaryContainer" app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            android:clickable="true"
-            android:focusable="true">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:padding="24dp"
-                android:text="Saved Strategies"
-                android:textColor="?attr/colorOnTertiaryContainer" style="?attr/textAppearanceTitleLarge" />
-        </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:id="@+id/daily_mood_checkings_container"
+                app:cardBackgroundColor="?attr/colorSecondaryContainer" app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:text="Daily Mood Checkings"
+                    android:textColor="?attr/colorOnSecondaryContainer" style="?attr/textAppearanceTitleLarge" />
+            </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
-            android:layout_margin="8dp"
-            android:id="@+id/journal_entries_container"
-            app:cardBackgroundColor="?attr/colorSecondary" app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            android:clickable="true"
-            android:focusable="true">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:padding="24dp"
-                android:text="Journal Entries"
-                android:textColor="?attr/colorOnSecondary" style="?attr/textAppearanceTitleLarge" />
-        </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:id="@+id/saved_strategies_container"
+                app:cardBackgroundColor="?attr/colorTertiaryContainer" app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:text="Saved Strategies"
+                    android:textColor="?attr/colorOnTertiaryContainer" style="?attr/textAppearanceTitleLarge" />
+            </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
-            android:layout_margin="8dp"
-            android:id="@+id/emergency_contacts_container"
-            app:cardBackgroundColor="?attr/colorErrorContainer" app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            android:clickable="true"
-            android:focusable="true">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:padding="24dp"
-                android:text="Emergency Contacts"
-                android:textColor="?attr/colorOnErrorContainer" style="?attr/textAppearanceTitleLarge" />
-        </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:id="@+id/journal_entries_container"
+                app:cardBackgroundColor="?attr/colorSecondary" app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:text="Journal Entries"
+                    android:textColor="?attr/colorOnSecondary" style="?attr/textAppearanceTitleLarge" />
+            </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
-            android:layout_margin="8dp"
-            android:id="@+id/relapse_history_container"
-            app:cardBackgroundColor="@color/gray"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            android:clickable="true"
-            android:focusable="true">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:padding="24dp"
-                android:text="Relapse History"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                style="?attr/textAppearanceTitleLarge" />
-        </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:id="@+id/emergency_contacts_container"
+                app:cardBackgroundColor="?attr/colorErrorContainer" app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:text="Emergency Contacts"
+                    android:textColor="?attr/colorOnErrorContainer" style="?attr/textAppearanceTitleLarge" />
+            </com.google.android.material.card.MaterialCardView>
 
-    </GridLayout>
-</ScrollView>
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:id="@+id/relapse_history_container"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:text="Relapse History"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    style="?attr/textAppearanceTitleLarge" />
+            </com.google.android.material.card.MaterialCardView>
+
+        </GridLayout>
+    </ScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

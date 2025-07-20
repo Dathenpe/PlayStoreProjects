@@ -46,7 +46,7 @@
             android:layout_marginBottom="16dp"
             android:contentDescription="Article Person"
             app:srcCompat="@drawable/outline_article_person_24"
-            app:backgroundTint="@color/md_theme_primary"
+            app:backgroundTint="?attr/colorPrimary"
             app:tint="@color/gray"
             app:rippleColor="#7FFFD4" />
 
@@ -77,8 +77,11 @@
         android:fitsSystemWindows="true"
         app:itemHorizontalPadding="20dp"
         app:itemVerticalPadding="10dp"
-        android:theme="@style/Base.Theme.Heal"
         app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer" />
+        app:menu="@menu/activity_main_drawer"
+        app:itemTextColor="@color/nav_item_color_state_list"
+        app:itemIconTint="@color/nav_item_color_state_list"
+        app:itemRippleColor="?attr/colorPrimaryContainer"
+        app:itemBackground="@drawable/nav_item_checked_background" /> <!-- Changed to itemBackground -->
 
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -189,7 +189,6 @@ public class HomeFragment extends Fragment {
         moodInputText = view.findViewById(R.id.mood_input_text);
         journalEntryText = view.findViewById(R.id.journal_entry_text);
         moodBarChart = view.findViewById(R.id.mood_bar_chart);
-        seeMoreStrategiesButton = view.findViewById(R.id.see_more_strategies_button);
         loadingProgressBar = view.findViewById(R.id.loading_progress_bar);
         homeScrollView = view.findViewById(R.id.home_scroll_view);
         relapseCounterTextView = view.findViewById(R.id.relapse_counter_text_view);
@@ -317,7 +316,7 @@ public class HomeFragment extends Fragment {
                         );
                         dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
                             @Override
-                            public  void onDialogPositiveClick(DialogFragment dialogFragment) { // Changed here
+                            public void onDialogPositiveClick(DialogFragment dialogFragment) {
                                 Toast.makeText(context, "Please monitor your feelings, if you feel unsafe seek help.", Toast.LENGTH_SHORT).show();
                                 handler.postDelayed(() -> slider.setValue(0), 2000);
                                 dialogFragment.dismiss();
@@ -451,31 +450,6 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    public void startRelapseCounterUpdates() {
-        // Initialize handler if it's null
-        if (relapseCounterHandler == null) {
-            relapseCounterHandler = new Handler(Looper.getMainLooper());
-        }
-        // Stop any existing updates before starting a new one
-        stopRelapseCounterUpdates();
-
-        relapseCounterRunnable = new Runnable() {
-            @Override
-            public void run() {
-                updateRelapseCounter();
-                relapseCounterHandler.postDelayed(this, 1000);
-            }
-        };
-        relapseCounterHandler.post(relapseCounterRunnable);
-    }
-
-
-    private void stopRelapseCounterUpdates() {
-        if (relapseCounterHandler != null && relapseCounterRunnable != null) {
-            relapseCounterHandler.removeCallbacks(relapseCounterRunnable);
-        }
-    }
-
     private void shakeView(View view) {
         ObjectAnimator translateX = ObjectAnimator.ofFloat(view, "translationX", 0f, -20f, 20f, -20f, 20f, 0f);
         translateX.setDuration(2700);
@@ -562,7 +536,10 @@ public class HomeFragment extends Fragment {
         moodBarChart.setHighlightPerDragEnabled(false);
         moodBarChart.setHighlightPerTapEnabled(false);
         moodBarChart.setNoDataText("No mood data available");
-        moodBarChart.setNoDataTextColor(Color.GRAY);
+        // Use ContextCompat for dynamic day/night color for no data text
+        if (getContext() != null) {
+            moodBarChart.setNoDataTextColor(ContextCompat.getColor(getContext(), R.color.md_theme_onSurfaceVariant));
+        }
 
         XAxis xAxis = moodBarChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
@@ -639,17 +616,20 @@ public class HomeFragment extends Fragment {
         moodBarChart.invalidate();
     }
     private int getMoodColor(int moodLevel) {
+        if (getContext() == null) {
+            return Color.GRAY; // Fallback if context is null
+        }
 
         if (moodLevel <= 2) {
-            return Color.parseColor("#EF5350"); // Red - Very Bad
+            return ContextCompat.getColor(getContext(), R.color.mood_very_bad);
         } else if (moodLevel <= 4) {
-            return Color.parseColor("#FFCA28"); // Amber - Bad
+            return ContextCompat.getColor(getContext(), R.color.mood_bad);
         } else if (moodLevel <= 6) {
-            return Color.parseColor("#FFEE58"); // Light Yellow - Neutral
+            return ContextCompat.getColor(getContext(), R.color.mood_neutral);
         } else if (moodLevel <= 8) {
-            return Color.parseColor("#9CCC65"); // Light Green - Good
+            return ContextCompat.getColor(getContext(), R.color.mood_good);
         } else {
-            return Color.parseColor("#4CAF50"); // Green - Very Good
+            return ContextCompat.getColor(getContext(), R.color.mood_very_good);
         }
     }
     private void saveJournalEntryToStorage() {
@@ -1115,5 +1095,26 @@ public class HomeFragment extends Fragment {
         public String getDuration() { return duration; }
         public String getReason() { return reason; }
         public long getCreationTimestampMillis() { return creationTimestampMillis; }
+    }
+    private void stopRelapseCounterUpdates() {
+        if (relapseCounterHandler != null && relapseCounterRunnable != null) {
+            relapseCounterHandler.removeCallbacks(relapseCounterRunnable);
+        }
+    }  public void startRelapseCounterUpdates() {
+        // Initialize handler if it's null
+        if (relapseCounterHandler == null) {
+            relapseCounterHandler = new Handler(Looper.getMainLooper());
+        }
+        // Stop any existing updates before starting a new one
+        stopRelapseCounterUpdates();
+
+        relapseCounterRunnable = new Runnable() {
+            @Override
+            public void run() {
+                updateRelapseCounter();
+                relapseCounterHandler.postDelayed(this, 1000);
+            }
+        };
+        relapseCounterHandler.post(relapseCounterRunnable);
     }
 }

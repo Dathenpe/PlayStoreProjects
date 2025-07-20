@@ -51,6 +51,7 @@
     <color name="teal">#FF008080</color>
 
     <color name="card_background_light">#FAFAFA</color>
+    <color name="pink_200">#FFF48FB1</color>
     <color name="pink">#FFFFC0CB</color>
     <color name="cyan">#FF00FFFF</color>
     <color name="brown">#FFA52A2A</color>
@@ -89,4 +90,10 @@
     <color name="red_delete_button">#E74C3C</color>
     <color name="button_outline_color_light">#B0BEC5</color>
     <color name="status_bar_overlay_dark">#80000000</color>
+
+    <color name="mood_very_bad">#D32F2F</color> <!-- Darker Red -->
+    <color name="mood_bad">#F57C00</color>    <!-- Darker Orange -->
+    <color name="mood_neutral">#FFEB3B</color> <!-- Yellow -->
+    <color name="mood_good">#8BC34A</color>   <!-- Light Green -->
+    <color name="mood_very_good">#4CAF50</color> <!-- Green -->
 </resources>

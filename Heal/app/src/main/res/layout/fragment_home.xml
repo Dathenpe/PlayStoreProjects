@@ -165,13 +165,19 @@
 
                     <com.google.android.material.slider.Slider
                         android:id="@+id/urge_level_seekbar"
-                        style="@style/Widget.Material3.Slider"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:valueFrom="0.0"
-                        android:valueTo="10.0"
-                        android:stepSize="1.0"
-                        android:contentDescription="Urge level slider from 0 to 10" />
+                        style="@style/Widget.App.Slider"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:valueFrom="0.0"
+                    android:valueTo="10.0"
+                    android:stepSize="1.0"
+                    android:contentDescription="Urge level slider from 0 to 10"
+                    app:trackColorActive="?attr/colorPrimary"
+                    app:trackColorInactive="?attr/colorOutline"
+                    app:thumbColor="?attr/colorPrimary"
+                    app:haloColor="?attr/colorPrimary"
+                    app:labelBehavior="floating" /> <!-- Or app:labelBehavior="visible" -->
+
 
                     <TextView
                         android:id="@+id/coping_strategies_label"
@@ -213,18 +219,11 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:text="Save"
-                            app:cornerRadius="8dp" />
+                            app:cornerRadius="8dp"
+                            app:backgroundTint="?attr/colorPrimary"
+                            android:textColor="?attr/colorOnPrimary" />
                     </LinearLayout>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/see_more_strategies_button"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="See More"
-                        android:visibility="gone"
-                        app:cornerRadius="8dp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -323,7 +322,9 @@
                             android:layout_marginStart="4dp"
                             android:text="Exercises"
                             android:textSize="12sp"
-                            app:cornerRadius="8dp" />
+                            app:cornerRadius="8dp"
+                            app:backgroundTint="?attr/colorPrimary"
+                            android:textColor="?attr/colorOnPrimary" />
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
@@ -379,7 +380,11 @@
                         android:valueFrom="0.0"
                         android:valueTo="10.0"
                         android:stepSize="1.0"
-                        android:contentDescription="Mood level slider from 0 to 10"/>
+                        android:contentDescription="Mood level slider from 0 to 10"
+                        app:trackColorActive="?attr/colorPrimary"
+                        app:trackColorInactive="?attr/colorOutline"
+                        app:thumbColor="?attr/colorPrimary"
+                        app:haloColor="?attr/colorPrimary" />
 
                     <TextView
                         android:id="@+id/mood_value_label"
@@ -458,7 +463,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Start Exercise"
-                        app:cornerRadius="8dp" />
+                        app:cornerRadius="8dp"
+                        app:backgroundTint="?attr/colorPrimary"
+                        android:textColor="?attr/colorOnPrimary" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -572,6 +579,7 @@
     </ScrollView>
     <ProgressBar
         android:id="@+id/loading_progress_bar"
+        android:indeterminateTint="?attr/colorPrimaryContainer"
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

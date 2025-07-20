@@ -15,10 +15,12 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -60,6 +62,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -103,6 +106,7 @@ import ui.NotificationAdapter;
 import ui.RecordFragment;
 import ui.ReminderBroadcastReceiver;
 import ui.SettingsFragment;
+import viewmodels.GeneralViewModel;
 
 class FragmentHistoryItem{
     public int navId;
@@ -160,6 +164,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private int currentNavId = R.id.nav_home;
     private static final String FIRST_LAUNCH_KEY = "firstLaunch";
+    // New key to track if the app crashed previously
+    private static final String KEY_CRASHED_PREVIOUSLY = "crashedPreviously";
+
 
     public SharedPreferences settingse;
 
@@ -204,6 +211,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private ScrollView recentlySentNotificationsScrollView;
 
+    // New constant for theme preference
+    private static final String PREF_SELECTED_THEME_COLOR = "selected_theme_color";
+
+    // Map to store theme color names to their corresponding launcher icon aliases
+    private static final Map<String, String> THEME_ICON_ALIASES = new HashMap<>();
+    static {
+        // IMPORTANT: These alias names must exactly match the 'android:name' in AndroidManifest.xml
+        // using the correct application ID as prefix.
+        THEME_ICON_ALIASES.put("md_theme_primary", "com.f9ld3.heal.MainActivityAliasHeal"); // Default
+        THEME_ICON_ALIASES.put("pink", "com.f9ld3.heal.MainActivityAliasPink");
+        THEME_ICON_ALIASES.put("blue", "com.f9ld3.heal.MainActivityAliasBlue");
+        THEME_ICON_ALIASES.put("green", "com.f9ld3.heal.MainActivityAliasGreen");
+        THEME_ICON_ALIASES.put("purple", "com.f9ld3.heal.MainActivityAliasPurple");
+        THEME_ICON_ALIASES.put("orange", "com.f9ld3.heal.MainActivityAliasOrange");
+        THEME_ICON_ALIASES.put("teal", "com.f9ld3.heal.MainActivityAliasTeal");
+        THEME_ICON_ALIASES.put("brown", "com.f9ld3.heal.MainActivityAliasBrown");
+        // Add other themes here if you create more icon drawables for them
+    }
+
+    private GeneralViewModel generalViewModel;
+
 
     private BroadcastReceiver notificationUpdateReceiver = new BroadcastReceiver() {
         @Override
@@ -218,8 +246,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // --- START: Crash Restart Logic ---
+        // Set a default uncaught exception handler to catch crashes and restart the app
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            private Thread.UncaughtExceptionHandler defaultUEH = Thread.getDefaultUncaughtExceptionHandler();
+
+            @Override
+            public void uncaughtException(@NonNull Thread t, @NonNull Throwable e) {
+                // Log the crash
+                Log.e(TAG, "Uncaught exception in thread " + t.getName(), e);
+
+                // Mark that the app crashed previously
+                SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                prefs.edit().putBoolean(KEY_CRASHED_PREVIOUSLY, true).apply();
+
+                // Restart the app by launching the main activity
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+
+                // Terminate the current process
+                System.exit(2);
+
+                // If for some reason the above doesn't work, call the default handler
+                defaultUEH.uncaughtException(t, e);
+            }
+        });
+        // --- END: Crash Restart Logic ---
+
+        // Apply theme before calling super.onCreate()
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        // Set "orange" as the default theme color on first install
+        String selectedThemeColorName = sharedPreferences.getString(PREF_SELECTED_THEME_COLOR, "orange");
+        int themeResId = getThemeResourceId(selectedThemeColorName);
+        setTheme(themeResId); // Apply the theme
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Update the app icon based on the selected theme
+        updateAppIcon(selectedThemeColorName); // Call this after setContentView
 
         NotificationManagerCompat.from(this).cancelAll();
         Log.d(TAG, "All notifications cleared on app launch.");
@@ -258,28 +324,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         updateRecentlyVisitedChips();
         createNotificationChannel();
         updateRecentlySentNotificationsDisplay(); // Initial load of notifications
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean reminderEnabled = sharedPreferences.getBoolean("reminder_enabled", false);
         onReminderSettingChanged(reminderEnabled);
 
         settingse = getSharedPreferences(PREFS_NAME,0);
         boolean isFirstLaunch = settingse.getBoolean(FIRST_LAUNCH_KEY, true);
         Log.d(TAG, "MainActivity: onCreate - isFirstLaunch: " + isFirstLaunch);
-        if (isFirstLaunch){
-            welcomeMessage();
-        } else {
-            if (savedInstanceState == null) {
-                loadFragment(new HomeFragment(), R.id.nav_home);
-                navigationView.setCheckedItem(R.id.nav_home);
-                toolbar.setTitle("Heal");
-                Log.d(TAG, "MainActivity: onCreate - Loading HomeFragment (not first launch, savedInstanceState is null)");
-            } else {
-                currentNavId = savedInstanceState.getInt("currentNavId", R.id.nav_home);
-                navigationView.setCheckedItem(currentNavId);
-                updateToolbarAndNavigation(currentNavId);
-                Log.d(TAG, "MainActivity: onCreate - Restoring fragment (not first launch, savedInstanceState exists)");
-            }
+
+        // --- START: Crash Restart and Welcome Message Logic ---
+        boolean crashedPreviously = settingse.getBoolean(KEY_CRASHED_PREVIOUSLY, false);
+        if (crashedPreviously) {
+            Toast.makeText(this, "App is restarting...", Toast.LENGTH_LONG).show();
+            settingse.edit().putBoolean(KEY_CRASHED_PREVIOUSLY, false).apply(); // Clear the flag
+        } else if (isFirstLaunch) {
+            Toast.makeText(this, "App is launching...", Toast.LENGTH_LONG).show();
         }
+
+        generalViewModel = new ViewModelProvider(this).get(GeneralViewModel.class);
+        generalViewModel.isLoading.observe(this, isLoading -> {
+            if (!isLoading) {
+                // Progress bar has finished, now display welcome message or load home fragment
+                if (isFirstLaunch) {
+                    welcomeMessage();
+                } else {
+                    if (savedInstanceState == null) {
+                        loadFragment(new HomeFragment(), R.id.nav_home);
+                        navigationView.setCheckedItem(R.id.nav_home);
+                        toolbar.setTitle("Heal");
+                        Log.d(TAG, "MainActivity: onCreate - Loading HomeFragment (not first launch, savedInstanceState is null)");
+                    } else {
+                        currentNavId = savedInstanceState.getInt("currentNavId", R.id.nav_home);
+                        navigationView.setCheckedItem(currentNavId);
+                        updateToolbarAndNavigation(currentNavId);
+                        Log.d(TAG, "MainActivity: onCreate - Restoring fragment (not first launch, savedInstanceState exists)");
+                    }
+                }
+            }
+        });
+        // --- END: Crash Restart and Welcome Message Logic ---
+
+
         loadEmergencyContacts();
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
@@ -470,6 +554,79 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
     }
+
+    // Helper method to get theme resource ID based on color name
+    private int getThemeResourceId(String colorName) {
+        switch (colorName) {
+            case "md_theme_primary":
+                return R.style.Theme_Heal; // Assuming default theme uses md_theme_primary
+            case "md_theme_secondary":
+                return R.style.Theme_Heal_Secondary;
+            case "md_theme_tertiary":
+                return R.style.Theme_Heal_Tertiary;
+            case "blue":
+                return R.style.Theme_Heal_Blue;
+            case "green":
+                return R.style.Theme_Heal_Green;
+            case "purple":
+                return R.style.Theme_Heal_Purple;
+            case "orange":
+                return R.style.Theme_Heal_Orange;
+            case "teal": // Added teal theme
+                return R.style.Theme_Heal_Teal;
+            case "brown": // Added brown theme
+                return R.style.Theme_Heal_Brown;
+            case "pink": // Added pink theme
+                return R.style.Theme_Heal_Pink;
+            default:
+                return R.style.Theme_Heal; // Default theme
+        }
+    }
+
+    /**
+     * Updates the app's launcher icon based on the selected theme color name.
+     * This method enables the alias for the selected theme's icon and disables all others.
+     * @param selectedThemeColorName The name of the currently selected theme color.
+     */
+    public void updateAppIcon(String selectedThemeColorName) {
+        PackageManager pm = getPackageManager();
+        String currentPackageName = getApplicationContext().getPackageName();
+
+        String selectedAlias = THEME_ICON_ALIASES.get(selectedThemeColorName);
+        if (selectedAlias == null) {
+            selectedAlias = THEME_ICON_ALIASES.get("md_theme_primary"); // Fallback to default
+        }
+
+        // First, disable all aliases
+        for (Map.Entry<String, String> entry : THEME_ICON_ALIASES.entrySet()) {
+            String aliasName = entry.getValue();
+            ComponentName componentName = new ComponentName(currentPackageName, aliasName);
+            // Only change if the component is not already disabled
+            if (pm.getComponentEnabledSetting(componentName) != PackageManager.COMPONENT_ENABLED_STATE_DISABLED) {
+                pm.setComponentEnabledSetting(
+                        componentName,
+                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                        PackageManager.DONT_KILL_APP
+                );
+                Log.d(TAG, "Icon alias " + aliasName + " set to DISABLED");
+            }
+        }
+
+        // Then, enable the selected alias
+        if (selectedAlias != null) {
+            ComponentName selectedComponentName = new ComponentName(currentPackageName, selectedAlias);
+            // Only change if the component is not already enabled
+            if (pm.getComponentEnabledSetting(selectedComponentName) != PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+                pm.setComponentEnabledSetting(
+                        selectedComponentName,
+                        PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                        PackageManager.DONT_KILL_APP
+                );
+                Log.d(TAG, "Icon alias " + selectedAlias + " set to ENABLED");
+            }
+        }
+    }
+
 
     @Override
     protected void onPause(){
@@ -829,7 +986,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             );
             dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
                 @Override
-                public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                public void onDialogPositiveClick(DialogFragment dialogFragment) { // Removed 'void' from here
                     getSupportFragmentManager().popBackStack();
                 }
 

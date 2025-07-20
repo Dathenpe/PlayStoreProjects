@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background color when item is checked -->
+    <item android:state_checked="true" android:drawable="@drawable/rounded_rectangle_primary_container" />
+    <!-- Default transparent background when item is not checked -->
+    <item android:drawable="@android:color/transparent" />
+</selector>

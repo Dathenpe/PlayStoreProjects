@@ -22,13 +22,31 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class ReminderBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = "ReminderReceiver";
     public static final String ACTION_NOTIFICATION_RECEIVED = "com.example.heal.NOTIFICATION_RECEIVED";
+
+    // Map to store theme color names to their corresponding notification icon resource IDs
+    private static final Map<String, Integer> NOTIFICATION_ICONS = new HashMap<>();
+    static {
+        // IMPORTANT: You need to create these monochrome drawable assets (e.g., ic_logo_pink.xml)
+        // in your res/drawable folder for each theme you want to support.
+        // If a specific icon is not found, it will fall back to ic_logo_mono.
+        NOTIFICATION_ICONS.put("md_theme_primary", R.drawable.ic_logo_mono); // Default/fallback
+        NOTIFICATION_ICONS.put("pink", R.drawable.ic_launcher_pink);
+        NOTIFICATION_ICONS.put("blue", R.drawable.ic_launcher_blue);
+        NOTIFICATION_ICONS.put("green", R.drawable.ic_launcher_green);
+        NOTIFICATION_ICONS.put("purple", R.drawable.ic_launcher_purple);
+        NOTIFICATION_ICONS.put("orange", R.drawable.ic_launcher_orange);
+        NOTIFICATION_ICONS.put("teal", R.drawable.ic_launcher_teal);
+        NOTIFICATION_ICONS.put("brown", R.drawable.ic_launcher_brown);
+    }
 
     private static final String[] REMINDER_MESSAGES = {
             "It's time for your daily mood check-in!",
@@ -155,7 +173,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
             "Take a moment for mental clarity. Log your mood.",
             "Your feelings provide important clues. Time to check-in.",
             "Unlock a deeper connection with yourself. Mood log time!",
-            "What's the dominant feeling for you right now?",
+            "What feeling is most prominent for you at this moment?",
             "Heal helps you understand the ebbs and flows. Check-in.",
             "A brief pause for your emotional well-being.",
             "Let's document how you're doing today.",
@@ -236,8 +254,6 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
             "Your feelings are a guide. Time to listen and log."
     };
 
-
-
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "ReminderBroadcastReceiver onReceive called. Action: " + intent.getAction());
@@ -303,8 +319,13 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
             Random random = new Random();
             String notificationMessage = REMINDER_MESSAGES[random.nextInt(REMINDER_MESSAGES.length)];
 
+            // Get the selected theme color name from SharedPreferences
+            String selectedThemeColorName = sharedPreferences.getString("selected_theme_color", "md_theme_primary");
+            // Determine the notification icon based on the selected theme
+            int notificationIconResId = NOTIFICATION_ICONS.getOrDefault(selectedThemeColorName, R.drawable.ic_logo_mono);
+
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, MainActivity.REMINDER_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_logo_mono)
+                    .setSmallIcon(notificationIconResId) // Use the dynamically selected icon
                     .setContentTitle("Heal: Daily Check-in")
                     .setContentText(notificationMessage)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -349,4 +370,5 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
             Log.d(TAG, "Notification skipped: Reminder enabled = " + reminderEnabled + ", Has checked in today = " + hasCheckedInToday);
         }
     }
+
 }

@@ -98,4 +98,5 @@
 
     <!-- Mood Chart Card -->
     <string name="mood_over_time_title">Mood Over Time</string>
+    <string name="article_person">Article Person</string>
 </resources>

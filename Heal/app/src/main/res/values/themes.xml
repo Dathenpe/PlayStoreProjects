@@ -37,6 +37,71 @@
 
     </style>
 
+    <!-- Define additional themes for different primary colors -->
+    <style name="Theme.Heal.Secondary" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/md_theme_secondary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_secondaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_onSecondaryContainer</item>
+        <item name="colorPrimaryInverse">@color/md_theme_inversePrimary</item>
+    </style>
+
+    <style name="Theme.Heal.Tertiary" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/md_theme_tertiary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_tertiaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_onTertiaryContainer</item>
+        <item name="colorPrimaryInverse">@color/md_theme_inversePrimary</item>
+    </style>
+
+    <style name="Theme.Heal.Blue" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/blue</item>
+        <item name="colorPrimaryContainer">@color/holo_blue_light</item>
+        <item name="colorOnPrimaryContainer">@color/black</item>
+        <item name="colorPrimaryInverse">@color/blue</item>
+    </style>
+
+    <style name="Theme.Heal.Green" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/green</item>
+        <item name="colorPrimaryContainer">@color/lime</item>
+        <item name="colorOnPrimaryContainer">@color/black</item>
+        <item name="colorPrimaryInverse">@color/green</item>
+    </style>
+
+    <style name="Theme.Heal.Purple" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/purple</item>
+        <item name="colorPrimaryContainer">@color/violet</item>
+        <item name="colorOnPrimaryContainer">@color/white</item>
+        <item name="colorPrimaryInverse">@color/purple</item>
+    </style>
+
+    <style name="Theme.Heal.Orange" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/orange</item>
+        <item name="colorPrimaryContainer">@color/gold_transparent</item>
+        <item name="colorOnPrimaryContainer">@color/black</item>
+        <item name="colorPrimaryInverse">@color/orange</item>
+        <item name="colorOnPrimary">@color/white</item>
+    </style>
+
+    <style name="Theme.Heal.Teal" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/teal</item>
+        <item name="colorPrimaryContainer">@color/teal_200</item>
+        <item name="colorOnPrimaryContainer">@color/black</item>
+        <item name="colorPrimaryInverse">@color/teal</item>
+    </style>
+
+    <style name="Theme.Heal.Brown" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/brown</item>
+        <item name="colorPrimaryContainer">@color/tan</item>
+        <item name="colorOnPrimaryContainer">@color/white</item>
+        <item name="colorPrimaryInverse">@color/brown</item>
+    </style>
+
+    <style name="Theme.Heal.Pink" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/pink</item>
+        <item name="colorPrimaryContainer">@color/pink</item>
+        <item name="colorOnPrimaryContainer">@color/black</item>
+        <item name="colorPrimaryInverse">@color/pink_200</item>
+    </style>
+
     <style name="TransparentDialog" parent="Theme.Material3.Light.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowNoTitle">true</item>
@@ -51,14 +116,18 @@
     </style>
 
     <style name="Theme.Heal" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Default theme properties, can be overridden by specific themes -->
     </style>
 
     <style name="Widget.App.Slider" parent="Widget.Material3.Slider">
         <item name="labelStyle">@style/Widget.App.Tooltip</item>
+        <!-- You can add other slider-specific customizations here if needed -->
     </style>
 
     <style name="Widget.App.Tooltip" parent="Widget.Material3.Tooltip">
         <item name="android:textColor">@android:color/white</item>
+        <!-- You can also customize the background of the tooltip/bubble if needed: -->
+         <item name="backgroundTint">?attr/colorPrimary</item>
     </style>
 
     <style name="Theme.Heal.AppBarOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar" />

@@ -11,4 +11,8 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="chip_margin_end">8dp</dimen>
     <dimen name="color_circle_size">40dp</dimen>
+    <dimen name="theme_circle_size">36dp</dimen>
+    <dimen name="theme_circle_margin">8dp</dimen>
+    <dimen name="theme_circle_border_width_normal">2dp</dimen>
+    <dimen name="theme_circle_border_width_selected">4dp</dimen>
 </resources>
