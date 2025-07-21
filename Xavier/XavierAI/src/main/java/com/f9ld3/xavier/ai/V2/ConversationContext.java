@@ -12,11 +12,13 @@ public class ConversationContext {
 
 private String lastIntent;
 private final Map<String, Object> entities;
+private String lastSubject; // Field to remember the topic of conversation
 
 public ConversationContext() {
 	this.entities = new HashMap<>();
 	// Initialize with a generic start intent
 	this.lastIntent = "start";
+	this.lastSubject = null;
 }
 
 public String getLastIntent() {
@@ -29,7 +31,7 @@ public void setLastIntent(String lastIntent) {
 
 /**
  * Stores an extracted piece of information (an entity).
- * @param key The type of entity (e.g., "location", "topic").
+ * @param key The type of entity (e.g., "location").
  * @param value The extracted value (e.g., "London").
  */
 public void setEntity(String key, Object value) {
@@ -43,6 +45,22 @@ public void setEntity(String key, Object value) {
  */
 public Object getEntity(String key) {
 	return entities.get(key);
+}
+
+/**
+ * Retrieves the last subject of a knowledge query.
+ * @return The last subject as a String, or null if not set.
+ */
+public String getLastSubject() {
+	return lastSubject;
+}
+
+/**
+ * Sets the last subject of a knowledge query.
+ * @param lastSubject The user's original query text.
+ */
+public void setLastSubject(String lastSubject) {
+	this.lastSubject = lastSubject;
 }
 
 /**

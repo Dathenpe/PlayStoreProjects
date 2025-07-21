@@ -1,56 +1,37 @@
 package com.f9ld3.xavier.ai.V2;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A utility for extracting named entities from text.
- * For now, it focuses on extracting locations.
+ * A more robust utility class for extracting named entities from user input.
  */
-public class EntityExtractor {
+public final class EntityExtractor {
 
-private static final Set<String> KNOWN_LOCATIONS = new HashSet<>();
+// This pattern looks for common prepositions and captures the word(s) that follow.
+// It's designed to be resilient to typos in other parts of the sentence.
+// Example: It will find "japan" in "what os the time in japan"
+private static final Pattern LOCATION_PATTERN = Pattern.compile(
+		"\\b(in|for|of|at)\\s+([a-zA-Z\\s]+?)(?:\\s+(right now|currently|today))?$",
+		Pattern.CASE_INSENSITIVE
+);
 
-// A static initializer block to load the locations when the class is first used.
-static {
-	loadLocations("known_locations.txt");
-}
-
-private static void loadLocations(String resourceFileName) {
-	try (InputStream is = EntityExtractor.class.getClassLoader().getResourceAsStream(resourceFileName);
-	     BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-		String line;
-		while ((line = reader.readLine()) != null) {
-			if (!line.trim().isEmpty()) {
-				KNOWN_LOCATIONS.add(line.trim().toLowerCase());
-			}
-		}
-	} catch (Exception e) {
-		System.err.println("FATAL: Could not load known locations from " + resourceFileName);
-		e.printStackTrace();
-	}
-}
+private EntityExtractor() {}
 
 /**
- * Extracts the first known location found in a given text.
- * This is a simple dictionary-based approach.
- *
- * @param text The user's input sentence.
- * @return The name of the found location (e.g., "london"), or null if none are found.
+ * Extracts a location (like a city or country) from a user's query.
+ * @param userInput The full text from the user.
+ * @return The extracted location as a String, or null if none is found.
  */
-public static String extractLocation(String text) {
-	String lowerCaseText = text.toLowerCase();
-	for (String location : KNOWN_LOCATIONS) {
-		// Use word boundaries (\b) to ensure we match whole words.
-		// This prevents "paris" from matching inside "comparison".
-		if (lowerCaseText.matches(".*\\b" + Pattern.quote(location) + "\\b.*")) {
-			return location;
-		}
+public static String extractLocation(String userInput) {
+	Matcher matcher = LOCATION_PATTERN.matcher(userInput);
+	if (matcher.find()) {
+		// Group 2 of our pattern contains the captured location name.
+		return matcher.group(2).trim();
+	}
+	// This fallback helps with simple, one-word follow-up questions like "london".
+	if (userInput.trim().matches("^[a-zA-Z\\s]+$")) {
+		return userInput.trim();
 	}
 	return null;
 }

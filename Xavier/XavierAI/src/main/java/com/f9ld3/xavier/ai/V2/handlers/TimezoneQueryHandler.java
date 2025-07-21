@@ -12,48 +12,47 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 
 /**
- * An intelligent weather handler that uses the live OpenWeatherMap API.
- * This version correctly handles queries with and without a specified location.
+ * An intelligent handler that can determine the current time in any city
+ * by using the OpenWeatherMap API to get timezone information.
  */
-public class WeatherQueryHandler implements IntentHandler {
+public class TimezoneQueryHandler implements IntentHandler {
 
 private static final String API_BASE_URL = "https://api.openweathermap.org/data/2.5/weather";
 private final String apiKey;
 
-// Static initializer to load the API key once.
-public WeatherQueryHandler(String apiKey) {
+public TimezoneQueryHandler(String apiKey) {
 	this.apiKey = apiKey;
 }
-
 
 @Override
 public String handle(String userInput, ConversationContext context) {
 	if (apiKey == null) {
-		return "I'm sorry, my weather service is not configured correctly. I can't fetch forecasts right now.";
+		return "I'm sorry, my time service is not configured correctly. I can't fetch timezone data right now.";
 	}
 	
-	// 1. Try to extract a location from the current user input.
 	String location = EntityExtractor.extractLocation(userInput);
 	
 	if (location != null) {
-		// 2. If a location is found, store it in the context and get the weather.
 		context.setEntity("location", location);
-		return getWeatherFromAPI(location);
+		return getTimeFromAPI(location);
 	} else {
-		// 3. NEW LOGIC: If no location is found, ask the user for one.
-		// This correctly handles questions like "do I need an umbrella?".
-		return "I can certainly check the weather for you. Which city are you interested in?";
+		// If no location is found, fall back to a simple time query.
+		return new TimeQueryHandler().handle(userInput, context);
 	}
 }
 
-private String getWeatherFromAPI(String location) {
+private String getTimeFromAPI(String location) {
 	try {
 		// Use modern, explicit charset for encoding
 		String encodedLocation = URLEncoder.encode(location, StandardCharsets.UTF_8);
-		String requestUrl = String.format("%s?q=%s&appid=%s&units=metric", API_BASE_URL, encodedLocation, apiKey);
+		String requestUrl = String.format("%s?q=%s&appid=%s", API_BASE_URL, encodedLocation, apiKey);
 		
 		URL url = new URL(requestUrl);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -61,11 +60,11 @@ private String getWeatherFromAPI(String location) {
 		
 		int responseCode = conn.getResponseCode();
 		if (responseCode == 401) {
-			return "I'm sorry, there seems to be an issue with my weather service credentials.";
+			return "I'm sorry, there seems to be an issue with my time service credentials.";
 		} else if (responseCode == 404) {
-			return "I'm sorry, I couldn't find a city named '" + location + "'. Please check the spelling.";
+			return "I'm sorry, I couldn't find a city named '" + location + "' to get the time for.";
 		} else if (responseCode != 200) {
-			return "I'm sorry, I'm having trouble connecting to the weather service right now. The service returned status code: " + responseCode;
+			return "I'm sorry, I'm having trouble connecting to the time service right now.";
 		}
 		
 		// Ensure we read the response with the correct UTF-8 encoding
@@ -80,14 +79,17 @@ private String getWeatherFromAPI(String location) {
 		
 		JSONObject jsonResponse = new JSONObject(response.toString());
 		String cityName = jsonResponse.getString("name");
-		String description = jsonResponse.getJSONArray("weather").getJSONObject(0).getString("description");
-		double temp = jsonResponse.getJSONObject("main").getDouble("temp");
+		int timezoneOffsetSeconds = jsonResponse.getInt("timezone");
 		
-		return String.format("The current weather in %s is %.0f°C with %s.", cityName, temp, description);
+		ZoneOffset zoneOffset = ZoneOffset.ofTotalSeconds(timezoneOffsetSeconds);
+		ZonedDateTime locationTime = Instant.now().atZone(zoneOffset);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mm a");
+		
+		return String.format("The current time in %s is %s.", cityName, locationTime.format(formatter));
 		
 	} catch (Exception e) {
-		System.err.println("Weather API Error for location '" + location + "': " + e.getMessage());
-		return "I ran into an unexpected error trying to get the weather. My apologies.";
+		System.err.println("Timezone API Error for location '" + location + "': " + e.getMessage());
+		return "I ran into an unexpected error trying to get the time for that location.";
 	}
 }
 }

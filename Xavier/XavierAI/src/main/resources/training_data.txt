@@ -1,26 +1,88 @@
-    greeting,hello
-    greeting,hi there
-    greeting,how are you
-    goodbye,bye bye
-    goodbye,see you later
-    time_query,what time is it
-    time_query,can you tell me the time
-    date_query,what is today's date
-    date_query,show me the date
-    weather_query,what's the weather like
-    weather_query,is it sunny outside
-    weather_query,how is the weather today
-    weather_query,what is the forecast
-    weather_query,do I need an umbrella
-    weather_query,tell me about the weather
-    calculator_query,what is 5 plus 3
-    calculator_query,calculate 10 times 2
-    calculator_query,compute 100 divided by 4
-    calculator_query,what's 50 minus 25
-    calculator_query,7 plus 8
-    calculator_query,what is 20 x 20
-    follow_up,what about in london
-    follow_up,how about for paris
-    follow_up,and for new york
-    follow_up,and in tokyo
-    follow_up,what about tomorrow
+# --- Greetings ---
+greeting,hello
+greeting,hi there
+greeting,how are you
+greeting,hey xavier
+
+# --- Goodbyes ---
+goodbye,bye bye
+goodbye,see you later
+goodbye,goodbye
+
+# --- Simple Time Queries (Local) ---
+time_query,what time is it
+time_query,can you tell me the time
+time_query,the time please
+time_query,current time
+
+# --- Date Queries ---
+date_query,what is today's date
+date_query,show me the date
+date_query,what is the date
+
+# --- Weather Queries ---
+weather_query,what's the weather like
+weather_query,is it sunny outside
+weather_query,how is the weather today
+weather_query,what is the forecast
+weather_query,do I need an umbrella
+weather_query,tell me about the weather
+weather_query,what is the weather in canada
+weather_query,weather for new york
+weather_query,forecast in london
+weather_query,how is the weather in lagos right now
+weather_query,do i need an umbrellq
+
+# --- Timezone Queries (Remote) ---
+timezone_query,what is the time in japan
+timezone_query,what time is it in london right now
+timezone_query,tell me the time for new york
+timezone_query,current time in lagos
+timezone_query,what is the timezone in canada
+timezone_query,what is the time in australia
+timezone_query,time in tokyo please
+
+# --- Calculator ---
+calculator_query,what is 5 plus 3
+calculator_query,calculate 10 times 2
+calculator_query,compute 100 divided by 4
+calculator_query,what's 50 minus 25
+calculator_query,what is the square root of 16
+calculator_query,9 to the power of 2
+
+# --- Follow-ups ---
+follow_up,what about in london
+follow_up,how about for paris
+follow_up,and in tokyo
+follow_up,what about tomorrow
+follow_up,and the weather
+follow_up,what about the weather there
+
+# --- User Personalization ---
+set_username,my name is david
+set_username,you can call me sarah
+get_username,what is my name
+get_username,do you know my name
+
+# --- Bot Identity ---
+about_bot,who are you
+about_bot,who made you
+about_bot,what are you
+about_bot,what can you do
+
+# --- General Knowledge (Out of Scope) ---
+knowledge_query,what is an apple
+knowledge_query,who is the president
+knowledge_query,define gravity
+knowledge_query,what is java
+knowledge_query,where is canada
+knowledge_query,tell me a joke
+knowledge_query,define gravuity
+knowledge_query,what is the capital of france
+
+# --- ChitChat ---
+chitchat,good
+chitchat,cool
+chitchat,okay
+chitchat,great
+chitchat,nice

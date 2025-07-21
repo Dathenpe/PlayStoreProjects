@@ -2,52 +2,64 @@ package com.f9ld3.xavier.ai.V2.handlers;
 
 import com.f9ld3.xavier.ai.V2.ConversationContext;
 
-import java.util.regex.Matcher;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.util.regex.Pattern;
 
 public class CalculatorHandler implements IntentHandler {
 
-// Regex to find two numbers and an operator.
-// It looks for: (a number) (optional whitespace) (an operator word) (optional whitespace) (a number)
-private static final Pattern CALCULATION_PATTERN =
-		Pattern.compile(".*?(\\d+)\\s*(plus|\\+|minus|-|times|x|\\*|divided by|/)\\s*(\\d+).*");
+private final ScriptEngine engine;
+
+public CalculatorHandler() {
+	ScriptEngineManager manager = new ScriptEngineManager();
+	this.engine = manager.getEngineByName("JavaScript");
+}
 
 @Override
 public String handle(String userInput, ConversationContext context) {
-	Matcher matcher = CALCULATION_PATTERN.matcher(userInput.toLowerCase());
-	
-	if (matcher.matches()) {
-		try {
-			double num1 = Double.parseDouble(matcher.group(1));
-			String operator = matcher.group(2);
-			double num2 = Double.parseDouble(matcher.group(3));
-			
-			switch (operator) {
-				case "plus":
-				case "+":
-					return String.format("The answer is %.2f.", num1 + num2);
-				case "minus":
-				case "-":
-					return String.format("The answer is %.2f.", num1 - num2);
-				case "times":
-				case "x":
-				case "*":
-					return String.format("The answer is %.2f.", num1 * num2);
-				case "divided by":
-				case "/":
-					if (num2 == 0) {
-						return "I can't divide by zero, that's not possible!";
-					}
-					return String.format("The answer is %.2f.", num1 / num2);
-				default:
-					// This case should ideally not be reached due to the regex
-					return "I understood the numbers but not the operation.";
-			}
-		} catch (NumberFormatException e) {
-			return "I found what looks like a calculation, but I couldn't understand the numbers.";
-		}
+	if (engine == null) {
+		return "I'm sorry, my calculation module is currently unavailable.";
 	}
 	
-	return "I can perform calculations, but I didn't understand your request. Please ask like 'what is 5 plus 3?'.";
+	try {
+		String expression = preprocessExpression(userInput);
+		Object result = engine.eval(expression);
+		return String.format("The answer is %.2f.", Double.parseDouble(result.toString()));
+	} catch (ScriptException | IllegalArgumentException e) {
+		System.err.println("Calculation Error: " + e.getMessage());
+		return "I can perform calculations, but I didn't understand that expression. Please ask like 'what is 5 plus 3?' or 'square root of 16'.";
+	}
+}
+
+/**
+ * Converts natural language math phrases into a JavaScript-evaluable expression.
+ */
+private String preprocessExpression(String input) {
+	String processed = input.toLowerCase()
+			                   // Replace words with operators
+			                   .replaceAll("\\s+plus\\s+", "+")
+			                   .replaceAll("\\s+minus\\s+", "-")
+			                   .replaceAll("\\s+times\\s+", "*")
+			                   .replaceAll("\\s+x\\s+", "*")
+			                   .replaceAll("\\s+divided by\\s+", "/")
+			                   // Handle "square root of X"
+			                   .replaceAll("square root of\\s*(\\d+\\.?\\d*)", "Math.sqrt($1)")
+			                   // Handle "X squared" and "X cubed"
+			                   .replaceAll("(\\d+\\.?\\d*)\\s+squared", "Math.pow($1, 2)")
+			                   .replaceAll("(\\d+\\.?\\d*)\\s+cubed", "Math.pow($1, 3)")
+			                   // Handle "X to the power of Y"
+			                   .replaceAll("(\\d+\\.?\\d*)\\s+to the power of\\s+(\\d+\\.?\\d*)", "Math.pow($1, $2)");
+	
+	// --- SAFER CLEANUP LOGIC ---
+	// After replacing known phrases, remove ALL other letters.
+	// This prevents words like "timew" from causing a syntax error.
+	processed = processed.replaceAll("[a-zA-Z]", "").trim();
+	
+	if (processed.trim().isEmpty()) {
+		throw new IllegalArgumentException("Expression is empty after preprocessing.");
+	}
+	
+	return processed;
 }
 }
