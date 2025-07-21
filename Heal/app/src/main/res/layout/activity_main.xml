@@ -17,7 +17,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:theme="@style/Theme.Heal.AppBarOverlay">
-
             <include layout="@layout/toolbar" />
 
         </com.google.android.material.appbar.AppBarLayout>
@@ -47,8 +46,8 @@
             android:contentDescription="Article Person"
             app:srcCompat="@drawable/outline_article_person_24"
             app:backgroundTint="?attr/colorPrimary"
-            app:tint="@color/gray"
-            app:rippleColor="#7FFFD4" />
+            app:tint="@color/black"
+            app:rippleColor="?attr/colorPrimaryContainer" />
 
         <androidx.core.widget.NestedScrollView
             android:id="@+id/bottom_sheet_container"

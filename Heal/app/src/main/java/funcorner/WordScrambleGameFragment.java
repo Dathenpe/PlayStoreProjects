@@ -25,8 +25,8 @@ import android.widget.Toast;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.f9ld3.heal.MainActivity;
@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
+import ui.CustomMessageDialogFragment;
 import wordscramble.GameMode;
 import wordscramble.HighScoreDialogFragment;
 import wordscramble.HighScoreEntry;
@@ -213,17 +214,12 @@ public class WordScrambleGameFragment extends Fragment {
                     GameMode previousGameMode = currentGameMode;
                     showConfirmationDialog("Change Game Mode",
                             "Are you sure you want to change the game mode to " + selectedMode.displayName + "? This will reset the current game.",
-                            (dialog, which) -> {
+                            () -> { // Positive click
                                 currentGameMode = selectedMode;
                                 initializeGame();
                                 Toast.makeText(getContext(), "Game mode set to " + currentGameMode.displayName, Toast.LENGTH_SHORT).show();
                             },
-                            (dialog, which) -> {
-                                // If "No" is clicked, revert the spinner selection
-                                modeSpinner.setSelection(previousGameMode.ordinal());
-                            },
-                            dialog -> { // Corrected lambda for OnDismissListener
-                                // On dialog dismissal (e.g., by clicking outside), revert the spinner selection
+                            () -> { // Negative click
                                 modeSpinner.setSelection(previousGameMode.ordinal());
                             });
                 }
@@ -240,19 +236,19 @@ public class WordScrambleGameFragment extends Fragment {
         nextWordButton.setOnClickListener(v -> {
             showConfirmationDialog("Skip Word",
                     "Are you sure you want to skip this word? You won't get points for it.",
-                    (dialog, which) -> {
+                    () -> { // Positive click
                         Toast.makeText(getContext(), "Skipped word was: " + currentWord, Toast.LENGTH_LONG).show();
                         missedWordsList.add(currentWord);
                         currentRound++;
                         generateNewWord();
                     },
-                    null, null); // No onDismiss for skip word
+                    null); // No negative action needed other than dismiss
         });
         resetButton.setOnClickListener(v -> {
             showConfirmationDialog("Reset Game",
                     "Are you sure you want to reset the game? Your current progress will be lost.",
-                    (dialog, which) -> resetGame(),
-                    null, null); // No onDismiss for reset
+                    () -> resetGame(), // Positive click
+                    null); // No negative action needed other than dismiss
         });
         highScoresButton.setOnClickListener(v -> showHighScoresDialog());
         pauseButton.setOnClickListener(v -> {
@@ -282,12 +278,12 @@ public class WordScrambleGameFragment extends Fragment {
         restartGamePausedButton.setOnClickListener(v -> {
             showConfirmationDialog("Restart Game",
                     "Are you sure you want to restart the game? Your current progress will be lost.",
-                    (dialog, which) -> {
+                    () -> { // Positive click
                         resetGame();
                         overlayContainer.setVisibility(View.GONE);
                         pausedCard.setVisibility(View.GONE); // Ensure paused card is hidden
                     },
-                    null, null); // No onDismiss for restart from paused
+                    null); // No negative action needed other than dismiss
         });
 
         // Set up save and quit button listener
@@ -295,7 +291,7 @@ public class WordScrambleGameFragment extends Fragment {
             if (currentGameMode == GameMode.ENDLESS) {
                 showConfirmationDialog("Save and Quit",
                         "Are you sure you want to save your score and quit the game?",
-                        (dialog, which) -> {
+                        () -> { // Positive click
                             handleGameOver(); // Show game over summary first
                             // Delay exiting the fragment slightly to allow the user to see the summary
                             new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -307,7 +303,7 @@ public class WordScrambleGameFragment extends Fragment {
                                 Toast.makeText(getContext(), "Game saved and quit!", Toast.LENGTH_SHORT).show();
                             }, 1500); // 1.5 second delay
                         },
-                        null, null); // No onDismiss for save and quit
+                        null); // No negative action needed other than dismiss
             } else {
                 // This toast should ideally not be shown if the button is hidden correctly
                 Toast.makeText(getContext(), "Save and Quit is only available in Endless Mode.", Toast.LENGTH_SHORT).show();
@@ -384,46 +380,65 @@ public class WordScrambleGameFragment extends Fragment {
 
 
     /**
-     * Shows a confirmation dialog with a warning icon.
+     * Shows a confirmation dialog using CustomMessageDialogFragment.
+     *
      * @param title The title of the dialog.
      * @param message The message to display.
-     * @param positiveClickListener Listener for the positive button.
-     * @param negativeClickListener Listener for the negative button (can be null).
-     * @param dismissListener Optional listener for when the dialog is dismissed (e.g., by outside touch).
+     * @param positiveAction Runnable to execute on positive button click.
+     * @param negativeAction Runnable to execute on negative button click (can be null).
      */
     private void showConfirmationDialog(String title, String message,
-                                        android.content.DialogInterface.OnClickListener positiveClickListener,
-                                        @Nullable android.content.DialogInterface.OnClickListener negativeClickListener,
-                                        @Nullable android.content.DialogInterface.OnDismissListener dismissListener) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext())
-                .setTitle(title)
-                .setMessage(message)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton("Yes", positiveClickListener)
-                .setNegativeButton("No", negativeClickListener != null ? negativeClickListener : (dialog, which) -> dialog.dismiss());
+                                        Runnable positiveAction,
+                                        @Nullable Runnable negativeAction) {
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                title,
+                message,
+                "Yes",
+                "No"
+        );
+        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                if (positiveAction != null) {
+                    positiveAction.run();
+                }
+                dialogFragment.dismiss();
+            }
 
-        // Make the dialog cancelable by outside touch
-        builder.setCancelable(true); // Changed to true
-
-        // Set the optional dismiss listener
-        if (dismissListener != null) {
-            builder.setOnDismissListener(dismissListener);
-        }
-
-        builder.show();
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                if (negativeAction != null) {
+                    negativeAction.run();
+                }
+                dialogFragment.dismiss();
+            }
+        });
+        dialog.show(getParentFragmentManager(), "WordScrambleConfirmationDialog");
     }
 
     /**
      * Shows a confirmation dialog specifically for using a clue.
      */
     private void showClueConfirmationDialog() {
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Use a Clue?")
-                .setMessage("Are you sure you want to use a clue? You have " + cluesRemaining + " clues remaining for this game session, and " + (MAX_CLUES_PER_WORD - cluesUsedForCurrentWord) + " clues left for this word.")
-                .setIcon(R.drawable.ic_lightbulb_outline) // Use the new lightbulb icon
-                .setPositiveButton("Yes", (dialog, which) -> giveClue())
-                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                .show();
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                "Use a Clue?",
+                "Are you sure you want to use a clue? You have " + cluesRemaining + " clues remaining for this game session, and " + (MAX_CLUES_PER_WORD - cluesUsedForCurrentWord) + " clues left for this word.",
+                "Yes",
+                "No"
+        );
+        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                giveClue();
+                dialogFragment.dismiss();
+            }
+
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                dialogFragment.dismiss();
+            }
+        });
+        dialog.show(getParentFragmentManager(), "WordScrambleClueConfirmationDialog");
     }
 
     /**

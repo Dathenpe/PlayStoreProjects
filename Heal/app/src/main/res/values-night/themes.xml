@@ -1,123 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme for Night mode. -->
     <style name="Base.Theme.Heal" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/md_theme_primary</item>
-        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
-        <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>
-        <item name="colorOnPrimaryContainer">@color/md_theme_onPrimaryContainer</item>
-        <item name="colorSecondary">@color/md_theme_secondary</item>
-        <item name="colorOnSecondary">@color/md_theme_onSecondary</item>
-        <item name="colorSecondaryContainer">@color/md_theme_secondaryContainer</item>
-        <item name="colorOnSecondaryContainer">@color/md_theme_onSecondaryContainer</item>
-        <item name="colorTertiary">@color/md_theme_tertiary</item>
-        <item name="colorOnTertiary">@color/md_theme_onTertiary</item>
-        <item name="colorTertiaryContainer">@color/md_theme_tertiaryContainer</item>
-        <item name="colorOnTertiaryContainer">@color/md_theme_onTertiaryContainer</item>
-        <item name="colorError">@color/md_theme_error</item>
-        <item name="colorOnError">@color/md_theme_onError</item>
-        <item name="colorErrorContainer">@color/md_theme_errorContainer</item>
-        <item name="colorOnErrorContainer">@color/md_theme_onErrorContainer</item>
-        <item name="android:colorBackground">@color/md_theme_background</item>
-        <item name="colorOnBackground">@color/md_theme_onBackground</item>
-        <item name="colorSurface">@color/md_theme_surface</item>
-        <item name="colorOnSurface">@color/md_theme_onSurface</item>
-        <item name="colorSurfaceVariant">@color/md_theme_surfaceVariant</item>
-        <item name="colorOnSurfaceVariant">@color/md_theme_onSurfaceVariant</item>
-        <item name="colorOutline">@color/md_theme_outline</item>
-        <item name="colorOnSurfaceInverse">@color/md_theme_inverseOnSurface</item>
-        <item name="colorSurfaceInverse">@color/md_theme_inverseSurface</item>
-        <item name="colorPrimaryInverse">@color/md_theme_inversePrimary</item>
+        <!-- Night mode Material Theme Colors -->
+        <item name="colorPrimary">@color/md_theme_primary</item> <!-- Night: #FFB74D -->
+        <item name="colorOnPrimary">@color/md_theme_onPrimary</item> <!-- Night: #3D2400 -->
+        <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item> <!-- Night: #7B5700 -->
+        <item name="colorOnPrimaryContainer">@color/md_theme_onPrimaryContainer</item> <!-- Night: #FFDDC1 -->
+        <item name="colorSecondary">@color/md_theme_secondary</item> <!-- Night: #FFDEB3 -->
+        <item name="colorOnSecondary">@color/md_theme_onSecondary</item> <!-- Night: #271900 -->
+        <item name="colorSecondaryContainer">@color/md_theme_secondaryContainer</item> <!-- Night: #514438 -->
+        <item name="colorOnSecondaryContainer">@color/md_theme_onSecondaryContainer</item> <!-- Night: #FFDDC1 -->
+        <item name="colorTertiary">@color/md_theme_tertiary</item> <!-- Night: #78F8DB -->
+        <item name="colorOnTertiary">@color/md_theme_onTertiary</item> <!-- Night: #00201B -->
+        <item name="colorTertiaryContainer">@color/md_theme_tertiaryContainer</item> <!-- Night: #004F47 -->
+        <item name="colorOnTertiaryContainer">@color/md_theme_onTertiaryContainer</item> <!-- Night: #78F8DB -->
+        <item name="colorError">@color/md_theme_error</item> <!-- Night: #BA1A1A (Same as day, but night uses its own onError) -->
+        <item name="colorOnError">@color/md_theme_onError</item> <!-- Night: #410002 -->
+        <item name="colorErrorContainer">@color/md_theme_errorContainer</item> <!-- Night: #93000A -->
+        <item name="colorOnErrorContainer">@color/md_theme_onErrorContainer</item> <!-- Night: #FFDAD6 -->
+        <item name="android:colorBackground">@color/md_theme_background</item> <!-- Night: #1F1B16 -->
+        <item name="colorOnBackground">@color/md_theme_onBackground</item> <!-- Night: #EAE0D7 -->
+        <item name="colorSurface">@color/md_theme_surface</item> <!-- Night: #1F1B16 -->
+        <item name="colorOnSurface">@color/md_theme_onSurface</item> <!-- Night: #EAE0D7 -->
+        <item name="colorSurfaceVariant">@color/md_theme_surfaceVariant</item> <!-- Night: #514438 -->
+        <item name="colorOnSurfaceVariant">@color/md_theme_onSurfaceVariant</item> <!-- Night: #D7C3B6 -->
+        <item name="colorOutline">@color/md_theme_outline</item> <!-- Night: #9C8D7F -->
+        <item name="colorOnSurfaceInverse">@color/md_theme_inverseOnSurface</item> <!-- Night: #1F1B16 -->
+        <item name="colorSurfaceInverse">@color/md_theme_inverseSurface</item> <!-- Night: #EAE0D7 -->
+        <item name="colorPrimaryInverse">@color/md_theme_inversePrimary</item> <!-- Night: #7B5700 -->
 
+        <!-- System UI colors -->
         <item name="android:statusBarColor">@color/transparent</item>
         <item name="android:navigationBarColor">?attr/colorSurface</item>
 
+        <!-- Component styles -->
         <item name="bottomSheetStyle">@style/Widget.Material3.BottomSheet.Modal</item>
         <item name="navigationViewStyle">@style/Widget.Material3.NavigationView</item>
         <item name="floatingActionButtonStyle">@style/Widget.Material3.FloatingActionButton.Primary</item>
-
-    </style>
-    <style name="Theme.Heal.AppBarOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar" />
-    <style name="Theme.Heal.PopupOverlay" parent="ThemeOverlay.Material3.Light" />
-
-    <style name="Theme.Heal" parent="Theme.Material3.DayNight.NoActionBar">
     </style>
 
+    <!-- Define additional themes for different primary colors (Night Mode) -->
+    <style name="Theme.Heal.Secondary" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/md_theme_secondary</item> <!-- Night: #FFDEB3 -->
+        <item name="colorPrimaryContainer">@color/md_theme_secondaryContainer</item> <!-- Night: #514438 -->
+        <item name="colorOnPrimaryContainer">@color/md_theme_onSecondaryContainer</item> <!-- Night: #FFDDC1 -->
+        <item name="colorPrimaryInverse">@color/md_theme_inversePrimary</item> <!-- Inherits night base -->
+    </style>
+
+    <style name="Theme.Heal.Tertiary" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/md_theme_tertiary</item> <!-- Night: #78F8DB -->
+        <item name="colorPrimaryContainer">@color/md_theme_tertiaryContainer</item> <!-- Night: #004F47 -->
+        <item name="colorOnPrimaryContainer">@color/md_theme_onTertiaryContainer</item> <!-- Night: #78F8DB -->
+        <item name="colorPrimaryInverse">@color/md_theme_inversePrimary</item> <!-- Inherits night base -->
+    </style>
+
+    <style name="Theme.Heal.Blue" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/blue</item> <!-- Night: #FF99BBFF -->
+        <item name="colorPrimaryContainer">@color/holo_blue_light</item> <!-- Night: #ff80d0f7 -->
+        <item name="colorOnPrimaryContainer">@color/white</item> <!-- Night equivalent of day's @color/black -->
+        <item name="colorPrimaryInverse">@color/blue</item> <!-- Night: #FF99BBFF -->
+    </style>
+
+    <style name="Theme.Heal.Green" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/green</item> <!-- Night: #38D34C -->
+        <item name="colorPrimaryContainer">@color/lime</item> <!-- Night: #FF99FF99 -->
+        <item name="colorOnPrimaryContainer">@color/white</item> <!-- Night equivalent of day's @color/black -->
+        <item name="colorPrimaryInverse">@color/green</item> <!-- Night: #38D34C -->
+    </style>
+
+    <style name="Theme.Heal.Purple" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/purple</item> <!-- Night: #FFBF80FF -->
+        <item name="colorPrimaryContainer">@color/violet</item> <!-- Night: #FFBF80FF -->
+        <item name="colorOnPrimaryContainer">@color/black</item> <!-- Night equivalent of day's @color/white -->
+        <item name="colorPrimaryInverse">@color/purple</item> <!-- Night: #FFBF80FF -->
+    </style>
+
+    <style name="Theme.Heal.Orange" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/orange</item> <!-- Night: #FFFFB74D -->
+        <item name="colorPrimaryContainer">@color/gold_transparent</item> <!-- Night: #80FFA500 (Same as day, uses alpha) -->
+        <item name="colorOnPrimaryContainer">@color/white</item> <!-- Night equivalent of day's @color/black -->
+        <item name="colorPrimaryInverse">@color/orange</item> <!-- Night: #FFFFB74D -->
+        <item name="colorOnPrimary">@color/black</item> <!-- Night equivalent of day's @color/white -->
+    </style>
+
+    <style name="Theme.Heal.Teal" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/teal</item> <!-- Night: #FF4DB6AC -->
+        <item name="colorPrimaryContainer">@color/teal_200</item> <!-- Night: #FF80CBC4 -->
+        <item name="colorOnPrimaryContainer">@color/white</item> <!-- Night equivalent of day's @color/black -->
+        <item name="colorPrimaryInverse">@color/teal</item> <!-- Night: #FF4DB6AC -->
+    </style>
+
+    <style name="Theme.Heal.Brown" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/brown</item> <!-- Night: #FFCD853F -->
+        <item name="colorPrimaryContainer">@color/tan</item> <!-- Night: #FFE2C0A5 -->
+        <item name="colorOnPrimaryContainer">@color/black</item> <!-- Night equivalent of day's @color/white -->
+        <item name="colorPrimaryInverse">@color/brown</item> <!-- Night: #FFCD853F -->
+    </style>
+
+    <style name="Theme.Heal.Pink" parent="Base.Theme.Heal">
+        <item name="colorPrimary">@color/pink</item> <!-- Night: #FFFFD9E3 -->
+        <item name="colorPrimaryContainer">@color/pink</item> <!-- Night: #FFFFD9E3 -->
+        <item name="colorOnPrimaryContainer">@color/white</item> <!-- Night equivalent of day's @color/black -->
+        <item name="colorPrimaryInverse">@color/purple_200</item> <!-- Mapped from day's @color/pink_200. Night: #FFD1B0FF (purple_200 was the closest named match from your night colors) -->
+        <!-- If you have a specific night version of pink_200, use that instead. For now, using purple_200 from night as a placeholder for pink_200. -->
+    </style>
+
+    <!-- Transparent Dialog (Usually does not need night/day specific changes if based on system dialogs) -->
+    <style name="TransparentDialog" parent="Theme.Material3.Dark.Dialog"> <!-- Changed parent to Dark for night consistency -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.6</item>
+        <item name="android:windowMinWidthMajor">100%</item>
+        <item name="android:windowMinWidthMinor">100%</item>
+    </style>
+
+    <!-- Default app theme (references Base.Theme.Heal which is now night-specific in this file) -->
+    <style name="Theme.Heal" parent="Base.Theme.Heal">
+        <!-- Default theme properties, can be overridden by specific themes -->
+    </style>
+
+    <!-- Widget Styles (Usually reference theme attributes, so direct night changes might not be needed) -->
     <style name="Widget.App.Slider" parent="Widget.Material3.Slider">
         <item name="labelStyle">@style/Widget.App.Tooltip</item>
     </style>
 
     <style name="Widget.App.Tooltip" parent="Widget.Material3.Tooltip">
-        <item name="android:textColor">@android:color/white</item>
+        <!-- For night mode, ensure tooltip text is legible against ?attr/colorPrimary -->
+        <!-- If ?attr/colorPrimary is light in night mode, @android:color/black might be better -->
+        <item name="android:textColor">@color/black</item> <!-- Assuming ?attr/colorPrimary (night) will be light enough -->
+        <item name="backgroundTint">?attr/colorPrimary</item>
     </style>
 
-    <!-- Headline Medium -->
+    <!-- Overlay themes (Should generally remain as they are or use Material3 equivalents) -->
+    <style name="Theme.Heal.AppBarOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar" />
+    <style name="Theme.Heal.PopupOverlay" parent="ThemeOverlay.Material3.Light" /> <!-- Consider if a .Dark equivalent is needed for popups in night mode -->
+
+
+    <!-- TextAppearance Styles (These typically define font and size, colors are inherited or explicitly set) -->
+    <!-- No changes needed unless you want different font families/sizes for night mode specifically -->
     <style name="TextAppearance.Material3.HeadlineMedium" parent="TextAppearance.MaterialComponents.Headline6">
-        <item name="android:fontFamily">@font/inter_regular</item> <!-- Assuming 'inter_regular' font is available -->
+        <item name="android:fontFamily">@font/inter_regular</item>
         <item name="android:textSize">28sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:letterSpacing">0.00</item> <!-- Changed from 0.00em to 0.00 -->
+        <item name="android:letterSpacing">0.00</item>
         <item name="android:lineHeight">36sp</item>
     </style>
 
-    <!-- Title Large -->
     <style name="TextAppearance.Material3.TitleLarge" parent="TextAppearance.MaterialComponents.Headline5">
         <item name="android:fontFamily">@font/inter_regular</item>
         <item name="android:textSize">22sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:letterSpacing">0.00</item> <!-- Changed from 0.00em to 0.00 -->
+        <item name="android:letterSpacing">0.00</item>
         <item name="android:lineHeight">28sp</item>
     </style>
 
-    <!-- Title Medium -->
     <style name="TextAppearance.Material3.TitleMedium" parent="TextAppearance.MaterialComponents.Subtitle1">
-        <item name="android:fontFamily">@font/inter_medium</item> <!-- Often medium weight for titles -->
+        <item name="android:fontFamily">@font/inter_medium</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:letterSpacing">0.02</item> <!-- Changed from 0.02em to 0.02 -->
+        <item name="android:letterSpacing">0.02</item>
         <item name="android:lineHeight">24sp</item>
     </style>
 
-    <!-- Body Large -->
     <style name="TextAppearance.Material3.BodyLarge" parent="TextAppearance.MaterialComponents.Body1">
         <item name="android:fontFamily">@font/inter_regular</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:letterSpacing">0.03</item> <!-- Changed from 0.03em to 0.03 -->
+        <item name="android:letterSpacing">0.03</item>
         <item name="android:lineHeight">24sp</item>
     </style>
 
-    <!-- Body Medium -->
     <style name="TextAppearance.Material3.BodyMedium" parent="TextAppearance.MaterialComponents.Body2">
         <item name="android:fontFamily">@font/inter_regular</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:letterSpacing">0.02</item> <!-- Changed from 0.02em to 0.02 -->
+        <item name="android:letterSpacing">0.02</item>
         <item name="android:lineHeight">20sp</item>
     </style>
 
-    <!-- Body Small -->
     <style name="TextAppearance.Material3.BodySmall" parent="TextAppearance.MaterialComponents.Caption">
         <item name="android:fontFamily">@font/inter_regular</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:letterSpacing">0.04</item> <!-- Changed from 0.04em to 0.04 -->
+        <item name="android:letterSpacing">0.04</item>
         <item name="android:lineHeight">16sp</item>
     </style>
 
-    <!-- Label Small -->
     <style name="TextAppearance.Material3.LabelSmall" parent="TextAppearance.MaterialComponents.Overline">
         <item name="android:fontFamily">@font/inter_medium</item>
         <item name="android:textSize">11sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:letterSpacing">0.05</item> <!-- Changed from 0.05em to 0.05 -->
+        <item name="android:letterSpacing">0.05</item>
         <item name="android:lineHeight">16sp</item>
     </style>
 
-    <!-- Button -->
     <style name="TextAppearance.Material3.Button" parent="TextAppearance.MaterialComponents.Button">
         <item name="android:fontFamily">@font/inter_medium</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">normal</item>
-        <item name="android:letterSpacing">0.01</item> <!-- Changed from 0.01em to 0.01 -->
+        <item name="android:letterSpacing">0.01</item>
         <item name="android:lineHeight">20sp</item>
     </style>
 </resources>

@@ -63,7 +63,7 @@
         android:layout_marginTop="24dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/tetris_board_background"
-        android:padding="8dp"
+        android:padding="6dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/score_card"
@@ -176,7 +176,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="gone"
-            app:cardBackgroundColor="?attr/colorSecondaryContainer"
+            app:cardBackgroundColor="?attr/colorPrimaryContainer"
             app:cardCornerRadius="16dp"
             app:cardElevation="8dp">
 
@@ -189,7 +189,7 @@
                 android:paddingVertical="32dp"
                 android:text="PAUSED\n(Tap to Resume)"
                 android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                android:textColor="?attr/colorOnSecondaryContainer" />
+                android:textColor="@color/white" />
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView

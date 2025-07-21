@@ -123,8 +123,10 @@
             android:paddingEnd="24dp"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
+            android:textColor="@color/status_bar_overlay_dark"
+            android:backgroundTint="?attr/colorPrimary"
             app:icon="@drawable/ic_pause_white_24dp"
-            app:iconTint="?attr/colorOnSecondaryContainer"
+            app:iconTint="@color/status_bar_overlay_dark"
             android:textAppearance="?attr/textAppearanceButton" />
 
         <com.google.android.material.button.MaterialButton
@@ -140,7 +142,9 @@
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
             app:icon="@drawable/ic_refresh"
-            app:iconTint="?attr/colorOnSecondaryContainer"
+            android:textColor="@color/status_bar_overlay_dark"
+            android:backgroundTint="?attr/colorPrimary"
+            app:iconTint="@color/status_bar_overlay_dark"
             android:textAppearance="?attr/textAppearanceButton" />
 
         <com.google.android.material.button.MaterialButton
@@ -154,6 +158,7 @@
             android:paddingEnd="24dp"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
+            android:backgroundTint="?attr/colorPrimary"
             app:iconTint="?attr/colorOnSecondaryContainer"
             android:textAppearance="?attr/textAppearanceButton" />
     </LinearLayout>
@@ -180,7 +185,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:visibility="gone"
-            app:cardBackgroundColor="?attr/colorSecondaryContainer"
+            app:cardBackgroundColor="?attr/colorPrimaryContainer"
             app:cardCornerRadius="16dp"
             app:cardElevation="8dp">
 
@@ -193,7 +198,7 @@
                 android:paddingVertical="32dp"
                 android:text="PAUSED\n(Tap to Resume)"
                 android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                android:textColor="?attr/colorOnSecondaryContainer" />
+                android:textColor="@color/white" />
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView

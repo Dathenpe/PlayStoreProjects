@@ -43,7 +43,7 @@
         android:layout_marginBottom="16dp"
     android:scaleType="centerCrop"
     android:src="@drawable/ic_default_contact_avatar"
-    app:civ_border_color="?attr/colorSecondary"
+    app:civ_border_color="?attr/colorPrimaryContainer"
     app:civ_border_width="3dp"
     tools:src="@tools:sample/avatars" />
 

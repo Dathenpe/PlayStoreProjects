@@ -56,7 +56,7 @@
                         android:layout_height="48dp"
                         android:id="@+id/self_improvement_icon"
                         android:src="@drawable/outline_self_improvement_24"
-                        app:tint="?attr/colorOnPrimaryContainer"
+                        app:tint="@color/white"
                         android:contentDescription="Self improvement icon" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -374,7 +374,7 @@
 
                     <com.google.android.material.slider.Slider
                         android:id="@+id/mood_seek_bar"
-                        style="@style/Widget.Material3.Slider"
+                        style="@style/Widget.App.Slider"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:valueFrom="0.0"
@@ -384,7 +384,8 @@
                         app:trackColorActive="?attr/colorPrimary"
                         app:trackColorInactive="?attr/colorOutline"
                         app:thumbColor="?attr/colorPrimary"
-                        app:haloColor="?attr/colorPrimary" />
+                        app:haloColor="?attr/colorPrimary"
+                        app:labelBehavior="floating"/>
 
                     <TextView
                         android:id="@+id/mood_value_label"

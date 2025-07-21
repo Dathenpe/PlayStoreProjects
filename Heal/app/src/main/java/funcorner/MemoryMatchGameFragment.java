@@ -23,7 +23,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.f9ld3.heal.MainActivity;
@@ -40,6 +40,9 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import memorymatch.HighScoreDialogFragment;
+import ui.CustomMessageDialogFragment; // Import the custom dialog
 
 public class MemoryMatchGameFragment extends Fragment {
 
@@ -76,12 +79,12 @@ public class MemoryMatchGameFragment extends Fragment {
 
     // --- Emoji Arrays for New Themes ---
     private static final String[] FRUIT_EMOJIS = {
-            "🍎", "🍌", "🍒", "🍓", "🍍", "🥝", "", "🍉",
+            "🍎", "🍌", "🍒", "🍓", "🍍", "🥝", "🍉", "🍇",
             "🍏", "🍋", "🍑", "🥭", "🍈", "🥥", "🍐", "🍊"
     };
 
     private static final String[] CAR_EMOJIS = {
-            "🚗", "🚕", "🚙", "🚌", "🏎️", "🚓", "�", "🚒",
+            "🚗", "🚕", "🚙", "🚌", "🏎️", "🚓", "🚒", "🚑",
             "🚚", "🚜", "🚲", "🛴", "🛵", "🏍️", "🚂", "🚀"
     };
 
@@ -192,14 +195,14 @@ public class MemoryMatchGameFragment extends Fragment {
                     final int newPosition = position;
                     showConfirmationDialog("Change Theme",
                             "Are you sure you want to change the theme to " + newTheme + "? This will reset the current game.",
-                            (dialog, which) -> {
+                            () -> { // Positive click
                                 currentTheme = newTheme;
                                 selectedThemePosition = newPosition;
                                 Toast.makeText(getContext(), "Switching theme to " + currentTheme, Toast.LENGTH_SHORT).show();
                                 updateEmojisForTheme();
                                 resetGame();
                             },
-                            (dialog, which) -> {
+                            () -> { // Negative click
                                 themeSpinner.setSelection(selectedThemePosition);
                             });
                 }
@@ -214,11 +217,11 @@ public class MemoryMatchGameFragment extends Fragment {
         resetButton.setOnClickListener(v -> {
             showConfirmationDialog("Reset Game",
                     "Are you sure you want to reset the game? Your current progress will be lost.",
-                    (dialog, which) -> {
+                    () -> { // Positive click
                         Toast.makeText(getContext(), "Resetting game...", Toast.LENGTH_SHORT).show();
                         resetGame();
                     },
-                    null);
+                    null); // No negative action needed other than dismiss
         });
         highScoresButton.setOnClickListener(v -> showHighScoresDialog());
         pauseButton.setOnClickListener(v -> {
@@ -281,22 +284,40 @@ public class MemoryMatchGameFragment extends Fragment {
     }
 
     /**
-     * Shows a confirmation dialog with a warning icon.
+     * Shows a confirmation dialog using CustomMessageDialogFragment.
+     *
      * @param title The title of the dialog.
      * @param message The message to display.
-     * @param positiveClickListener Listener for the positive button.
-     * @param negativeClickListener Listener for the negative button (can be null).
+     * @param positiveAction Runnable to execute on positive button click.
+     * @param negativeAction Runnable to execute on negative button click (can be null).
      */
     private void showConfirmationDialog(String title, String message,
-                                        android.content.DialogInterface.OnClickListener positiveClickListener,
-                                        @Nullable android.content.DialogInterface.OnClickListener negativeClickListener) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle(title)
-                .setMessage(message)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton("Yes", positiveClickListener)
-                .setNegativeButton("No", negativeClickListener != null ? negativeClickListener : (dialog, which) -> dialog.dismiss())
-                .show();
+                                        Runnable positiveAction,
+                                        @Nullable Runnable negativeAction) {
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                title,
+                message,
+                "Yes",
+                "No"
+        );
+        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                if (positiveAction != null) {
+                    positiveAction.run();
+                }
+                dialogFragment.dismiss();
+            }
+
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                if (negativeAction != null) {
+                    negativeAction.run();
+                }
+                dialogFragment.dismiss();
+            }
+        });
+        dialog.show(getParentFragmentManager(), "MemoryMatchConfirmationDialog");
     }
 
 
@@ -521,7 +542,7 @@ public class MemoryMatchGameFragment extends Fragment {
         Toast.makeText(getContext(), "Game Paused (High Scores)", Toast.LENGTH_SHORT).show(); // Specific toast for high scores
         List<HighScoreEntry> scores = loadHighScores();
         // Pass null for localUserId as it's no longer used for highlighting
-        memorymatch.HighScoreDialogFragment dialogFragment = memorymatch.HighScoreDialogFragment.newInstance(scores, null);
+        HighScoreDialogFragment dialogFragment = HighScoreDialogFragment.newInstance(scores, null);
         dialogFragment.show(getParentFragmentManager(), "high_scores_dialog");
     }
 
