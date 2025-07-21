@@ -218,7 +218,7 @@ public class SettingsFragment extends Fragment {
                 // Show confirmation dialog
                 CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
                         "Change Theme",
-                        "Are you sure you want to change the theme to " + selectedName.replace("md_theme_", "").replace("_", " ") + "? The app will restart.",
+                        "Are you sure you want to change the theme to " + selectedName.replace("md_theme_", "").replace("_", " ") + "? The app will require a restart",
                         "Change",
                         "Cancel"
                 );
@@ -226,7 +226,7 @@ public class SettingsFragment extends Fragment {
                     @Override
                     public void onDialogPositiveClick(DialogFragment dialogFragment) {
                         applyThemeColor(selectedName);
-                        Toast.makeText(getContext(), "Theme set to " + selectedName.replace("md_theme_", "").replace("_", " ") + ". Restarting app...", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Theme set to " + selectedName.replace("md_theme_", "").replace("_", " ") + ". please restart the app...", Toast.LENGTH_LONG).show();
                         if (mainActivity != null) {
                             mainActivity.recreate(); // Restart the activity to apply the theme
                         }
