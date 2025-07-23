@@ -1,55 +1,22 @@
 package com.f9ld3.xavier.ai.V2.handlers;
 
 import com.f9ld3.xavier.ai.V2.ConversationContext;
-import java.util.Arrays;
-import java.util.List;
 
 /**
- * A more intelligent handler for setting the user's name.
- * It identifies the name by looking for common keywords that precede it,
- * making it highly resilient to typos in the rest of the sentence.
+ * Sets the user's name in the conversation context.
+ * This handler now relies on an entity being extracted by the PatternHandler.
  */
 public class SetUsernameHandler implements IntentHandler {
 
-// A list of common words that signal a name is about to be mentioned.
-private static final List<String> INTRO_KEYWORDS = Arrays.asList(
-		"is", "am", "i'm", "me"
-);
-
 @Override
 public String handle(String userInput, ConversationContext context) {
-	String[] words = userInput.toLowerCase().split("\\s+");
-	String extractedName = null;
-	
-	// Find the last occurrence of one of our keywords in the sentence.
-	int keywordIndex = -1;
-	for (int i = 0; i < words.length; i++) {
-		if (INTRO_KEYWORDS.contains(words[i])) {
-			keywordIndex = i;
-		}
+	String name = (String) context.getEntity("username");
+	if (name != null && !name.isEmpty()) {
+		// Capitalize the first letter for a nice touch
+		String capitalizedName = name.substring(0, 1).toUpperCase() + name.substring(1);
+		context.setUsername(capitalizedName);
+		return "Got it. I'll call you " + capitalizedName + " from now on.";
 	}
-	
-	// If we found a keyword and there's at least one word after it,
-	// we assume that next word is the name.
-	if (keywordIndex != -1 && keywordIndex < words.length - 1) {
-		extractedName = words[keywordIndex + 1];
-		
-		// --- NEW: Sanitize the extracted name ---
-		// Remove any characters that are not letters.
-		extractedName = extractedName.replaceAll("[^a-zA-Z]", "");
-	}
-	
-	if (extractedName != null && !extractedName.isEmpty()) {
-		// Capitalize the name for a nice, clean look.
-		String formattedName = extractedName.substring(0, 1).toUpperCase() + extractedName.substring(1);
-		
-		// Store the name in the conversation's memory
-		context.setEntity("username", formattedName);
-		
-		return "Got it! I'll call you " + formattedName + " from now on.";
-	} else {
-		// This can happen if the intent was misclassified or the sentence structure was unexpected.
-		return "I'm sorry, I didn't quite catch your name. Could you try again using a phrase like 'My name is...'?";
-	}
+	return "I heard you want me to call you something, but I didn't catch the name.";
 }
 }

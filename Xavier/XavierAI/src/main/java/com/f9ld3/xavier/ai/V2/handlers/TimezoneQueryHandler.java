@@ -1,95 +1,85 @@
 package com.f9ld3.xavier.ai.V2.handlers;
 
 import com.f9ld3.xavier.ai.V2.ConversationContext;
-import com.f9ld3.xavier.ai.V2.EntityExtractor;
-import org.json.JSONObject;
+// Import the new resolver service
+import com.f9ld3.xavier.ai.V2.services.LocationResolverService;
+import com.f9ld3.xavier.ai.V2.utils.EntityExtractor;
+import com.f9ld3.xavier.ai.V2.utils.SharedHttpClient;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.ZoneOffset;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Properties;
 
 /**
- * An intelligent handler that can determine the current time in any city
- * by using the OpenWeatherMap API to get timezone information.
+ * A robust handler for finding the current time in any location worldwide.
+ * It now delegates all location resolution to a dedicated service.
  */
 public class TimezoneQueryHandler implements IntentHandler {
 
-private static final String API_BASE_URL = "https://api.openweathermap.org/data/2.5/weather";
-private final String apiKey;
+private final LocationResolverService locationResolver; // New dependency
+private final Gson gson;
 
-public TimezoneQueryHandler(String apiKey) {
-	this.apiKey = apiKey;
+public TimezoneQueryHandler(LocationResolverService locationResolver) {
+	this.locationResolver = locationResolver;
+	this.gson = new Gson();
 }
 
 @Override
 public String handle(String userInput, ConversationContext context) {
-	if (apiKey == null) {
-		return "I'm sorry, my time service is not configured correctly. I can't fetch timezone data right now.";
-	}
-	
 	String location = EntityExtractor.extractLocation(userInput);
 	
-	if (location != null) {
-		context.setEntity("location", location);
-		return getTimeFromAPI(location);
-	} else {
-		// If no location is found, fall back to a simple time query.
-		return new TimeQueryHandler().handle(userInput, context);
+	if (location == null || location.isEmpty()) {
+		return "I'm sorry, I didn't catch the location. Where would you like to know the time?";
+	}
+	
+	if (location.toLowerCase().startsWith("what") || location.toLowerCase().startsWith("is it") || location.toLowerCase().startsWith("do you")) {
+		context.setPendingIntent("timezone_query");
+		return "I can certainly tell you the time. Which city or country are you interested in?";
+	}
+	
+	try {
+		// The complex if/else logic is now gone, replaced by a single, clean call.
+		JsonObject geoData = locationResolver.resolve(location);
+		
+		double lat = geoData.get("lat").getAsDouble();
+		double lon = geoData.get("lon").getAsDouble();
+		String locationName = geoData.get("name").getAsString() + ", " + geoData.get("country").getAsString();
+		
+		JsonObject timeData = getTimezoneData(lat, lon);
+		String timezoneId = timeData.get("timezone").getAsString();
+		
+		String timeString = timeData.getAsJsonObject("current_weather").get("time").getAsString();
+		LocalDateTime localDateTime = LocalDateTime.parse(timeString);
+		ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneId.of(timezoneId));
+		
+		String formattedTime = zonedDateTime.format(DateTimeFormatter.ofPattern("h:mm a"));
+		
+		context.setEntity("location", locationName);
+		return String.format("The current time in %s is %s.", locationName, formattedTime);
+		
+	} catch (Exception e) {
+		System.err.println("Timezone API Error: " + e.getMessage());
+		if (e.getMessage().contains("Location not found")) {
+			return String.format("I couldn't find a specific city in my database for '%s'. Could you be more specific?", location);
+		}
+		return String.format("I'm sorry, I ran into an issue trying to find the time for '%s'. Please try again.", location);
 	}
 }
 
-private String getTimeFromAPI(String location) {
-	try {
-		// Use modern, explicit charset for encoding
-		String encodedLocation = URLEncoder.encode(location, StandardCharsets.UTF_8);
-		String requestUrl = String.format("%s?q=%s&appid=%s", API_BASE_URL, encodedLocation, apiKey);
-		
-		URL url = new URL(requestUrl);
-		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setRequestMethod("GET");
-		
-		int responseCode = conn.getResponseCode();
-		if (responseCode == 401) {
-			return "I'm sorry, there seems to be an issue with my time service credentials.";
-		} else if (responseCode == 404) {
-			return "I'm sorry, I couldn't find a city named '" + location + "' to get the time for.";
-		} else if (responseCode != 200) {
-			return "I'm sorry, I'm having trouble connecting to the time service right now.";
-		}
-		
-		// Ensure we read the response with the correct UTF-8 encoding
-		StringBuilder response = new StringBuilder();
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				response.append(line);
-			}
-		}
-		conn.disconnect();
-		
-		JSONObject jsonResponse = new JSONObject(response.toString());
-		String cityName = jsonResponse.getString("name");
-		int timezoneOffsetSeconds = jsonResponse.getInt("timezone");
-		
-		ZoneOffset zoneOffset = ZoneOffset.ofTotalSeconds(timezoneOffsetSeconds);
-		ZonedDateTime locationTime = Instant.now().atZone(zoneOffset);
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mm a");
-		
-		return String.format("The current time in %s is %s.", cityName, locationTime.format(formatter));
-		
-	} catch (Exception e) {
-		System.err.println("Timezone API Error for location '" + location + "': " + e.getMessage());
-		return "I ran into an unexpected error trying to get the time for that location.";
+private JsonObject getTimezoneData(double lat, double lon) throws Exception {
+	String url = String.format("https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f&current_weather=true", lat, lon);
+	HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).build();
+	HttpResponse<String> response = SharedHttpClient.get().send(request, HttpResponse.BodyHandlers.ofString());
+	if (response.statusCode() != 200) {
+		throw new RuntimeException("Failed to get timezone data: " + response.body());
 	}
+	return gson.fromJson(response.body(), JsonObject.class);
 }
 }

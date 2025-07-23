@@ -3,6 +3,11 @@ greeting,hello
 greeting,hi there
 greeting,how are you
 greeting,hey xavier
+greeting,hey there
+greeting,wassup
+greeting,what's up
+greeting,sup
+greeting,yo
 
 # --- Goodbyes ---
 goodbye,bye bye
@@ -31,7 +36,6 @@ weather_query,what is the weather in canada
 weather_query,weather for new york
 weather_query,forecast in london
 weather_query,how is the weather in lagos right now
-weather_query,do i need an umbrellq
 
 # --- Timezone Queries (Remote) ---
 timezone_query,what is the time in japan
@@ -57,28 +61,32 @@ follow_up,and in tokyo
 follow_up,what about tomorrow
 follow_up,and the weather
 follow_up,what about the weather there
-
-# --- User Personalization ---
-set_username,my name is david
-set_username,you can call me sarah
-get_username,what is my name
-get_username,do you know my name
+follow_up,tell me more about it
+follow_up,how did he die
+follow_up,where was she born
+follow_up,what was its primary purpose
+follow_up,tell me another one
+follow_up,is it day or night there
 
 # --- Bot Identity ---
 about_bot,who are you
 about_bot,who made you
 about_bot,what are you
 about_bot,what can you do
+about_bot,tell me about yourself
+about_bot,describe yourself
+about_bot,what are your features
 
-# --- General Knowledge (Out of Scope) ---
+# --- General Knowledge ---
 knowledge_query,what is an apple
 knowledge_query,who is the president
 knowledge_query,define gravity
 knowledge_query,what is java
 knowledge_query,where is canada
 knowledge_query,tell me a joke
-knowledge_query,define gravuity
 knowledge_query,what is the capital of france
+knowledge_query,tell me about donald trump
+knowledge_query,who is tinubu
 
 # --- ChitChat ---
 chitchat,good
@@ -86,3 +94,31 @@ chitchat,cool
 chitchat,okay
 chitchat,great
 chitchat,nice
+chitchat,got it
+chitchat,alright
+chitchat,sounds good
+chitchat,that's fine
+
+# --- Gratitude (NEW) ---
+gratitude,thank you
+gratitude,thanks
+gratitude,thanks a lot
+gratitude,much appreciated
+gratitude,i appreciate it
+gratitude,thank you so much
+
+# --- Confirmation (NEW) ---
+confirmation,yes
+confirmation,yep
+confirmation,yeah
+confirmation,correct
+confirmation,that's right
+confirmation,no
+confirmation,nope
+confirmation,that's wrong
+confirmation,incorrect
+
+# --- Correction ---
+correction,i mean canada
+correction,no i meant paris
+correction,i meant to say new york
