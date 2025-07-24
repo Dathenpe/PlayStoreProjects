@@ -39,7 +39,8 @@ public String handle(String userInput, ConversationContext context) {
 	
 	String newSubject = extractNewSubject(userInput);
 	if (newSubject == null) {
-		return "I'm not sure how to follow up on that. Could you please be more specific?";
+		// This handles "tell me another one" where the subject is the action itself.
+		newSubject = userInput;
 	}
 	
 	String newQuery;
@@ -50,6 +51,12 @@ public String handle(String userInput, ConversationContext context) {
 		case "timezone_query":
 			newQuery = "what is the time in " + newSubject;
 			break;
+		case "joke_query":
+			newQuery = "tell me a joke";
+			break;
+		case "fact_query":
+			newQuery = "tell me a fun fact";
+			break; // CRITICAL FIX: Added missing break to prevent fall-through.
 		case "knowledge_query":
 			// For knowledge queries, combine the last subject with the new one.
 			// This allows for "who is obama" -> "where was he born"

@@ -83,38 +83,24 @@ knowledge_query,who is the president
 knowledge_query,define gravity
 knowledge_query,what is java
 knowledge_query,where is canada
-knowledge_query,tell me a joke
 knowledge_query,what is the capital of france
 knowledge_query,tell me about donald trump
 knowledge_query,who is tinubu
 
 # --- ChitChat ---
-chitchat,good
-chitchat,cool
-chitchat,okay
-chitchat,great
-chitchat,nice
 chitchat,got it
-chitchat,alright
 chitchat,sounds good
 chitchat,that's fine
 
 # --- Gratitude (NEW) ---
-gratitude,thank you
-gratitude,thanks
 gratitude,thanks a lot
 gratitude,much appreciated
 gratitude,i appreciate it
 gratitude,thank you so much
 
 # --- Confirmation (NEW) ---
-confirmation,yes
-confirmation,yep
-confirmation,yeah
 confirmation,correct
 confirmation,that's right
-confirmation,no
-confirmation,nope
 confirmation,that's wrong
 confirmation,incorrect
 
@@ -122,3 +108,29 @@ confirmation,incorrect
 correction,i mean canada
 correction,no i meant paris
 correction,i meant to say new york
+
+# --- Dictionary Queries (NEW) ---
+dictionary_query,what is the meaning of elephant
+dictionary_query,define the word ubiquitous
+dictionary_query,define serendipity
+dictionary_query,can you define paradox
+dictionary_query,what does ephemeral mean
+dictionary_query,meaning of philosophy
+
+# --- Joke Queries (NEW) ---
+joke_query,tell me a joke
+joke_query,can you tell a joke
+joke_query,i want to hear a joke
+joke_query,tell me another one
+joke_query,joke
+joke_query,tell me 5 jokes
+joke_query,give me 10 jokes
+
+# --- Fun Fact Queries (NEW) ---
+fact_query,tell me a fun fact
+fact_query,give me a random fact
+fact_query,do you know any interesting facts
+fact_query,fun fact
+fact_query,tell me something interesting
+fact_query,i want to learn something new
+fact_query,fact of the day

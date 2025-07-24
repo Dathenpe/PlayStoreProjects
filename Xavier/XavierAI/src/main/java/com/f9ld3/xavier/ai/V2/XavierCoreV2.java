@@ -2,7 +2,10 @@ package com.f9ld3.xavier.ai.V2;
 
 import com.f9ld3.xavier.ai.V2.handlers.*;
 import com.f9ld3.xavier.ai.V2.handlers.PatternHandler.IntentMatch;
+import com.f9ld3.xavier.ai.V2.services.DictionaryService;
+import com.f9ld3.xavier.ai.V2.services.FunFactService;
 import com.f9ld3.xavier.ai.V2.services.GeocodingService;
+import com.f9ld3.xavier.ai.V2.services.JokeService;
 import com.f9ld3.xavier.ai.V2.services.LocationResolverService;
 
 import java.io.IOException;
@@ -154,7 +157,8 @@ public String getResponse(String userInput, ConversationContext context) {
 	// --- Context Management ---
 	if (!"follow_up".equals(predictedIntent) && !"correction".equals(predictedIntent)) {
 		context.setLastIntent(predictedIntent);
-		if ("knowledge_query".equals(predictedIntent)) {
+		// IMPROVEMENT: Added 'fact_query' to better remember the context for follow-ups.
+		if ("knowledge_query".equals(predictedIntent) || "dictionary_query".equals(predictedIntent) || "fact_query".equals(predictedIntent)) {
 			context.setLastSubject(userInput);
 		}
 	}
@@ -227,6 +231,19 @@ private void registerHandlers() {
 		intentHandlers.put("timezone_query", unavailableHandler);
 	}
 	
+	// --- Group 4: Other API-based handlers ---
+	// Create the DictionaryService and register its handler
+	DictionaryService dictionaryService = new DictionaryService();
+	intentHandlers.put("dictionary_query", new DictionaryHandler(dictionaryService));
+	
+	// Create the JokeService and register its handler
+	JokeService jokeService = new JokeService();
+	intentHandlers.put("joke_query", new JokeHandler(jokeService));
+	
+	// Create the FunFactService and register its handler
+	FunFactService funFactService = new FunFactService();
+	intentHandlers.put("fact_query", new FunFactHandler(funFactService));
+	
 	intentHandlers.put("knowledge_query", new KnowledgeQueryHandler(this.wolframAlphaClient));
 }
 
@@ -258,6 +275,26 @@ private void registerDirectMatches() {
 	directMatches.put("sup", "greeting");
 	directMatches.put("wassup", "greeting");
 	directMatches.put("what's up", "greeting");
+	
+	// ChitChat & Acknowledgements
+	directMatches.put("ok", "chitchat");
+	directMatches.put("okay", "chitchat");
+	directMatches.put("cool", "chitchat");
+	directMatches.put("nice", "chitchat");
+	directMatches.put("great", "chitchat");
+	directMatches.put("good", "chitchat");
+	directMatches.put("alright", "chitchat");
+	
+	// Gratitude
+	directMatches.put("thanks", "gratitude");
+	directMatches.put("thank you", "gratitude");
+	
+	// Confirmation
+	directMatches.put("yes", "confirmation");
+	directMatches.put("yep", "confirmation");
+	directMatches.put("yeah", "confirmation");
+	directMatches.put("no", "confirmation");
+	directMatches.put("nope", "confirmation");
 }
 
 public void train(String resourceFileName) {
