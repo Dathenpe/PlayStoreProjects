@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp"
+    android:background="@drawable/widget_background_m3">
+
+    <Button
+        android:id="@+id/new_journal_entry_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Journal Entry"
+        android:drawableStart="@drawable/outline_add_circle_24"
+        android:drawablePadding="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/button_orange_rounded"
+    android:textColor="@android:color/black" /> <!-- Hardcoded Android Black for text -->
+    <!-- Remove android:backgroundTint and app:cornerRadius as they are handled by the background drawable -->
+
+</LinearLayout>

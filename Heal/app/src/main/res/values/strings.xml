@@ -99,4 +99,70 @@
     <!-- Mood Chart Card -->
     <string name="mood_over_time_title">Mood Over Time</string>
     <string name="article_person">Article Person</string>
+
+        <string-array name="motivational_quotes">
+            <!-- Acknowledging Pain & Validating Feelings -->
+            <item>"It's okay to not be okay. Your feelings are valid, even the difficult ones."</item>
+            <item>"Healing doesn't mean the damage never existed. It means the damage no longer controls your life."</item>
+            <item>"The pain you feel today is the strength you feel tomorrow. For every challenge encountered, there is opportunity for growth."</item>
+            <item>"You are not weak for feeling hurt. You are human."</item>
+            <item>"Sometimes, the most courageous thing you can do is simply show up for another day."</item>
+            <item>"Grief is like the ocean; it comes in waves, ebbing and flowing. Sometimes the water is calm, and sometimes it is overwhelming. All we can do is learn to swim."</item>
+            <item>"Even the darkest night will end and the sun will rise."</item>
+            <item>"Your current situation is not your final destination."</item>
+            <item>"It's okay to feel lost sometimes. Even the strongest GPS needs to recalculate."</item>
+            <item>"Tears are words the heart can't express."</item>
+
+            <!-- Hope & Resilience -->
+            <item>"Hope is being able to see that there is light despite all of the darkness."</item>
+            <item>"You are braver than you believe, stronger than you seem, and smarter than you think."</item>
+            <item>"The human spirit is stronger than anything that can happen to it."</item>
+            <item>"Even in the deepest valleys, a single star can show the way."</item>
+            <item>"Recovery is not one and done. It's a lifelong journey that takes place one day, one step at a time."</item>
+            <item>"Though nobody can go back and make a new beginning, anyone can start over and make a new ending."</item>
+            <item>"The wound is the place where the Light enters you."</item>
+            <item>"Every day may not be good, but there is something good in every day. Look for it."</item>
+            <item>"Just when the caterpillar thought the world was over, it became a butterfly."</item>
+            <item>"You've survived 100% of your worst days. You're doing great."</item>
+
+            <!-- Self-Compassion & Self-Care -->
+            <item>"Be gentle with yourself. You're doing the best you can."</item>
+            <item>"Talk to yourself like you would to someone you love."</item>
+            <item>"Rest is not a luxury, it's a necessity for healing."</item>
+            <item>"You are worthy of love and kindness, especially from yourself."</item>
+            <item>"Nourish yourself with kindness, patience, and understanding."</item>
+            <item>"Taking care of yourself doesn't mean 'me first,' it means 'me too.'"</item>
+            <item>"The most important relationship you will ever have is the one with yourself."</item>
+            <item>"Allow yourself to heal. It takes time."</item>
+            <item>"You don't have to earn your rest. You deserve it."</item>
+            <item>"Forgive yourself for not knowing what you didn't know before you learned it."</item>
+
+            <!-- Seeking Help & Connection -->
+            <item>"You don't have to go through this alone. Reach out."</item>
+            <item>"Asking for help is a sign of strength, not weakness."</item>
+            <item>"Connection is the opposite of addiction and despair."</item>
+            <item>"There are people who care about you and want to help you through this."</item>
+            <item>"A burden shared is a burden halved. Talk to someone."</item>
+            <item>"It's okay to lean on others when you need support."</item>
+            <item>"Find your tribe. Love them hard."</item>
+            <item>"Sometimes, the bravest thing you can do is ask for help."</item>
+            <item>"Your voice matters, and your story deserves to be heard."</item>
+            <item>"Help is available. You are not a burden for seeking it."</item>
+
+            <!-- Encouragement & Moving Forward (Gently) -->
+            <item>"One small step forward is still a step."</item>
+            <item>"Focus on progress, not perfection."</item>
+            <item>"The future holds possibilities you can't yet imagine."</item>
+            <item>"This too shall pass. Hold on."</item>
+            <item>"You are capable of amazing things, even when it doesn't feel like it."</item>
+            <item>"Let your hope, not your hurt, shape your future."</item>
+            <item>"Keep putting one foot in front of the other. That's all you have to do right now."</item>
+            <item>"The journey of a thousand miles begins with a single step."</item>
+            <item>"You are not defined by your scars, but by your strength in overcoming them."</item>
+            <item>"There is life beyond this pain. Believe in it."</item>
+        </string-array>
+
+    <string name="motivational_widget_description">Displays a daily motivational quote to inspire you.</string>
+    <string name="new_journal_entry_widget_description">Quickly add a new journal entry from your home screen.</string>
+
 </resources>

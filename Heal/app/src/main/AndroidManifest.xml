@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.f9ld3.heal"> <!-- This is correct as per your build.gradle -->
+    package="com.f9ld3.heal">
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -11,9 +11,11 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32"
         tools:ignore="ScopedStorage" />
 
@@ -26,147 +28,162 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/ic_launcher_heal"
-    android:label="@string/app_name"
-    android:roundIcon="@drawable/ic_launcher_heal"
-    android:supportsRtl="true"
-    android:theme="@style/Base.Theme.Heal"
-    tools:targetApi="31">
-
-    <!-- The main activity no longer has the LAUNCHER category.
-         Its purpose is to be the target for the aliases. -->
-    <activity
-        android:name=".MainActivity"
-        android:exported="true"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/ic_launcher_heal"
+        android:supportsRtl="true"
         android:theme="@style/Base.Theme.Heal"
-        android:enabled="true">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <!-- The LAUNCHER category is now only on the aliases -->
-        </intent-filter>
-    </activity>
+        tools:targetApi="31">
 
-    <!-- Activity Alias for Default Heal Theme Icon -->
-    <activity-alias
-        android:name="com.f9ld3.heal.MainActivityAliasHeal"
-    android:enabled="true"
-    android:exported="true"
-    android:icon="@drawable/ic_launcher_heal"
-    android:roundIcon="@drawable/ic_launcher_heal"
-    android:targetActivity=".MainActivity">
-    <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-    </intent-filter>
-</activity-alias>
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Base.Theme.Heal"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
 
-    <!-- Activity Alias for Pink Theme Icon -->
-<activity-alias
-android:name="com.f9ld3.heal.MainActivityAliasPink"
-    android:enabled="false"
-    android:exported="true"
-    android:icon="@drawable/ic_launcher_pink"
-    android:roundIcon="@drawable/ic_launcher_pink"
-    android:targetActivity=".MainActivity">
-<intent-filter>
-<action android:name="android.intent.action.MAIN" />
-<category android:name="android.intent.category.LAUNCHER" />
-</intent-filter>
-    </activity-alias>
+        <activity-alias
+            android:name="com.f9ld3.heal.MainActivityAliasHeal"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher_heal"
+            android:roundIcon="@drawable/ic_launcher_heal"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
-    <!-- Activity Alias for Blue Theme Icon -->
-<activity-alias
-android:name="com.f9ld3.heal.MainActivityAliasBlue"
-    android:enabled="false"
-    android:exported="true"
-    android:icon="@drawable/ic_launcher_blue"
-    android:roundIcon="@drawable/ic_launcher_blue"
-    android:targetActivity=".MainActivity">
-<intent-filter>
-<action android:name="android.intent.action.MAIN" />
-<category android:name="android.intent.category.LAUNCHER" />
-</intent-filter>
-    </activity-alias>
+        <activity-alias
+            android:name="com.f9ld3.heal.MainActivityAliasPink"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher_pink"
+            android:roundIcon="@drawable/ic_launcher_pink"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
-    <!-- Activity Alias for Green Theme Icon -->
-<activity-alias
-android:name="com.f9ld3.heal.MainActivityAliasGreen"
-    android:enabled="false"
-    android:exported="true"
-    android:icon="@drawable/ic_launcher_green"
-    android:roundIcon="@drawable/ic_launcher_green"
-    android:targetActivity=".MainActivity">
-<intent-filter>
-<action android:name="android.intent.action.MAIN" />
-<category android:name="android.intent.category.LAUNCHER" />
-</intent-filter>
-    </activity-alias>
+        <activity-alias
+            android:name="com.f9ld3.heal.MainActivityAliasBlue"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher_blue"
+            android:roundIcon="@drawable/ic_launcher_blue"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
-    <!-- Activity Alias for Purple Theme Icon -->
-<activity-alias
-android:name="com.f9ld3.heal.MainActivityAliasPurple"
-    android:enabled="false"
-    android:exported="true"
-    android:icon="@drawable/ic_launcher_purple"
-    android:roundIcon="@drawable/ic_launcher_purple"
-    android:targetActivity=".MainActivity">
-<intent-filter>
-<action android:name="android.intent.action.MAIN" />
-<category android:name="android.intent.category.LAUNCHER" />
-</intent-filter>
-    </activity-alias>
+        <activity-alias
+            android:name="com.f9ld3.heal.MainActivityAliasGreen"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher_green"
+            android:roundIcon="@drawable/ic_launcher_green"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
-    <!-- Activity Alias for Orange Theme Icon -->
-<activity-alias
-android:name="com.f9ld3.heal.MainActivityAliasOrange"
-    android:enabled="false"
-    android:exported="true"
-    android:icon="@drawable/ic_launcher_orange"
-    android:roundIcon="@drawable/ic_launcher_orange"
-    android:targetActivity=".MainActivity">
-<intent-filter>
-<action android:name="android.intent.action.MAIN" />
-<category android:name="android.intent.category.LAUNCHER" />
-</intent-filter>
-    </activity-alias>
+        <activity-alias
+            android:name="com.f9ld3.heal.MainActivityAliasPurple"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher_purple"
+            android:roundIcon="@drawable/ic_launcher_purple"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
-    <!-- Activity Alias for Teal Theme Icon -->
-<activity-alias
-android:name="com.f9ld3.heal.MainActivityAliasTeal"
-    android:enabled="false"
-    android:exported="true"
-    android:icon="@drawable/ic_launcher_teal"
-    android:roundIcon="@drawable/ic_launcher_teal"
-    android:targetActivity=".MainActivity">
-<intent-filter>
-<action android:name="android.intent.action.MAIN" />
-<category android:name="android.intent.category.LAUNCHER" />
-</intent-filter>
-    </activity-alias>
+        <activity-alias
+            android:name="com.f9ld3.heal.MainActivityAliasOrange"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher_orange"
+            android:roundIcon="@drawable/ic_launcher_orange"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
-    <!-- Activity Alias for Brown Theme Icon -->
-<activity-alias
-android:name="com.f9ld3.heal.MainActivityAliasBrown"
-    android:enabled="false"
-    android:exported="true"
-    android:icon="@drawable/ic_launcher_brown"
-    android:roundIcon="@drawable/ic_launcher_brown"
-    android:targetActivity=".MainActivity">
-<intent-filter>
-<action android:name="android.intent.action.MAIN" />
-<category android:name="android.intent.category.LAUNCHER" />
-</intent-filter>
-    </activity-alias>
+        <activity-alias
+            android:name="com.f9ld3.heal.MainActivityAliasTeal"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher_teal"
+            android:roundIcon="@drawable/ic_launcher_teal"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
-<receiver
-android:name="ui.ReminderBroadcastReceiver"
-android:enabled="true"
-android:exported="true">
-<intent-filter>
-    <action android:name="android.intent.action.BOOT_COMPLETED" />
-    <action android:name="android.intent.action.QUICKBOOT_POWERON" />
-</intent-filter>
-</receiver>
+        <activity-alias
+            android:name="com.f9ld3.heal.MainActivityAliasBrown"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher_brown"
+            android:roundIcon="@drawable/ic_launcher_brown"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <receiver
+            android:name="ui.ReminderBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".activities.NewJournalEntryActivity" />
+
+        <receiver
+            android:name=".widgets.NewJournalEntryWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/new_journal_entry_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widgets.MotivationalWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/motivational_widget_info" />
+        </receiver>
 
     </application>
 
-    </manifest>
+</manifest>
