@@ -172,73 +172,74 @@
         android:clickable="true"
         android:focusable="true"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:elevation="10dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    tools:visibility="gone">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/paused_card"
+        style="@style/Widget.Material3.CardView.Elevated"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        app:cardBackgroundColor="?attr/colorPrimaryContainer"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp">
+
+        <TextView
+            android:id="@+id/pause_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingHorizontal="48dp"
+            android:paddingVertical="32dp"
+            android:text="PAUSED\n(Tap to Resume)"
+            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+            android:textColor="@color/white" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/game_over_card"
+        style="@style/Widget.Material3.CardView.Elevated"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        app:cardBackgroundColor="?attr/colorErrorContainer"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
         tools:visibility="gone">
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/paused_card"
-            style="@style/Widget.Material3.CardView.Elevated"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone"
-            app:cardBackgroundColor="?attr/colorPrimaryContainer"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="8dp">
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="24dp">
 
             <TextView
-                android:id="@+id/pause_text"
+                android:id="@+id/game_over_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingHorizontal="48dp"
-                android:paddingVertical="32dp"
-                android:text="PAUSED\n(Tap to Resume)"
-                android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                android:textColor="@color/white" />
-        </com.google.android.material.card.MaterialCardView>
+                android:layout_marginBottom="16dp"
+                android:text="GAME OVER!"
+                android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                android:textColor="?attr/colorOnErrorContainer" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/game_over_card"
-            style="@style/Widget.Material3.CardView.Elevated"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone"
-            app:cardBackgroundColor="?attr/colorErrorContainer"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="8dp"
-            tools:visibility="gone">
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_restart_game_over"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="24dp">
+                android:text="Restart Game"
+                app:icon="@drawable/ic_refresh"
+                app:iconTint="?attr/colorOnSecondaryContainer" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>
 
-                <TextView
-                    android:id="@+id/game_over_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:text="GAME OVER!"
-                    android:textAppearance="?attr/textAppearanceHeadlineMedium"
-                    android:textColor="?attr/colorOnErrorContainer" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/button_restart_game_over"
-                    style="@style/Widget.Material3.Button.TonalButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Restart Game"
-                    app:icon="@drawable/ic_refresh"
-                    app:iconTint="?attr/colorOnSecondaryContainer" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-    </FrameLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>

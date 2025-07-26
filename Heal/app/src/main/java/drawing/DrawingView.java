@@ -239,18 +239,17 @@ public class DrawingView extends View {
     }
 
     public Bitmap getBitmap() {
-        // If canvasBitmap has not been created yet (e.g., view not sized), create a blank one.
-        if (canvasBitmap == null) {
-            int width = getWidth() > 0 ? getWidth() : 1;
-            int height = getHeight() > 0 ? getHeight() : 1;
-            Bitmap blankBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-            Canvas blankCanvas = new Canvas(blankBitmap);
-            blankCanvas.drawColor(Color.WHITE);
-            return blankBitmap;
+        // Create a new bitmap with a solid white background
+        Bitmap finalBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas finalCanvas = new Canvas(finalBitmap);
+        finalCanvas.drawColor(Color.WHITE);
+
+        // Draw the current canvasBitmap (which includes the base image and all paths) onto the new white background
+        if (canvasBitmap != null) {
+            finalCanvas.drawBitmap(canvasBitmap, 0, 0, null);
         }
-        // The canvasBitmap holds the current state of the drawing (including any loaded images).
-        // Return a copy so external modifications don't affect the view's internal bitmap.
-        return canvasBitmap.copy(Bitmap.Config.ARGB_8888, false); // Use ARGB_8844 for better quality
+
+        return finalBitmap;
     }
 
     /**

@@ -251,177 +251,162 @@ android:contentDescription="Show High Scores" />
 </LinearLayout>
 
     <!-- Overlay for Paused/Game Over states -->
-<FrameLayout
-android:id="@+id/overlay_container"
-android:layout_width="0dp"
-android:layout_height="0dp"
-android:background="#A6000000"
-    android:clickable="true"
-    android:focusable="true"
-    android:visibility="gone"
-    android:elevation="10dp"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@id/info_card"
-    tools:visibility="gone">
+    <FrameLayout
+        android:id="@+id/overlay_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#A6000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        android:elevation="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"  tools:visibility="gone">
 
-<com.google.android.material.card.MaterialCardView
-android:id="@+id/paused_card"
-style="@style/Widget.Material3.CardView.Elevated"
-android:layout_width="wrap_content"
-android:layout_height="wrap_content"
-android:layout_gravity="center"
-android:visibility="gone"
-app:cardBackgroundColor="?attr/colorPrimaryContainer"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="8dp">
-
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:gravity="center"
-android:orientation="vertical"
-android:padding="24dp">
-
-<TextView
-    android:id="@+id/pause_text"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp"
-    android:gravity="center"
-    android:text="PAUSED"
-    android:textAppearance="?attr/textAppearanceHeadlineSmall"
-    android:textColor="@color/white" /> <!-- VERIFY: Theme attributes exist -->
-
-<com.google.android.material.button.MaterialButton
-    android:id="@+id/button_resume_game"
-    style="@style/Widget.Material3.Button.TonalButton"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    android:text="Resume Game"
-    android:textColor="?attr/colorPrimary"
-    app:icon="@drawable/ic_play_arrow_white_24dp"
-app:iconTint="?attr/colorPrimary" /> <!-- VERIFY: Theme attribute exists -->
-
-<com.google.android.material.button.MaterialButton
-    android:id="@+id/button_restart_game_paused"
-    style="@style/Widget.Material3.Button.TonalButton"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    android:text="Restart Game"
-    android:textColor="?attr/colorPrimary"
-    app:icon="@drawable/ic_refresh"
-app:iconTint="?attr/colorPrimary" /> <!-- VERIFY: Theme attribute exists -->
-
-<com.google.android.material.button.MaterialButton
-    android:id="@+id/button_info_game"
-    style="@style/Widget.Material3.Button.TonalButton"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    android:text="Game Info"
-    app:icon="@drawable/ic_info"
-    android:textColor="?attr/colorPrimary"
-app:iconTint="?attr/colorPrimary" /> <!-- VERIFY: Theme attribute exists -->
-
-<com.google.android.material.button.MaterialButton
-    android:id="@+id/button_save_and_quit"
-    style="@style/Widget.Material3.Button.TonalButton"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Save and Quit"
-    app:icon="@drawable/ic_save"
-    android:textColor="?attr/colorPrimary"
-app:iconTint="?attr/colorPrimary" /> <!-- VERIFY: Theme attribute exists -->
-</LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-<com.google.android.material.card.MaterialCardView
-android:id="@+id/game_over_card"
-style="@style/Widget.Material3.CardView.Elevated"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:layout_gravity="center"
-android:layout_marginHorizontal="16dp"
-android:visibility="gone"
-app:cardBackgroundColor="?attr/colorErrorContainer"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="8dp"
-    tools:visibility="gone">
-
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:gravity="center"
-android:orientation="vertical"
-android:padding="24dp">
-
-<TextView
-    android:id="@+id/game_over_title"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp"
-    android:text="GAME OVER!"
-    android:textAppearance="?attr/textAppearanceHeadlineMedium"
-    android:textColor="?attr/colorOnErrorContainer" /> <!-- VERIFY: Theme attributes exist -->
-
-<TextView
-    android:id="@+id/summary_score_text_view"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    android:text="Final Score: 0"
-    android:textAppearance="?attr/textAppearanceTitleMedium"
-    android:textColor="?attr/colorOnErrorContainer" /> <!-- VERIFY: Theme attributes exist -->
-
-<FrameLayout
-    android:layout_width="match_parent"
-    android:layout_height="180dp"
-    android:layout_marginBottom="16dp">
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/paused_card"
+            style="@style/Widget.Material3.CardView.Elevated"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_gravity="center"
+            android:visibility="gone"
+            app:cardBackgroundColor="?attr/colorPrimaryContainer"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp">
 
-            <TextView
-                android:id="@+id/correct_words_summary_text_view"
+            <LinearLayout
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:id="@+id/pause_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center"
+                    android:text="PAUSED"
+                    android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                    android:textColor="@color/white" /> <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_resume_game"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="Correct Words: None"
-                android:textAppearance="?attr/textAppearanceBodyLarge"
-                android:textColor="?attr/colorOnErrorContainer"
-            android:gravity="start" />
+                android:text="Resume Game"
+                android:textColor="?attr/colorPrimary"
+                app:icon="@drawable/ic_play_arrow_white_24dp"
+                app:iconTint="?attr/colorPrimary" /> <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_restart_game_paused"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Restart Game"
+                android:textColor="?attr/colorPrimary"
+                app:icon="@drawable/ic_refresh"
+                app:iconTint="?attr/colorPrimary" /> <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_info_game"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Game Info"
+                android:textColor="?attr/colorPrimary"
+                app:icon="@drawable/ic_info"
+                app:iconTint="?attr/colorPrimary" /> <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_save_and_quit"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Save and Quit"
+                android:textColor="?attr/colorPrimary"
+                app:icon="@drawable/ic_save"
+                app:iconTint="?attr/colorPrimary" /> </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:id="@+id/missed_words_summary_text_view"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/game_over_card"
+            style="@style/Widget.Material3.CardView.Elevated"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="16dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="?attr/colorErrorContainer"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp"
+            tools:visibility="gone">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Missed Words: None"
-                android:textAppearance="?attr/textAppearanceBodyLarge"
-                android:textColor="?attr/colorOnErrorContainer"
-            android:gravity="start" />
-        </LinearLayout>
-    </ScrollView>
-</FrameLayout>
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="24dp">
 
-<com.google.android.material.button.MaterialButton
-    android:id="@+id/button_restart_game_over"
-    style="@style/Widget.Material3.Button.TonalButton"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Restart Game"
-    app:icon="@drawable/ic_refresh"
-app:iconTint="?attr/colorOnSecondaryContainer" /> <!-- VERIFY: Theme attribute exists -->
-</LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+                <TextView
+                    android:id="@+id/game_over_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="GAME OVER!"
+                    android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                    android:textColor="?attr/colorOnErrorContainer" /> <TextView
+                android:id="@+id/summary_score_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Final Score: 0"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="?attr/colorOnErrorContainer" /> <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginBottom="16dp">
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/correct_words_summary_text_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:gravity="start"
+                            android:text="Correct Words: None"
+                            android:textAppearance="?attr/textAppearanceBodyLarge"
+                            android:textColor="?attr/colorOnErrorContainer" />
+
+                        <TextView
+                            android:id="@+id/missed_words_summary_text_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="start"
+                            android:text="Missed Words: None"
+                            android:textAppearance="?attr/textAppearanceBodyLarge"
+                            android:textColor="?attr/colorOnErrorContainer" />
+                    </LinearLayout>
+                </ScrollView>
+            </FrameLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_restart_game_over"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Restart Game"
+                    app:icon="@drawable/ic_refresh"
+                    app:iconTint="?attr/colorOnSecondaryContainer" /> </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -780,7 +780,7 @@ public class WordScrambleGameFragment extends Fragment {
         if (guess.equals(currentWord)) {
             score += 10; // Award points for correct guess
             correctWordsList.add(currentWord); // Add to correct words list
-            Toast.makeText(getContext(), "Correct! Well well!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Correct! Well Done!", Toast.LENGTH_SHORT).show();
             animateFeedback(true); // Animate for correct guess
             shakeLettersContainer(); // Shake the container on correct guess
             timerHandler.postDelayed(() -> {
