@@ -1,8 +1,12 @@
 package com.f9ld3.xavier.ai.V2.services;
 
 import com.f9ld3.xavier.ai.V2.FuzzyMatcher;
+import com.f9ld3.xavier.ai.V2.FuzzyMatcher.MatchResult;
 import com.f9ld3.xavier.ai.V2.utils.LocationCache;
 import com.google.gson.JsonObject;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -13,9 +17,18 @@ import java.util.Optional;
 public class LocationResolverService {
 
 private final GeocodingService geocodingService;
+private final FuzzyMatcher locationFuzzyMatcher; // A dedicated matcher for locations
 
 public LocationResolverService(GeocodingService geocodingService) {
 	this.geocodingService = geocodingService;
+	
+	// Initialize and train a dedicated fuzzy matcher just for the location cache.
+	this.locationFuzzyMatcher = new FuzzyMatcher();
+	List<String> locationKeys = new ArrayList<>(LocationCache.getAllKeys());
+	// The intents list is required for training, but we don't use it here.
+	List<String> dummyIntents = new ArrayList<>();
+	locationKeys.forEach(key -> dummyIntents.add("location"));
+	this.locationFuzzyMatcher.train(locationKeys, dummyIntents);
 }
 
 /**
@@ -34,13 +47,14 @@ public JsonObject resolve(String location) throws Exception {
 		return cachedGeoData.get();
 	}
 	
-	// 2. If no exact match, check for a fuzzy match against the cache keys.
-	// We wrap the potentially null result in an Optional to handle it safely.
-	Optional<String> bestMatch = Optional.ofNullable(FuzzyMatcher.getBestMatch(location, LocationCache.getAllKeys()));
-	if (bestMatch.isPresent()) {
-		System.out.printf("[DEBUG] LocationResolver: Fuzzy cache hit for '%s' -> '%s'.%n", location, bestMatch.get());
-		// .get() is safe here because we've already checked isPresent()
-		return LocationCache.get(bestMatch.get()).get();
+	// 2. If no exact match, use our dedicated fuzzy matcher against the cache keys.
+	// We use a slightly lower threshold here to be more lenient with location names.
+	Optional<MatchResult> bestMatchResult = locationFuzzyMatcher.findBestMatch(location, 0.70);
+	if (bestMatchResult.isPresent()) {
+		String bestMatch = bestMatchResult.get().matchedPhrase();
+		System.out.printf("[DEBUG] LocationResolver: Fuzzy cache hit for '%s' -> '%s'.%n", location, bestMatch);
+		// .get() is safe here because we know the key exists from the match.
+		return LocationCache.get(bestMatch).get();
 	}
 	
 	// 3. If not in cache by any means, use the GeocodingService API as a fallback.

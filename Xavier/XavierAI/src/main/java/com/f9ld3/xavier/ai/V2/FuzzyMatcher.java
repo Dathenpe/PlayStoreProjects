@@ -1,52 +1,117 @@
 package com.f9ld3.xavier.ai.V2;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
- * A utility to find the best approximate match for a string from a set of candidates.
- * Uses the Levenshtein distance algorithm to provide typo tolerance.
+ * A sophisticated fuzzy string matcher that finds the most likely intent
+ * for a given input, even with typos. It is trained on the AI's full
+ * dataset to provide a robust "best guess" capability.
  */
-public final class FuzzyMatcher {
+public class FuzzyMatcher {
 
-// Increase the threshold to 2 to allow for more forgiving typo correction.
-private static final int MAX_DISTANCE_THRESHOLD = 2;
+// A record to cleanly store the result of a fuzzy match.
+public record MatchResult(String matchedPhrase, String intent, double confidenceScore) {}
 
-private FuzzyMatcher() {}
+private final List<String> phrases = new ArrayList<>();
+private final Map<String, String> phraseToIntentMap = new HashMap<>();
 
 /**
- * Finds the best fuzzy match for an input string from a set of known phrases.
+ * NEW STATIC UTILITY METHOD: Finds the best match for an input from a given
+ * list of candidates. Ideal for one-off checks like matching against direct commands.
  *
  * @param input The user's input string.
- * @param candidates A set of known phrases to match against.
- * @return The best matching phrase from the candidates, or null if no close match is found.
+ * @param candidates An iterable of strings to match against.
+ * @param similarityThreshold The minimum similarity score for a match to be considered valid.
+ * @return An Optional containing the best-matching candidate string.
  */
-public static String getBestMatch(String input, Set<String> candidates) {
+public static Optional<String> findBestCandidate(String input, Iterable<String> candidates, double similarityThreshold) {
 	String bestMatch = null;
-	int minDistance = Integer.MAX_VALUE;
+	int lowestDistance = Integer.MAX_VALUE;
 	
 	for (String candidate : candidates) {
 		int distance = calculateLevenshteinDistance(input, candidate);
-		if (distance < minDistance) {
-			minDistance = distance;
+		if (distance < lowestDistance) {
+			lowestDistance = distance;
 			bestMatch = candidate;
 		}
 	}
 	
-	// Only return the match if it's within our acceptable typo threshold.
-	if (minDistance <= MAX_DISTANCE_THRESHOLD) {
-		return bestMatch;
+	if (bestMatch == null) {
+		return Optional.empty();
 	}
 	
-	return null;
+	double similarity = 1.0 - ((double) lowestDistance / Math.max(input.length(), bestMatch.length()));
+	
+	if (similarity >= similarityThreshold) {
+		return Optional.of(bestMatch);
+	}
+	
+	return Optional.empty();
 }
 
 /**
- * Calculates the Levenshtein distance between two strings.
- * This is the number of edits (insertions, deletions, substitutions) to change s1 to s2.
+ * Trains the fuzzy matcher by loading it with all known phrases and their intents.
+ * @param phrases A list of all raw training phrases.
+ * @param intents The corresponding list of intents for each phrase.
+ */
+public void train(List<String> phrases, List<String> intents) {
+	if (phrases.size() != intents.size()) {
+		throw new IllegalArgumentException("Phrases and intents lists must be the same size.");
+	}
+	this.phrases.addAll(phrases);
+	for (int i = 0; i < phrases.size(); i++) {
+		this.phraseToIntentMap.put(phrases.get(i), intents.get(i));
+	}
+}
+
+/**
+ * Finds the best match for the input string from the trained phrases.
+ * @param input The user's input string.
+ * @param similarityThreshold A value between 0.0 and 1.0. A match is only returned if
+ *                            its similarity score is above this threshold.
+ * @return An Optional containing the MatchResult if a suitable match is found.
+ */
+public Optional<MatchResult> findBestMatch(String input, double similarityThreshold) {
+	if (phrases.isEmpty()) {
+		return Optional.empty();
+	}
+	
+	String bestMatch = null;
+	int lowestDistance = Integer.MAX_VALUE;
+	
+	for (String phrase : phrases) {
+		int distance = calculateLevenshteinDistance(input, phrase);
+		if (distance < lowestDistance) {
+			lowestDistance = distance;
+			bestMatch = phrase;
+		}
+	}
+	
+	if (bestMatch == null) {
+		return Optional.empty();
+	}
+	
+	double similarity = 1.0 - ((double) lowestDistance / Math.max(input.length(), bestMatch.length()));
+	
+	if (similarity >= similarityThreshold) {
+		String intent = phraseToIntentMap.get(bestMatch);
+		return Optional.of(new MatchResult(bestMatch, intent, similarity));
+	}
+	
+	return Optional.empty();
+}
+
+/**
+ * Calculates the Levenshtein distance between two strings, which is a measure of their difference.
  */
 private static int calculateLevenshteinDistance(String s1, String s2) {
 	s1 = s1.toLowerCase();
 	s2 = s2.toLowerCase();
+	
 	int[] costs = new int[s2.length() + 1];
 	for (int i = 0; i <= s1.length(); i++) {
 		int lastValue = i;
@@ -70,4 +135,5 @@ private static int calculateLevenshteinDistance(String s1, String s2) {
 	}
 	return costs[s2.length()];
 }
+
 }

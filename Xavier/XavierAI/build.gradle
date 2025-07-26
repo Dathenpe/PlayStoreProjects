@@ -23,6 +23,7 @@ dependencies {
     implementation 'nz.ac.waikato.cms.weka:weka-stable:3.8.6'
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    implementation 'net.objecthunter:exp4j:0.4.8'
 }
 
 test {

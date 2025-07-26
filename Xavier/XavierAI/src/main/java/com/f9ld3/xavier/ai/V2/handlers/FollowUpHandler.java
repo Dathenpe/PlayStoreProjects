@@ -5,6 +5,8 @@ import com.f9ld3.xavier.ai.V2.XavierCoreV2;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.f9ld3.xavier.ai.V2.XavierCoreV2.DEBUG_MODE;
+
 /**
  * Handles conversational follow-up questions by using the context of the last
  * command to construct and execute a new, more specific query.
@@ -56,16 +58,26 @@ public String handle(String userInput, ConversationContext context) {
 			break;
 		case "fact_query":
 			newQuery = "tell me a fun fact";
-			break; // CRITICAL FIX: Added missing break to prevent fall-through.
+			break;
 		case "knowledge_query":
-			// For knowledge queries, combine the last subject with the new one.
-			// This allows for "who is obama" -> "where was he born"
+			// For knowledge queries, intelligently combine the last subject with the new one.
 			if (lastSubject != null) {
-				// A simple heuristic to see if the follow-up is a question.
+				// Heuristic 1: The follow-up is a full question about the last subject.
+				// e.g., "who is obama" -> "where was he born" -> "where was he born who is obama"
 				if (newSubject.matches("^(who|what|where|when|why|how|is|are|was|were|do|does|did).*")) {
 					newQuery = newSubject + " " + lastSubject;
 				} else {
-					newQuery = newSubject;
+					// Heuristic 2: The follow-up replaces a descriptor.
+					// e.g., "tallest building" -> "how about the shortest" -> "shortest building"
+					// This splits the last subject and replaces the first word (often an adjective).
+					String[] lastSubjectParts = lastSubject.split("\\s+", 2);
+					if (lastSubjectParts.length > 1) {
+						// Reconstructs "shortest" + " " + "building in the world"
+						newQuery = newSubject + " " + lastSubjectParts[1];
+					} else {
+						// Fallback if the last subject was just one word or the heuristic fails.
+						newQuery = newSubject;
+					}
 				}
 			} else {
 				newQuery = newSubject;
@@ -75,7 +87,7 @@ public String handle(String userInput, ConversationContext context) {
 			return "I can't do a follow-up on that type of command. Please ask a new question.";
 	}
 	
-	System.out.printf("[DEBUG] Follow-up: Rerouting to full pipeline with new query: '%s'%n", newQuery);
+	if (DEBUG_MODE) System.out.printf("[DEBUG] Follow-up: Rerouting to full pipeline with new query: '%s'%n", newQuery);
 	// Re-invoke the entire reasoning pipeline with the new, improved query.
 	return xavierCore.getResponse(newQuery, context);
 }

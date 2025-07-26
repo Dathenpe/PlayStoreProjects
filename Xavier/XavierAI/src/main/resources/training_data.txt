@@ -9,16 +9,24 @@ greeting,what's up
 greeting,sup
 greeting,yo
 
+
 # --- Goodbyes ---
 goodbye,bye bye
 goodbye,see you later
 goodbye,goodbye
 
-# --- Simple Time Queries (Local) ---
+# --- Unified Time Queries ---
 time_query,what time is it
 time_query,can you tell me the time
 time_query,the time please
 time_query,current time
+time_query,what is the time in japan
+time_query,what time is it in london right now
+time_query,tell me the time for new york
+time_query,current time in lagos
+time_query,what is the timezone in canada
+time_query,what is the time in australia
+time_query,time in tokyo please
 
 # --- Date Queries ---
 date_query,what is today's date
@@ -36,15 +44,8 @@ weather_query,what is the weather in canada
 weather_query,weather for new york
 weather_query,forecast in london
 weather_query,how is the weather in lagos right now
-
-# --- Timezone Queries (Remote) ---
-timezone_query,what is the time in japan
-timezone_query,what time is it in london right now
-timezone_query,tell me the time for new york
-timezone_query,current time in lagos
-timezone_query,what is the timezone in canada
-timezone_query,what is the time in australia
-timezone_query,time in tokyo please
+weather_query,check lekki lagos
+weather_query,check for toronto canada
 
 # --- Calculator ---
 calculator_query,what is 5 plus 3
