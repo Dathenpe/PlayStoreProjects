@@ -38,10 +38,10 @@
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Base.Theme.Heal"
-            android:enabled="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
+            android:enabled="true"
+            android:launchMode="singleTop"> <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+        </intent-filter>
         </activity>
 
         <activity-alias
@@ -159,10 +159,12 @@
         </receiver>
 
         <activity android:name=".activities.NewJournalEntryActivity" />
+        <activity android:name=".activities.NewDrawingActivity" />
 
         <receiver
             android:name=".widgets.NewJournalEntryWidgetProvider"
-            android:exported="false">
+            android:exported="true"
+            android:label="@string/quick_journal_entry_widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -174,7 +176,8 @@
 
         <receiver
             android:name=".widgets.MotivationalWidgetProvider"
-            android:exported="false">
+            android:exported="true"
+            android:label="@string/daily_motivation_widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -182,6 +185,51 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/motivational_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widgets.TetrisWidgetProvider"
+            android:exported="true"
+            android:label="@string/tetris_game_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/tetris_widget_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.MemoryMatchWidgetProvider"
+            android:exported="true"
+            android:label="@string/memory_match_game_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/memory_match_widget_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.WordScrambleWidgetProvider"
+            android:exported="true"
+            android:label="@string/word_scramble_game_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/word_scramble_widget_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.PaintWidgetProvider"
+            android:exported="true"
+            android:label="@string/new_painting_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/paint_widget_info" />
         </receiver>
 
     </application>

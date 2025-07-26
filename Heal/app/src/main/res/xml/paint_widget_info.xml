@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="75dp"
+    android:minHeight="75dp"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/widget_paint_layout"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:label="New Painting"
+    android:previewImage="@drawable/ic_palette"
+    android:description="@string/paint_widget_description">
+</appwidget-provider>

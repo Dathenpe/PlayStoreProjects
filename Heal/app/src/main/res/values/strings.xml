@@ -162,7 +162,22 @@
             <item>"There is life beyond this pain. Believe in it."</item>
         </string-array>
 
+
     <string name="motivational_widget_description">Displays a daily motivational quote to inspire you.</string>
     <string name="new_journal_entry_widget_description">Quickly add a new journal entry from your home screen.</string>
+
+    <!-- New widget descriptions -->
+    <string name="tetris_widget_description">Start a quick game of Tetris.</string>
+    <string name="memory_match_widget_description">Test your memory with a game of Memory Match.</string>
+    <string name="word_scramble_widget_description">Challenge yourself with a Word Scramble puzzle.</string>
+    <string name="paint_widget_description">Open a new canvas to start drawing.</string>
+
+
+        <string name="tetris_game_widget_name">Tetris Game</string>
+        <string name="memory_match_game_widget_name">Memory Match Game</string>
+        <string name="word_scramble_game_widget_name">Word Scramble Game</string>
+        <string name="new_painting_widget_name">New Painting</string>
+        <string name="daily_motivation_widget_name">Daily Motivation</string>
+        <string name="quick_journal_entry_widget_name">Quick Journal Entry</string>
 
 </resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="75dp"
+    android:minHeight="75dp"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/widget_word_scramble_layout"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:label="Word Scramble Game"
+    android:previewImage="@drawable/outline_crossword_24"
+    android:description="@string/word_scramble_widget_description">
+</appwidget-provider>

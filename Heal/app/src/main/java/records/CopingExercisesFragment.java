@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ public class CopingExercisesFragment extends Fragment {
 
     // Argument key
     private static final String ARG_SHOW_GROUNDING_DIALOG = "show_grounding_dialog";
+    private static final String DIALOG_TAG = "CopingExerciseDialog"; // Define a tag for your dialog
 
     // UI Elements
     private CardView cardGroundingExercise;
@@ -39,6 +41,7 @@ public class CopingExercisesFragment extends Fragment {
     private CardView cardDigitalDetox;
 
     private MainActivity mainActivity;
+    private CustomMessageDialogFragment activeDialog; // Keep a reference to the active dialog
 
     public static CopingExercisesFragment newInstance(boolean showGroundingDialog) {
         CopingExercisesFragment fragment = new CopingExercisesFragment();
@@ -71,9 +74,8 @@ public class CopingExercisesFragment extends Fragment {
         setupClickListeners();
 
         if (getArguments() != null && getArguments().getBoolean(ARG_SHOW_GROUNDING_DIALOG, false)) {
-            // Defer showing the dialog to avoid IllegalStateException
             new Handler(Looper.getMainLooper()).post(() -> {
-                if (isAdded() && getContext() != null) { // Ensure fragment is still attached and has context
+                if (isAdded() && getContext() != null) {
                     showGroundingExerciseDialog();
                 }
             });
@@ -98,6 +100,7 @@ public class CopingExercisesFragment extends Fragment {
     private void setupClickListeners() {
         cardGroundingExercise.setOnClickListener(v -> showGroundingExerciseDialog());
         cardBreathingExercises.setOnClickListener(v -> showBreathingExercisesDialog());
+        // ... set up other click listeners
         cardMindfulnessMeditation.setOnClickListener(v -> showMindfulnessMeditationDialog());
         cardPositiveAffirmations.setOnClickListener(v -> showPositiveAffirmationsDialog());
         cardJournaling.setOnClickListener(v -> showJournalingDialog());
@@ -111,29 +114,45 @@ public class CopingExercisesFragment extends Fragment {
     }
 
     private void showExerciseDialog(String title, String message) {
-        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+        // Dismiss any existing dialog before showing a new one
+        if (activeDialog != null && activeDialog.isVisible()) {
+            activeDialog.dismissAllowingStateLoss(); // Use dismissAllowingStateLoss if it might be called after onSaveInstanceState
+        }
+
+        activeDialog = CustomMessageDialogFragment.newInstance(
                 title,
                 message,
                 "Close",
-                null // Negative button text is null, CustomMessageDialogFragment will hide it
+                null
         );
 
-        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+        activeDialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
             @Override
             public void onDialogPositiveClick(DialogFragment dialogFragment) {
-                dialogFragment.dismiss();
+                // dialogFragment.dismiss(); // The dialog will dismiss itself if this is not overridden
+                if (dialogFragment == activeDialog) {
+                    activeDialog = null; // Clear the reference
+                }
             }
 
             @Override
             public void onDialogNegativeClick(DialogFragment dialogFragment) {
-                dialogFragment.dismiss();
+                // dialogFragment.dismiss();
+                if (dialogFragment == activeDialog) {
+                    activeDialog = null; // Clear the reference
+                }
             }
         });
 
-        dialog.show(getParentFragmentManager(), "CustomMessageDialogFragment");
-        // Removed: getParentFragmentManager().executePendingTransactions(); // This caused the IllegalStateException
-        // Removed: dialog.getDialog().findViewById(R.id.buttonNegative).setVisibility(View.GONE); // Handled by CustomMessageDialogFragment
+        // Ensure FragmentManager is available
+        if (isAdded() && getParentFragmentManager() != null) {
+            activeDialog.show(getParentFragmentManager(), DIALOG_TAG);
+        } else {
+            Log.e("CopingExercisesFrag", "Cannot show dialog, fragment not added or FragmentManager is null.");
+        }
     }
+
+    // ... your showXYZDialog methods remain the same
 
     private void showGroundingExerciseDialog() {
         showExerciseDialog(
@@ -262,6 +281,7 @@ public class CopingExercisesFragment extends Fragment {
         );
     }
 
+
     @Override
     public void onResume() {
         super.onResume();
@@ -271,5 +291,26 @@ public class CopingExercisesFragment extends Fragment {
             mainActivity.MenuTrigger.setVisibility(View.VISIBLE);
             mainActivity.Fab.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        // This is a more appropriate place to dismiss dialogs tied to the view
+        if (activeDialog != null && activeDialog.isVisible()) {
+            activeDialog.dismissAllowingStateLoss(); // Use dismissAllowingStateLoss for safety
+            activeDialog = null; // Clear the reference
+        }
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        // While onDestroyView is better for view-related dialogs,
+        // you could also put it here as a final fallback, though less common for dialogs.
+        // if (activeDialog != null && activeDialog.getDialog() != null && activeDialog.getDialog().isShowing()) {
+        // activeDialog.dismissAllowingStateLoss();
+        // }
+        super.onDestroy();
+        mainActivity = null; // Clean up activity reference
     }
 }

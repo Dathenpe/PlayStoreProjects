@@ -348,10 +348,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     welcomeMessage();
                 } else {
                     if (savedInstanceState == null) {
-                        loadFragment(new HomeFragment(), R.id.nav_home);
-                        navigationView.setCheckedItem(R.id.nav_home);
-                        toolbar.setTitle("Heal");
-                        Log.d(TAG, "MainActivity: onCreate - Loading HomeFragment (not first launch, savedInstanceState is null)");
+                        // Handle intent from widgets
+                        handleWidgetIntent(getIntent());
                     } else {
                         currentNavId = savedInstanceState.getInt("currentNavId", R.id.nav_home);
                         navigationView.setCheckedItem(currentNavId);
@@ -554,6 +552,71 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
     }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleWidgetIntent(intent); // Handle intents when activity is already running
+    }
+
+    private void handleWidgetIntent(Intent intent) {
+        if (intent != null && "ACTION_LAUNCH_GAME".equals(intent.getAction())) {
+            int gameFragmentId = intent.getIntExtra("game_fragment_id", -1);
+            if (gameFragmentId != -1) {
+                Fragment targetFragment = null;
+                String toolbarTitle = "";
+
+                // Close any open bottom sheet or popup
+                if (bottomSheetBehavior != null && bottomSheetBehavior.getState() == STATE_EXPANDED) {
+                    bottomSheetBehavior.setState(STATE_HIDDEN);
+                    clearBottomFragment();
+                }
+                if (popupWindow != null && popupWindow.isShowing()) {
+                    popupWindow.dismiss();
+                }
+
+                // Always load HomeFragment first to clear the back stack and ensure a consistent starting point
+                loadFragment(new HomeFragment(), R.id.nav_home);
+
+                if (gameFragmentId == R.id.nav_tetris) {
+                    targetFragment = new TetrisGameFragment();
+                    toolbarTitle = "Tetris";
+                } else if (gameFragmentId == R.id.nav_memory_match) {
+                    targetFragment = new MemoryMatchGameFragment();
+                    toolbarTitle = "Memory Match Game";
+                } else if (gameFragmentId == R.id.nav_word_scramble) {
+                    targetFragment = new WordScrambleGameFragment();
+                    toolbarTitle = "Word Scramble Game";
+                } else if (gameFragmentId == R.id.nav_paint) {
+                    targetFragment = new PaintFragment();
+                    toolbarTitle = "Paint";
+                } else {
+                    // Fallback to home if unknown ID (already handled by the initial loadFragment call)
+                    // targetFragment = new HomeFragment();
+                    // toolbarTitle = "Heal";
+                }
+
+                if (targetFragment != null) {
+                    loadFragment(targetFragment, gameFragmentId);
+                    toolbar.setTitle(toolbarTitle);
+                    // Ensure navigation view item is checked if it corresponds to a main nav item
+                    if (gameFragmentId == R.id.nav_tetris || gameFragmentId == R.id.nav_memory_match || gameFragmentId == R.id.nav_word_scramble || gameFragmentId == R.id.nav_paint) {
+                        navigationView.setCheckedItem(R.id.nav_fun_corner);
+                    } else if (gameFragmentId == R.id.nav_home) {
+                        navigationView.setCheckedItem(R.id.nav_home);
+                    }
+                    addFragmentToHistory(gameFragmentId, toolbarTitle);
+                }
+            }
+        } else {
+            // Default loading for regular app launch if no specific widget intent
+            loadFragment(new HomeFragment(), R.id.nav_home);
+            navigationView.setCheckedItem(R.id.nav_home);
+            toolbar.setTitle("Heal");
+            Log.d(TAG, "MainActivity: onCreate - Loading HomeFragment (no specific widget intent).");
+        }
+    }
+
 
     // Helper method to get theme resource ID based on color name
     private int getThemeResourceId(String colorName) {
@@ -1331,7 +1394,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         );
         if (fragment instanceof HomeFragment || fragment instanceof AIFragment) {
             fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            fm.executePendingTransactions();
+            fm.executePendingTransactions(); // Ensure previous transactions are processed
         }
         if (!(fragment instanceof HomeFragment) && !(fragment instanceof AIFragment)) {
             ft.setCustomAnimations(
@@ -1347,6 +1410,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             ft.addToBackStack(null);
         }
         ft.commit();
+        fm.executePendingTransactions(); // Crucial for immediate fragment loading
         currentNavId = navId;
         Log.d(TAG, "MainActivity: loadFragment - Fragment loaded: " + fragment.getClass().getSimpleName());
     }
@@ -1359,13 +1423,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             toolbar.setTitle("Data Records");
             navigationView.setCheckedItem(R.id.nav_records);
         } else if (navId == R.id.nav_fun_corner) {
-            toolbar.setTitle("Art Corner");
+            toolbar.setTitle("Fun Corner"); // Corrected title for Fun Corner
             navigationView.setCheckedItem(R.id.nav_fun_corner);
         } else if (navId == R.id.nav_ai) {
+            toolbar.setTitle("Xavier"); // Ensure AI fragment has a title
             navigationView.setCheckedItem(R.id.nav_ai);
         } else if (navId == R.id.nav_send || navId == R.id.nav_share) {
             toolbar.setTitle("Heal");
             navigationView.setCheckedItem(R.id.nav_home);
+        }
+        // Add specific titles for game fragments if needed when directly loaded
+        else if (navId == R.id.nav_tetris) {
+            toolbar.setTitle("Tetris");
+            navigationView.setCheckedItem(R.id.nav_fun_corner);
+        } else if (navId == R.id.nav_memory_match) {
+            toolbar.setTitle("Memory Match Game");
+            navigationView.setCheckedItem(R.id.nav_fun_corner);
+        } else if (navId == R.id.nav_word_scramble) {
+            toolbar.setTitle("Word Scramble Game");
+            navigationView.setCheckedItem(R.id.nav_fun_corner);
+        } else if (navId == R.id.nav_paint) {
+            toolbar.setTitle("Paint");
+            navigationView.setCheckedItem(R.id.nav_fun_corner);
         }
     }
     private void loadBottomFragment(Fragment fragment) {
