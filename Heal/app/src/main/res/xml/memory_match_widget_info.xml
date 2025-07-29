@@ -7,6 +7,6 @@
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:label="Memory Match Game"
-    android:previewImage="@drawable/ic_memory_game"
+    android:previewImage="@drawable/memory_display"
     android:description="@string/memory_match_widget_description">
 </appwidget-provider>

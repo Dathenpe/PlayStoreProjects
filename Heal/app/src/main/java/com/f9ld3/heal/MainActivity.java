@@ -556,64 +556,117 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        setIntent(intent); // Update the activity's intent
         handleWidgetIntent(intent); // Handle intents when activity is already running
     }
 
     private void handleWidgetIntent(Intent intent) {
         if (intent != null && "ACTION_LAUNCH_GAME".equals(intent.getAction())) {
             int gameFragmentId = intent.getIntExtra("game_fragment_id", -1);
-            if (gameFragmentId != -1) {
-                Fragment targetFragment = null;
-                String toolbarTitle = "";
+            if (gameFragmentId == -1) return;
 
-                // Close any open bottom sheet or popup
-                if (bottomSheetBehavior != null && bottomSheetBehavior.getState() == STATE_EXPANDED) {
-                    bottomSheetBehavior.setState(STATE_HIDDEN);
-                    clearBottomFragment();
-                }
-                if (popupWindow != null && popupWindow.isShowing()) {
-                    popupWindow.dismiss();
-                }
+            FragmentManager fm = getSupportFragmentManager();
+            Fragment currentFragment = fm.findFragmentById(R.id.fragment_container);
 
-                // Always load HomeFragment first to clear the back stack and ensure a consistent starting point
-                loadFragment(new HomeFragment(), R.id.nav_home);
+            // Check if the user is already in the game they're trying to launch
+            if (currentFragment != null) {
+                boolean isAlreadyInTargetGame =
+                        (gameFragmentId == R.id.nav_tetris && currentFragment instanceof TetrisGameFragment) ||
+                                (gameFragmentId == R.id.nav_memory_match && currentFragment instanceof MemoryMatchGameFragment) ||
+                                (gameFragmentId == R.id.nav_word_scramble && currentFragment instanceof WordScrambleGameFragment) ||
+                                (gameFragmentId == R.id.nav_paint && (currentFragment instanceof PaintFragment || currentFragment instanceof DrawingCanvasFragment));
 
-                if (gameFragmentId == R.id.nav_tetris) {
-                    targetFragment = new TetrisGameFragment();
-                    toolbarTitle = "Tetris";
-                } else if (gameFragmentId == R.id.nav_memory_match) {
-                    targetFragment = new MemoryMatchGameFragment();
-                    toolbarTitle = "Memory Match Game";
-                } else if (gameFragmentId == R.id.nav_word_scramble) {
-                    targetFragment = new WordScrambleGameFragment();
-                    toolbarTitle = "Word Scramble Game";
-                } else if (gameFragmentId == R.id.nav_paint) {
-                    targetFragment = new PaintFragment();
-                    toolbarTitle = "Paint";
-                } else {
-                    // Fallback to home if unknown ID (already handled by the initial loadFragment call)
-                    // targetFragment = new HomeFragment();
-                    // toolbarTitle = "Heal";
-                }
-
-                if (targetFragment != null) {
-                    loadFragment(targetFragment, gameFragmentId);
-                    toolbar.setTitle(toolbarTitle);
-                    // Ensure navigation view item is checked if it corresponds to a main nav item
-                    if (gameFragmentId == R.id.nav_tetris || gameFragmentId == R.id.nav_memory_match || gameFragmentId == R.id.nav_word_scramble || gameFragmentId == R.id.nav_paint) {
-                        navigationView.setCheckedItem(R.id.nav_fun_corner);
-                    } else if (gameFragmentId == R.id.nav_home) {
-                        navigationView.setCheckedItem(R.id.nav_home);
-                    }
-                    addFragmentToHistory(gameFragmentId, toolbarTitle);
+                if (isAlreadyInTargetGame) {
+                    Toast.makeText(this, "You are already in this game.", Toast.LENGTH_SHORT).show();
+                    return; // Exit the method to prevent reloading
                 }
             }
-        } else {
-            // Default loading for regular app launch if no specific widget intent
+
+            // Check if the user is in a different game and might lose progress
+            if (currentFragment instanceof TetrisGameFragment ||
+                    currentFragment instanceof MemoryMatchGameFragment ||
+                    currentFragment instanceof WordScrambleGameFragment ||
+                    currentFragment instanceof PaintFragment ||
+                    currentFragment instanceof DrawingCanvasFragment) {
+
+                String gameName = "the current game"; // Default name
+                if (currentFragment instanceof TetrisGameFragment) gameName = "Tetris";
+                else if (currentFragment instanceof MemoryMatchGameFragment) gameName = "Memory Match";
+                else if (currentFragment instanceof WordScrambleGameFragment) gameName = "Word Scramble";
+                else if (currentFragment instanceof PaintFragment || currentFragment instanceof DrawingCanvasFragment) gameName = "the Paint canvas";
+
+                CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                        "Exit " + gameName + "?",
+                        "Are you sure you want to quit your game?", // Unified message
+                        "Leave",
+                        "Cancel"
+                );
+                dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                    @Override
+                    public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                        // User confirmed, now launch the new game
+                        launchGameFromWidget(gameFragmentId);
+                    }
+
+                    @Override
+                    public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                        // User cancelled, do nothing
+                    }
+                });
+                dialog.show(getSupportFragmentManager(), "WidgetSwitchGameDialog");
+                return; // Wait for the user's response from the dialog
+            }
+
+            // If not in any game, or if the dialog was confirmed, launch the game directly.
+            launchGameFromWidget(gameFragmentId);
+
+        } else if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) == null) {
+            // Default loading for regular app launch if no specific widget intent and no fragment is loaded
             loadFragment(new HomeFragment(), R.id.nav_home);
             navigationView.setCheckedItem(R.id.nav_home);
             toolbar.setTitle("Heal");
-            Log.d(TAG, "MainActivity: onCreate - Loading HomeFragment (no specific widget intent).");
+            Log.d(TAG, "MainActivity: handleWidgetIntent - Loading HomeFragment (regular launch).");
+        }
+    }
+
+    // Helper method to launch a game from a widget
+    private void launchGameFromWidget(int gameFragmentId) {
+        Fragment targetFragment = null;
+        String toolbarTitle = "";
+
+        // Close any open bottom sheet or popup
+        if (bottomSheetBehavior != null && bottomSheetBehavior.getState() == STATE_EXPANDED) {
+            bottomSheetBehavior.setState(STATE_HIDDEN);
+            clearBottomFragment();
+        }
+        if (popupWindow != null && popupWindow.isShowing()) {
+            popupWindow.dismiss();
+        }
+
+        // Determine which fragment to load
+        if (gameFragmentId == R.id.nav_tetris) {
+            targetFragment = new TetrisGameFragment();
+            toolbarTitle = "Tetris";
+        } else if (gameFragmentId == R.id.nav_memory_match) {
+            targetFragment = new MemoryMatchGameFragment();
+            toolbarTitle = "Memory Match Game";
+        } else if (gameFragmentId == R.id.nav_word_scramble) {
+            targetFragment = new WordScrambleGameFragment();
+            toolbarTitle = "Word Scramble Game";
+        } else if (gameFragmentId == R.id.nav_paint) {
+            targetFragment = new PaintFragment();
+            toolbarTitle = "Paint";
+        }
+
+        if (targetFragment != null) {
+            // Clear the entire back stack to ensure a clean navigation path from the widget
+            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+            loadFragment(targetFragment, gameFragmentId);
+            toolbar.setTitle(toolbarTitle);
+            // Set the navigation drawer item to "Fun Corner"
+            navigationView.setCheckedItem(R.id.nav_fun_corner);
+            addFragmentToHistory(gameFragmentId, toolbarTitle);
         }
     }
 
@@ -983,7 +1036,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Replaced AlertDialog with CustomMessageDialogFragment
             CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
                     "Exit Canvas",
-                    "Are you sure you want to exit without saving?",
+                    "Are you sure you want to quit your game?", // Unified message
                     "Yes",
                     "No"
             );
@@ -1088,7 +1141,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Replaced AlertDialog with CustomMessageDialogFragment
             CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
                     "Exit Canvas",
-                    "Are you sure you want to leave without saving? Your changes will be lost.",
+                    "Are you sure you want to quit your game?", // Unified message
                     "Leave",
                     "Cancel"
             );

@@ -7,6 +7,6 @@
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:label="Word Scramble Game"
-    android:previewImage="@drawable/outline_crossword_24"
+    android:previewImage="@drawable/word_scramble_display"
     android:description="@string/word_scramble_widget_description">
 </appwidget-provider>

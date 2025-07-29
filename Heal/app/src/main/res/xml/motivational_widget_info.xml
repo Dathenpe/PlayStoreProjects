@@ -7,6 +7,6 @@
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:label="Daily Motivation"
-    android:previewImage="@drawable/outline_avg_time_24"
+    android:previewImage="@drawable/motivation_display"
     android:description="@string/motivational_widget_description"> <!-- Added description -->
 </appwidget-provider>

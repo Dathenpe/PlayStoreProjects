@@ -39,9 +39,10 @@
             android:exported="true"
             android:theme="@style/Base.Theme.Heal"
             android:enabled="true"
-            android:launchMode="singleTop"> <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-        </intent-filter>
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
         </activity>
 
         <activity-alias
@@ -164,7 +165,7 @@
         <receiver
             android:name=".widgets.NewJournalEntryWidgetProvider"
             android:exported="true"
-            android:label="@string/quick_journal_entry_widget_name">
+            android:label="Quick Journal Entry (5 x 2)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -177,7 +178,7 @@
         <receiver
             android:name=".widgets.MotivationalWidgetProvider"
             android:exported="true"
-            android:label="@string/daily_motivation_widget_name">
+            android:label="Daily Motivation (4 x 3)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -190,7 +191,7 @@
         <receiver
             android:name=".widgets.TetrisWidgetProvider"
             android:exported="true"
-            android:label="@string/tetris_game_widget_name">
+            android:label="Tetris Game (2 x 2)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -201,7 +202,7 @@
         <receiver
             android:name=".widgets.MemoryMatchWidgetProvider"
             android:exported="true"
-            android:label="@string/memory_match_game_widget_name">
+            android:label="Memory Match Game (2 x 2)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -212,7 +213,7 @@
         <receiver
             android:name=".widgets.WordScrambleWidgetProvider"
             android:exported="true"
-            android:label="@string/word_scramble_game_widget_name">
+            android:label="Word Scramble Game (2 x 2)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -223,7 +224,7 @@
         <receiver
             android:name=".widgets.PaintWidgetProvider"
             android:exported="true"
-            android:label="@string/new_painting_widget_name">
+            android:label="New Painting (2 x 2)">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

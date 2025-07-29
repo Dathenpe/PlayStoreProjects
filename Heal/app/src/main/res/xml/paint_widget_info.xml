@@ -7,6 +7,6 @@
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:label="New Painting"
-    android:previewImage="@drawable/ic_palette"
+    android:previewImage="@drawable/paint_display"
     android:description="@string/paint_widget_description">
 </appwidget-provider>

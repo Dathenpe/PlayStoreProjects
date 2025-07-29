@@ -7,6 +7,6 @@
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
     android:label="Quick Journal Entry"
-    android:previewImage="@drawable/book"
+    android:previewImage="@drawable/journal_display"
     android:description="@string/new_journal_entry_widget_description"> <!-- Added description -->
 </appwidget-provider>
