@@ -1,124 +1,182 @@
 package com.f9ld3.xavier.ai.V2;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import com.f9ld3.xavier.ai.V2.utils.SharedHttpClient;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.StringReader;
+import java.net.URI;
 import java.net.URLEncoder;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * A resilient client for interacting with Wolfram|Alpha APIs.
- * It manages primary and backup AppIDs to provide fault tolerance.
+ * A resilient client for interacting with the Wolfram|Alpha Full Results API v2.0.
+ * It manages multiple AppIDs for fault tolerance, and parses the XML response
+ * to extract a short, definitive answer.
  */
 public final class WolframAlphaClient {
 
-private static final String RECOGNIZER_API_URL = "https://api.wolframalpha.com/v1/queryrecognizer";
-private static final String SHORT_ANSWERS_API_URL = "https://api.wolframalpha.com/v1/result";
-
+private static final String API_BASE_URL = "https://api.wolframalpha.com/v2/query";
 private final List<String> appIds;
+private int currentAppIdIndex = 0;
 
-public WolframAlphaClient(String primaryAppId, String backupAppId) {
+/**
+ * Initializes the client with a variable number of AppIDs.
+ * @param appIds An array of Wolfram|Alpha AppIDs.
+ */
+public WolframAlphaClient(String... appIds) {
 	// Create a list of AppIDs, filtering out any that are null or empty.
-	this.appIds = Arrays.asList(primaryAppId, backupAppId)
-			              .stream()
+	this.appIds = Arrays.stream(appIds)
 			              .filter(Objects::nonNull)
 			              .filter(id -> !id.trim().isEmpty())
 			              .collect(Collectors.toList());
 }
 
 /**
- * Checks if Wolfram|Alpha can likely answer the query using the Recognizer API.
- * It will try the primary AppID first, then the backup if the primary fails.
+ * A simple heuristic to quickly check if a query is suitable for Wolfram|Alpha.
+ * This is used as a pre-classifier to avoid sending conversational text and making
+ * unnecessary API calls.
  *
  * @param userInput The user's question.
- * @return true if the query is recognized, false otherwise.
+ * @return true if the query is likely a factual question, false otherwise.
  */
 public boolean canAnswer(String userInput) {
-	if (appIds.isEmpty() || userInput == null || userInput.trim().isEmpty()) {
-		return false;
+	if (userInput == null || userInput.trim().length() < 5) {
+		return false; // Too short to be a meaningful question
 	}
-	String encodedInput;
-	try {
-		encodedInput = URLEncoder.encode(userInput, StandardCharsets.UTF_8.toString());
-	} catch (Exception e) {
-		return false;
+	String[] words = userInput.trim().split("\\s+");
+	if (words.length < 2) {
+		return false; // Unlikely to be a factual question
 	}
-	
-	// Try each AppID in order until one succeeds.
-	for (String appId : appIds) {
-		try {
-			String requestUrl = String.format("%s?i=%s&mode=Default&appid=%s", RECOGNIZER_API_URL, encodedInput, appId);
-			HttpURLConnection conn = (HttpURLConnection) new URL(requestUrl).openConnection();
-			conn.setRequestMethod("GET");
-			conn.setConnectTimeout(2000); // Short timeout for a quick check
-			conn.setReadTimeout(2000);
-			
-			if (conn.getResponseCode() == 200) {
-				conn.disconnect();
-				return true; // Success!
-			}
-			conn.disconnect();
-		} catch (Exception e) {
-			System.err.printf("[DEBUG] Wolfram|Alpha Recognizer failed for AppID %s... Trying next.%n", appId.substring(0, 6));
-		}
-	}
-	return false; // All AppIDs failed.
+	// Check if it starts with a common question word.
+	String firstWord = words[0].toLowerCase();
+	return firstWord.equals("who") || firstWord.equals("what") || firstWord.equals("when") ||
+			       firstWord.equals("where") || firstWord.equals("why") || firstWord.equals("how") ||
+			       Character.isDigit(firstWord.charAt(0)); // Also good for calculations
 }
 
 /**
- * Gets a short answer for a query from the Short Answers API.
- * It will try the primary AppID first, then the backup if the primary fails.
+ * Queries the Wolfram|Alpha API and attempts to find a direct answer from the XML response.
  *
- * @param userInput The user's question.
- * @return The string response from the API, or an error message.
+ * @param query The user's question (e.g., "who is the richest man in nigeria").
+ * @return An Optional containing the answer string, or empty if no answer is found.
  */
-public String getShortAnswer(String userInput) {
+public Optional<String> getShortAnswer(String query) {
 	if (appIds.isEmpty()) {
-		return "I'm sorry, my knowledge base service is not configured correctly.";
-	}
-	String encodedInput;
-	try {
-		encodedInput = URLEncoder.encode(userInput, StandardCharsets.UTF_8.toString());
-	} catch (Exception e) {
-		return "I had trouble understanding that input format.";
+		if (XavierCoreV2.DEBUG_MODE) System.err.println("[DEBUG] WolframAlphaClient: No App IDs configured.");
+		return Optional.empty();
 	}
 	
-	// Try each AppID in order until one succeeds.
-	for (String appId : appIds) {
-		try {
-			String requestUrl = String.format("%s?i=%s&appid=%s", SHORT_ANSWERS_API_URL, encodedInput, appId);
-			HttpURLConnection conn = (HttpURLConnection) new URL(requestUrl).openConnection();
-			conn.setRequestMethod("GET");
-			
-			int responseCode = conn.getResponseCode();
-			if (responseCode == 200) {
-				StringBuilder response = new StringBuilder();
-				try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
-					String line;
-					while ((line = reader.readLine()) != null) {
-						response.append(line);
-					}
-				}
-				conn.disconnect();
-				return response.toString(); // Success!
-			} else if (responseCode == 501) {
-				conn.disconnect();
-				return "That's a great question, but I couldn't find a specific answer for it.";
+	// Cycle through API keys if one fails.
+	String appId = appIds.get(currentAppIdIndex);
+	
+	try {
+		String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
+		// Use the v2.0 API and request a plaintext-formatted XML response
+		String requestUrl = String.format("%s?appid=%s&input=%s&output=xml&format=plaintext", API_BASE_URL, appId, encodedQuery);
+		
+		HttpRequest request = HttpRequest.newBuilder()
+				                      .uri(URI.create(requestUrl))
+				                      .timeout(Duration.ofSeconds(15))
+				                      .GET()
+				                      .build();
+		
+		// Assumes a SharedHttpClient exists for connection pooling, a good practice.
+		HttpResponse<String> response = SharedHttpClient.get().send(request, HttpResponse.BodyHandlers.ofString());
+		
+		if (response.statusCode() != 200) {
+			System.err.printf("Wolfram|Alpha API error. Status: %d, Query: %s%n", response.statusCode(), query);
+			// Rotate key on failure
+			currentAppIdIndex = (currentAppIdIndex + 1) % appIds.size();
+			return Optional.empty();
+		}
+		
+		return parseXMLResponse(response.body());
+		
+	} catch (Exception e) {
+		System.err.println("Exception in WolframAlphaClient: " + e.getMessage());
+		return Optional.empty();
+	}
+}
+
+/**
+ * Parses the XML response from the API to find the most relevant answer.
+ */
+private Optional<String> parseXMLResponse(String xml) throws Exception {
+	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	// Prevent XXE (XML External Entity) attacks for security
+	factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+	DocumentBuilder builder = factory.newDocumentBuilder();
+	Document doc = builder.parse(new InputSource(new StringReader(xml)));
+	
+	Element queryResult = doc.getDocumentElement();
+	if (!"true".equals(queryResult.getAttribute("success"))) {
+		// --- NEW: Log the specific error from the API ---
+		if ("true".equals(queryResult.getAttribute("error"))) {
+			NodeList errors = doc.getElementsByTagName("error");
+			if (errors.getLength() > 0) {
+				Element error = (Element) errors.item(0);
+				String errorMsg = error.getElementsByTagName("msg").item(0).getTextContent();
+				// Always print this error, even if not in DEBUG_MODE, as it's critical for diagnostics.
+				System.err.println("[ERROR] Wolfram|Alpha API Error: " + errorMsg);
 			}
-			// For other errors (like 401 Unauthorized), we'll let it loop and try the next key.
-			conn.disconnect();
-			
-		} catch (Exception e) {
-			System.err.printf("[DEBUG] Wolfram|Alpha Short Answer failed for AppID %s... Trying next.%n", appId.substring(0, 6));
+		}
+		return Optional.empty(); // Query was not successful
+	}
+	
+	// Strategy 1: Find the "Result" pod first, as it's the most likely direct answer.
+	Optional<String> result = findPodText(doc, "Result");
+	if (result.isPresent()) {
+		return result;
+	}
+	
+	// Strategy 2: If no "Result" pod, find the first pod after "Input interpretation".
+	// This is often the primary definition or data.
+	NodeList pods = doc.getElementsByTagName("pod");
+	if (pods.getLength() > 1) {
+		Element secondPod = (Element) pods.item(1); // Item 0 is usually "Input interpretation"
+		NodeList plaintexts = secondPod.getElementsByTagName("plaintext");
+		if (plaintexts.getLength() > 0) {
+			String text = plaintexts.item(0).getTextContent();
+			if (text != null && !text.isBlank()) {
+				return Optional.of(text.trim());
+			}
 		}
 	}
 	
-	// If all keys failed.
-	return "I'm sorry, I'm having trouble connecting to my knowledge base right now. Please try again later.";
+	return Optional.empty(); // No suitable answer found
+}
+
+/**
+ * Helper method to find the text content of a specific pod by its title.
+ */
+private Optional<String> findPodText(Document doc, String podTitle) {
+	NodeList pods = doc.getElementsByTagName("pod");
+	for (int i = 0; i < pods.getLength(); i++) {
+		Element pod = (Element) pods.item(i);
+		if (podTitle.equals(pod.getAttribute("title"))) {
+			NodeList plaintexts = pod.getElementsByTagName("plaintext");
+			if (plaintexts.getLength() > 0) {
+				String text = plaintexts.item(0).getTextContent();
+				if (text != null && !text.isBlank()) {
+					return Optional.of(text.trim());
+				}
+			}
+		}
+	}
+	return Optional.empty();
 }
 }

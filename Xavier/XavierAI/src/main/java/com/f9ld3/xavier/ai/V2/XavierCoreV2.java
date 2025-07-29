@@ -14,6 +14,7 @@ import com.f9ld3.xavier.ai.V2.utils.ProgressBar;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -193,19 +194,28 @@ private void loadApiKeysAndClients() {
 		Properties prop = new Properties();
 		if (input == null) {
 			System.err.println("FATAL: Unable to find api.properties. API-based functionality will be disabled.");
-			this.wolframAlphaClient = new WolframAlphaClient(null, null);
+			this.wolframAlphaClient = new WolframAlphaClient(); // No keys available
 			return;
 		}
 		prop.load(input);
 		
-		String primaryWolframId = prop.getProperty("wolframalpha.appid");
-		String backupWolframId = prop.getProperty("wolframalpha.appid.backup");
-		this.wolframAlphaClient = new WolframAlphaClient(primaryWolframId, backupWolframId);
+		// Load all available Wolfram|Alpha keys for fault tolerance.
+		List<String> wolframKeys = new ArrayList<>();
+		String primaryId = getApiKeyFromProperties("wolframalpha.appid");
+		String backupId = getApiKeyFromProperties("wolframalpha.appid.backup");
+		String tertiaryId = getApiKeyFromProperties("wolframalpha.appid.tertiary"); // Read the new key
+		
+		if (primaryId != null) wolframKeys.add(primaryId);
+		if (backupId != null) wolframKeys.add(backupId);
+		if (tertiaryId != null) wolframKeys.add(tertiaryId);
+		
+		// Pass all found keys to the client constructor.
+		this.wolframAlphaClient = new WolframAlphaClient(wolframKeys.toArray(new String[0]));
 		
 	} catch (IOException ex) {
 		System.err.println("FATAL: Error loading api.properties.");
 		ex.printStackTrace();
-		this.wolframAlphaClient = new WolframAlphaClient(null, null);
+		this.wolframAlphaClient = new WolframAlphaClient(); // No keys available
 	}
 }
 
@@ -241,7 +251,6 @@ private void registerHandlers() {
 		LocationResolverService locationResolver = new LocationResolverService(geocodingService);
 		
 		// Register the new, unified handlers that use the location services
-		// MODIFICATION: Pass the primaryWeatherKey to the TimeQueryHandler so it can fetch timezone offsets.
 		intentHandlers.put("time_query", new TimeQueryHandler(locationResolver, ipGeolocationService, primaryWeatherKey));
 		intentHandlers.put("weather_query", new WeatherQueryHandler(locationResolver, ipGeolocationService, primaryWeatherKey));
 		

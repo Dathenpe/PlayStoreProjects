@@ -81,6 +81,7 @@ about_bot,what are your features
 # --- General Knowledge ---
 knowledge_query,what is an apple
 knowledge_query,who is the president
+knowledge_query,who is the richest man in nigeria
 knowledge_query,define gravity
 knowledge_query,what is java
 knowledge_query,where is canada

@@ -2,10 +2,11 @@ package com.f9ld3.xavier.ai.V2.handlers;
 
 import com.f9ld3.xavier.ai.V2.ConversationContext;
 import com.f9ld3.xavier.ai.V2.WolframAlphaClient;
+import com.f9ld3.xavier.ai.V2.XavierCoreV2;
+import java.util.Optional;
 
 /**
  * Handles general knowledge questions by querying the Wolfram|Alpha API.
- * It now intelligently records failed queries to allow for user refinement.
  */
 public class KnowledgeQueryHandler implements IntentHandler {
 
@@ -17,25 +18,26 @@ public KnowledgeQueryHandler(WolframAlphaClient wolframClient) {
 
 @Override
 public String handle(String userInput, ConversationContext context) {
-	try {
-		String answer = wolframClient.getShortAnswer(userInput);
-		
-		// If the API returns a valid, non-empty answer, it's a success.
-		if (answer != null && !answer.trim().isEmpty() && !answer.contains("did not understand")) {
-			context.clearLastFailedInput(); // Success, so clear any previous failure.
-			return answer;
-		} else {
-			// The API was reached, but it couldn't answer. This is a "soft" failure.
-			// CRITICAL: Record the failed query to allow for refinement.
-			context.setLastFailedInput(userInput);
-			return "That's a great question, but I couldn't find a specific answer for it.";
-		}
-	} catch (Exception e) {
-		// The API could not be reached. This is a "hard" failure.
-		System.err.println("Wolfram|Alpha Error: " + e.getMessage());
-		// We also record this failure, as the user might try to rephrase.
-		context.setLastFailedInput(userInput);
-		return "I'm sorry, I had trouble connecting to my knowledge base at the moment.";
+	if (wolframClient == null) {
+		return "I'm sorry, my knowledge base is currently unavailable.";
+	}
+	
+	if (XavierCoreV2.DEBUG_MODE) {
+		System.out.println("[DEBUG] KnowledgeQueryHandler: Sending query to Wolfram|Alpha: '" + userInput + "'");
+	}
+	
+	// The client now returns an Optional, which is cleaner to handle.
+	Optional<String> answerOpt = wolframClient.getShortAnswer(userInput);
+	
+	// The handler is now responsible for the final user-facing message.
+	if (answerOpt.isPresent()) {
+		context.clearLastFailedInput(); // Success, so clear any previous failure.
+		// Clean up the response a bit for better readability
+		return answerOpt.get().replace(" | ", ": ").replace("... | ", ". ");
+	} else {
+		// The API was reached, but it couldn't answer. This is a "soft" failure.
+		context.setLastFailedInput(userInput); // Record the failed query for potential refinement.
+		return "That's a great question, but I couldn't find a specific answer for it.";
 	}
 }
 }
