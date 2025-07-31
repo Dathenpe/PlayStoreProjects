@@ -119,6 +119,8 @@ public class FunCornerFragment extends Fragment implements DrawingCanvasFragment
         // Set OnClickListener for the Word Scramble game container
         wordScrambleGameContainer.setOnClickListener(v -> {
             mainActivity.loadFragment(new WordScrambleGameFragment(), R.id.nav_word_scramble);
+            mainActivity.toolbar.setTitle("Word Scramble Game");
+            mainActivity.addFragmentToHistory(R.id.nav_word_scramble, "Word Scramble Game");
             if (mainActivity.MenuTrigger != null && mainActivity.Fab != null ||
                     mainActivity.MenuTrigger.getVisibility() == View.VISIBLE &&
                             mainActivity.Fab.getVisibility() == View.VISIBLE) {

@@ -2,7 +2,7 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Background color for the Green theme -->
     <item>
-        <shape android:shape="rectangle">
+        <shape android:shape="oval">
             <solid android:color="@color/lime" />
         </shape>
     </item>

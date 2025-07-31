@@ -55,7 +55,7 @@ import wordscramble.HighScoreDialogFragment;
 import wordscramble.HighScoreEntry;
 import wordscramble.InfoDialogFragment;
 
-public class WordScrambleGameFragment extends Fragment {
+public class WordScrambleGameFragment extends Fragment implements HighScoreDialogFragment.OnDismissListener { // Implement OnDismissListener
 
     private static final String TAG = "WordScrambleGameFragment";
     private static final String PREFS_NAME = "WordScrambleHighScores";
@@ -1037,6 +1037,7 @@ public class WordScrambleGameFragment extends Fragment {
         // Pass the original scores directly to the dialog's newInstance method,
         // and pass null for localUserId as it's not used in this game's HighScoreDialogFragment.
         HighScoreDialogFragment dialogFragment = HighScoreDialogFragment.newInstance(new ArrayList<>(scores), null);
+        dialogFragment.setOnDismissListener(this); // Set the dismiss listener
         dialogFragment.show(getParentFragmentManager(), "word_scramble_high_scores_dialog");
     }
 
@@ -1221,6 +1222,14 @@ public class WordScrambleGameFragment extends Fragment {
         // automatically resume it without a toast.
         if (isPaused && !isGameOver && overlayContainer.getVisibility() != View.VISIBLE) {
             resumeGame(); // Auto-resume logic only, no UI or toast
+        }
+    }
+
+    @Override
+    public void onDismiss() {
+        // Resume game when high scores dialog is dismissed, show toast
+        if (isPaused && !isGameOver) { // Check if the game was paused and not over
+            resumeGameAndHideUI(true);
         }
     }
 }

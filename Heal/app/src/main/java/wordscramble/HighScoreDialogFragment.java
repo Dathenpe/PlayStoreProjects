@@ -1,6 +1,7 @@
 package wordscramble;
 
 import android.app.Dialog;
+import android.content.DialogInterface; // Import DialogInterface
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -28,7 +29,8 @@ import java.util.List;
  * It uses a RecyclerView with HighScoreAdapter to list the scores,
  * matching the structure and behavior of the MemoryMatch HighScoreDialogFragment.
  */
-public class HighScoreDialogFragment extends DialogFragment {
+// Implement DialogInterface.OnDismissListener
+public class HighScoreDialogFragment extends DialogFragment implements DialogInterface.OnDismissListener {
 
     private static final String ARG_HIGH_SCORES = "high_scores";
     private static final String ARG_LOCAL_USER_ID = "local_user_id"; // Added for signature compatibility
@@ -38,6 +40,13 @@ public class HighScoreDialogFragment extends DialogFragment {
     private HighScoreAdapter adapter; // Using the wordscramble.HighScoreAdapter
     private List<HighScoreEntry> highScores; // Using wordscramble.HighScoreEntry
     // private String localUserId; // Declared but not used for display/highlighting in this specific adapter
+
+    // Interface to communicate dismissal back to the calling Fragment
+    public interface OnDismissListener {
+        void onDismiss();
+    }
+
+    private OnDismissListener dismissListener; // Member variable for the listener
 
     public HighScoreDialogFragment() {
         // Required empty public constructor
@@ -60,6 +69,14 @@ public class HighScoreDialogFragment extends DialogFragment {
         args.putString(ARG_LOCAL_USER_ID, localUserId); // Pass the localUserId for compatibility
         fragment.setArguments(args);
         return fragment;
+    }
+
+    /**
+     * Setter for the dismiss listener.
+     * @param listener The listener to be called when the dialog is dismissed.
+     */
+    public void setOnDismissListener(OnDismissListener listener) {
+        this.dismissListener = listener;
     }
 
     @Override
@@ -111,6 +128,9 @@ public class HighScoreDialogFragment extends DialogFragment {
         super.onStart();
         Dialog dialog = getDialog();
         if (dialog != null) {
+            // Set the dialog's dismiss listener to this fragment
+            dialog.setOnDismissListener(this); // Crucial change here!
+
             Window window = dialog.getWindow();
             if (window != null) {
                 // Set the dialog window's background to transparent for rounded corners to show
@@ -123,6 +143,15 @@ public class HighScoreDialogFragment extends DialogFragment {
                 layoutParams.horizontalMargin = 0; // This is key for full width
                 window.setAttributes(layoutParams);
             }
+        }
+    }
+
+    // Correctly override the onDismiss method from DialogInterface.OnDismissListener
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog); // Call superclass method
+        if (dismissListener != null) {
+            dismissListener.onDismiss(); // Call our custom listener
         }
     }
 }

@@ -28,6 +28,7 @@ import androidx.fragment.app.Fragment;
 
 import com.f9ld3.heal.MainActivity;
 import com.f9ld3.heal.R;
+import com.google.android.material.button.MaterialButton; // Import MaterialButton
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -44,7 +45,7 @@ import java.util.Locale;
 import memorymatch.HighScoreDialogFragment;
 import ui.CustomMessageDialogFragment; // Import the custom dialog
 
-public class MemoryMatchGameFragment extends Fragment {
+public class MemoryMatchGameFragment extends Fragment implements HighScoreDialogFragment.OnDismissListener { // Implement OnDismissListener
 
     private GridLayout cardGridLayout;
     private TextView scoreTextView;
@@ -52,7 +53,7 @@ public class MemoryMatchGameFragment extends Fragment {
     private Button resetButton;
     private Spinner themeSpinner;
     private Button highScoresButton;
-    private Button pauseButton;
+    private MaterialButton pauseButton; // Changed from Button to MaterialButton
     private FrameLayout overlayContainer;
     private View pausedCard;
     private View gameOverCard;
@@ -85,7 +86,7 @@ public class MemoryMatchGameFragment extends Fragment {
 
     private static final String[] CAR_EMOJIS = {
             "🚗", "🚕", "🚙", "🚌", "🏎️", "🚓", "🚒", "🚑",
-            "🚚", "🚜", "🚲", "🛴", "🛵", "🏍️", "🚂", "🚀"
+            "🚚", "🚜", "🚲", "🛴", "🛵", "🏍️", "�", "🚀"
     };
 
     private static final String[] ANIMAL_EMOJIS = {
@@ -165,7 +166,7 @@ public class MemoryMatchGameFragment extends Fragment {
         resetButton = view.findViewById(R.id.reset_button);
         themeSpinner = view.findViewById(R.id.theme_spinner);
         highScoresButton = view.findViewById(R.id.high_scores_button);
-        pauseButton = view.findViewById(R.id.pause_button);
+        pauseButton = view.findViewById(R.id.pause_button); // Cast to MaterialButton
         overlayContainer = view.findViewById(R.id.overlay_container);
         pausedCard = view.findViewById(R.id.paused_card);
         gameOverCard = view.findViewById(R.id.game_over_card);
@@ -327,7 +328,8 @@ public class MemoryMatchGameFragment extends Fragment {
         stopTimer();
         timerTextView.setText("Time: 00:00");
         isPaused = false;
-        pauseButton.setText("Pause");
+        // Corrected: Set initial icon for pause button
+        pauseButton.setIconResource(R.drawable.ic_pause_white_24dp);
         overlayContainer.setVisibility(View.GONE);
         pausedCard.setVisibility(View.GONE);
         gameOverCard.setVisibility(View.GONE);
@@ -537,12 +539,14 @@ public class MemoryMatchGameFragment extends Fragment {
         }
         // Ensure paused card is hidden if it was shown by pauseGameAndShowUI(false)
         pausedCard.setVisibility(View.GONE); // Explicitly hide the paused card
-        pauseButton.setText("Resume"); // Show resume text
+        // Corrected: Set pause button icon to play when high scores dialog is shown
+        pauseButton.setIconResource(R.drawable.ic_play_arrow_white_24dp);
         overlayContainer.setVisibility(View.GONE); // Hide overlay
         Toast.makeText(getContext(), "Game Paused (High Scores)", Toast.LENGTH_SHORT).show(); // Specific toast for high scores
         List<HighScoreEntry> scores = loadHighScores();
         // Pass null for localUserId as it's no longer used for highlighting
         HighScoreDialogFragment dialogFragment = HighScoreDialogFragment.newInstance(scores, null);
+        dialogFragment.setOnDismissListener(this); // Set the dismiss listener
         dialogFragment.show(getParentFragmentManager(), "high_scores_dialog");
     }
 
@@ -567,7 +571,8 @@ public class MemoryMatchGameFragment extends Fragment {
     private void pauseGameAndShowUI(boolean showToast) {
         pauseGame(); // Handle logic first
 
-        pauseButton.setText("Resume");
+        // Corrected: Change icon to play when game is paused
+        pauseButton.setIconResource(R.drawable.ic_play_arrow_white_24dp);
         overlayContainer.setVisibility(View.VISIBLE);
         pausedCard.setVisibility(View.VISIBLE);
         gameOverCard.setVisibility(View.GONE);
@@ -597,7 +602,8 @@ public class MemoryMatchGameFragment extends Fragment {
     private void resumeGameAndHideUI(boolean showToast) {
         resumeGame(); // Handle logic first
 
-        pauseButton.setText("Pause");
+        // Corrected: Change icon to pause when game is resumed
+        pauseButton.setIconResource(R.drawable.ic_pause_white_24dp);
         overlayContainer.setVisibility(View.GONE);
         pausedCard.setVisibility(View.GONE);
 
@@ -621,7 +627,8 @@ public class MemoryMatchGameFragment extends Fragment {
         stopTimer();
         timerTextView.setText("Time: 00:00");
         isPaused = false;
-        pauseButton.setText("Pause");
+        // Corrected: Set initial icon for pause button on reset
+        pauseButton.setIconResource(R.drawable.ic_pause_white_24dp);
         overlayContainer.setVisibility(View.GONE);
         pausedCard.setVisibility(View.GONE);
         gameOverCard.setVisibility(View.GONE);
@@ -663,6 +670,14 @@ public class MemoryMatchGameFragment extends Fragment {
         // automatically resume it without a toast.
         if (isPaused  && overlayContainer.getVisibility() != View.VISIBLE) {
             resumeGame(); // Auto-resume logic only, no UI or toast
+        }
+    }
+
+    @Override
+    public void onDismiss() {
+        // Resume game when high scores dialog is dismissed, show toast
+        if (isPaused) { // Check if the game was paused before showing the dialog
+            resumeGameAndHideUI(true);
         }
     }
 }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/rounded_top_container"
     app:cardCornerRadius="12dp">
 
@@ -111,7 +111,61 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:thumbTint="@color/black"
-                app:trackTint="@color/white" /> </LinearLayout>
+                app:trackTint="@color/white" />
+        </LinearLayout>
+
+        <!-- Section for Custom Reminder Times -->
+        <LinearLayout
+            android:id="@+id/custom_reminders_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="12dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    style="?attr/textAppearanceBodyLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:text="Custom Reminder Times"
+                    android:textColor="#333333" />
+
+                <Button
+                    android:id="@+id/add_reminder_time_button"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:text="Add" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/custom_times_info_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Adding custom times will disable the default schedule."
+                android:textSize="12sp"
+                android:visibility="gone"
+                tools:visibility="visible"
+                android:layout_marginTop="4dp"/>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/custom_times_chip_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:chipSpacingVertical="4dp"/>
+
+        </LinearLayout>
+
 
         <com.google.android.material.divider.MaterialDivider
             android:layout_width="match_parent"

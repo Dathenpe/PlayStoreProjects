@@ -1,6 +1,7 @@
 package memorymatch;
 
 import android.app.Dialog;
+import android.content.DialogInterface; // Import DialogInterface
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -25,7 +26,8 @@ import java.util.List;
 
 import funcorner.MemoryMatchGameFragment;
 
-public class HighScoreDialogFragment extends DialogFragment {
+// Implement DialogInterface.OnDismissListener
+public class HighScoreDialogFragment extends DialogFragment implements DialogInterface.OnDismissListener {
 
     private static final String ARG_HIGH_SCORES = "high_scores";
 
@@ -34,10 +36,25 @@ public class HighScoreDialogFragment extends DialogFragment {
     private HighScoreAdapter adapter;
     private List<MemoryMatchGameFragment.HighScoreEntry> highScores;
 
+    // Interface to communicate dismissal back to the calling Fragment
+    public interface OnDismissListener {
+        void onDismiss();
+    }
+
+    private OnDismissListener dismissListener;
+
     public HighScoreDialogFragment() {
         // Required empty public constructor
     }
 
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param highScores List of high scores to display.
+     * @param localUserId (Optional) User ID to highlight in the list.
+     * @return A new instance of fragment HighScoreDialogFragment.
+     */
     public static HighScoreDialogFragment newInstance(List<MemoryMatchGameFragment.HighScoreEntry> highScores, String localUserId) {
         HighScoreDialogFragment fragment = new HighScoreDialogFragment();
         Bundle args = new Bundle();
@@ -46,6 +63,11 @@ public class HighScoreDialogFragment extends DialogFragment {
         // localUserId parameter is no longer used for display/highlighting, but kept for method signature compatibility
         fragment.setArguments(args);
         return fragment;
+    }
+
+    // Setter for the dismiss listener
+    public void setOnDismissListener(OnDismissListener listener) {
+        this.dismissListener = listener;
     }
 
     @Override
@@ -94,6 +116,9 @@ public class HighScoreDialogFragment extends DialogFragment {
         super.onStart();
         Dialog dialog = getDialog();
         if (dialog != null) {
+            // Set the dialog's dismiss listener to this fragment
+            dialog.setOnDismissListener(this); // Crucial change here!
+
             Window window = dialog.getWindow();
             if (window != null) {
                 // Set the dialog window's background to transparent
@@ -109,4 +134,11 @@ public class HighScoreDialogFragment extends DialogFragment {
         }
     }
 
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog); // Call superclass method
+        if (dismissListener != null) {
+            dismissListener.onDismiss(); // Call our custom listener
+        }
+    }
 }

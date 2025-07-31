@@ -80,9 +80,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import drawing.DrawingCanvasFragment;
 import funcorner.MemoryMatchGameFragment;
@@ -209,6 +211,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static final String KEY_RECENT_NOTIFICATIONS = "recent_notifications";
     public static final String KEY_LAST_MOOD_CHECKIN_DATE = "last_mood_checkin_date";
 
+    // Constants for custom reminders
+    public static final String PREF_CUSTOM_REMINDER_TIMES = "custom_reminder_times";
+    public static final String PREF_ACTIVE_REMINDER_REQUEST_CODES = "active_reminder_request_codes";
+
+
     private ScrollView recentlySentNotificationsScrollView;
 
     // New constant for theme preference
@@ -231,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private GeneralViewModel generalViewModel;
-
+    String targetGameName = "";
 
     private BroadcastReceiver notificationUpdateReceiver = new BroadcastReceiver() {
         @Override
@@ -568,6 +575,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             FragmentManager fm = getSupportFragmentManager();
             Fragment currentFragment = fm.findFragmentById(R.id.fragment_container);
 
+            // Determine the target game's name for messages
+            String targetGameName = "";
+            if (gameFragmentId == R.id.nav_tetris) targetGameName = "Tetris";
+            else if (gameFragmentId == R.id.nav_memory_match) targetGameName = "Memory Match";
+            else if (gameFragmentId == R.id.nav_word_scramble) targetGameName = "Word Scramble";
+            else if (gameFragmentId == R.id.nav_paint) targetGameName = "Paint";
+
+
             // Check if the user is already in the game they're trying to launch
             if (currentFragment != null) {
                 boolean isAlreadyInTargetGame =
@@ -577,7 +592,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 (gameFragmentId == R.id.nav_paint && (currentFragment instanceof PaintFragment || currentFragment instanceof DrawingCanvasFragment));
 
                 if (isAlreadyInTargetGame) {
-                    Toast.makeText(this, "You are already in this game.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "You are already in " + targetGameName + ".", Toast.LENGTH_SHORT).show();
                     return; // Exit the method to prevent reloading
                 }
             }
@@ -589,15 +604,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     currentFragment instanceof PaintFragment ||
                     currentFragment instanceof DrawingCanvasFragment) {
 
-                String gameName = "the current game"; // Default name
-                if (currentFragment instanceof TetrisGameFragment) gameName = "Tetris";
-                else if (currentFragment instanceof MemoryMatchGameFragment) gameName = "Memory Match";
-                else if (currentFragment instanceof WordScrambleGameFragment) gameName = "Word Scramble";
-                else if (currentFragment instanceof PaintFragment || currentFragment instanceof DrawingCanvasFragment) gameName = "the Paint canvas";
+                String currentGameName = "the current game"; // Default name
+                if (currentFragment instanceof TetrisGameFragment) currentGameName = "Tetris";
+                else if (currentFragment instanceof MemoryMatchGameFragment) currentGameName = "Memory Match";
+                else if (currentFragment instanceof WordScrambleGameFragment) currentGameName = "Word Scramble";
+                else if (currentFragment instanceof PaintFragment || currentFragment instanceof DrawingCanvasFragment) currentGameName = "the Paint canvas";
 
                 CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
-                        "Exit " + gameName + "?",
-                        "Are you sure you want to quit your game?", // Unified message
+                        "Exit " + currentGameName + "?",
+                        "Are you sure you want to quit your current game to start " + targetGameName + "?",
                         "Leave",
                         "Cancel"
                 );
@@ -863,10 +878,90 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Fragment targetFragment = null;
         String toolbarTitle = null;
 
+        // Get the current fragment
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment currentFragment = fm.findFragmentById(R.id.fragment_container);
+
+        // Check if the navId is for a game fragment
+        boolean isGameFragment = (navId == R.id.nav_word_scramble || navId == R.id.nav_tetris ||
+                navId == R.id.nav_memory_match || navId == R.id.nav_paint);
+
+        if (isGameFragment) {
+            // Determine the target game's name for messages
+            if (navId == R.id.nav_tetris) targetGameName = "Tetris";
+            else if (navId == R.id.nav_memory_match) targetGameName = "Memory Match";
+            else if (navId == R.id.nav_word_scramble) targetGameName = "Word Scramble";
+            else if (navId == R.id.nav_paint) targetGameName = "Paint";
+
+            // Check if the user is already in the target game
+            boolean isAlreadyInTargetGame =
+                    (navId == R.id.nav_tetris && currentFragment instanceof TetrisGameFragment) ||
+                            (navId == R.id.nav_memory_match && currentFragment instanceof MemoryMatchGameFragment) ||
+                            (navId == R.id.nav_word_scramble && currentFragment instanceof WordScrambleGameFragment) ||
+                            (navId == R.id.nav_paint && (currentFragment instanceof PaintFragment || currentFragment instanceof DrawingCanvasFragment));
+
+            if (isAlreadyInTargetGame) {
+                Toast.makeText(this, "You are already in " + targetGameName + ".", Toast.LENGTH_SHORT).show();
+                drawerLayout.closeDrawer(GravityCompat.START); // Close drawer if open
+                return; // Prevent reloading the same game
+            }
+
+            // Check if the user is in a different game and might lose progress
+            if (currentFragment instanceof TetrisGameFragment ||
+                    currentFragment instanceof MemoryMatchGameFragment ||
+                    currentFragment instanceof WordScrambleGameFragment ||
+                    currentFragment instanceof PaintFragment ||
+                    currentFragment instanceof DrawingCanvasFragment) {
+
+                String currentGameName = "the current game";
+                if (currentFragment instanceof TetrisGameFragment) currentGameName = "Tetris";
+                else if (currentFragment instanceof MemoryMatchGameFragment) currentGameName = "Memory Match";
+                else if (currentFragment instanceof WordScrambleGameFragment) currentGameName = "Word Scramble";
+                else if (currentFragment instanceof PaintFragment || currentFragment instanceof DrawingCanvasFragment) currentGameName = "the Paint canvas";
+
+                CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                        "Exit " + currentGameName + "?",
+                        "Are you sure you want to quit your current game to start " + targetGameName + "?",
+                        "Leave",
+                        "Cancel"
+                );
+                dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                    @Override
+                    public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                        // User confirmed, now launch the new game
+                        dialogFragment.dismiss();
+                        performChipFragmentLoad(navId, targetGameName); // Call helper to load
+                    }
+
+                    @Override
+                    public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                        // User cancelled, do nothing, keep the drawer open or close as per original flow
+                        dialogFragment.dismiss();
+                        // Optionally, reset the navigation view checked item to the current game's category
+                        navigationView.setCheckedItem(R.id.nav_fun_corner);
+                        drawerLayout.closeDrawer(GravityCompat.START); // Close the drawer if they cancelled
+                    }
+                });
+                dialog.show(getSupportFragmentManager(), "ChipSwitchGameDialog");
+                return; // Wait for the user's response from the dialog
+            }
+        }
+
+        // If not a game fragment, or if the game switch was confirmed, proceed normally
+        performChipFragmentLoad(navId, null); // Pass null for game name as it's not a game switch scenario
+    }
+
+    // Helper method to perform the actual fragment loading after checks
+    private void performChipFragmentLoad(int navId, String gameNameForTitle) {
+        Fragment targetFragment = null;
+        String toolbarTitle = null;
+
         if (bottomSheetBehavior != null && bottomSheetBehavior.getState() == STATE_EXPANDED){
             bottomSheetBehavior.setState(STATE_HIDDEN);
             clearBottomFragment();
         }
+
+        // Assign target fragment and title based on navId
         if (navId == R.id.nav_coping_exercises){
             targetFragment = new CopingExercisesFragment();
             toolbarTitle = "Coping Exercises";
@@ -904,10 +999,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             toolbarTitle = "Paint";
             navigationView.setCheckedItem(R.id.nav_fun_corner);
         }
+        // Use the provided gameNameForTitle if it's a game switch, otherwise use the default toolbarTitle
+        String finalToolbarTitle = (gameNameForTitle != null) ? gameNameForTitle : toolbarTitle;
+
         if (targetFragment != null){
+            // Clear the back stack if navigating to a game from a chip, to ensure clean state
+            if (navId == R.id.nav_word_scramble || navId == R.id.nav_tetris ||
+                    navId == R.id.nav_memory_match || navId == R.id.nav_paint) {
+                getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            }
             loadFragment(targetFragment, navId);
-            toolbar.setTitle(toolbarTitle);
+            toolbar.setTitle(finalToolbarTitle);
             drawerLayout.closeDrawer(GravityCompat.START);
+            addFragmentToHistory(navId, finalToolbarTitle); // Add to history after loading
         }
     }
 
@@ -1543,73 +1647,126 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    // Corrected: Made static to be callable from BroadcastReceiver
-    public static void scheduleReminder(Context context){
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+    /**
+     * Schedules reminders based on user preferences (custom or default times).
+     * This method cancels all previously set reminders before scheduling new ones.
+     * @param context The application context.
+     */
+    public static void scheduleReminders(Context context) {
+        // First, cancel any previously scheduled alarms to prevent duplicates
+        cancelAllReminders(context);
 
-        // Add permission check for Android 12+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (!alarmManager.canScheduleExactAlarms()) {
-                Log.w(TAG, "Cannot schedule exact alarms. User needs to grant permission.");
-                // In a real app, you'd guide the user to settings here.
-                // For this fix, we log a warning. The next method handles the user-facing part.
-                return;
-            }
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+            Log.w(TAG, "Cannot schedule exact alarms. Permission not granted.");
+            // Cannot show a dialog from here, but the setting is checked in SettingsFragment.
+            return;
         }
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Set<String> customTimes = prefs.getStringSet(PREF_CUSTOM_REMINDER_TIMES, null);
+        Set<String> activeRequestCodesStr = new HashSet<>();
 
         Intent intent = new Intent(context, ReminderBroadcastReceiver.class);
-        intent.setAction("com.example.heal.REMINDER_ALARM");
+        intent.setAction("com.f9ld3.heal.REMINDER_ALARM"); // Use a consistent action
 
-        int[][] reminderTimes = {
-                {7, 0, REMINDER_NOTIFICATION_ID_7AM},
-                {11, 0, REMINDER_NOTIFICATION_ID_11AM},
-                {18, 0, REMINDER_NOTIFICATION_ID_6PM},
-                {21, 0, REMINDER_NOTIFICATION_ID_9PM}
-        };
+        if (customTimes != null && !customTimes.isEmpty()) {
+            // Schedule custom reminders
+            for (String time : customTimes) {
+                String[] parts = time.split(":");
+                int hour = Integer.parseInt(parts[0]);
+                int minute = Integer.parseInt(parts[1]);
+                // Generate a unique request code based on time to avoid collisions
+                int requestCode = hour * 100 + minute;
 
-        for (int[] times : reminderTimes) {
-            int hour = times[0];
-            int minute = times[1];
-            int requestCode = times[2];
-
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(System.currentTimeMillis());
-            calendar.set(Calendar.HOUR_OF_DAY, hour);
-            calendar.set(Calendar.MINUTE, minute);
-            calendar.set(Calendar.SECOND, 0);
-
-            if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
-                calendar.add(Calendar.DAY_OF_YEAR, 1);
+                scheduleAlarmForTime(context, alarmManager, intent, hour, minute, requestCode);
+                activeRequestCodesStr.add(String.valueOf(requestCode));
             }
+            Log.d(TAG, "Scheduled " + customTimes.size() + " custom reminders.");
+        } else {
+            // Schedule default reminders if no custom times are set
+            int[][] defaultReminderTimes = {
+                    {7, 0, REMINDER_NOTIFICATION_ID_7AM},
+                    {11, 0, REMINDER_NOTIFICATION_ID_11AM},
+                    {18, 0, REMINDER_NOTIFICATION_ID_6PM},
+                    {21, 0, REMINDER_NOTIFICATION_ID_9PM}
+            };
 
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
-            // Use setExactAndAllowWhileIdle for all supported versions for consistency
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-
-            Log.d(TAG, "Scheduled reminder for " + hour + ":" + minute + " with request code " + requestCode);
+            for (int[] times : defaultReminderTimes) {
+                scheduleAlarmForTime(context, alarmManager, intent, times[0], times[1], times[2]);
+                activeRequestCodesStr.add(String.valueOf(times[2]));
+            }
+            Log.d(TAG, "Scheduled default reminders.");
         }
+
+        // Save the new set of active request codes to SharedPreferences for future cancellation
+        prefs.edit().putStringSet(PREF_ACTIVE_REMINDER_REQUEST_CODES, activeRequestCodesStr).apply();
     }
 
-    // Corrected: Made static
-    public static void cancelAllReminders(Context context){
+    /**
+     * Helper method to set a single alarm at a specific time.
+     */
+    private static void scheduleAlarmForTime(Context context, AlarmManager alarmManager, Intent intent, int hour, int minute, int requestCode) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, 0);
+
+        // If the calculated time is in the past, schedule it for the next day
+        if (calendar.getTimeInMillis() <= System.currentTimeMillis()) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+        }
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+        Log.d(TAG, "Scheduled alarm for " + hour + ":" + String.format("%02d", minute) + " with request code " + requestCode);
+    }
+
+
+    /**
+     * Cancels all currently scheduled reminders, both custom and default.
+     * It reads the list of active request codes from SharedPreferences to know which alarms to target.
+     * @param context The application context.
+     */
+    public static void cancelAllReminders(Context context) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, ReminderBroadcastReceiver.class);
-        intent.setAction("com.example.heal.REMINDER_ALARM");
+        intent.setAction("com.f9ld3.heal.REMINDER_ALARM");
 
-        int[] requestCodes = {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Set<String> activeRequestCodesStr = prefs.getStringSet(PREF_ACTIVE_REMINDER_REQUEST_CODES, null);
+
+        // Cancel alarms based on the saved request codes
+        if (activeRequestCodesStr != null) {
+            for (String codeStr : activeRequestCodesStr) {
+                int requestCode = Integer.parseInt(codeStr);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                alarmManager.cancel(pendingIntent);
+                pendingIntent.cancel();
+                Log.d(TAG, "Cancelled reminder with stored request code " + requestCode);
+            }
+            // Clear the stored request codes after cancelling them
+            prefs.edit().remove(PREF_ACTIVE_REMINDER_REQUEST_CODES).apply();
+        }
+
+        // As a fallback, also attempt to cancel the default reminders in case state is inconsistent
+        int[] defaultRequestCodes = {
                 REMINDER_NOTIFICATION_ID_7AM,
                 REMINDER_NOTIFICATION_ID_11AM,
                 REMINDER_NOTIFICATION_ID_6PM,
                 REMINDER_NOTIFICATION_ID_9PM
         };
-        for (int requestCode : requestCodes) {
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            alarmManager.cancel(pendingIntent);
-            pendingIntent.cancel();
-            Log.d(TAG, "Cancelled reminder with request code " + requestCode);
+        for (int requestCode : defaultRequestCodes) {
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_NO_CREATE | PendingIntent.FLAG_IMMUTABLE);
+            if (pendingIntent != null) {
+                alarmManager.cancel(pendingIntent);
+                pendingIntent.cancel();
+                Log.d(TAG, "Fallback cancelled default reminder with request code " + requestCode);
+            }
         }
     }
+
 
     public void createNotificationChannel(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
@@ -1630,7 +1787,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
                 if (!alarmManager.canScheduleExactAlarms()) {
                     // Guide user to settings
-                    // Replaced AlertDialog with CustomMessageDialogFragment
                     CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
                             "Permission Needed",
                             "To ensure your reminders are delivered on time, please allow the app to schedule exact alarms.",
@@ -1651,10 +1807,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     });
                     dialog.show(getSupportFragmentManager(), "PermissionDialog");
                 } else {
-                    scheduleReminder(this);
+                    scheduleReminders(this);
                 }
             } else {
-                scheduleReminder(this);
+                scheduleReminders(this);
             }
         } else {
             cancelAllReminders(this);

@@ -258,24 +258,32 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "ReminderBroadcastReceiver onReceive called. Action: " + intent.getAction());
 
-        // Re-schedule alarms if device booted
-        if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-            Log.d(TAG, "Device booted. Re-scheduling reminders.");
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-            boolean reminderEnabled = sharedPreferences.getBoolean("reminder_enabled", false);
-            if (reminderEnabled) {
-                // Correctly re-schedule alarms directly from the receiver
-                MainActivity.scheduleReminder(context);
+        final String action = intent.getAction();
+        if (action != null) {
+            switch (action) {
+                // These actions indicate the device has restarted.
+                case Intent.ACTION_BOOT_COMPLETED:
+                case "android.intent.action.LOCKED_BOOT_COMPLETED": // Use string for compatibility
+                    Log.d(TAG, "Device booted/restarted. Re-scheduling reminders.");
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+                    boolean reminderEnabled = sharedPreferences.getBoolean("reminder_enabled", false);
+                    if (reminderEnabled) {
+                        // Use goAsync to allow the receiver time to complete its work on a background thread.
+                        final PendingResult pendingResult = goAsync();
+                        new Thread(() -> {
+                            MainActivity.scheduleReminders(context);
+                            pendingResult.finish();
+                        }).start();
+                    }
+                    return; // Exit after handling boot/restart event.
             }
-            return; // Exit after handling boot
         }
 
         // --- Standard Alarm Handling ---
 
-        // Re-schedule the alarm for the next day immediately.
-        // This ensures that even if the notification is not shown for some reason,
-        // the alarm is still set for the future.
-        MainActivity.scheduleReminder(context);
+        // Re-schedule the alarms for the next day immediately.
+        // This ensures that even if the notification isn't shown, the alarm is set for the future.
+        MainActivity.scheduleReminders(context);
         Log.d(TAG, "Alarms have been re-scheduled for the next day.");
 
 
@@ -370,5 +378,4 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
             Log.d(TAG, "Notification skipped: Reminder enabled = " + reminderEnabled + ", Has checked in today = " + hasCheckedInToday);
         }
     }
-
 }

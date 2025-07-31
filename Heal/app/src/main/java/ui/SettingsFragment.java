@@ -1,5 +1,6 @@
 package ui;
 
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -10,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,28 +25,41 @@ import androidx.fragment.app.Fragment;
 
 import com.f9ld3.heal.MainActivity;
 import com.f9ld3.heal.R;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.materialswitch.MaterialSwitch;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class SettingsFragment extends Fragment {
 
     private View settingsRootView;
     private LinearLayout editNameLayout;
     private MaterialSwitch switchReminder;
-    private LinearLayout feedbackLayout; // This was declared but not used in the original layout, keeping it for consistency if it's meant to be there.
+    private LinearLayout feedbackLayout;
     private LinearLayout aboutUsLayout;
     private TextView nameText;
     private boolean isSwitchInitialized = false;
     private MainActivity mainActivity;
     private Context context;
 
-    // New UI elements for theme selection
+    // UI elements for theme selection
     private LinearLayout themeColorContainer;
-    private ImageView selectedThemeCircle = null; // To keep track of the currently selected circle
+    private ImageView selectedThemeCircle = null;
 
-    // Map to store theme color names and their corresponding resource IDs
+    // UI elements for custom reminders
+    private Button addReminderTimeButton;
+    private ChipGroup customTimesChipGroup;
+    private TextView customTimesInfoText;
+
     private final Map<String, Integer> themeColors = new HashMap<>();
     private static final String PREF_SELECTED_THEME_COLOR = "selected_theme_color";
 
@@ -67,10 +82,13 @@ public class SettingsFragment extends Fragment {
         nameText = settingsRootView.findViewById(R.id.name_text);
         switchReminder = settingsRootView.findViewById(R.id.switch_reminder);
         aboutUsLayout = settingsRootView.findViewById(R.id.about_us_layout);
-        themeColorContainer = settingsRootView.findViewById(R.id.theme_color_container); // Initialize new container
+        themeColorContainer = settingsRootView.findViewById(R.id.theme_color_container);
 
-        // Populate theme colors map
-        // Note: md_theme_primary is included here for internal logic/fallback, but will be excluded from UI selection
+        // Initialize custom reminder views
+        addReminderTimeButton = settingsRootView.findViewById(R.id.add_reminder_time_button);
+        customTimesChipGroup = settingsRootView.findViewById(R.id.custom_times_chip_group);
+        customTimesInfoText = settingsRootView.findViewById(R.id.custom_times_info_text);
+
         themeColors.put("md_theme_primary", R.color.md_theme_primary);
         themeColors.put("pink", R.color.pink);
         themeColors.put("blue", R.color.blue);
@@ -87,19 +105,18 @@ public class SettingsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         editNameLayout.setOnClickListener(v -> showEditNameDialog());
-        // Initialize UI elements when the view is created
+        addReminderTimeButton.setOnClickListener(v -> showTimePickerDialog());
         initializeUi();
     }
 
     private void showEditNameDialog() {
-        // Get the current name from local storage to pre-fill the dialog
         mainActivity.closeSettings();
         String currentName = getNameFromLocalStorage();
 
         CustomInputDialogFragment dialog = CustomInputDialogFragment.newInstance(
                 "Edit Name",
                 "Please enter your new name.",
-                currentName, // Pass the current name as the hint/pre-filled text
+                currentName,
                 "Save",
                 "Cancel"
         );
@@ -111,7 +128,6 @@ public class SettingsFragment extends Fragment {
                     mainActivity.saveNameToLocalStorage(inputText);
                     nameText.setText(inputText);
                     Toast.makeText(getContext(), "Name saved successfully", Toast.LENGTH_SHORT).show();
-                    // Reload the settings fragment to ensure UI consistency if needed
                     new Handler().postDelayed(() -> mainActivity.loadBottomSettingsFragment(), 100);
                 } else {
                     Toast.makeText(getContext(), "Name cannot be empty, changes not saved", Toast.LENGTH_SHORT).show();
@@ -129,32 +145,25 @@ public class SettingsFragment extends Fragment {
 
     private String getNameFromLocalStorage() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        return sharedPreferences.getString("user_name", "Your Name"); // Default value if not found
+        return sharedPreferences.getString("user_name", "Your Name");
     }
 
     private void initializeUi() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
-        // Set the reminder switch state based on saved preference
         switchReminder.setChecked(sharedPreferences.getBoolean("reminder_enabled", false));
-
-        // Set the name text from local storage
         String userName = getNameFromLocalStorage();
         nameText.setText(userName);
 
-        // Add listener for the reminder switch
         if (!isSwitchInitialized) {
             switchReminder.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                // Save the new state of the reminder switch
                 sharedPreferences.edit().putBoolean("reminder_enabled", isChecked).apply();
-                if (isChecked) {
-                    Toast.makeText(getContext(), "Reminders enabled", Toast.LENGTH_SHORT).show();
-                    if (mainActivity != null) {
+                if (mainActivity != null) {
+                    if (isChecked) {
+                        Toast.makeText(getContext(), "Reminders enabled", Toast.LENGTH_SHORT).show();
                         mainActivity.onReminderSettingChanged(true);
-                    }
-                } else {
-                    Toast.makeText(getContext(), "Reminders disabled", Toast.LENGTH_SHORT).show();
-                    if (mainActivity != null) {
+                    } else {
+                        Toast.makeText(getContext(), "Reminders disabled", Toast.LENGTH_SHORT).show();
                         mainActivity.onReminderSettingChanged(false);
                     }
                 }
@@ -162,24 +171,90 @@ public class SettingsFragment extends Fragment {
             isSwitchInitialized = true;
         }
 
-        // Initialize theme color selection UI
+        setupCustomReminders();
         setupThemeColorSelection();
+    }
+
+    private void showTimePickerDialog() {
+        Calendar calendar = Calendar.getInstance();
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), (view, hourOfDay, minuteOfHour) -> {
+            String time = String.format(Locale.US, "%02d:%02d", hourOfDay, minuteOfHour);
+            addCustomTime(time);
+        }, hour, minute, true); // Use 24-hour format
+        timePickerDialog.show();
+    }
+
+    private void addCustomTime(String time) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        Set<String> customTimes = new HashSet<>(prefs.getStringSet(MainActivity.PREF_CUSTOM_REMINDER_TIMES, new HashSet<>()));
+
+        if (customTimes.add(time)) {
+            prefs.edit().putStringSet(MainActivity.PREF_CUSTOM_REMINDER_TIMES, customTimes).apply();
+            Toast.makeText(getContext(), "Reminder time added: " + time, Toast.LENGTH_SHORT).show();
+            if (mainActivity != null && switchReminder.isChecked()) {
+                MainActivity.scheduleReminders(mainActivity);
+            }
+            updateCustomTimesChips();
+        } else {
+            Toast.makeText(getContext(), "This time is already added.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void removeCustomTime(String time) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        Set<String> customTimes = new HashSet<>(prefs.getStringSet(MainActivity.PREF_CUSTOM_REMINDER_TIMES, new HashSet<>()));
+
+        if (customTimes.remove(time)) {
+            prefs.edit().putStringSet(MainActivity.PREF_CUSTOM_REMINDER_TIMES, customTimes).apply();
+            Toast.makeText(getContext(), "Reminder time removed: " + time, Toast.LENGTH_SHORT).show();
+            if (mainActivity != null && switchReminder.isChecked()) {
+                MainActivity.scheduleReminders(mainActivity);
+            }
+            updateCustomTimesChips();
+        }
+    }
+
+    private void setupCustomReminders() {
+        updateCustomTimesChips();
+    }
+
+    private void updateCustomTimesChips() {
+        if (customTimesChipGroup == null) return;
+        customTimesChipGroup.removeAllViews();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        Set<String> customTimes = prefs.getStringSet(MainActivity.PREF_CUSTOM_REMINDER_TIMES, null);
+
+        if (customTimes != null && !customTimes.isEmpty()) {
+            customTimesInfoText.setVisibility(View.VISIBLE);
+            List<String> sortedTimes = new ArrayList<>(customTimes);
+            Collections.sort(sortedTimes);
+
+            for (String time : sortedTimes) {
+                Chip chip = new Chip(getContext());
+                chip.setText(time);
+                chip.setCloseIconVisible(true);
+                chip.setOnCloseIconClickListener(v -> removeCustomTime(time));
+                customTimesChipGroup.addView(chip);
+            }
+        } else {
+            customTimesInfoText.setVisibility(View.GONE);
+        }
     }
 
     private void setupThemeColorSelection() {
         if (themeColorContainer == null) {
-            return; // Should not happen if onCreateView is successful
+            return;
         }
-        themeColorContainer.removeAllViews(); // Clear any existing views
+        themeColorContainer.removeAllViews();
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        // Set "orange" as the new default theme color for first install
         String savedThemeColorName = sharedPreferences.getString(PREF_SELECTED_THEME_COLOR, "orange");
 
         for (Map.Entry<String, Integer> entry : themeColors.entrySet()) {
             String colorName = entry.getKey();
-
-            // Skip creating a circle for the default primary theme if it's not meant to be selectable
             if (colorName.equals("md_theme_primary")) {
                 continue;
             }
@@ -195,7 +270,6 @@ public class SettingsFragment extends Fragment {
             params.setMargins(0, 0, (int) getResources().getDimension(R.dimen.theme_circle_margin), 0);
             colorCircle.setLayoutParams(params);
 
-            // Create a circular drawable
             GradientDrawable drawable = new GradientDrawable();
             drawable.setShape(GradientDrawable.OVAL);
             drawable.setColor(colorValue);
@@ -204,9 +278,8 @@ public class SettingsFragment extends Fragment {
                     Color.BLACK
             );
             colorCircle.setBackground(drawable);
-            colorCircle.setTag(colorName); // Store the color name as a tag
+            colorCircle.setTag(colorName);
 
-            // Set initial selection
             if (colorName.equals(savedThemeColorName)) {
                 highlightThemeCircle(colorCircle);
                 selectedThemeCircle = colorCircle;
@@ -215,10 +288,9 @@ public class SettingsFragment extends Fragment {
             colorCircle.setOnClickListener(v -> {
                 String selectedName = (String) v.getTag();
 
-                // Show confirmation dialog
                 CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
                         "Change Theme",
-                        "Are you sure you want to change the theme to " + selectedName.replace("md_theme_", "").replace("_", " ") + "? The app will require a restart",
+                        "Are you sure you want to change the theme? The app will restart to apply changes.",
                         "Change",
                         "Cancel"
                 );
@@ -226,9 +298,9 @@ public class SettingsFragment extends Fragment {
                     @Override
                     public void onDialogPositiveClick(DialogFragment dialogFragment) {
                         applyThemeColor(selectedName);
-                        Toast.makeText(getContext(), "Theme set to " + selectedName.replace("md_theme_", "").replace("_", " ") + ". please restart the app...", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), "Theme changed. Restarting app...", Toast.LENGTH_LONG).show();
                         if (mainActivity != null) {
-                            mainActivity.recreate(); // Restart the activity to apply the theme
+                            mainActivity.recreate();
                         }
                         dialogFragment.dismiss();
                     }
@@ -248,12 +320,10 @@ public class SettingsFragment extends Fragment {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         sharedPreferences.edit().putString(PREF_SELECTED_THEME_COLOR, colorName).apply();
 
-        // Update UI to highlight the newly selected circle
         if (selectedThemeCircle != null) {
             unhighlightThemeCircle(selectedThemeCircle);
         }
 
-        // Find the new selected circle by its tag
         for (int i = 0; i < themeColorContainer.getChildCount(); i++) {
             View child = themeColorContainer.getChildAt(i);
             if (child instanceof ImageView && child.getTag() != null && child.getTag().equals(colorName)) {
@@ -262,8 +332,6 @@ public class SettingsFragment extends Fragment {
                 break;
             }
         }
-
-        // The app restart is now handled by the confirmation dialog's positive click listener
     }
 
     private void highlightThemeCircle(ImageView circle) {
@@ -271,7 +339,7 @@ public class SettingsFragment extends Fragment {
         if (drawable != null) {
             drawable.setStroke(
                     (int) getResources().getDimension(R.dimen.theme_circle_border_width_selected),
-                    ContextCompat.getColor(getContext(), R.color.black) // Use black for border
+                    ContextCompat.getColor(getContext(), R.color.black)
             );
         }
     }
@@ -281,7 +349,7 @@ public class SettingsFragment extends Fragment {
         if (drawable != null) {
             drawable.setStroke(
                     (int) getResources().getDimension(R.dimen.theme_circle_border_width_normal),
-                    Color.BLACK // Normal border color
+                    Color.BLACK
             );
         }
     }
@@ -289,19 +357,13 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Ensure UI is updated when returning to the fragment
         initializeUi();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Nullify views to prevent memory leaks
+        settingsRootView = null;
         editNameLayout = null;
         switchReminder = null;
         feedbackLayout = null;
@@ -309,5 +371,8 @@ public class SettingsFragment extends Fragment {
         nameText = null;
         themeColorContainer = null;
         selectedThemeCircle = null;
+        addReminderTimeButton = null;
+        customTimesChipGroup = null;
+        customTimesInfoText = null;
     }
 }
