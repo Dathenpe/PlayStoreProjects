@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -69,6 +70,8 @@ public class SettingsFragment extends Fragment {
     // New constant for the maximum number of custom reminders
     private static final int MAX_CUSTOM_REMINDERS = 4;
 
+    private CoordinatorLayout mainLayout;
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -89,14 +92,14 @@ public class SettingsFragment extends Fragment {
         switchReminder = settingsRootView.findViewById(R.id.switch_reminder);
         aboutUsLayout = settingsRootView.findViewById(R.id.about_us_layout);
         themeColorContainer = settingsRootView.findViewById(R.id.theme_color_container);
+        //feedbackLayout = settingsRootView.findViewById(R.id.feedback_layout);
 
         // Initialize custom reminder views
         addReminderTimeButton = settingsRootView.findViewById(R.id.add_reminder_time_button);
         customTimesChipGroup = settingsRootView.findViewById(R.id.custom_times_chip_group);
         customTimesInfoText = settingsRootView.findViewById(R.id.custom_times_info_text);
         emptyStateText = settingsRootView.findViewById(R.id.empty_state_text);
-        chipAndButtonContainer = settingsRootView.findViewById(R.id.chip_and_button_container); // Use the correct ID from your XML
-
+        chipAndButtonContainer = settingsRootView.findViewById(R.id.chip_and_button_container);
 
         themeColors.put("md_theme_primary", R.color.md_theme_primary);
         themeColors.put("pink", R.color.pink);
@@ -115,18 +118,14 @@ public class SettingsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         editNameLayout.setOnClickListener(v -> showEditNameDialog());
         addReminderTimeButton.setOnClickListener(v -> {
-
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
             Set<String> customTimes = new HashSet<>(prefs.getStringSet(MainActivity.PREF_CUSTOM_REMINDER_TIMES, new HashSet<>()));
 
-            // Check if the number of custom reminders has reached the maximum limit
             if (customTimes.size() >= MAX_CUSTOM_REMINDERS) {
                 Toast.makeText(getContext(), "You have reached the maximum of " + MAX_CUSTOM_REMINDERS + " custom reminders.", Toast.LENGTH_LONG).show();
-            }else{
+            } else {
                 showTimePickerDialog();
             }
-
-
         });
         initializeUi();
     }
@@ -150,10 +149,10 @@ public class SettingsFragment extends Fragment {
                     mainActivity.saveNameToLocalStorage(inputText);
                     nameText.setText(inputText);
                     Toast.makeText(getContext(), "Name saved successfully", Toast.LENGTH_SHORT).show();
-                    new Handler().postDelayed(() -> mainActivity.loadBottomSettingsFragment(), 100);
                 } else {
                     Toast.makeText(getContext(), "Name cannot be empty, changes not saved", Toast.LENGTH_SHORT).show();
                 }
+                new Handler().postDelayed(() -> mainActivity.loadBottomSettingsFragment(), 100);
             }
 
             @Override
@@ -171,11 +170,21 @@ public class SettingsFragment extends Fragment {
     }
 
     private void initializeUi() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        setupNameText();
+        setupReminderSwitch();
+        setupCustomReminders();
+        setupThemeColorSelection();
+        setupInfoLayouts();
+    }
 
-        switchReminder.setChecked(sharedPreferences.getBoolean("reminder_enabled", false));
+    private void setupNameText() {
         String userName = getNameFromLocalStorage();
         nameText.setText(userName);
+    }
+
+    private void setupReminderSwitch() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        switchReminder.setChecked(sharedPreferences.getBoolean("reminder_enabled", false));
 
         if (!isSwitchInitialized) {
             switchReminder.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -192,9 +201,15 @@ public class SettingsFragment extends Fragment {
             });
             isSwitchInitialized = true;
         }
+    }
 
-        setupCustomReminders();
-        setupThemeColorSelection();
+    private void setupInfoLayouts() {
+        if (feedbackLayout != null) {
+            feedbackLayout.setOnClickListener(v -> Toast.makeText(getContext(), "Feedback feature is not yet implemented.", Toast.LENGTH_SHORT).show());
+        }
+        if (aboutUsLayout != null) {
+            aboutUsLayout.setOnClickListener(v -> Toast.makeText(getContext(), "About Us feature is not yet implemented.", Toast.LENGTH_SHORT).show());
+        }
     }
 
     private void showTimePickerDialog() {
@@ -205,7 +220,7 @@ public class SettingsFragment extends Fragment {
         TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), (view, hourOfDay, minuteOfHour) -> {
             String time = String.format(Locale.US, "%02d:%02d", hourOfDay, minuteOfHour);
             addCustomTime(time);
-        }, hour, minute, true); // Use 24-hour format
+        }, hour, minute, true);
         timePickerDialog.show();
     }
 
@@ -220,8 +235,6 @@ public class SettingsFragment extends Fragment {
                 MainActivity.scheduleReminders(mainActivity);
             }
             updateCustomTimesChips();
-            updateCustomRemindersUi();
-
         } else {
             Toast.makeText(getContext(), "This time is already added.", Toast.LENGTH_SHORT).show();
         }
@@ -246,15 +259,13 @@ public class SettingsFragment extends Fragment {
                         MainActivity.scheduleReminders(mainActivity);
                     }
                     updateCustomTimesChips();
-                    updateCustomRemindersUi();
                 }
             }
 
             @Override
             public void onDialogNegativeClick(DialogFragment dialogFragment) {
-
+                // Do nothing, dialog will be dismissed
             }
-
         });
         dialog.show(getParentFragmentManager(), "CustomReminderDeletionConfirmationDialog");
     }
@@ -284,6 +295,7 @@ public class SettingsFragment extends Fragment {
         } else {
             customTimesInfoText.setVisibility(View.GONE);
         }
+        updateCustomRemindersUi();
     }
 
     private void setupThemeColorSelection() {
@@ -374,6 +386,11 @@ public class SettingsFragment extends Fragment {
                 break;
             }
         }
+
+        Integer drawableResId = mainActivity.themeBackgrounds.get(colorName);
+        if (drawableResId != null && mainLayout != null) {
+            mainLayout.setBackgroundResource(drawableResId);
+        }
     }
 
     private void highlightThemeCircle(ImageView circle) {
@@ -399,7 +416,9 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mainActivity.Fab.setVisibility(View.GONE);
+        if (mainActivity != null && mainActivity.Fab != null) {
+            mainActivity.Fab.setVisibility(View.GONE);
+        }
         initializeUi();
     }
 
@@ -420,10 +439,8 @@ public class SettingsFragment extends Fragment {
     }
     private void updateCustomRemindersUi() {
         if (customTimesChipGroup.getChildCount() > 0) {
-            // Chips exist: show the chips, hide the empty state text, and animate the button.
             emptyStateText.animate().alpha(0f).setDuration(300).withEndAction(() -> {
                 emptyStateText.setVisibility(View.GONE);
-                // Animate the button to move to the far right.
                 addReminderTimeButton.animate()
                         .translationX(0)
                         .setDuration(500)
@@ -431,7 +448,6 @@ public class SettingsFragment extends Fragment {
             }).start();
             customTimesChipGroup.setVisibility(View.VISIBLE);
         } else {
-            // No chips: hide the chips, show the empty state text, and animate the button back.
             customTimesChipGroup.setVisibility(View.GONE);
             emptyStateText.animate().alpha(1f).setDuration(300).withStartAction(() -> {
                 emptyStateText.setVisibility(View.VISIBLE);

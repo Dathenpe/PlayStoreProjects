@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/art_corner_coordinator_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:layout_height="match_parent">
 
     <!-- This LinearLayout holds the main content that will be hidden during loading -->
     <LinearLayout
@@ -23,7 +22,7 @@
             android:layout_marginBottom="16dp"
             android:text="Your Artworks"
             android:textAppearance="?attr/textAppearanceTitleLarge"
-            android:textColor="?attr/colorOnSurface" />
+            android:textColor="" />
 
         <!-- This FrameLayout allows the RecyclerView and the empty state TextView to occupy
              the same space, making it easy to toggle their visibility. -->

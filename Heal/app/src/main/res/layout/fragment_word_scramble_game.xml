@@ -5,7 +5,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
     tools:context="funcorner.WordScrambleGameFragment"> <!-- VERIFY: Correct path to your Fragment -->
 
     <!-- Top Info Card: Score, Timer, Round, Mode Selection -->

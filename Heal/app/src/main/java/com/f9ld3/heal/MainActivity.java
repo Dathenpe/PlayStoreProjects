@@ -54,6 +54,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -241,6 +242,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private GeneralViewModel generalViewModel;
     String targetGameName = "";
 
+    public final Map<String, Integer> themeBackgrounds = new HashMap<>();
+    private CoordinatorLayout mainLayout;
+
     private BroadcastReceiver notificationUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -291,7 +295,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // Find the main layout after setting the content view
+        mainLayout = findViewById(R.id.main_coordinator_layout);
+        // Populate the themeBackgrounds map
+        themeBackgrounds.put("pink", R.drawable.bg_pink);
+        themeBackgrounds.put("blue", R.drawable.bg_blue);
+        themeBackgrounds.put("green", R.drawable.bg_green);
+        themeBackgrounds.put("purple", R.drawable.bg_purple);
+        themeBackgrounds.put("orange", R.drawable.bg_orange);
+        themeBackgrounds.put("teal", R.drawable.bg_teal);
+        themeBackgrounds.put("brown", R.drawable.bg_brown);
 
+        applySavedTheme();
         // Update the app icon based on the selected theme
         updateAppIcon(selectedThemeColorName); // Call this after setContentView
 
@@ -2015,98 +2030,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void onDrawingSaved(String imageUri, String artworkName) {
 
     }
-    private List<String> getCustomReminderTimes(){
-        String json = sharedPreferences.getString(PREF_CUSTOM_REMINDER_TIMES, null);
-        Type type = new TypeToken<List<String>>() {}.getType();
-        if (json != null) {
-            return gson.fromJson(json, type);
-        } else {
-            return new ArrayList<>();
+    private void applySavedTheme() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String savedThemeColorName = sharedPreferences.getString("selected_theme_color", "orange");
+        Integer drawableResId = themeBackgrounds.get(savedThemeColorName);
+        CoordinatorLayout mainLayout = findViewById(R.id.main_coordinator_layout);
+        if (drawableResId != null && mainLayout != null) {
+            mainLayout.setBackgroundResource(drawableResId);
         }
-    }
-
-    private Set<Integer> getActiveRequestCodes() {
-        String json = sharedPreferences.getString(PREF_ACTIVE_REMINDER_REQUEST_CODES, null);
-        Type type = new TypeToken<Set<Integer>>() {}.getType();
-        if (json != null) {
-            return gson.fromJson(json, type);
-        } else {
-            return new HashSet<>();
-        }
-    }
-
-    private void saveActiveRequestCodes(Set<Integer> requestCodes) {
-        String json = gson.toJson(requestCodes);
-        sharedPreferences.edit().putString(PREF_ACTIVE_REMINDER_REQUEST_CODES, json).apply();
-    }
-
-    public void scheduleCustomReminder(int hour, int minute) {
-        Log.d(TAG, "Scheduling custom reminder for " + hour + ":" + minute);
-
-        // A unique request code for each custom reminder
-        int requestCode = generateRequestCode(hour, minute);
-
-        Intent intent = new Intent(this, ReminderBroadcastReceiver.class);
-        intent.putExtra("reminderType", "custom");
-        intent.putExtra("hour", hour);
-        intent.putExtra("minute", minute);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
-        calendar.set(Calendar.SECOND, 0);
-
-        // If the time is in the past, schedule it for the next day
-        if (calendar.before(Calendar.getInstance())) {
-            calendar.add(Calendar.DAY_OF_MONTH, 1);
-        }
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        if (alarmManager != null) {
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
-        }
-
-        Set<Integer> activeRequestCodes = getActiveRequestCodes();
-        activeRequestCodes.add(requestCode);
-        saveActiveRequestCodes(activeRequestCodes);
-    }
-    public void cancelCustomReminder(int hour, int minute) {
-        Log.d(TAG, "Canceling custom reminder for " + hour + ":" + minute);
-        int requestCode = generateRequestCode(hour, minute);
-        Intent intent = new Intent(this, ReminderBroadcastReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_NO_CREATE);
-
-        if (pendingIntent != null) {
-            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            if (alarmManager != null) {
-                alarmManager.cancel(pendingIntent);
-            }
-            pendingIntent.cancel();
-        }
-
-        Set<Integer> activeRequestCodes = getActiveRequestCodes();
-        activeRequestCodes.remove(requestCode);
-        saveActiveRequestCodes(activeRequestCodes);
-    }
-
-    private void cancelAllCustomReminders() {
-        Set<Integer> activeRequestCodes = getActiveRequestCodes();
-        for (Integer requestCode : activeRequestCodes) {
-            Intent intent = new Intent(this, ReminderBroadcastReceiver.class);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_NO_CREATE);
-            if (pendingIntent != null) {
-                AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-                if (alarmManager != null) {
-                    alarmManager.cancel(pendingIntent);
-                }
-                pendingIntent.cancel();
-            }
-        }
-        activeRequestCodes.clear();
-        saveActiveRequestCodes(activeRequestCodes);
-    }
-    private int generateRequestCode(int hour, int minute) {
-        return 500 + (hour * 60) + minute;
     }
 }
