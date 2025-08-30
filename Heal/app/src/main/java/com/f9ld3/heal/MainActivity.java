@@ -218,6 +218,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private ScrollView recentlySentNotificationsScrollView;
 
+    public SharedPreferences sharedPreferences;
+
     // New constant for theme preference
     private static final String PREF_SELECTED_THEME_COLOR = "selected_theme_color";
 
@@ -234,7 +236,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         THEME_ICON_ALIASES.put("orange", "com.f9ld3.heal.MainActivityAliasOrange");
         THEME_ICON_ALIASES.put("teal", "com.f9ld3.heal.MainActivityAliasTeal");
         THEME_ICON_ALIASES.put("brown", "com.f9ld3.heal.MainActivityAliasBrown");
-        // Add other themes here if you create more icon drawables for them
     }
 
     private GeneralViewModel generalViewModel;
@@ -648,7 +649,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void launchGameFromWidget(int gameFragmentId) {
         Fragment targetFragment = null;
         String toolbarTitle = "";
-
+        loadFragment(new HomeFragment(), R.id.nav_home);
         // Close any open bottom sheet or popup
         if (bottomSheetBehavior != null && bottomSheetBehavior.getState() == STATE_EXPANDED) {
             bottomSheetBehavior.setState(STATE_HIDDEN);
@@ -770,6 +771,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onResume();
         NotificationManagerCompat.from(this).cancelAll();
         Log.d(TAG, "All notifications cleared on app resume.");
+        if (Fab.getVisibility() == View.GONE) Fab.setVisibility(View.GONE);
         updateRecentlySentNotificationsDisplay();
     }
 
@@ -2012,5 +2014,99 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onDrawingSaved(String imageUri, String artworkName) {
 
+    }
+    private List<String> getCustomReminderTimes(){
+        String json = sharedPreferences.getString(PREF_CUSTOM_REMINDER_TIMES, null);
+        Type type = new TypeToken<List<String>>() {}.getType();
+        if (json != null) {
+            return gson.fromJson(json, type);
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    private Set<Integer> getActiveRequestCodes() {
+        String json = sharedPreferences.getString(PREF_ACTIVE_REMINDER_REQUEST_CODES, null);
+        Type type = new TypeToken<Set<Integer>>() {}.getType();
+        if (json != null) {
+            return gson.fromJson(json, type);
+        } else {
+            return new HashSet<>();
+        }
+    }
+
+    private void saveActiveRequestCodes(Set<Integer> requestCodes) {
+        String json = gson.toJson(requestCodes);
+        sharedPreferences.edit().putString(PREF_ACTIVE_REMINDER_REQUEST_CODES, json).apply();
+    }
+
+    public void scheduleCustomReminder(int hour, int minute) {
+        Log.d(TAG, "Scheduling custom reminder for " + hour + ":" + minute);
+
+        // A unique request code for each custom reminder
+        int requestCode = generateRequestCode(hour, minute);
+
+        Intent intent = new Intent(this, ReminderBroadcastReceiver.class);
+        intent.putExtra("reminderType", "custom");
+        intent.putExtra("hour", hour);
+        intent.putExtra("minute", minute);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, 0);
+
+        // If the time is in the past, schedule it for the next day
+        if (calendar.before(Calendar.getInstance())) {
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        if (alarmManager != null) {
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+        }
+
+        Set<Integer> activeRequestCodes = getActiveRequestCodes();
+        activeRequestCodes.add(requestCode);
+        saveActiveRequestCodes(activeRequestCodes);
+    }
+    public void cancelCustomReminder(int hour, int minute) {
+        Log.d(TAG, "Canceling custom reminder for " + hour + ":" + minute);
+        int requestCode = generateRequestCode(hour, minute);
+        Intent intent = new Intent(this, ReminderBroadcastReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_NO_CREATE);
+
+        if (pendingIntent != null) {
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            if (alarmManager != null) {
+                alarmManager.cancel(pendingIntent);
+            }
+            pendingIntent.cancel();
+        }
+
+        Set<Integer> activeRequestCodes = getActiveRequestCodes();
+        activeRequestCodes.remove(requestCode);
+        saveActiveRequestCodes(activeRequestCodes);
+    }
+
+    private void cancelAllCustomReminders() {
+        Set<Integer> activeRequestCodes = getActiveRequestCodes();
+        for (Integer requestCode : activeRequestCodes) {
+            Intent intent = new Intent(this, ReminderBroadcastReceiver.class);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, requestCode, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_NO_CREATE);
+            if (pendingIntent != null) {
+                AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                if (alarmManager != null) {
+                    alarmManager.cancel(pendingIntent);
+                }
+                pendingIntent.cancel();
+            }
+        }
+        activeRequestCodes.clear();
+        saveActiveRequestCodes(activeRequestCodes);
+    }
+    private int generateRequestCode(int hour, int minute) {
+        return 500 + (hour * 60) + minute;
     }
 }
