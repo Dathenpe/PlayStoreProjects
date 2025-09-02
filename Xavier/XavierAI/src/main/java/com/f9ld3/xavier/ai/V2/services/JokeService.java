@@ -1,42 +1,56 @@
+// C:/Users/Music_Minister/Desktop/PlayStore/PlayStoreProjects/Xavier/XavierAI/src/main/java/com/f9ld3/xavier/ai/V2/services/JokeService.java
+
 package com.f9ld3.xavier.ai.V2.services;
 
 import com.f9ld3.xavier.ai.V2.utils.SharedHttpClient;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.IntStream;
 
 /**
- * A resilient, multi-source service to fetch jokes from various free APIs.
- * It provides a specialized and reliable source for the joke-telling skill
- * by automatically falling back to a backup API if the primary one fails.
+ * A resilient, multi-source service to fetch jokes.
+ * It prioritizes a local file for speed and reliability, falling back to
+ * external APIs if the local source is unavailable.
  */
 public class JokeService {
 
-// --- API Endpoints ---
-// Primary API: Simple and fast.
+// --- Local and API Endpoints ---
+private static final String LOCAL_JOKES_PATH = "responses/jokes.txt";
 private static final String OFFICIAL_JOKE_API_URL = "https://official-joke-api.appspot.com/random_joke";
-// Backup API: More complex but highly configurable.
 private static final String JOKEAPI_DEV_URL = "https://v2.jokeapi.dev/joke/Any?blacklistFlags=nsfw,religious,political,racist,sexist,explicit";
 
 private final Gson gson = new Gson();
+private final Random random = new Random();
+private final List<String> localJokes;
+
+public JokeService() {
+	this.localJokes = loadJokesFromFile();
+}
 
 /**
- * Fetches a single random joke, trying the primary API first and then the backup.
- * This fallback mechanism makes the service highly resilient.
+ * Fetches a single random joke, trying the local file first, then the primary API,
+ * and finally the backup API. This fallback chain makes the service highly resilient.
  *
  * @return An Optional containing the formatted joke string, or empty if all sources fail.
  */
 public Optional<String> getJoke() {
-	// The .or() method is a clean, functional way to implement fallback logic.
-	return fetchFromOfficialApi().or(this::fetchFromJokeApiDev);
+	// The .or() method is a clean, functional way to implement the fallback chain.
+	return fetchFromLocalFile()
+			       .or(this::fetchFromOfficialApi)
+			       .or(this::fetchFromJokeApiDev);
 }
 
 /**
@@ -47,13 +61,22 @@ public Optional<String> getJoke() {
  */
 public List<String> getJokes(int count) {
 	List<String> jokes = new ArrayList<>();
-	// We call our resilient getJoke() method 'count' times.
 	IntStream.range(0, count).forEach(i -> getJoke().ifPresent(jokes::add));
 	return jokes;
 }
 
 /**
- * Attempts to fetch and parse a joke from the primary source (Official Joke API).
+ * Attempts to get a random joke from the pre-loaded local list.
+ */
+private Optional<String> fetchFromLocalFile() {
+	if (localJokes != null && !localJokes.isEmpty()) {
+		return Optional.of(localJokes.get(random.nextInt(localJokes.size())));
+	}
+	return Optional.empty();
+}
+
+/**
+ * Attempts to fetch and parse a joke from the primary external source (Official Joke API).
  */
 private Optional<String> fetchFromOfficialApi() {
 	try {
@@ -68,16 +91,16 @@ private Optional<String> fetchFromOfficialApi() {
 		return Optional.of(formatOfficialJoke(jokeJson));
 	} catch (Exception e) {
 		System.err.println("WARN: Primary Joke API (Official) failed: " + e.getMessage());
-		return Optional.empty(); // Return empty on any failure, allowing fallback.
+		return Optional.empty();
 	}
 }
 
 /**
- * Attempts to fetch and parse a joke from the backup source (JokeAPI.dev).
+ * Attempts to fetch and parse a joke from the backup external source (JokeAPI.dev).
  */
 private Optional<String> fetchFromJokeApiDev() {
 	try {
-		System.out.println("[DEBUG] Primary joke API failed. Trying backup...");
+		System.out.println("[DEBUG] Local jokes and primary API failed. Trying backup API...");
 		HttpRequest request = HttpRequest.newBuilder().uri(URI.create(JOKEAPI_DEV_URL)).build();
 		HttpResponse<String> response = SharedHttpClient.get().send(request, HttpResponse.BodyHandlers.ofString());
 		
@@ -86,30 +109,23 @@ private Optional<String> fetchFromJokeApiDev() {
 		}
 		
 		JsonObject jokeJson = gson.fromJson(response.body(), JsonObject.class);
-		// This API can return an error object in a 200 response.
 		if (jokeJson.has("error") && jokeJson.get("error").getAsBoolean()) {
 			throw new RuntimeException("API returned an error object: " + jokeJson.get("message").getAsString());
 		}
 		
 		return Optional.of(formatJokeApiDevJoke(jokeJson));
 	} catch (Exception e) {
-		System.err.println("ERROR: Backup Joke API (JokeApi.dev) also failed: " + e.getMessage());
-		return Optional.empty(); // All sources have failed.
+		System.err.println("ERROR: All joke sources (local and APIs) failed. Last error: " + e.getMessage());
+		return Optional.empty();
 	}
 }
 
-/**
- * Formats a joke from the Official Joke API's JSON structure.
- */
 private String formatOfficialJoke(JsonObject jokeJson) {
 	String setup = jokeJson.get("setup").getAsString();
 	String punchline = jokeJson.get("punchline").getAsString();
 	return String.format("Q: %s\nA: %s", setup, punchline);
 }
 
-/**
- * Formats a joke from the JokeAPI.dev's JSON structure, which can be single or two-part.
- */
 private String formatJokeApiDevJoke(JsonObject jokeJson) {
 	String type = jokeJson.get("type").getAsString();
 	if ("twopart".equals(type)) {
@@ -119,5 +135,25 @@ private String formatJokeApiDevJoke(JsonObject jokeJson) {
 	} else { // "single"
 		return jokeJson.get("joke").getAsString();
 	}
+}
+
+/**
+ * Loads jokes from the local resource file at startup.
+ */
+private List<String> loadJokesFromFile() {
+	List<String> templates = new ArrayList<>();
+	try (InputStream is = JokeService.class.getClassLoader().getResourceAsStream(LOCAL_JOKES_PATH);
+	     BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+		String line;
+		while ((line = reader.readLine()) != null) {
+			if (!line.trim().isEmpty() && !line.startsWith("#")) {
+				templates.add(line.trim());
+			}
+		}
+	} catch (Exception e) {
+		System.err.println("WARN: Could not load local jokes from " + LOCAL_JOKES_PATH + ". " + e.getMessage());
+		return Collections.emptyList(); // Return an empty list on failure
+	}
+	return templates;
 }
 }

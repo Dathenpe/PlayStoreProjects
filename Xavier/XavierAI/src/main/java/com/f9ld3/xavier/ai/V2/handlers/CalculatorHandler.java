@@ -5,57 +5,56 @@ import com.f9ld3.xavier.ai.V2.utils.NumberWordConverter;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.text.DecimalFormat;
 
 /**
- * Handles mathematical calculations by extracting the expression from the user's
- * input, converting number words to digits, and using a robust math evaluation library.
+ * Handles mathematical calculations by using the expression provided by the core pipeline's
+ * PatternHandler, converting natural language math terms (e.g., "square root"),
+ * and evaluating the result.
  */
 public class CalculatorHandler implements IntentHandler {
 
-// A pattern to find the core mathematical expression in a sentence.
-private static final Pattern MATH_PATTERN = Pattern.compile(
-		"(?:what is|what's|calculate|compute)?\\s*(.*)",
-		Pattern.CASE_INSENSITIVE
-);
+private static final DecimalFormat FORMATTER = new DecimalFormat("0.##############");
 
 @Override
 public String handle(String userInput, ConversationContext context) {
-	// 1. Convert number words to digits first (e.g., "one hundred" -> "100")
-	String numericInput = NumberWordConverter.convertWordsToNumbers(userInput);
+	String expressionString = (String) context.getEntity("calculator_query");
 	
-	// 2. Extract the core expression
-	Matcher matcher = MATH_PATTERN.matcher(numericInput);
-	if (!matcher.matches()) {
-		return "I couldn't understand the math problem. Please try phrasing it differently.";
+	if (expressionString == null || expressionString.isBlank()) {
+		expressionString = userInput;
 	}
 	
-	String expressionStr = matcher.group(1)
-			                       .replaceAll("(?i)plus", "+")
-			                       .replaceAll("(?i)minus", "-")
-			                       .replaceAll("(?i)times", "*")
-			                       .replaceAll("(?i)divided by", "/")
-			                       .replaceAll("(?i)to the power of", "^")
-			                       .replaceAll("[^0-9+\\-*/.^()\\s]", ""); // Sanitize
+	String numericExpression = NumberWordConverter.convertWordsToNumbers(expressionString);
 	
-	if (expressionStr.trim().isEmpty()) {
-		return "It seems you asked me to calculate something, but I couldn't find the numbers.";
-	}
+	// --- UPDATED: More intelligent sanitization to handle natural language math ---
+	String sanitizedExpression = numericExpression
+			                             .toLowerCase()
+			                             // NEW: Remove the bot's name from the expression to avoid confusing the parser.
+			                             .replaceAll("\\bxavier\\b", "")
+			                             // Convert "square root of" and "root of" to the sqrt() function
+			                             .replaceAll("square root of|root of", "sqrt")
+			                             // Convert "squared" to the power operator
+			                             .replaceAll("squared", "^2")
+			                             // Convert word operators to symbols
+			                             .replaceAll("\\s*plus\\s*|\\s*and\\s*", "+")
+			                             .replaceAll("\\s*minus\\s*", "-")
+			                             .replaceAll("\\s*x\\s*", "*")
+			                             .replaceAll("\\s*times\\s*", "*")
+			                             .replaceAll("\\s*divided by\\s*", "/")
+			                             .replaceAll("\\s*to the power of\\s*", "^")
+			                             // Remove any remaining characters that are not part of a valid expression,
+			                             // but keep letters to allow for function names like 'sqrt'.
+			                             .replaceAll("[^a-z0-9\\s\\+\\-\\*\\/\\.\\(\\)\\^]", "");
 	
 	try {
-		// 3. Evaluate the sanitized expression
-		Expression expression = new ExpressionBuilder(expressionStr).build();
+		Expression expression = new ExpressionBuilder(sanitizedExpression).build();
 		double result = expression.evaluate();
 		
-		// Return integer format if the result is a whole number
-		if (result == (long) result) {
-			return String.format("The answer is %d.", (long) result);
-		} else {
-			return String.format("The answer is %s.", result);
-		}
+		return "The result is " + FORMATTER.format(result) + ".";
+		
 	} catch (Exception e) {
-		return "I encountered an error trying to solve that: " + e.getMessage() + ". Please check the expression.";
+		// This error is more helpful to the user.
+		return "I tried to calculate that, but the expression seems to be invalid. Please try again.";
 	}
 }
 }

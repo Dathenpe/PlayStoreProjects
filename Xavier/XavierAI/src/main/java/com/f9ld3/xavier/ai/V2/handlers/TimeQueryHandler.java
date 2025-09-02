@@ -1,7 +1,6 @@
 package com.f9ld3.xavier.ai.V2.handlers;
 
 import com.f9ld3.xavier.ai.V2.ConversationContext;
-import com.f9ld3.xavier.ai.V2.EntityExtractor;
 import com.f9ld3.xavier.ai.V2.XavierCoreV2;
 import com.f9ld3.xavier.ai.V2.services.IPGeolocationService;
 import com.f9ld3.xavier.ai.V2.services.LocationResolverService;
@@ -20,16 +19,14 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 /**
  * A unified and intelligent handler for all time-related queries.
- * It can extract a location from the user's input, automatically detect the
- * user's location via IP if none is provided, or use the coordinates from a
- * geocoding service to fetch the timezone offset as a fallback.
+ * It reads a location from the context (extracted by the core pipeline),
+ * automatically detects the user's location via IP if none is provided, or
+ * uses the coordinates from a geocoding service to fetch the timezone.
  */
 public class TimeQueryHandler implements IntentHandler {
 
@@ -37,11 +34,8 @@ private final LocationResolverService locationResolver;
 private final IPGeolocationService ipGeolocationService;
 private final String apiKey; // For OpenWeatherMap API
 
-private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("h:mm a"); // More user-friendly format
+private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("h:mm a");
 private static final String WEATHER_API_URL_FOR_TIMEZONE = "https://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&appid=%s";
-
-// A list of common non-location words to help identify generic queries.
-private static final List<String> GENERIC_QUERY_WORDS = Arrays.asList("what", "is", "the", "time", "tell", "me", "current");
 
 public TimeQueryHandler(LocationResolverService locationResolver, IPGeolocationService ipGeolocationService, String apiKey) {
 	this.locationResolver = locationResolver;
@@ -51,20 +45,17 @@ public TimeQueryHandler(LocationResolverService locationResolver, IPGeolocationS
 
 @Override
 public String handle(String userInput, ConversationContext context) {
-	String location = EntityExtractor.extractLocation(userInput);
+	// The handler is now simpler. It gets the location entity from the context,
+	// which was extracted by the PatternHandler in the core pipeline.
+	String location = (String) context.getEntity("location");
 	
-	// Sanity check to prevent generic questions from being treated as locations.
-	boolean isGenericQuery = location != null && Arrays.stream(location.split("\\s+"))
-			                                             .filter(GENERIC_QUERY_WORDS::contains)
-			                                             .count() > 1;
-	
-	// Case 1: A specific, valid location is mentioned in the query.
-	if (location != null && !isGenericQuery) {
+	// Case 1: A specific location was extracted by the core pipeline.
+	if (location != null && !location.isBlank()) {
 		return getTimeForLocation(location, context);
 	}
 	
-	// Case 2: No location mentioned (or it was a generic query). Try to get it automatically via IP.
-	if (XavierCoreV2.DEBUG_MODE) System.out.println("[DEBUG] No valid location in time query. Attempting IP Geolocation.");
+	// Case 2: No location mentioned. Try to get it automatically via IP.
+	if (XavierCoreV2.DEBUG_MODE) System.out.println("[DEBUG] No location in time query context. Attempting IP Geolocation.");
 	Optional<JsonObject> geoDataOpt = ipGeolocationService.getCurrentLocation();
 	
 	if (geoDataOpt.isPresent()) {
@@ -97,7 +88,7 @@ private String getTimeForLocation(String location, ConversationContext context) 
 		
 		ZoneId zoneId;
 		
-		// FIX: Handle geocoding results that don't include a timezone ID by fetching it via coordinates.
+		// Handle geocoding results that don't include a timezone ID by fetching it via coordinates.
 		if (timezoneElement == null || timezoneElement.isJsonNull()) {
 			if (XavierCoreV2.DEBUG_MODE) {
 				System.out.println("[DEBUG] Timezone ID missing for '" + location + "'. Fetching offset from coordinates.");
@@ -134,14 +125,6 @@ private String getTimeForLocation(String location, ConversationContext context) 
 	}
 }
 
-/**
- * Fetches the timezone offset in seconds from UTC for a given latitude and longitude
- * by calling the OpenWeatherMap API.
- *
- * @param lat The latitude.
- * @param lon The longitude.
- * @return An Optional containing the timezone offset in seconds, or empty if an error occurs.
- */
 private Optional<Integer> fetchTimezoneOffsetFromCoords(String lat, String lon) {
 	try {
 		String url = String.format(WEATHER_API_URL_FOR_TIMEZONE, lat, lon, apiKey);
@@ -168,9 +151,13 @@ private Optional<Integer> fetchTimezoneOffsetFromCoords(String lat, String lon) 
 	return Optional.empty();
 }
 
+/**
+ * Formats the final time response in a clear, human-readable way.
+ */
 private String formatTimeResponse(ZonedDateTime zonedDateTime, String locationName) {
 	String time = zonedDateTime.format(TIME_FORMATTER);
 	String day = zonedDateTime.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH);
-	return String.format("The current time in %s is %s on %s.", locationName, time, day);
+	String zoneAbbreviation = zonedDateTime.getZone().getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+	return String.format("In %s, the current time is %s (%s) on %s.", locationName, time, zoneAbbreviation, day);
 }
 }

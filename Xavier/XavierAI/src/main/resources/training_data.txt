@@ -1,13 +1,18 @@
+# C:/Users/Music_Minister/Desktop/PlayStore/PlayStoreProjects/Xavier/XavierAI/src/main/resources/training_data.txt
 # --- Greetings ---
 greeting,hello
 greeting,hi there
 greeting,how are you
+greeting,how are you today
+greeting,how are you doing
+greeting,how's it going
 greeting,hey xavier
 greeting,hey there
 greeting,wassup
 greeting,what's up
 greeting,sup
 greeting,yo
+greeting,xavier
 
 
 # --- Goodbyes ---
@@ -32,6 +37,7 @@ time_query,time in tokyo please
 date_query,what is today's date
 date_query,show me the date
 date_query,what is the date
+date_query,what day is it
 
 # --- Weather Queries ---
 weather_query,what's the weather like
@@ -46,6 +52,8 @@ weather_query,forecast in london
 weather_query,how is the weather in lagos right now
 weather_query,check lekki lagos
 weather_query,check for toronto canada
+weather_query,what is the temperature in berlin
+weather_query,is it cold in moscow
 
 # --- Calculator ---
 calculator_query,what is 5 plus 3
@@ -54,8 +62,9 @@ calculator_query,compute 100 divided by 4
 calculator_query,what's 50 minus 25
 calculator_query,what is the square root of 16
 calculator_query,9 to the power of 2
+calculator_query,what is ten percent of two hundred
 
-# --- Follow-ups ---
+# --- Follow-ups (More focused) ---
 follow_up,what about in london
 follow_up,how about for paris
 follow_up,and in tokyo
@@ -66,7 +75,6 @@ follow_up,tell me more about it
 follow_up,how did he die
 follow_up,where was she born
 follow_up,what was its primary purpose
-follow_up,tell me another one
 follow_up,is it day or night there
 
 # --- Bot Identity ---
@@ -88,30 +96,46 @@ knowledge_query,where is canada
 knowledge_query,what is the capital of france
 knowledge_query,tell me about donald trump
 knowledge_query,who is tinubu
+knowledge_query,what do you know about the solar system
+knowledge_query,give me information on the roman empire
+knowledge_query,lets talk about the solar system
+knowledge_query,can we discuss quantum physics
+knowledge_query,explain the theory of relativity
+knowledge_query,tell me more about black holes
+knowledge_query,what is the history of the internet
+knowledge_query,who invented the light bulb
+knowledge_query,what are the benefits of exercise
+knowledge_query,tell me about the great wall of china
+knowledge_query,what is photosynthesis
+knowledge_query,can you tell me about the dancing plague
 
 # --- ChitChat ---
 chitchat,got it
 chitchat,sounds good
 chitchat,that's fine
+chitchat,i see
+chitchat,i am bored
+chitchat,i am hungry
 
-# --- Gratitude (NEW) ---
+# --- Gratitude ---
 gratitude,thanks a lot
 gratitude,much appreciated
 gratitude,i appreciate it
 gratitude,thank you so much
 
-# --- Confirmation (NEW) ---
+# --- Confirmation ---
 confirmation,correct
 confirmation,that's right
 confirmation,that's wrong
 confirmation,incorrect
+confirmation,you are correct
 
 # --- Correction ---
 correction,i mean canada
 correction,no i meant paris
 correction,i meant to say new york
 
-# --- Dictionary Queries (NEW) ---
+# --- Dictionary Queries ---
 dictionary_query,what is the meaning of elephant
 dictionary_query,define the word ubiquitous
 dictionary_query,define serendipity
@@ -119,7 +143,7 @@ dictionary_query,can you define paradox
 dictionary_query,what does ephemeral mean
 dictionary_query,meaning of philosophy
 
-# --- Joke Queries (NEW) ---
+# --- Joke Queries ---
 joke_query,tell me a joke
 joke_query,can you tell a joke
 joke_query,i want to hear a joke
@@ -127,8 +151,9 @@ joke_query,tell me another one
 joke_query,joke
 joke_query,tell me 5 jokes
 joke_query,give me 10 jokes
+joke_query,another joke please
 
-# --- Fun Fact Queries (NEW) ---
+# --- Fun Fact Queries ---
 fact_query,tell me a fun fact
 fact_query,give me a random fact
 fact_query,do you know any interesting facts
@@ -136,3 +161,14 @@ fact_query,fun fact
 fact_query,tell me something interesting
 fact_query,i want to learn something new
 fact_query,fact of the day
+fact_query,another fact
+
+# --- Internet Status Queries ---
+internet_status_query,are you connected to the internet
+internet_status_query,check your network connection
+internet_status_query,do you have internet
+internet_status_query,what is your connection status
+internet_status_query,are you online
+internet_status_query,is the internet working
+internet_status_query,what is your current network status
+internet_status_query,do you have an internet connection

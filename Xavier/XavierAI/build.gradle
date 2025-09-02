@@ -1,7 +1,9 @@
 plugins {
     id 'java'
 }
-
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += "-Xlint:deprecation"
+}
 group = 'com.f9ld3.xavier.ai'
 version = '1.0-SNAPSHOT'
 

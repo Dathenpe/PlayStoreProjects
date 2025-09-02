@@ -21,6 +21,10 @@ private final Random random = new Random();
 
 @Override
 public String handle(String userInput, ConversationContext context) {
+	String cleanedInput = userInput.toLowerCase().trim();
+	if(cleanedInput.contains("name")){
+		return "My name is Xavier. It's a pleasure to meet you!";
+	}
 	// Return a random detailed summary to keep the interaction fresh.
 	return ABOUT_SUMMARIES.get(random.nextInt(ABOUT_SUMMARIES.size()));
 }

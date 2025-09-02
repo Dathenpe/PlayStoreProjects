@@ -1,12 +1,13 @@
 package com.f9ld3.xavier.ai.V2.handlers;
 
 import com.f9ld3.xavier.ai.V2.ConversationContext;
-import com.f9ld3.xavier.ai.V2.ResponseGenerator; // Import the new class
+import com.f9ld3.xavier.ai.V2.utils.ResponseGenerator; // Correctly points to the utility class
 
 public class DefaultHandler implements IntentHandler {
 @Override
 public String handle(String userInput, ConversationContext context) {
-	// Use the new intelligent fallback to guide the user
+	// This line creates the dependency.
+	// If ResponseGenerator is deleted, this code will fail to compile.
 	return ResponseGenerator.getIntelligentFallback();
 }
 }

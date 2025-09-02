@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI; // Import the URI class
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -318,7 +319,7 @@ private String resolveLocationViaNominatim(String query) throws IOException, JSO
 	}
 	String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
 	String apiUrl = String.format("%s?q=%s&format=json&limit=1", NOMINATIM_BASE_URL, encodedQuery);
-	URL url = new URL(apiUrl);
+	URL url = URI.create(apiUrl).toURL(); // FIX: Use modern URI.create().toURL()
 	HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 	connection.setRequestMethod("GET");
 	connection.setRequestProperty("User-Agent", USER_AGENT);
@@ -354,7 +355,7 @@ private String getWeatherForLocation(String city) {
 		String encodedCity = URLEncoder.encode(city, StandardCharsets.UTF_8);
 		String apiUrl = String.format("%s?q=%s&appid=%s&units=metric", OPENWEATHER_BASE_URL, encodedCity, OPENWEATHER_API_KEY);
 		
-		URL url = new URL(apiUrl);
+		URL url = URI.create(apiUrl).toURL(); // FIX: Use modern URI.create().toURL()
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("GET");
 		
@@ -404,7 +405,7 @@ private String fetchDuckDuckGoAnswer(String query) {
 		String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
 		String apiUrl = String.format("%s?q=%s&format=json&t=XavierAI&no_html=1&skip_disambig=1", DUCKDUCKGO_API_BASE_URL, encodedQuery);
 		
-		URL url = new URL(apiUrl);
+		URL url = URI.create(apiUrl).toURL(); // FIX: Use modern URI.create().toURL()
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("GET");
 		connection.setRequestProperty("User-Agent", USER_AGENT);
@@ -491,7 +492,7 @@ private String fetchDictionaryDefinition(String word) {
 		String encodedWord = URLEncoder.encode(word, StandardCharsets.UTF_8);
 		String apiUrl = FREE_DICTIONARY_API_BASE_URL + encodedWord;
 		
-		URL url = new URL(apiUrl);
+		URL url = URI.create(apiUrl).toURL(); // FIX: Use modern URI.create().toURL()
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("GET");
 		connection.setRequestProperty("User-Agent", USER_AGENT);
@@ -552,7 +553,7 @@ private String fetchNumberFact(String number, String type) {
 	try {
 		String apiUrl = String.format("%s%s/%s", NUMBERS_API_BASE_URL, URLEncoder.encode(number, StandardCharsets.UTF_8), type);
 		
-		URL url = new URL(apiUrl);
+		URL url = URI.create(apiUrl).toURL(); // FIX: Use modern URI.create().toURL()
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("GET");
 		connection.setRequestProperty("User-Agent", USER_AGENT);

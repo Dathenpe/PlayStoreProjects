@@ -1,15 +1,12 @@
+// C:/Users/Music_Minister/Desktop/PlayStore/PlayStoreProjects/Xavier/XavierAI/src/main/java/com/f9ld3/xavier/ai/V2/XavierCoreV2.java
 package com.f9ld3.xavier.ai.V2;
 
 import com.f9ld3.xavier.ai.V2.FuzzyMatcher.MatchResult;
 import com.f9ld3.xavier.ai.V2.handlers.*;
 import com.f9ld3.xavier.ai.V2.handlers.PatternHandler.IntentMatch;
-import com.f9ld3.xavier.ai.V2.services.DictionaryService;
-import com.f9ld3.xavier.ai.V2.services.FunFactService;
-import com.f9ld3.xavier.ai.V2.services.GeocodingService;
-import com.f9ld3.xavier.ai.V2.services.IPGeolocationService;
-import com.f9ld3.xavier.ai.V2.services.JokeService;
-import com.f9ld3.xavier.ai.V2.services.LocationResolverService;
+import com.f9ld3.xavier.ai.V2.services.*;
 import com.f9ld3.xavier.ai.V2.utils.ProgressBar;
+import com.f9ld3.xavier.ai.V2.utils.ResponseGenerator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,129 +61,200 @@ public XavierCoreV2() {
 }
 
 /**
- * Processes user input using a multi-layered approach for maximum accuracy and intelligence.
+ * Processes user input using a re-architected, multi-layered approach for maximum accuracy and intelligence.
+ * The pipeline prioritizes specific, internal handlers before falling back to general knowledge APIs.
  */
 public String getResponse(String userInput, ConversationContext context) {
+	// --- Add a guard clause for empty or whitespace-only input ---
+	if (userInput == null || userInput.isBlank()) {
+		// Immediately return a helpful fallback message without processing further.
+		// This prevents unpredictable behavior and improves efficiency.
+		return ResponseGenerator.getIntelligentFallback();
+	}
+	
 	if (!isTrained) {
 		return "I'm sorry, I haven't been trained yet. Please train me first.";
 	}
+	context.setLastUserInput(userInput);
+	// --- RE-ARCHITECTED REASONING PIPELINE ---
 	
-	// --- Reasoning Pipeline ---
-	
-	// STEP 0: Check for a pending intent from a previous question (HIGHEST PRIORITY)
+	// STEP 1: Check for a pending intent (e.g., asking for a location after a weather query)
 	String pendingIntent = context.getPendingIntent();
 	if (pendingIntent != null) {
-		if (DEBUG_MODE) System.out.printf("[DEBUG] Found pending intent '%s'. Using input '%s' as the missing entity.%n", pendingIntent, userInput);
+		if (DEBUG_MODE) System.out.printf("[DEBUG] Pipeline Step 1: Found pending intent '%s'.%n", pendingIntent);
 		IntentHandler handler = intentHandlers.get(pendingIntent);
 		if (handler != null) {
 			context.clearPendingIntent();
 			return handler.handle(userInput, context);
-		} else {
-			context.clearPendingIntent();
 		}
+		context.clearPendingIntent(); // Clean up even if handler is missing
 	}
-	
-	// STEP 0.5: Check for a query refinement after a failure.
-	// This feature is temporarily disabled as it was causing cascading failures.
-	// A more robust implementation is needed.
-	/*
-	String lastFailed = context.getLastFailedInput();
-	boolean isRefinementAttempt = userInput.trim().split("\\s+").length <= 4;
-	if (lastFailed != null && isRefinementAttempt) {
-		if (DEBUG_MODE) System.out.printf("[DEBUG] Found previous failed input. Combining with new input for refinement.%n");
-		String refinedQuery = lastFailed + " " + userInput;
-		context.clearLastFailedInput();
-		return this.getResponse(refinedQuery, context);
-	}
-	*/
 	
 	String predictedIntent = null;
-	double confidence = 1.0;
 	String cleanedInput = userInput.toLowerCase().trim();
 	
-	// STEP 1: Direct Match
+	// STEP 2: Direct Match (for simple, exact commands like "hi" or "thanks")
 	String directMatchIntent = directMatches.get(cleanedInput);
 	if (directMatchIntent != null) {
 		predictedIntent = directMatchIntent;
-		if (DEBUG_MODE) System.out.printf("[DEBUG] Direct match found. Intent: %s%n", predictedIntent);
-	} else {
-		// STEP 1.5: Fuzzy Direct Match (NEW) - For typos of common words like "hi" -> "hit"
+		if (DEBUG_MODE) System.out.printf("[DEBUG] Pipeline Step 2: Direct match found. Intent: %s%n", predictedIntent);
+	}
+	
+	// STEP 3: Fuzzy Direct Match (for typos of simple commands, e.g., "helo")
+	if (predictedIntent == null) {
 		Optional<String> fuzzyDirectMatch = FuzzyMatcher.findBestCandidate(cleanedInput, directMatches.keySet(), DIRECT_MATCH_FUZZY_THRESHOLD);
 		if (fuzzyDirectMatch.isPresent()) {
 			String matchedKey = fuzzyDirectMatch.get();
 			predictedIntent = directMatches.get(matchedKey);
-			if (DEBUG_MODE) System.out.printf("[DEBUG] Fuzzy Direct match found for '%s' -> '%s'. Intent: %s%n", cleanedInput, matchedKey, predictedIntent);
-		} else {
-			// STEP 2: Pattern Match
-			Optional<IntentMatch> patternMatch = patternHandler.match(userInput);
-			if (patternMatch.isPresent()) {
-				IntentMatch match = patternMatch.get();
-				predictedIntent = match.getIntent();
-				// For weather patterns, the extracted group is the location, not the username.
-				if ("weather_query".equals(predictedIntent)) {
-					context.setEntity("location", match.getEntity());
+			if (DEBUG_MODE) System.out.printf("[DEBUG] Pipeline Step 3: Fuzzy Direct match found for '%s' -> '%s'. Intent: %s%n", cleanedInput, matchedKey, predictedIntent);
+		}
+	}
+	
+	// STEP 4: Pattern Match (for structured queries like "what is the weather in japan")
+	if (predictedIntent == null) {
+		Optional<IntentMatch> patternMatch = patternHandler.match(cleanedInput);
+		if (patternMatch.isPresent()) {
+			IntentMatch match = patternMatch.get();
+			predictedIntent = match.getIntent();
+			// This allows new patterns (like the calculator) to work without modifying this block again.
+			if (match.getEntity() != null) {
+				String entityKey;
+				if (predictedIntent.contains("weather") || predictedIntent.contains("time")) {
+					entityKey = "location";
+				} else if (predictedIntent.contains("username")) {
+					entityKey = "username";
 				} else {
-					context.setEntity("username", match.getEntity());
+					// Default to using the intent name as the key (e.g., "calculator_query")
+					entityKey = predictedIntent;
 				}
-				if (DEBUG_MODE) System.out.printf("[DEBUG] Pattern match found. Intent: %s, Entity: %s%n", predictedIntent, match.getEntity());
-			} else {
-				// STEP 3: API Pre-classifier
-				if (this.wolframAlphaClient.canAnswer(cleanedInput)) {
-					predictedIntent = "knowledge_query";
-					confidence = 1.0;
-					if (DEBUG_MODE) System.out.println("[DEBUG] Wolfram|Alpha Recognizer success. Routing to KnowledgeQueryHandler.");
-				} else {
-					// STEP 4: Statistical Classifier
-					List<String> tokens = TextProcessor.tokenize(userInput);
-					if (tokens.isEmpty()) {
-						return intentHandlers.get("default").handle(userInput, context);
-					}
-					PredictionResult result = classifier.predict(tokens);
-					predictedIntent = result.getPredictedLabel();
-					confidence = result.getConfidence();
-					if (DEBUG_MODE) System.out.printf("[DEBUG] Classifier result. Intent: %s, Confidence: %.2f%%%n", predictedIntent, confidence * 100);
-				}
+				context.setEntity(entityKey, match.getEntity());
+			} else if ("calculator_query".equals(predictedIntent)) {
+				// For patterns that match the whole string (like "2+2"), the entity is the input itself.
+				context.setEntity("calculator_query", userInput);
+			}
+			
+			if (DEBUG_MODE) System.out.printf("[DEBUG] Pipeline Step 4: Pattern match found. Intent: %s, Entity: %s%n", predictedIntent, match.getEntity());
+		}
+	}
+	
+	// STEP 5: Statistical Classifier (for general conversational intents like "tell me a joke")
+	double confidence = 0.0;
+	if (predictedIntent == null) {
+		List<String> tokens = TextProcessor.tokenize(userInput);
+		if (!tokens.isEmpty()) {
+			PredictionResult result = classifier.predict(tokens);
+			predictedIntent = result.getPredictedLabel();
+			confidence = result.getConfidence();
+			if (DEBUG_MODE) System.out.printf("[DEBUG] Pipeline Step 5: Classifier result. Intent: %s, Confidence: %.2f%%%n", predictedIntent, confidence * 100);
+			
+			// If confidence is too low, we don't trust the result and will try other methods.
+			if (confidence < CONFIDENCE_THRESHOLD) {
+				predictedIntent = null;
 			}
 		}
 	}
 	
-	// --- Handler Selection Logic ---
-	IntentHandler handler;
-	if (predictedIntent != null && confidence >= CONFIDENCE_THRESHOLD) {
-		handler = intentHandlers.getOrDefault(predictedIntent, intentHandlers.get("default"));
-		context.clearLastFailedInput();
-	} else {
-		// STEP 5: FUZZY RESCUE - The classifier is not confident, let's try to find a close match.
-		if (DEBUG_MODE) System.out.printf("[DEBUG] Confidence below threshold. Attempting Fuzzy Rescue...%n");
+	// STEP 6: Fuzzy Rescue (if classifier was uncertain, try to find a close phrase match)
+	if (predictedIntent == null) {
+		if (DEBUG_MODE) System.out.println("[DEBUG] Pipeline Step 6: Classifier confidence low. Attempting Fuzzy Rescue...");
 		Optional<MatchResult> fuzzyResult = fuzzyMatcher.findBestMatch(userInput, FUZZY_RESCUE_THRESHOLD);
-		
 		if (fuzzyResult.isPresent()) {
 			MatchResult match = fuzzyResult.get();
-			if (DEBUG_MODE) System.out.printf("[DEBUG] Fuzzy Rescue success! Matched '%s' to '%s'. Intent: %s, Confidence: %.2f%%%n",
-					userInput, match.matchedPhrase(), match.intent(), match.confidenceScore() * 100);
 			predictedIntent = match.intent();
-			handler = intentHandlers.get(predictedIntent);
-			context.clearLastFailedInput();
-		} else {
-			// STEP 6: KNOWLEDGE QUERY FALLBACK
-			// If no other intent fits, it's likely a general knowledge question.
-			// Let's try Wolfram|Alpha as a last resort before giving up.
-			if (DEBUG_MODE) System.out.println("[DEBUG] Fuzzy Rescue failed. Attempting Knowledge Query as a fallback.");
-			handler = intentHandlers.get("knowledge_query");
+			if (DEBUG_MODE) System.out.printf("[DEBUG] Fuzzy Rescue success! Matched '%s' to '%s'. Intent: %s%n", userInput, match.matchedPhrase(), predictedIntent);
 		}
 	}
 	
+	// STEP 7: Knowledge Query Fallback (The last resort before giving up)
+	if (predictedIntent == null) {
+		if (DEBUG_MODE) System.out.println("[DEBUG] Pipeline Step 7: All internal handlers failed. Checking Wolfram|Alpha as a fallback.");
+		if (this.wolframAlphaClient.canAnswer(cleanedInput)) {
+			predictedIntent = "knowledge_query";
+		}
+	}
+	// STEP 8: Sanity Check for Tool-Based Intents
+	// This acts as a final guardrail to prevent the classifier from confidently
+	// misrouting a query to a specific tool if the query is missing the tool's trigger word.
+	if ("time_query".equals(predictedIntent) && !cleanedInput.contains("time")) {
+		if (DEBUG_MODE) System.out.printf("[DEBUG] Sanity Check: Rejecting intent '%s' because trigger word 'time' is missing. Falling back.%n", predictedIntent);
+		predictedIntent = null; // Reject the classifier's prediction
+	}
+	if ("weather_query".equals(predictedIntent) && !cleanedInput.contains("weather") && !cleanedInput.contains("forecast") && !cleanedInput.contains("temperature")) {
+		if (DEBUG_MODE) System.out.printf("[DEBUG] Sanity Check: Rejecting intent '%s' because trigger words are missing. Falling back.%n", predictedIntent);
+		predictedIntent = null; // Reject the classifier's prediction
+	}
+	
+	// If the sanity check rejected the intent, try the knowledge fallback one last time.
+	if (predictedIntent == null) {
+		if (DEBUG_MODE) System.out.println("[DEBUG] Sanity Check failed. Re-checking Wolfram|Alpha as a final fallback.");
+		if (this.wolframAlphaClient.canAnswer(cleanedInput)) {
+			predictedIntent = "knowledge_query";
+		}
+	}
+	
+	
+	// This prevents stale results if the user changes topics.
+	if (!"how_to_query".equals(predictedIntent)) {
+		context.clearSearchContext();
+	} else {
+		// If the intent IS how_to_query, we need to check if it's a *new* search.
+		// If it is, we also clear the context to start fresh.
+		boolean isNewSearch = userInput.matches("(?i)(?:xavier\\s+)?(?:how to|how do i|tell me how to|explain how to|what are the steps to)\\s*(.+)");
+		if (isNewSearch) {
+			context.clearSearchContext();
+		}
+	}
+	
+	// --- Handler Selection and Execution ---
+	IntentHandler handler = intentHandlers.getOrDefault(predictedIntent, intentHandlers.get("default"));
 	String response = handler.handle(userInput, context);
 	
 	// --- Context Management ---
-	if (!"follow_up".equals(predictedIntent) && !"correction".equals(predictedIntent)) {
-		context.setLastIntent(predictedIntent);
-		if ("knowledge_query".equals(predictedIntent) || "dictionary_query".equals(predictedIntent) || "fact_query".equals(predictedIntent)) {
-			context.setLastSubject(userInput);
-		}
-	}
-	
+	context.setLastIntent(predictedIntent);
 	return response;
+}
+
+private void registerPatterns() {
+	// --- User Management ---
+	patternHandler.registerPattern("set_username", "(?i)(?:my name is|call me) (.+)");
+	patternHandler.registerPattern("get_username", "(?i)(?:what is|what's|do you know) my name\\??");
+	
+	// --- Add a pattern for pronoun-based follow-up questions ---
+	// This catches questions that are clearly dependent on context by looking for a question
+	// word at the start and a pronoun later in the sentence.
+	patternHandler.registerPattern("follow_up", "(?i)^(what|where|when|how|why|is|are|was|were|do|does|did) .*\\b(he|she|it|they|his|her|its|their|there)\\b.*");
+	
+	patternHandler.registerPattern("correction", "(?i)(?:i mean|i meant|no, i mean|no, i meant|no,)\\s*(.+)");
+	
+	// --- Knowledge & Information ---
+	// "how to" is more specific than a generic "tell me"
+	patternHandler.registerPattern("how_to_query", "(?i)(?:xavier\\s+)?(?:how to|how do i|tell me how to|explain how to|what are the steps to) (.+)");
+	
+	// "list of" or "what are" are strong signals for a list
+	patternHandler.registerPattern("list_query", "(?i)(?:xavier\\s+)?(?:list of|tell me|give me|name|what are) (?:the |some |\\d+ )?(?:common |popular |top )?(.+)");
+	
+	// More flexible patterns for general knowledge queries
+	patternHandler.registerPattern("knowledge_query", "(?i)(?:xavier\\s+)?(?:tell me about|what is|what's|explain|can you tell me about|do you know about|lets talk about|can we discuss) (.+)");
+	
+	// This refinement query does not need the prefix as it's a direct command.
+	patternHandler.registerPattern("how_to_query", "(?i)^(try another|another one|next one|more info|more details|show me another|give me another)$");
+	
+	patternHandler.registerPattern("dictionary_query", "(?i)(?:define|meaning of|what does)(?: the word)? (.+?)(?: mean)?$");
+	
+	// --- Internal Tools ---
+	patternHandler.registerPattern("calculator_query", "(?i)(?:what is|what's|calculate|compute|the sum of) (.*(\\d|plus|minus|times|divided|root|squared|power|percent).*)");
+	patternHandler.registerPattern("calculator_query", "^[\\d\\s\\+\\-\\*\\/\\(\\)\\^\\.x]+$");
+	
+	// --- Location-Based Services (Time & Weather) ---
+	patternHandler.registerPattern("weather_query", "(?i)(?:what's|how's|tell me|check) (?:the )?(?:weather|forecast|temperature)$");
+	patternHandler.registerPattern("weather_query", "(?i)(?:what's|how's|tell me|check) (?:the )?(?:weather|forecast|temperature) (?:in|for|at) (.+)");
+	patternHandler.registerPattern("time_query", "(?i)(?:what's|what is|tell me) (?:the )?time$");
+	patternHandler.registerPattern("time_query", "(?i)(?:what's|what is|tell me) (?:the )?time (?:in|for|at) (.+)");
+	patternHandler.registerPattern("time_query", "(?i)(?:what's|what is) (?:the )?timezone (?:in|for|at) (.+)");
+	
+	patternHandler.registerPattern("internet_status_query", "(?i)(?:what is|what's|check|do you have)(?: an?| your| my| the)?(?: current)? (?:internet|network) (?:status|connection)|are you online\\??");
+	// --- Entertainment ---
+	patternHandler.registerPattern("joke_query", "(?i)(?:tell me|give me|i want to hear) (?:a|another|\\d+)?\\s*joke(?:s)?");
 }
 
 private void loadApiKeysAndClients() {
@@ -203,7 +271,7 @@ private void loadApiKeysAndClients() {
 		List<String> wolframKeys = new ArrayList<>();
 		String primaryId = getApiKeyFromProperties("wolframalpha.appid");
 		String backupId = getApiKeyFromProperties("wolframalpha.appid.backup");
-		String tertiaryId = getApiKeyFromProperties("wolframalpha.appid.tertiary"); // Read the new key
+		String tertiaryId = getApiKeyFromProperties("wolframalpha.appid.tertiary");
 		
 		if (primaryId != null) wolframKeys.add(primaryId);
 		if (backupId != null) wolframKeys.add(backupId);
@@ -232,6 +300,7 @@ private void registerHandlers() {
 	intentHandlers.put("about_bot", new AboutBotHandler());
 	intentHandlers.put("chitchat", new ChitChatHandler());
 	intentHandlers.put("default", new DefaultHandler());
+	intentHandlers.put("internet_status_query", new InternetStatusHandler());
 	
 	// --- Group 2: Handlers that require the core instance for re-routing ---
 	intentHandlers.put("follow_up", new FollowUpHandler(this));
@@ -271,19 +340,34 @@ private void registerHandlers() {
 	FunFactService funFactService = new FunFactService();
 	intentHandlers.put("fact_query", new FunFactHandler(funFactService));
 	
-	intentHandlers.put("knowledge_query", new KnowledgeQueryHandler(this.wolframAlphaClient));
-}
-
-private void registerPatterns() {
-	patternHandler.registerPattern("set_username", "(?:my name is|call me|i am)\\s+(.+)");
-	patternHandler.registerPattern("get_username", "(?:what is|what's|do you know) my name\\??");
+	List<String> serperApiKeys = new ArrayList<>();
+	String primarySerperApiKey = getApiKeyFromProperties("serper.apikey");
+	String backupSerperApiKey = getApiKeyFromProperties("serper.apikey.backup");
 	
-	// NEW: Add more robust patterns for weather to catch implicit queries.
-	// The (?i) flag makes the pattern case-insensitive.
-	patternHandler.registerPattern("weather_query", "(?i)(?:what's|how's|tell me|check) (?:the )?(?:weather|forecast|temperature) (?:in|for|at) (.+)");
-	patternHandler.registerPattern("weather_query", "(?i)^check (?:for )?(.+)");
+	if (primarySerperApiKey != null)serperApiKeys.add(primarySerperApiKey);
+	if (backupSerperApiKey != null)serperApiKeys.add(backupSerperApiKey);
+	
+	SearchService searchService = new SearchService(serperApiKeys);
+	intentHandlers.put("how_to_query", new HowToQueryHandler(searchService));
+	
+	String generativeApiUrl = getApiKeyFromProperties("generative.api.url");
+	String generativeModel = getApiKeyFromProperties("generative.api.model");
+	
+	List<String> generativeApiKeys = new ArrayList<>();
+	String primaryGenerativeKey = getApiKeyFromProperties("generative.api.key");
+	String backupGenerativeKey = getApiKeyFromProperties("generative.api.key.backup");
+	
+	if (primaryGenerativeKey != null) generativeApiKeys.add(primaryGenerativeKey);
+	if (backupGenerativeKey != null) generativeApiKeys.add(backupGenerativeKey);
+	
+	GenerativeService generativeService = new GenerativeService(generativeApiUrl, generativeApiKeys, generativeModel);
+	
+	// The ListQueryHandler now uses both services
+	intentHandlers.put("list_query", new ListQueryHandler(generativeService, searchService));
+	
+	
+	intentHandlers.put("knowledge_query", new KnowledgeQueryHandler(this.wolframAlphaClient, searchService));
 }
-
 private String getApiKeyFromProperties(String key) {
 	try (InputStream input = XavierCoreV2.class.getClassLoader().getResourceAsStream("api.properties")) {
 		if (input == null) return null;
@@ -306,6 +390,12 @@ private void registerDirectMatches() {
 	directMatches.put("sup", "greeting");
 	directMatches.put("wassup", "greeting");
 	directMatches.put("what's up", "greeting");
+	
+	directMatches.put("what is your name", "about_bot");
+	directMatches.put("what's your name", "about_bot");
+	directMatches.put("who are you", "about_bot");
+	directMatches.put("what are you", "about_bot");
+	directMatches.put("tell me about yourself", "about_bot");
 	
 	// ChitChat & Acknowledgements
 	directMatches.put("ok", "chitchat");
@@ -354,30 +444,24 @@ public void train(String resourceFileName) {
 	}
 }
 
-/**
- * Prints a string to the console with a more graceful "typing" effect.
- * @param text The text to print.
- * @param delayInMillis The delay between each word.
- */
 private static void printWithTypingEffect(String text, int delayInMillis) {
-	// The progress bar has already cleared the line. We start printing.
 	System.out.print("Xavier: ");
 	String[] words = text.split("\\s+");
 	for (int i = 0; i < words.length; i++) {
 		System.out.print(words[i]);
-		if (i < words.length - 1) { // Add a space only if it's not the last word
+		if (i < words.length - 1) {
 			System.out.print(" ");
 		}
-		System.out.flush(); // Ensure the word is printed immediately
+		System.out.flush();
 		try {
 			Thread.sleep(delayInMillis);
 		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt(); // Restore the interrupted status
+			Thread.currentThread().interrupt();
 			System.err.println("Typing effect was interrupted.");
-			break; // Exit the loop if interrupted
+			break;
 		}
 	}
-	System.out.println(); // Move to the next line for the user's input
+	System.out.println();
 }
 
 public static void main(String[] args) {
@@ -387,7 +471,6 @@ public static void main(String[] args) {
 	if (xavier.isTrained) {
 		System.out.println("\n--- Xavier is ready. Ask a question or say 'exit' to quit. ---");
 		ConversationContext conversation = new ConversationContext();
-		// Create a single-threaded executor to run our AI logic
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		
 		try (Scanner scanner = new Scanner(System.in)) {
@@ -401,44 +484,38 @@ public static void main(String[] args) {
 					break;
 				}
 				
-				// --- NEW Progress Bar Logic ---
 				ProgressBar progressBar = new ProgressBar();
 				Thread progressThread = new Thread(progressBar);
-				if (!DEBUG_MODE) { // Only show the progress bar if not in debug mode
+				if (!DEBUG_MODE) {
 					progressThread.start();
 				}
 				
-				// Run getResponse asynchronously
 				CompletableFuture<String> futureResponse = CompletableFuture.supplyAsync(() ->
 						                                                                         xavier.getResponse(input, conversation), executor
 				);
 				
-				// Wait for the response and then handle the result
 				futureResponse.whenComplete((response, throwable) -> {
 					if (!DEBUG_MODE) {
-						progressBar.stop(); // Stop the animation
+						progressBar.stop();
 						try {
-							progressThread.join(); // Wait for the progress thread to finish cleaning up the line
+							progressThread.join();
 						} catch (InterruptedException e) {
 							Thread.currentThread().interrupt();
 						}
 					}
 					
 					if (throwable != null) {
-						// Handle any exceptions from the AI core
 						printWithTypingEffect("I seem to have encountered an internal error. Please try again.", TYPING_DELAY_MS);
 						System.err.println("Error in getResponse: " + throwable.getCause());
 					} else {
-						// Print the final response with the typing effect
 						printWithTypingEffect(response, TYPING_DELAY_MS);
 					}
 				});
 				
-				// Block here to wait for the future to complete before asking for new input
 				futureResponse.join();
 			}
 		} finally {
-			executor.shutdown(); // Clean up the executor service
+			executor.shutdown();
 		}
 	} else {
 		System.out.println("\n--- Xavier could not be started due to a training error. ---");

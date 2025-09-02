@@ -2,109 +2,84 @@ package com.f9ld3.xavier.ai.V2.handlers;
 
 import com.f9ld3.xavier.ai.V2.ConversationContext;
 import com.f9ld3.xavier.ai.V2.XavierCoreV2;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import static com.f9ld3.xavier.ai.V2.XavierCoreV2.DEBUG_MODE;
+import java.util.Map;
 
 /**
- * Handles conversational follow-up questions by using the context of the last
- * command to construct and execute a new, more specific query.
+ * Handles follow-up questions by intelligently resolving pronouns and combining
+ * the user's new query with the last known subject from the conversation context.
  */
 public class FollowUpHandler implements IntentHandler {
 
-private final XavierCoreV2 xavierCore;
+private final XavierCoreV2 core;
 
-// A pattern to extract the new subject from various follow-up phrases.
-private static final Pattern FOLLOW_UP_SUBJECT_PATTERN = Pattern.compile(
-		"^(?:what about|how about|and|tell me more about)?(?: in| for| the weather in| the time in)?\\s*(.+)",
-		Pattern.CASE_INSENSITIVE
+// A map for intelligent pronoun replacement for people/things.
+private static final Map<String, String> PRONOUN_REPLACEMENTS = Map.of(
+		// Possessive pronouns -> replace with "[subject]'s"
+		"his", "'s",
+		"her", "'s",
+		"its", "'s",
+		"their", "'s",
+		// Subject/Object pronouns -> replace with "[subject]"
+		"he", "",
+		"she", "",
+		"it", "",
+		"they", "",
+		"him", "",
+		"them", ""
 );
 
-/**
- * The constructor requires a reference to the main Xavier core to be able
- * to re-trigger the full reasoning pipeline.
- * @param xavierCore The main instance of the AI core.
- */
-public FollowUpHandler(XavierCoreV2 xavierCore) {
-	this.xavierCore = xavierCore;
+public FollowUpHandler(XavierCoreV2 core) {
+	this.core = core;
 }
 
 @Override
 public String handle(String userInput, ConversationContext context) {
-	String lastIntent = context.getLastIntent();
 	String lastSubject = context.getLastSubject();
 	
-	if (lastIntent == null) {
-		return "I'm not sure what we were talking about. Could you please ask a full question?";
+	if (lastSubject == null || lastSubject.isBlank()) {
+		return "I'm sorry, I've lost the context. What were we talking about?";
 	}
 	
-	String newSubject = extractNewSubject(userInput);
-	if (newSubject == null) {
-		// This handles "tell me another one" where the subject is the action itself.
-		newSubject = userInput;
-	}
+	String newQuery = userInput;
+	boolean pronounFound = false;
 	
-	String newQuery;
-	switch (lastIntent) {
-		case "weather_query":
-			newQuery = "what is the weather in " + newSubject;
-			break;
-		case "timezone_query":
-			newQuery = "what is the time in " + newSubject;
-			break;
-		case "joke_query":
-			newQuery = "tell me a joke";
-			break;
-		case "fact_query":
-			newQuery = "tell me a fun fact";
-			break;
-		case "knowledge_query":
-			// For knowledge queries, intelligently combine the last subject with the new one.
-			if (lastSubject != null) {
-				// Heuristic 1: The follow-up is a full question about the last subject.
-				// e.g., "who is obama" -> "where was he born" -> "where was he born who is obama"
-				if (newSubject.matches("^(who|what|where|when|why|how|is|are|was|were|do|does|did).*")) {
-					newQuery = newSubject + " " + lastSubject;
-				} else {
-					// Heuristic 2: The follow-up replaces a descriptor.
-					// e.g., "tallest building" -> "how about the shortest" -> "shortest building"
-					// This splits the last subject and replaces the first word (often an adjective).
-					String[] lastSubjectParts = lastSubject.split("\\s+", 2);
-					if (lastSubjectParts.length > 1) {
-						// Reconstructs "shortest" + " " + "building in the world"
-						newQuery = newSubject + " " + lastSubjectParts[1];
-					} else {
-						// Fallback if the last subject was just one word or the heuristic fails.
-						newQuery = newSubject;
-					}
-				}
-			} else {
-				newQuery = newSubject;
+	// --- UPDATED LOGIC: Add a special case for the locative pronoun "there" ---
+	if (userInput.matches("(?i).*\\bthere\\b.*")) {
+		// Replace "there" with "in [lastSubject]" to form a complete query.
+		// Example: "what language is spoken there" -> "what language is spoken in France"
+		newQuery = userInput.replaceAll("(?i)\\bthere\\b", "in " + lastSubject);
+		pronounFound = true;
+	} else {
+		// Fallback to the existing logic for other pronouns.
+		for (Map.Entry<String, String> entry : PRONOUN_REPLACEMENTS.entrySet()) {
+			String pronoun = entry.getKey();
+			String replacementSuffix = entry.getValue();
+			
+			if (userInput.matches("(?i).*\\b" + pronoun + "\\b.*")) {
+				String replacementText = lastSubject + replacementSuffix;
+				newQuery = userInput.replaceAll("(?i)\\b" + pronoun + "\\b", replacementText);
+				pronounFound = true;
+				break; // Stop after the first pronoun is found and replaced
 			}
-			break;
-		default:
-			return "I can't do a follow-up on that type of command. Please ask a new question.";
+		}
 	}
 	
-	if (DEBUG_MODE) System.out.printf("[DEBUG] Follow-up: Rerouting to full pipeline with new query: '%s'%n", newQuery);
-	// Re-invoke the entire reasoning pipeline with the new, improved query.
-	return xavierCore.getResponse(newQuery, context);
-}
-
-/**
- * Uses regex to strip away conversational phrases and isolate the new subject.
- * @param input The raw user input.
- * @return The extracted subject, or null if it's empty.
- */
-private String extractNewSubject(String input) {
-	String trimmedInput = input.trim();
-	Matcher matcher = FOLLOW_UP_SUBJECT_PATTERN.matcher(trimmedInput);
-	if (matcher.matches()) {
-		String subject = matcher.group(1).replace("?", "").trim();
-		return subject.isEmpty() ? null : subject;
+	// If no pronoun was found (which should be rare given the core pattern), return a helpful message.
+	if (!pronounFound) {
+		return "I can see you're asking a follow-up, but I'm not sure how to connect it to our last topic. Could you please ask a full question?";
 	}
-	// If no pattern matches, the input itself is the subject.
-	return trimmedInput.isEmpty() ? null : trimmedInput;
+	
+	if (XavierCoreV2.DEBUG_MODE) {
+		System.out.printf("[DEBUG] FollowUpHandler: Last subject: '%s'%n", lastSubject);
+		System.out.printf("[DEBUG] FollowUpHandler: Original input: '%s'%n", userInput);
+		System.out.printf("[DEBUG] FollowUpHandler: Rerouting with new query: '%s'%n", newQuery);
+	}
+	
+	// Re-route the new, complete query back through the main pipeline.
+	// Create a new context to avoid infinite loops and carry over the username.
+	ConversationContext newContext = new ConversationContext();
+	newContext.setUsername(context.getUsername());
+	return core.getResponse(newQuery, newContext);
 }
 }
