@@ -3,6 +3,7 @@ package records;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment; // Import DialogFragment
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,15 +23,18 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
+import ui.CustomMessageDialogFragment;
 import ui.HomeFragment.MoodEntry;
-import ui.CustomMessageDialogFragment; // Import CustomMessageDialogFragment
 
-public class MoodCheckinFragment extends Fragment {
+public class MoodCheckinFragment extends Fragment implements MoodEntryAdapter.onMoodEntryClickListener {
 
     private RecyclerView recyclerView;
     private MoodEntryAdapter adapter;
@@ -69,7 +73,7 @@ public class MoodCheckinFragment extends Fragment {
         }
 
         // Initialize adapter with the loaded data and pass 'this' fragment for deletion callback
-        adapter = new MoodEntryAdapter(moodEntries, this);
+        adapter = new MoodEntryAdapter(moodEntries, this, this);
         recyclerView.setAdapter(adapter);
         return view;
     }
@@ -90,6 +94,8 @@ public class MoodCheckinFragment extends Fragment {
         Collections.sort(moodEntries, new Comparator<MoodEntry>() {
             @Override
             public int compare(MoodEntry m1, MoodEntry m2) {
+                // Assuming MoodEntry now has a getTimestamp() method.
+                // If not, use getDay() with a SimpleDateFormat for comparison.
                 return Long.compare(m2.getTimestamp(), m1.getTimestamp()); // Newest first
             }
         });
@@ -138,6 +144,61 @@ public class MoodCheckinFragment extends Fragment {
             });
             dialog.show(getParentFragmentManager(), "DeleteMoodEntryDialog"); // Show the dialog
         }
+    }
+
+    @Override
+    public void onMoodEntryClick(MoodEntry moodEntry) {
+        // Now you have the full MoodEntry object.
+        // Construct a detailed string from the MoodEntry object's properties.
+
+        StringBuilder detailsBuilder = new StringBuilder();
+
+        // --- Format Day ---
+        String formattedDay = moodEntry.getDay(); // Default to raw day string
+        if (moodEntry.getDay() != null && !moodEntry.getDay().isEmpty()) {
+            try {
+                SimpleDateFormat inputDayFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                Date dateDayObj = inputDayFormat.parse(moodEntry.getDay());
+                SimpleDateFormat outputDayFormat = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
+                formattedDay = outputDayFormat.format(dateDayObj);
+            } catch (java.text.ParseException e) {
+                // If parsing fails, formattedDay remains the raw day string (already set)
+                Log.e("MoodCheckinFragment", "Error parsing day: " + moodEntry.getDay(), e);
+            }
+        } else {
+            formattedDay = "N/A";
+        }
+        detailsBuilder.append("Date: ").append(formattedDay).append("\n");
+
+        // --- Format Time ---
+        if (moodEntry.getTimestamp() > 0) {
+            SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+            String formattedTime = timeFormat.format(new Date(moodEntry.getTimestamp()));
+            detailsBuilder.append("Time: ").append(formattedTime).append("\n");
+        }
+
+        detailsBuilder.append("Mood Level: ").append(moodEntry.getMoodLevel()).append("/10").append("\n");
+        detailsBuilder.append("How I'm Feeling: ").append(moodEntry.getMoodText());
+
+        // --- Corrected logic: Create and show the dialog ---
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                "Mood Entry Details",
+                detailsBuilder.toString(),
+                "Close",
+                null // No negative button needed for a simple close
+        );
+        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                dialogFragment.dismiss();
+            }
+
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                // This won't be called as the negative button is null
+            }
+        });
+        dialog.show(getParentFragmentManager(), "MoodEntryDetailsDialog");
     }
 
     private void updateEmptyStateVisibility() {

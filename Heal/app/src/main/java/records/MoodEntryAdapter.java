@@ -1,32 +1,40 @@
 package records;
 
+import static ui.HomeFragment.MoodEntry;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.f9ld3.heal.R; // Ensure this path is correct for your project
+import com.f9ld3.heal.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-// Make sure to import HomeFragment.MoodEntry if MoodEntry is an inner class of HomeFragment
-import static ui.HomeFragment.MoodEntry; // Correct static import to reference MoodEntry from HomeFragment
-
 public class MoodEntryAdapter extends RecyclerView.Adapter<MoodEntryAdapter.MoodEntryViewHolder> {
 
     private List<MoodEntry> moodEntryList;
     private MoodCheckinFragment fragment; // Reference to the fragment for deletion callback
 
+    private MoodEntryAdapter.onMoodEntryClickListener clickListener;
+
+    public interface onMoodEntryClickListener {
+        void onMoodEntryClick(MoodEntry moodEntry);
+    }
+
+
     // Constructor that takes the list of mood entries and a reference to the fragment
-    public MoodEntryAdapter(List<MoodEntry> moodEntryList, MoodCheckinFragment fragment) {
+    public MoodEntryAdapter(List<MoodEntry> moodEntryList, MoodCheckinFragment fragment,onMoodEntryClickListener clickListener) {
         this.moodEntryList = moodEntryList;
         this.fragment = fragment;
+        this.clickListener = clickListener;
     }
 
     @NonNull
@@ -53,7 +61,7 @@ public class MoodEntryAdapter extends RecyclerView.Adapter<MoodEntryAdapter.Mood
         }
 
         // Display mood level and text
-        holder.moodLevelTextView.setText("Mood: " + currentEntry.getMoodLevel());
+        holder.moodLevelTextView.setText(currentEntry.getMoodLevel()+"/10");
         holder.moodTextTextView.setText(currentEntry.getMoodText());
 
         // Display timestamp if available
@@ -64,6 +72,12 @@ public class MoodEntryAdapter extends RecyclerView.Adapter<MoodEntryAdapter.Mood
         } else {
             holder.moodTimeTextView.setVisibility(View.GONE); // Hide the TextView if no valid timestamp
         }
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null && holder.getAdapterPosition() != RecyclerView.NO_POSITION) {
+                MoodEntry clickedEntry = moodEntryList.get(holder.getAdapterPosition());
+                clickListener.onMoodEntryClick(clickedEntry); // <--- CHANGE: Pass the whole MoodEntry object
+            }
+        });
 
         // Set up the click listener for the delete button
         holder.deleteButton.setOnClickListener(v -> {

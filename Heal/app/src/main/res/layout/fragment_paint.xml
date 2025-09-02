@@ -22,7 +22,7 @@
             android:layout_marginBottom="16dp"
             android:text="Your Artworks"
             android:textAppearance="?attr/textAppearanceTitleLarge"
-            android:textColor="" />
+            android:textColor="@color/black" />
 
         <!-- This FrameLayout allows the RecyclerView and the empty state TextView to occupy
              the same space, making it easy to toggle their visibility. -->

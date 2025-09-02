@@ -452,7 +452,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         MenuTrigger = findViewById(R.id.menu_trigger);
-        MenuTrigger = findViewById(R.id.menu_trigger);
         MenuTrigger.setOnClickListener(v -> {
             isSettingsOpened = false;
             PopupMenu popupMenu = new PopupMenu(MainActivity.this, v);
@@ -786,7 +785,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onResume();
         NotificationManagerCompat.from(this).cancelAll();
         Log.d(TAG, "All notifications cleared on app resume.");
-        if (Fab.getVisibility() == View.GONE) Fab.setVisibility(View.GONE);
         updateRecentlySentNotificationsDisplay();
     }
 
@@ -1157,7 +1155,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Replaced AlertDialog with CustomMessageDialogFragment
             CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
                     "Exit Canvas",
-                    "Are you sure you want to quit your game?", // Unified message
+                    "Are you sure you want to quit your drawing?", // Unified message
                     "Yes",
                     "No"
             );

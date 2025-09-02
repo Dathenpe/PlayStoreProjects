@@ -1,6 +1,5 @@
 package records;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -17,12 +16,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment; // Import Fragment
+import androidx.fragment.app.Fragment;
 
 import com.f9ld3.heal.R;
 import com.google.android.material.textfield.TextInputEditText;
 
-import ui.HomeFragment; // Import HomeFragment for JournalEntry
+import ui.CustomMessageDialogFragment;
+import ui.HomeFragment;
 
 public class EditJournalEntryDialogFragment extends DialogFragment {
 
@@ -140,19 +140,28 @@ public class EditJournalEntryDialogFragment extends DialogFragment {
 
     private void handleDelete() {
         if (getContext() == null) return;
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                "Delete Entry",
+                "Are you sure you want to delete this journal entry? This action cannot be undone.",
+                "Yes",
+                "No"
+        );
+        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                if (editingEntry != null && listener != null) {
+                    listener.onJournalEntryDeleted(editingEntry.getTimestamp()); // Pass unique identifier
+                }
+                Toast.makeText(getContext(), "Journal entry deleted.", Toast.LENGTH_SHORT).show();
+                dialogFragment.dismiss();
+            }
 
-        new AlertDialog.Builder(getContext())
-                .setTitle("Delete Entry")
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setMessage("Are you sure you want to delete this journal entry? This action cannot be undone.")
-                .setPositiveButton("Yes", (dialogDelete, whichDelete) -> {
-                    if (editingEntry != null && listener != null) {
-                        listener.onJournalEntryDeleted(editingEntry.getTimestamp()); // Pass unique identifier
-                    }
-                    Toast.makeText(getContext(), "Journal entry deleted.", Toast.LENGTH_SHORT).show();
-                    dismiss();
-                })
-                .setNegativeButton("No", null)
-                .show();
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                dialogFragment.dismiss();
+            }
+        });
+        dialog.show(getParentFragmentManager(), "DeleteJournalEntryDialog");
+
     }
 }
