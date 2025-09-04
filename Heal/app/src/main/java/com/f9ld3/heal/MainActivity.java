@@ -90,7 +90,9 @@ import java.util.Set;
 import drawing.DrawingCanvasFragment;
 import funcorner.MemoryMatchGameFragment;
 import funcorner.PaintFragment;
+import funcorner.SudokuGameFragment;
 import funcorner.TetrisGameFragment;
+import funcorner.TicTacToeGameFragment;
 import funcorner.WordScrambleGameFragment;
 import records.AddEditContactDialogFragment;
 import records.CopingExercisesFragment;
@@ -596,15 +598,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             else if (gameFragmentId == R.id.nav_memory_match) targetGameName = "Memory Match";
             else if (gameFragmentId == R.id.nav_word_scramble) targetGameName = "Word Scramble";
             else if (gameFragmentId == R.id.nav_paint) targetGameName = "Paint";
+            else if (gameFragmentId == R.id.nav_sudoku) targetGameName = "Sudoku";
+            else if (gameFragmentId == R.id.nav_tic_tac_toe) targetGameName = "Tic-Tac-Toe";
 
 
+            // Check if the user is already in the game they're trying to launch
             // Check if the user is already in the game they're trying to launch
             if (currentFragment != null) {
                 boolean isAlreadyInTargetGame =
                         (gameFragmentId == R.id.nav_tetris && currentFragment instanceof TetrisGameFragment) ||
                                 (gameFragmentId == R.id.nav_memory_match && currentFragment instanceof MemoryMatchGameFragment) ||
                                 (gameFragmentId == R.id.nav_word_scramble && currentFragment instanceof WordScrambleGameFragment) ||
-                                (gameFragmentId == R.id.nav_paint && (currentFragment instanceof PaintFragment || currentFragment instanceof DrawingCanvasFragment));
+                                (gameFragmentId == R.id.nav_paint && (currentFragment instanceof PaintFragment || currentFragment instanceof DrawingCanvasFragment)) ||
+                                (gameFragmentId == R.id.nav_tic_tac_toe && currentFragment instanceof TicTacToeGameFragment) ||
+                                (gameFragmentId == R.id.nav_sudoku && currentFragment instanceof SudokuGameFragment);
 
                 if (isAlreadyInTargetGame) {
                     Toast.makeText(this, "You are already in " + targetGameName + ".", Toast.LENGTH_SHORT).show();
@@ -617,13 +624,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     currentFragment instanceof MemoryMatchGameFragment ||
                     currentFragment instanceof WordScrambleGameFragment ||
                     currentFragment instanceof PaintFragment ||
-                    currentFragment instanceof DrawingCanvasFragment) {
+                    currentFragment instanceof DrawingCanvasFragment ||
+                    currentFragment instanceof TicTacToeGameFragment ||
+                    currentFragment instanceof SudokuGameFragment) {
 
                 String currentGameName = "the current game"; // Default name
                 if (currentFragment instanceof TetrisGameFragment) currentGameName = "Tetris";
                 else if (currentFragment instanceof MemoryMatchGameFragment) currentGameName = "Memory Match";
                 else if (currentFragment instanceof WordScrambleGameFragment) currentGameName = "Word Scramble";
                 else if (currentFragment instanceof PaintFragment || currentFragment instanceof DrawingCanvasFragment) currentGameName = "the Paint canvas";
+                else if (currentFragment instanceof TicTacToeGameFragment) currentGameName = "Tic-Tac-Toe";
+                else if (currentFragment instanceof SudokuGameFragment) currentGameName = "Sudoku";
 
                 CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
                         "Exit " + currentGameName + "?",
@@ -686,6 +697,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (gameFragmentId == R.id.nav_paint) {
             targetFragment = new PaintFragment();
             toolbarTitle = "Paint";
+        } else if (gameFragmentId == R.id.nav_sudoku) {
+            targetFragment = new SudokuGameFragment();
+            toolbarTitle = "Sudoku";
+        } else if (gameFragmentId == R.id.nav_tic_tac_toe) {
+            targetFragment = new TicTacToeGameFragment();
+            toolbarTitle = "Tic-Tac-Toe";
         }
 
         if (targetFragment != null) {
@@ -864,7 +881,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         int clickedNavId = (int) v.getTag();
                         if (clickedNavId == R.id.nav_coping_exercises || clickedNavId == R.id.nav_journal_entries || clickedNavId == R.id.nav_mood_checkin ||
                                 clickedNavId == R.id.nav_saved_strategies || clickedNavId == R.id.nav_relapse_history ||
-                                clickedNavId == R.id.nav_word_scramble || clickedNavId == R.id.nav_tetris || clickedNavId == R.id.nav_memory_match || clickedNavId == R.id.nav_paint){
+                                clickedNavId == R.id.nav_word_scramble || clickedNavId == R.id.nav_tetris || clickedNavId == R.id.nav_memory_match || clickedNavId == R.id.nav_paint || clickedNavId == R.id.nav_sudoku || clickedNavId == R.id.nav_tic_tac_toe){
                             loadFragmentFromChip(clickedNavId);
                         } else if (clickedNavId == R.id.nav_emergency_contacts) {
                             loadContacts();
@@ -899,7 +916,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Check if the navId is for a game fragment
         boolean isGameFragment = (navId == R.id.nav_word_scramble || navId == R.id.nav_tetris ||
-                navId == R.id.nav_memory_match || navId == R.id.nav_paint);
+                navId == R.id.nav_memory_match || navId == R.id.nav_paint || navId == R.id.nav_sudoku || navId == R.id.nav_tic_tac_toe);
 
         if (isGameFragment) {
             // Determine the target game's name for messages
@@ -907,13 +924,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             else if (navId == R.id.nav_memory_match) targetGameName = "Memory Match";
             else if (navId == R.id.nav_word_scramble) targetGameName = "Word Scramble";
             else if (navId == R.id.nav_paint) targetGameName = "Paint";
+            else if (navId == R.id.nav_sudoku) targetGameName = "Sudoku";
+            else if (navId == R.id.nav_tic_tac_toe) targetGameName = "Tic-Tac-Toe";
 
             // Check if the user is already in the target game
             boolean isAlreadyInTargetGame =
                     (navId == R.id.nav_tetris && currentFragment instanceof TetrisGameFragment) ||
                             (navId == R.id.nav_memory_match && currentFragment instanceof MemoryMatchGameFragment) ||
                             (navId == R.id.nav_word_scramble && currentFragment instanceof WordScrambleGameFragment) ||
-                            (navId == R.id.nav_paint && (currentFragment instanceof PaintFragment || currentFragment instanceof DrawingCanvasFragment));
+                            (navId == R.id.nav_paint && (currentFragment instanceof PaintFragment || currentFragment instanceof DrawingCanvasFragment)) ||
+                            ( navId == R.id.nav_tic_tac_toe && currentFragment instanceof TicTacToeGameFragment) ||
+                            ( navId == R.id.nav_sudoku && currentFragment instanceof SudokuGameFragment);
 
             if (isAlreadyInTargetGame) {
                 Toast.makeText(this, "You are already in " + targetGameName + ".", Toast.LENGTH_SHORT).show();
@@ -926,13 +947,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     currentFragment instanceof MemoryMatchGameFragment ||
                     currentFragment instanceof WordScrambleGameFragment ||
                     currentFragment instanceof PaintFragment ||
-                    currentFragment instanceof DrawingCanvasFragment) {
+                    currentFragment instanceof DrawingCanvasFragment ||
+                   currentFragment instanceof TicTacToeGameFragment ||
+                    currentFragment instanceof SudokuGameFragment) {
 
                 String currentGameName = "the current game";
                 if (currentFragment instanceof TetrisGameFragment) currentGameName = "Tetris";
                 else if (currentFragment instanceof MemoryMatchGameFragment) currentGameName = "Memory Match";
                 else if (currentFragment instanceof WordScrambleGameFragment) currentGameName = "Word Scramble";
                 else if (currentFragment instanceof PaintFragment || currentFragment instanceof DrawingCanvasFragment) currentGameName = "the Paint canvas";
+                else if (currentFragment instanceof TicTacToeGameFragment) currentGameName = "Tic-Tac-Toe";
+                else if (currentFragment instanceof SudokuGameFragment) currentGameName = "Sudoku";
 
                 CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
                         "Exit " + currentGameName + "?",
@@ -1013,6 +1038,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             targetFragment = new PaintFragment();
             toolbarTitle = "Paint";
             navigationView.setCheckedItem(R.id.nav_fun_corner);
+        }else if (navId == R.id.nav_sudoku) {
+            targetFragment = new SudokuGameFragment();
+            toolbarTitle = "Sudoku";
+            navigationView.setCheckedItem(R.id.nav_fun_corner);
+        }else if (navId == R.id.nav_tic_tac_toe) {
+            targetFragment = new TicTacToeGameFragment();
+            toolbarTitle = "Tic-Tac-Toe";
+            navigationView.setCheckedItem(R.id.nav_fun_corner);
         }
         // Use the provided gameNameForTitle if it's a game switch, otherwise use the default toolbarTitle
         String finalToolbarTitle = (gameNameForTitle != null) ? gameNameForTitle : toolbarTitle;
@@ -1020,7 +1053,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (targetFragment != null){
             // Clear the back stack if navigating to a game from a chip, to ensure clean state
             if (navId == R.id.nav_word_scramble || navId == R.id.nav_tetris ||
-                    navId == R.id.nav_memory_match || navId == R.id.nav_paint) {
+                    navId == R.id.nav_memory_match || navId == R.id.nav_paint
+            || navId == R.id.nav_sudoku || navId == R.id.nav_tic_tac_toe) {
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
             loadFragment(targetFragment, navId);
@@ -1231,6 +1265,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             });
             dialog.show(getSupportFragmentManager(), "ExitWordScrambleDialog");
+        }else if (currentFragment instanceof SudokuGameFragment){
+            // Replaced AlertDialog with CustomMessageDialogFragment
+            CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                    "Exit Sudoku",
+                    "Are you sure you want to quit your game?",
+                    "Yes",
+                    "No"
+            );
+            dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                @Override
+                public void onDialogPositiveClick(DialogFragment dialogFragment) { // Removed 'void' from here
+                    getSupportFragmentManager().popBackStack();
+                }
+
+                @Override
+                public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                    dialogFragment.dismiss();
+                }
+            });
+            dialog.show(getSupportFragmentManager(), "ExitSudokuDialog");
+        }else if (currentFragment instanceof TicTacToeGameFragment){
+            // Replaced AlertDialog with CustomMessageDialogFragment
+            CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                    "Exit TicTacToe",
+                    "Are you sure you want to quit your game?",
+                    "Yes",
+                    "No"
+            );
+            dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                @Override
+                public void onDialogPositiveClick(DialogFragment dialogFragment) { // Removed 'void' from here
+                    getSupportFragmentManager().popBackStack();
+                }
+
+                @Override
+                public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                    dialogFragment.dismiss();
+                }
+            });
+            dialog.show(getSupportFragmentManager(), "ExitTicTacToeDialog");
         }
         else {
             super.onBackPressed();

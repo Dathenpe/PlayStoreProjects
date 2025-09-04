@@ -15,4 +15,8 @@
     <dimen name="theme_circle_margin">8dp</dimen>
     <dimen name="theme_circle_border_width_normal">2dp</dimen>
     <dimen name="theme_circle_border_width_selected">4dp</dimen>
+    <dimen name="sudoku_cell_size">40dp</dimen>
+    <dimen name="sudoku_subgrid_border_width">2dp</dimen>
+    <dimen name="sudoku_cell_text_size">20sp</dimen>
+    <dimen name="sudoku_grid_gap">1dp</dimen>
 </resources>

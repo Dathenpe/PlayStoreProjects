@@ -22,6 +22,8 @@ import funcorner.PaintFragment;
 import funcorner.TetrisGameFragment;
 import funcorner.MemoryMatchGameFragment;
 import funcorner.WordScrambleGameFragment; // Import the new WordScrambleGameFragment
+import funcorner.TicTacToeGameFragment; // Import TicTacToeGameFragment
+import funcorner.SudokuGameFragment; // Import SudokuGameFragment
 import viewmodels.GeneralViewModel;
 
 public class FunCornerFragment extends Fragment implements DrawingCanvasFragment.OnDrawingSavedListener {
@@ -32,6 +34,8 @@ public class FunCornerFragment extends Fragment implements DrawingCanvasFragment
     private FrameLayout artCornerCardContainer;
     private FrameLayout memoryMatchGameContainer;
     private FrameLayout wordScrambleGameContainer; // Declare the Word Scramble game container
+    private FrameLayout ticTacToeGameContainer; // Declare the Tic-Tac-Toe game container
+    private FrameLayout sudokuGameContainer; // Declare the Sudoku game container
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -65,6 +69,8 @@ public class FunCornerFragment extends Fragment implements DrawingCanvasFragment
         artCornerCardContainer = view.findViewById(R.id.art_corner_card_container);
         memoryMatchGameContainer = view.findViewById(R.id.memory_match_game_container);
         wordScrambleGameContainer = view.findViewById(R.id.word_scramble_game_container); // Initialize the Word Scramble game container
+        ticTacToeGameContainer = view.findViewById(R.id.tic_tac_toe_game_container); // Initialize the Tic-Tac-Toe game container
+        sudokuGameContainer = view.findViewById(R.id.sudoku_game_container); // Initialize the Sudoku game container
 
         ProgressBar loadingProgressBar = view.findViewById(R.id.loading_progress_bar);
         View funCornerScrollView = view.findViewById(R.id.fun_corner_scroll_view);
@@ -121,6 +127,32 @@ public class FunCornerFragment extends Fragment implements DrawingCanvasFragment
             mainActivity.loadFragment(new WordScrambleGameFragment(), R.id.nav_word_scramble);
             mainActivity.toolbar.setTitle("Word Scramble Game");
             mainActivity.addFragmentToHistory(R.id.nav_word_scramble, "Word Scramble Game");
+            if (mainActivity.MenuTrigger != null && mainActivity.Fab != null ||
+                    mainActivity.MenuTrigger.getVisibility() == View.VISIBLE &&
+                            mainActivity.Fab.getVisibility() == View.VISIBLE) {
+                mainActivity.MenuTrigger.setVisibility(View.GONE);
+                mainActivity.Fab.setVisibility(View.GONE);
+            }
+        });
+
+        // Set OnClickListener for the Tic-Tac-Toe game container
+        ticTacToeGameContainer.setOnClickListener(v -> {
+            mainActivity.loadFragment(new TicTacToeGameFragment(), R.id.nav_tic_tac_toe);
+            mainActivity.toolbar.setTitle("Tic-Tac-Toe");
+            mainActivity.addFragmentToHistory(R.id.nav_tic_tac_toe, "Tic-Tac-Toe");
+            if (mainActivity.MenuTrigger != null && mainActivity.Fab != null ||
+                    mainActivity.MenuTrigger.getVisibility() == View.VISIBLE &&
+                            mainActivity.Fab.getVisibility() == View.VISIBLE) {
+                mainActivity.MenuTrigger.setVisibility(View.GONE);
+                mainActivity.Fab.setVisibility(View.GONE);
+            }
+        });
+
+        // Set OnClickListener for the Sudoku game container
+        sudokuGameContainer.setOnClickListener(v -> {
+            mainActivity.loadFragment(new SudokuGameFragment(), R.id.nav_sudoku);
+            mainActivity.toolbar.setTitle("Sudoku");
+            mainActivity.addFragmentToHistory(R.id.nav_sudoku, "Sudoku");
             if (mainActivity.MenuTrigger != null && mainActivity.Fab != null ||
                     mainActivity.MenuTrigger.getVisibility() == View.VISIBLE &&
                             mainActivity.Fab.getVisibility() == View.VISIBLE) {

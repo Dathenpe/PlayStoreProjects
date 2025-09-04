@@ -112,7 +112,7 @@ public class EditJournalEntryDialogFragment extends DialogFragment {
                 WindowManager.LayoutParams layoutParams = window.getAttributes();
                 layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
                 layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
-                layoutParams.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN; // Keyboard overlaps
+                layoutParams.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
                 window.setAttributes(layoutParams);
                 window.setBackgroundDrawableResource(android.R.color.transparent);
             }
@@ -139,29 +139,51 @@ public class EditJournalEntryDialogFragment extends DialogFragment {
     }
 
     private void handleDelete() {
-        if (getContext() == null) return;
+        if (getContext() == null || getDialog() == null) return;
+
+        // 1. Hide the current (edit) dialog before showing the new one.
+        getDialog().hide();
+
+        // This is the confirmation dialog
         CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
                 "Delete Entry",
                 "Are you sure you want to delete this journal entry? This action cannot be undone.",
                 "Yes",
                 "No"
         );
+
         dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
             @Override
             public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                // User confirmed the deletion.
                 if (editingEntry != null && listener != null) {
-                    listener.onJournalEntryDeleted(editingEntry.getTimestamp()); // Pass unique identifier
+                    listener.onJournalEntryDeleted(editingEntry.getTimestamp());
                 }
                 Toast.makeText(getContext(), "Journal entry deleted.", Toast.LENGTH_SHORT).show();
+
+                // Dismiss the confirmation dialog
                 dialogFragment.dismiss();
+
+                // Permanently dismiss this EditJournalEntryDialogFragment.
+                // No need to show() it again, as we're getting rid of it.
+                EditJournalEntryDialogFragment.this.dismiss();
             }
 
             @Override
             public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                // User cancelled. Dismiss the confirmation dialog.
                 dialogFragment.dismiss();
+
+                // IMPORTANT: Show the edit dialog again so the user can continue editing.
+                if (getDialog() != null) {
+                    getDialog().show();
+                }
             }
         });
-        dialog.show(getParentFragmentManager(), "DeleteJournalEntryDialog");
 
+        // Make the confirmation dialog non-cancelable by touch outside,
+        // so we can control the show/hide flow properly.
+        dialog.setCancelable(false);
+        dialog.show(getParentFragmentManager(), "DeleteJournalEntryDialog");
     }
 }

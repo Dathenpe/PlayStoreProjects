@@ -11,7 +11,7 @@
 
     <!-- Background Color: Lavender -->
     <path
-        android:fillColor="#E6E6FA"
+        android:fillColor="@color/purple_200"
         android:pathData="M0,0 h270 v540 h-270z" />
 
     <!-- Pattern: Keys -->

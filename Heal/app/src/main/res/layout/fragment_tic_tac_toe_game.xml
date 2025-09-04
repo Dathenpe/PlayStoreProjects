@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="funcorner.TetrisGameFragment">
+    tools:context="funcorner.TicTacToeGameFragment">
 
+    <!-- Top Info Card: Status, Mode Selection -->
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/score_card"
+        android:id="@+id/info_card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
@@ -22,142 +24,173 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:padding="12dp">
 
             <TextView
-                android:id="@+id/score_text_view"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Score: 0"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                android:textColor="?attr/colorOnSurface" />
-
-            <TextView
-                android:id="@+id/level_text_view"
+                android:id="@+id/status_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Level: 1"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                android:textColor="?attr/colorOnSurface" />
+                android:layout_gravity="center"
+                android:text="Your Turn (X)"
+                android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                android:textColor="?attr/colorOnSurface"
+                android:layout_marginBottom="8dp" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_show_high_scores"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:layout_width="wrap_content"
-                android:text="🏆"
+            <LinearLayout
+                android:id="@+id/one_player_controls"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:contentDescription="Show High Scores" />
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Difficulty:"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                    <Spinner
+                        android:id="@+id/difficulty_spinner"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:spinnerMode="dropdown" />
+                </LinearLayout>
+
+                <!-- Player Symbol Selection -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Play as:"
+                        android:textAppearance="?attr/textAppearanceBodyLarge"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                    <RadioGroup
+                        android:id="@+id/symbol_radio_group"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/radio_x"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="X"
+                            android:checked="true"
+                            android:textAppearance="?attr/textAppearanceBodyLarge"
+                            android:textColor="?attr/colorOnSurface" />
+
+                        <RadioButton
+                            android:id="@+id/radio_o"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:text="O"
+                            android:textAppearance="?attr/textAppearanceBodyLarge"
+                            android:textColor="?attr/colorOnSurface" />
+                    </RadioGroup>
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <FrameLayout
-        android:id="@+id/game_board_container"
-        android:layout_width="wrap_content"
+    <!-- Game Content Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/game_content_card"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/tetris_board_background"
-        android:padding="6dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:layout_constraintTop_toBottomOf="@id/info_card"
+        app:layout_constraintBottom_toTopOf="@id/buttons_container"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/score_card"
-        app:layout_constraintBottom_toTopOf="@+id/fab_main_toggle"
-        app:layout_constraintVertical_bias="0.3" >
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <tetris.TetrisView
-            android:id="@+id/tetris_view"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/tic_tac_toe_board"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center" />
-    </FrameLayout>
+            android:layout_gravity="center"
+            android:nestedScrollingEnabled="false"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="3" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_main_toggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="Open Game Controls"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_gamepad"
-        app:elevation="0dp"
-        app:pressedTranslationZ="0dp" />
+    </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_pause_play"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="Pause/Play"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_pause_white_24dp"
-        app:elevation="0dp"
-        app:pressedTranslationZ="0dp" />
-
+    <!-- Buttons Container -->
     <LinearLayout
-        android:id="@+id/fab_menu_actions"
-        android:layout_width="wrap_content"
+        android:id="@+id/buttons_container"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"  android:gravity="center_vertical" android:layout_marginEnd="8dp"   android:layout_marginBottom="16dp" android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toStartOf="@+id/fab_main_toggle" app:layout_constraintHorizontal_bias="1.0" app:layout_constraintStart_toEndOf="@+id/fab_pause_play" tools:visibility="visible">
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_rotate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp" android:contentDescription="Rotate"
-            app:fabSize="mini"
-            app:srcCompat="@drawable/ic_rotate_right_white_24dp"
-            app:elevation="0dp"
-            app:pressedTranslationZ="0dp" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_left"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/pause_button"
+            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:contentDescription="Move Left"
-            app:fabSize="mini"
-            app:srcCompat="@drawable/ic_arrow_left_white_24dp"
-            app:elevation="0dp"
-            app:pressedTranslationZ="0dp" />
+            app:cornerRadius="8dp"
+            app:strokeWidth="3dp"
+            app:icon="@drawable/ic_pause_white_24dp"
+            app:iconGravity="textStart"
+            android:backgroundTint="?attr/colorPrimary"
+            app:iconTint="@color/white"
+            android:contentDescription="Pause/Play Game" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_down"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/one_player_mode_button"
+            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:contentDescription="Move Down"
-            app:fabSize="mini"
-            app:srcCompat="@drawable/ic_arrow_down_white_24dp"
-            app:elevation="0dp"
-            app:pressedTranslationZ="0dp" />
+            android:text="1 Player"
+            app:cornerRadius="8dp"
+            android:textColor="@color/white"
+            app:strokeWidth="3dp"
+            android:backgroundTint="?attr/colorPrimary" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_right"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/two_player_mode_button"
+            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:contentDescription="Move Right"
-            app:fabSize="mini"
-            app:srcCompat="@drawable/ic_arrow_right_white_24dp"
-            app:elevation="0dp"
-            app:pressedTranslationZ="0dp" />
-
+            android:text="2 Players"
+            app:cornerRadius="8dp"
+            app:strokeWidth="3dp"
+            android:textColor="@color/white"
+            android:backgroundTint="?attr/colorPrimary" />
     </LinearLayout>
 
+    <!-- Overlay for Paused/Game Over states -->
     <FrameLayout
         android:id="@+id/overlay_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="#A6000000"
         android:clickable="true"
         android:focusable="true"
@@ -231,6 +264,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- New Game Info Card in Overlay -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/info_card_overlay"
             style="@style/Widget.Material3.CardView.Elevated"
@@ -267,7 +301,7 @@
 
                     <TextView
                         android:id="@+id/info_dialog_content"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="template"
                         android:textAppearance="?attr/textAppearanceBodyMedium"
@@ -289,14 +323,15 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/game_over_card"
             style="@style/Widget.Material3.CardView.Elevated"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="top"
+            android:layout_marginTop="45dp"
+            android:layout_marginHorizontal="16dp"
             android:visibility="gone"
             app:cardBackgroundColor="?attr/colorErrorContainer"
             app:cardCornerRadius="16dp"
-            app:cardElevation="8dp"
-            tools:visibility="visible"> <!-- Changed tools:visibility to visible for easier design time view -->
+            app:cardElevation="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -306,10 +341,10 @@
                 android:padding="24dp">
 
                 <TextView
-                    android:id="@+id/game_over_text"
+                    android:id="@+id/game_over_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="16dp"
                     android:text="GAME OVER!"
                     android:textAppearance="?attr/textAppearanceHeadlineMedium"
                     android:textColor="?attr/colorOnErrorContainer" />
@@ -318,19 +353,19 @@
                     android:id="@+id/summary_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:gravity="center"
-                    android:text="Final Score: 0"
-                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:layout_marginBottom="8dp"
+                    android:text="X wins!"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
                     android:textColor="?attr/colorOnErrorContainer" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/button_restart"
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Restart Game"
-                app:icon="@drawable/ic_refresh" />
+                    android:id="@+id/button_restart_game_over"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Restart Game"
+                    app:icon="@drawable/ic_refresh"
+                    app:iconTint="?attr/colorPrimary" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </FrameLayout>

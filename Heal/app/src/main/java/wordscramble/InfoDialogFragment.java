@@ -1,4 +1,4 @@
-package wordscramble; // Assuming this is in the funcorner package
+package wordscramble;
 
 import android.app.Dialog;
 import android.graphics.Color;
@@ -23,12 +23,27 @@ import com.google.android.material.button.MaterialButton;
  */
 public class InfoDialogFragment extends DialogFragment {
 
+    private static final String ARG_TITLE = "dialog_title";
+    private static final String ARG_CONTENT = "dialog_content";
+
     public InfoDialogFragment() {
         // Required empty public constructor
     }
 
-    public static InfoDialogFragment newInstance() {
-        return new InfoDialogFragment();
+    /**
+     * Creates a new instance of the InfoDialogFragment with a title and content.
+     *
+     * @param title The title for the dialog.
+     * @param content The content text for the dialog.
+     * @return A new instance of InfoDialogFragment.
+     */
+    public static InfoDialogFragment newInstance(String title, String content) {
+        InfoDialogFragment fragment = new InfoDialogFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_TITLE, title);
+        args.putString(ARG_CONTENT, content);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Nullable
@@ -42,9 +57,15 @@ public class InfoDialogFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        TextView infoTextContent = view.findViewById(R.id.info_text_content);
-        // You might want to set more detailed game info here dynamically
-        // For now, it uses the string resource defined in strings.xml
+        TextView infoTitle = view.findViewById(R.id.dialogTitle);
+        TextView infoTextContent = view.findViewById(R.id.dialogMessage);
+
+        if (getArguments() != null) {
+            String title = getArguments().getString(ARG_TITLE);
+            String content = getArguments().getString(ARG_CONTENT);
+            infoTitle.setText(title);
+            infoTextContent.setText(content);
+        }
 
         MaterialButton closeButton = view.findViewById(R.id.button_close_info);
         closeButton.setOnClickListener(v -> dismiss());

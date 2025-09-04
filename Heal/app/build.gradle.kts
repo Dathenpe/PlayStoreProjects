@@ -11,7 +11,7 @@ android {
         minSdk = 29
         targetSdk = 35
         versionCode = 1
-        versionName = "1.9"
+        versionName = "2.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -23,8 +23,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            //redundant
             buildConfigField("String", "GEMINI_API_KEY", "\"${project.properties["GEMINI_API_KEY"] as String? ?: System.getenv("GEMINI_API_KEY")}\"")
         }
+        //redundant
         debug {
             buildConfigField("String", "GEMINI_API_KEY", "\"${project.properties["GEMINI_API_KEY"] as String? ?: System.getenv("GEMINI_API_KEY")}\"")
         }
@@ -32,6 +34,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+    tasks.withType(JavaCompile::class.java) {
+        options.compilerArgs.add("-Xlint:deprecation")
     }
     buildFeatures {
         viewBinding = true

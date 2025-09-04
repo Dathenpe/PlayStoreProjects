@@ -11,7 +11,7 @@
         android:id="@+id/motivational_quote_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Your daily dose of motivation!"
+        android:text="Focus on progress, not perfection."
         android:textSize="18sp"
         android:textAlignment="center"/>
 

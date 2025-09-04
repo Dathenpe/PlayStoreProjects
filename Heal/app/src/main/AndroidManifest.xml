@@ -234,6 +234,28 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/paint_widget_info" />
         </receiver>
+        <receiver
+            android:name=".widgets.TicTacToeWidgetProvider"
+            android:exported="true"
+            android:label="Tic-Tac-Toe Game (2 x 2)">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/tic_tac_toe_widget_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.SudokuWidgetProvider"
+            android:exported="true"
+            android:label="Sudoku Game (2 x 2)">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/sudoku_widget_info" />
+        </receiver>
 
     </application>
 

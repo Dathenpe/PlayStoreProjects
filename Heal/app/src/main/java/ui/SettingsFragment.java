@@ -160,7 +160,7 @@ public class SettingsFragment extends Fragment {
                 new Handler().postDelayed(() -> mainActivity.loadBottomSettingsFragment(), 100);
             }
         });
-
+        dialog.setCancelable(false);
         dialog.show(getParentFragmentManager(), "CustomInputDialogFragment");
     }
 
@@ -270,6 +270,31 @@ public class SettingsFragment extends Fragment {
         dialog.show(getParentFragmentManager(), "CustomReminderDeletionConfirmationDialog");
     }
 
+    private void replaceCustomTime(String oldTime, int newHour, int newMinute) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+        Set<String> customTimes = new HashSet<>(prefs.getStringSet(MainActivity.PREF_CUSTOM_REMINDER_TIMES, new HashSet<>()));
+
+        // Remove the old time string
+        customTimes.remove(oldTime);
+
+        // Create the new time string
+        String newTime = String.format(Locale.US, "%02d:%02d", newHour, newMinute);
+
+        if (customTimes.add(newTime)) {
+            prefs.edit().putStringSet(MainActivity.PREF_CUSTOM_REMINDER_TIMES, customTimes).apply();
+            Toast.makeText(getContext(), "Reminder time updated to: " + newTime, Toast.LENGTH_SHORT).show();
+            if (mainActivity != null && switchReminder.isChecked()) {
+                MainActivity.scheduleReminders(mainActivity);
+            }
+            updateCustomTimesChips();
+        } else {
+            // This case handles if the user tries to edit to an already existing time
+            prefs.edit().putStringSet(MainActivity.PREF_CUSTOM_REMINDER_TIMES, customTimes).apply(); // Re-add the old time
+            Toast.makeText(getContext(), "This time is already added.", Toast.LENGTH_SHORT).show();
+            updateCustomTimesChips();
+        }
+    }
+
     private void setupCustomReminders() {
         updateCustomTimesChips();
     }
@@ -290,6 +315,18 @@ public class SettingsFragment extends Fragment {
                 chip.setText(time);
                 chip.setCloseIconVisible(true);
                 chip.setOnCloseIconClickListener(v -> removeCustomTime(time));
+
+                // Add the new OnClickListener to allow editing
+                chip.setOnClickListener(v -> {
+                    String[] timeParts = time.split(":");
+                    int hour = Integer.parseInt(timeParts[0]);
+                    int minute = Integer.parseInt(timeParts[1]);
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), (view, newHour, newMinute) -> {
+                        replaceCustomTime(time, newHour, newMinute);
+                    }, hour, minute, true);
+                    timePickerDialog.show();
+                });
+
                 customTimesChipGroup.addView(chip);
             }
         } else {

@@ -181,6 +181,86 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Tic-Tac-Toe Game Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/tic_tac_toe_game_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                app:cardBackgroundColor="@color/coral"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:src="@drawable/ic_tic_tac_toe"
+                        android:contentDescription="Tic-Tac-Toe Game Icon"
+                        android:layout_marginBottom="8dp"
+                        app:tint="?attr/colorOnPrimaryContainer" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tic-Tac-Toe"
+                        android:textAppearance="?attr/textAppearanceTitleLarge"
+                        android:textColor="?attr/colorOnPrimaryContainer"
+                        android:gravity="center" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Sudoku Game Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/sudoku_game_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                app:cardBackgroundColor="?attr/colorSecondaryContainer"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:src="@drawable/ic_sudoku"
+                        android:contentDescription="Sudoku Game Icon"
+                        android:layout_marginBottom="8dp"
+                        app:tint="?attr/colorOnSecondaryContainer" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sudoku"
+                        android:textAppearance="?attr/textAppearanceTitleLarge"
+                        android:textColor="?attr/colorOnSecondaryContainer"
+                        android:gravity="center" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
         </GridLayout>
     </ScrollView>
 

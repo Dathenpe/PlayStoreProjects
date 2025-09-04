@@ -96,4 +96,11 @@
     <color name="mood_neutral">#FFEB3B</color> <!-- Yellow -->
     <color name="mood_good">#8BC34A</color>   <!-- Light Green -->
     <color name="mood_very_good">#4CAF50</color> <!-- Green -->
+
+    <color name="sudoku_prefilled_text">#121013</color>
+    <color name="sudoku_user_text">#44474E</color>
+
+
+    <color name="blue_500">#2196F3</color>
+    <color name="gray_900">#212121</color>
 </resources>

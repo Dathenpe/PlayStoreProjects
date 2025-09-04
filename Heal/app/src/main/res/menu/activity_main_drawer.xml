@@ -51,5 +51,7 @@
         <item android:id="@+id/nav_memory_match" android:title="Memory Match Game" android:visible="false"/>
         <item android:id="@+id/nav_tetris" android:title="Tetris" android:visible="false"/>
         <item android:id="@+id/nav_word_scramble" android:title="Word Scramble Game" android:visible="false"/>
+        <item android:id="@+id/nav_tic_tac_toe" android:title="Tic-Tac-Toe" android:visible="false"/>
+        <item android:id="@+id/nav_sudoku" android:title="Sudoku" android:visible="false"/>
     </group>
 </menu>
