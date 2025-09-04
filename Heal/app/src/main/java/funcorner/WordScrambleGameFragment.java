@@ -258,13 +258,13 @@ public class WordScrambleGameFragment extends Fragment implements HighScoreDialo
                 pauseGameAndShowUI(true); // User clicked to pause, show toast
             }
         });
-
-        overlayContainer.setOnClickListener(v -> {
-            // If the user taps the overlay, it's a manual resume, so show toast.
-            if (isPaused && !isGameOver) {
-                resumeGameAndHideUI(true); // User clicked to resume from overlay, show toast
-            }
-        });
+        //to be removed
+//        overlayContainer.setOnClickListener(v -> {
+//            // If the user taps the overlay, it's a manual resume, so show toast.
+//            if (isPaused && !isGameOver) {
+//                resumeGameAndHideUI(true); // User clicked to resume from overlay, show toast
+//            }
+//        });
 
         restartGameOverButton.setOnClickListener(v -> {
             // No confirmation dialog for restart from game over screen

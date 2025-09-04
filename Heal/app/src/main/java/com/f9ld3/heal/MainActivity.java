@@ -30,7 +30,6 @@ import android.provider.Settings;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -1434,6 +1433,60 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             dialog.show(getSupportFragmentManager(), "NavExitWordScrambleDialog");
 
             return true; // The event is handled by showing the dialog
+        }else if (currentFragment instanceof SudokuGameFragment) {
+            drawerLayout.closeDrawer(GravityCompat.START); // Close the drawer immediately
+
+            // Replaced AlertDialog with CustomMessageDialogFragment
+            CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                    "Exit Sudoku",
+                    "Are you sure you want to quit your game?",
+                    "Leave",
+                    "Cancel"
+            );
+            dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                @Override
+                public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                    getSupportFragmentManager().popBackStack();
+                    performNavigation(item);
+                    dialogFragment.dismiss();
+                }
+
+                @Override
+                public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                    navigationView.setCheckedItem(R.id.nav_fun_corner);
+                    dialogFragment.dismiss();
+                }
+            });
+            dialog.show(getSupportFragmentManager(), "NavExitSudokuDialog");
+
+            return true; // The event is handled by showing the dialog
+        }else if (currentFragment instanceof TicTacToeGameFragment) {
+            drawerLayout.closeDrawer(GravityCompat.START); // Close the drawer immediately
+
+            // Replaced AlertDialog with CustomMessageDialogFragment
+            CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                    "Exit TicTacToe",
+                    "Are you sure you want to quit your game?",
+                    "Leave",
+                    "Cancel"
+            );
+            dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+                @Override
+                public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                    getSupportFragmentManager().popBackStack();
+                    performNavigation(item);
+                    dialogFragment.dismiss();
+                }
+
+                @Override
+                public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                    navigationView.setCheckedItem(R.id.nav_fun_corner);
+                    dialogFragment.dismiss();
+                }
+            });
+            dialog.show(getSupportFragmentManager(), "NavExitTicTacToeDialog");
+
+            return true; // The event is handled by showing the dialog
         }
 
         // If not on the canvas, proceed with navigation as normal
@@ -1511,13 +1564,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 shouldLoadFragment = true;
             }
             historyItemToAdd = new FragmentHistoryItem(id, toolbarTitle);
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_bug_report) {
             toolbarTitle = "Heal";
             if (!(currentFragment instanceof HomeFragment)) {
                 targetFragment = new HomeFragment();
                 shouldLoadFragment = true;
                 Handler handler = new Handler(Looper.getMainLooper());
-                handler.postDelayed(this::showSendPopup, 1000);
+                handler.postDelayed(this::showSendPopup, 2500);
             } else {
                 showSendPopup();
             }
@@ -1566,68 +1619,68 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         popupWindow = new PopupWindow(popupView, 900, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
         popupWindow.setFocusable(true);
         navigationView.setCheckedItem(R.id.nav_home);
-        try {
-            popupWindow.showAtLocation(fragmentMain, Gravity.CENTER, 0, 0);
-
-            Button sendMessageButtonPopup = popupView.findViewById(R.id.buttonSend);
-            if (sendMessageButtonPopup != null) {
-                sendMessageButtonPopup.setOnClickListener(v -> {
-                    EditText recipientEditTextPopup = popupView.findViewById(R.id.editTextRecipient);
-                    EditText messageEditTextPopup = popupView.findViewById(R.id.editTextMessage);
-                    if (recipientEditTextPopup != null && recipientEditTextPopup.length() == 0) {
-                        Toast.makeText(this, "User ID Cannot Be empty", Toast.LENGTH_SHORT).show();
-                    } else if (messageEditTextPopup != null && messageEditTextPopup.length() == 0) {
-                        Toast.makeText(this, "Message cannot be empty", Toast.LENGTH_SHORT).show();
-                    } else {
-                        dismissSendPopupAndSaveData();
-                    }
-                });
-            } else {
-                Log.e(TAG, "buttonSend not found in send_window.xml");
-                Toast.makeText(this, "Error: Send button not found", Toast.LENGTH_SHORT).show();
-            }
-
-            Button cancelMessageButtonPopup = popupView.findViewById(R.id.buttonCancel);
-            if (cancelMessageButtonPopup != null) {
-                cancelMessageButtonPopup.setOnClickListener(v -> {
-                    if (popupWindow != null && popupWindow.isShowing()) {
-                        popupWindow.dismiss();
-                        popupWindow = null;
-                    }
-                });
-            } else {
-                Log.e(TAG, "buttonCancel not found in send_window.xml");
-                Toast.makeText(this, "Error: Cancel button not found", Toast.LENGTH_SHORT).show();
-            }
-
-        } catch (Exception e) {
-            Toast.makeText(this, "popup error", Toast.LENGTH_SHORT).show();
-            Log.e(TAG, "Error showing popup", e);
-        }
+        ////to be implemented in the next update
+//        try {
+//            popupWindow.showAtLocation(fragmentMain, Gravity.CENTER, 0, 0);
+////            Button sendMessageButtonPopup = popupView.findViewById(R.id.buttonSend);
+////            if (sendMessageButtonPopup != null) {
+////                sendMessageButtonPopup.setOnClickListener(v -> {
+////                    EditText recipientEditTextPopup = popupView.findViewById(R.id.editTextRecipient);
+////                    EditText messageEditTextPopup = popupView.findViewById(R.id.editTextMessage);
+////                    if (recipientEditTextPopup != null && recipientEditTextPopup.length() == 0) {
+////                        Toast.makeText(this, "User ID Cannot Be empty", Toast.LENGTH_SHORT).show();
+////                    } else if (messageEditTextPopup != null && messageEditTextPopup.length() == 0) {
+////                        Toast.makeText(this, "Message cannot be empty", Toast.LENGTH_SHORT).show();
+////                    } else {
+////                        dismissSendPopupAndSaveData();
+////                    }
+////                });
+//            } else {
+//                Log.e(TAG, "buttonSend not found in send_window.xml");
+//                Toast.makeText(this, "Error: Send button not found", Toast.LENGTH_SHORT).show();
+//            }
+//
+//            Button cancelMessageButtonPopup = popupView.findViewById(R.id.buttonCancel);
+//            if (cancelMessageButtonPopup != null) {
+//                cancelMessageButtonPopup.setOnClickListener(v -> {
+//                    if (popupWindow != null && popupWindow.isShowing()) {
+//                        popupWindow.dismiss();
+//                        popupWindow = null;
+//                    }
+//                });
+//            } else {
+//                Log.e(TAG, "buttonCancel not found in send_window.xml");
+//                Toast.makeText(this, "Error: Cancel button not found", Toast.LENGTH_SHORT).show();
+//            }
+//
+//        } catch (Exception e) {
+//            Toast.makeText(this, "popup error", Toast.LENGTH_SHORT).show();
+//            Log.e(TAG, "Error showing popup", e);
+//        }
     }
 
-    private void dismissSendPopupAndSaveData() {
-        if (popupWindow != null && popupWindow.isShowing()) {
-            View popupContentView = popupWindow.getContentView();
-            EditText recipientEditText = popupContentView.findViewById(R.id.editTextRecipient);
-            EditText messageEditText = popupContentView.findViewById(R.id.editTextMessage);
-
-            if (recipientEditText != null) {
-                sendData.put("recipient", recipientEditText.getText().toString());
-            }
-            if (messageEditText != null) {
-                sendData.put("message", messageEditText.getText().toString());
-            }
-
-            popupWindow.dismiss();
-            popupWindow = null;
-
-            String savedRecipient = sendData.get("recipient");
-            String savedMessage = sendData.get("message");
-            Toast.makeText(this, "Message sent to " + savedRecipient, Toast.LENGTH_SHORT).show();
-            Log.d("SendData", "Recipient: " + savedRecipient + ", Message: " + savedMessage);
-        }
-    }
+//    private void dismissSendPopupAndSaveData() {
+//        if (popupWindow != null && popupWindow.isShowing()) {
+//            View popupContentView = popupWindow.getContentView();
+//            EditText recipientEditText = popupContentView.findViewById(R.id.editTextRecipient);
+//            EditText messageEditText = popupContentView.findViewById(R.id.editTextMessage);
+//
+//            if (recipientEditText != null) {
+//                sendData.put("recipient", recipientEditText.getText().toString());
+//            }
+//            if (messageEditText != null) {
+//                sendData.put("message", messageEditText.getText().toString());
+//            }
+//
+//            popupWindow.dismiss();
+//            popupWindow = null;
+//
+//            String savedRecipient = sendData.get("recipient");
+//            String savedMessage = sendData.get("message");
+//            Toast.makeText(this, "Message sent to " + savedRecipient, Toast.LENGTH_SHORT).show();
+//            Log.d("SendData", "Recipient: " + savedRecipient + ", Message: " + savedMessage);
+//        }
+//    }
 
     public void loadFragment(Fragment fragment, int navId) {
         FragmentManager fm = getSupportFragmentManager();
@@ -1674,7 +1727,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (navId == R.id.nav_ai) {
             toolbar.setTitle("Xavier"); // Ensure AI fragment has a title
             navigationView.setCheckedItem(R.id.nav_ai);
-        } else if (navId == R.id.nav_send || navId == R.id.nav_share) {
+        } else if (navId == R.id.nav_bug_report || navId == R.id.nav_share) {
             toolbar.setTitle("Heal");
             navigationView.setCheckedItem(R.id.nav_home);
         }

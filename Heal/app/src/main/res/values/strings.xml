@@ -189,9 +189,13 @@
      <string name="pause_desc">Pause</string>
      <string name="play_desc">Play</string>
      <string name="tetris_title">Tetris</string>
-     <string name="game_info_title">ℹWelcome to Tetris!</string>
-     <string name="tetris_info_how_to_play">How to Play:\nGuide the falling blocks...</string>
-     <string name="tetris_info_controls_fab">Controls (via FAB menu):\n- Left/Right Arrows: Move...</string>
-     <string name="tetris_info_controls_main">Main Controls:\n- Gamepad Icon: Opens/Closes...</string>
-     <string name="tetris_info_scoring">Scoring:\nScore points by clearing lines...</string>
+    <string name="game_info_title"> Welcome to Tetris!</string>
+
+    <string name="tetris_info_how_to_play">How to Play:\n\nGuide the falling blocks (Tetrominoes) to create solid horizontal lines without any gaps. The game board is 10 blocks wide by 20 blocks high. The more lines you clear at once, the more points you score. The game ends when a new piece cannot be placed on the board.</string>
+
+    <string name="tetris_info_controls_main">Main Controls:\n\n- Gamepad Icon: Press the main Floating Action Button (FAB) at the bottom-right of the screen to toggle the full set of gameplay controls.\n- Pause/Play Icon: Press this to pause or resume the game. This button is only visible when the controls menu is closed.</string>
+
+    <string name="tetris_info_controls_fab">Controls (via FAB menu):\n\n- Rotate: Rotates the current piece 90 degrees clockwise.\n- Left/Right Arrows: Moves the current piece horizontally across the board.\n- Down Arrow: Moves the current piece down one block. Pieces fall automatically, but you can use this button to drop them faster.</string>
+
+    <string name="tetris_info_scoring">Scoring:\n\n- Score points by clearing lines. The points you earn are multiplied by your current level. You level up for every 1000 points you score.\n\n- 1 Line: 100 points\n- 2 Lines: 300 points\n- 3 Lines: 500 points\n- 4 Lines (Tetris!): 800 points</string>
 </resources>

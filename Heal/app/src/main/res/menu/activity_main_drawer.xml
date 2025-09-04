@@ -35,10 +35,10 @@
             android:icon="@drawable/ic_share"
             android:title="Share App" />
         <item
-            android:id="@+id/nav_send"
+            android:id="@+id/nav_bug_report"
             android:selectable="false"
-            android:icon="@drawable/outline_arrow_outward_24"
-            android:title="Send" />
+            android:icon="@drawable/bug"
+            android:title="Bug Report" />
 
         <item android:id="@+id/nav_coping_exercises" android:title="Coping Exercises" android:visible="false"/>
         <item android:id="@+id/nav_mood_checkin" android:title="Mood History" android:visible="false"/>

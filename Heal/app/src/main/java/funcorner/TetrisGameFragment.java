@@ -492,26 +492,28 @@ public class TetrisGameFragment extends Fragment implements HighScoresDialogFrag
     @Override
     public void onDialogPositiveClick(DialogFragment dialogFragment) {
         String tag = dialogFragment.getTag();
-        if (tag == null) { if (dialogFragment != null) dialogFragment.dismiss(); return; }
+        if (tag == null) {
+            if (dialogFragment != null) dialogFragment.dismiss();
+            return;
+        }
         Log.d(TAG, "onDialogPositiveClick for tag: " + tag);
         switch (tag) {
             case DIALOG_TAG_GAME_INFO:
                 if (isPaused && !isGameOver) {
-                    if (pausedCard.getVisibility() == View.VISIBLE) {
-                        internalResumeGame();
-                        overlayContainer.setVisibility(View.VISIBLE);
-                        pausedCard.setVisibility(View.VISIBLE);
-                    } else resumeGameAndHideUI(true);
+                    overlayContainer.setVisibility(View.VISIBLE);
+                    pausedCard.setVisibility(View.VISIBLE);
                 }
                 break;
             case DIALOG_TAG_RESTART_CONFIRM:
                 Log.d(TAG, "Restart confirmed. Calling startGame().");
                 startGame();
                 break;
-            default: Log.w(TAG, "Unhandled positive dialog click for tag: " + tag); break;
+            default:
+                Log.w(TAG, "Unhandled positive dialog click for tag: " + tag);
+                break;
         }
         if (dialogFragment != null && dialogFragment.getDialog() != null && dialogFragment.getDialog().isShowing()) {
-            // dialogFragment.dismiss(); // Let CustomMessageDialogFragment handle its own dismissal
+            dialogFragment.dismiss();
         }
     }
 

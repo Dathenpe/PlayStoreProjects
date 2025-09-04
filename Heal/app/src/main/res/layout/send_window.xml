@@ -7,51 +7,48 @@
     app:flexDirection="column">
 
     <TextView
-        android:id="@+id/textViewSendTitle"
+        android:id="@+id/textViewBugReportTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:text="Send To"
-        android:textColorHint="@color/black"
+        android:text="Bug Report"
+        android:drawableRight="@drawable/bug"
         android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="bold" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayoutRecipient"
+        android:id="@+id/textInputLayoutBugSubject"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:textColorHint="@color/black"
-        android:hint="Enter Recipient's Heal ID"
+        android:hint="Subject/Summary of the Bug"
         app:layout_alignSelf="stretch">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editTextRecipient"
+            android:id="@+id/editTextBugSubject"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize" android:inputType="textEmailAddress" />
+            android:layout_height="?attr/actionBarSize"
+            android:inputType="textCapSentences" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayoutMessage"
+        android:id="@+id/textInputLayoutBugDescription"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:textColorHint="@color/black"
-        android:textColor="@color/black"
-        android:hint="Enter Message (Optional)"
+        android:hint="Detailed Bug Description"
         app:layout_alignSelf="stretch">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editTextMessage"
+            android:id="@+id/editTextBugDescription"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android.layout_height="120dp"
             android:minLines="1"
             android:gravity="top|start"
-            android:inputType="textMultiLine" />
+            android:inputType="textMultiLine"  android:layout_height="wrap_content"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -71,12 +68,27 @@
             android:text="Cancel" />
 
         <Button
-            android:id="@+id/buttonSend"
+            android:id="@+id/buttonSubmit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="Send" />
-
+            android:text="Submit" />
     </com.google.android.flexbox.FlexboxLayout>
+
+    <Button
+        android:id="@+id/buttonAttachImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Attach Image"
+        app:icon="@drawable/ic_attach_file_white" />
+
+    <LinearLayout
+        android:id="@+id/layoutAttachedImages"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_alignSelf="stretch" />
 
 </com.google.android.flexbox.FlexboxLayout>

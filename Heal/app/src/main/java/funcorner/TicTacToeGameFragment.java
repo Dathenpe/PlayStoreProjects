@@ -1,9 +1,11 @@
 package funcorner;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -212,6 +215,27 @@ public class TicTacToeGameFragment extends Fragment {
         onePlayerModeButton.setEnabled(isTwoPlayerMode);
         twoPlayerModeButton.setEnabled(!isTwoPlayerMode);
         onePlayerControls.setVisibility(isTwoPlayerMode ? View.GONE : View.VISIBLE);
+
+        // Get resolved colors from resources
+        @ColorInt int primaryColor = getThemeColor(requireContext(), com.google.android.material.R.attr.colorPrimary);
+        @ColorInt int silverColor = ContextCompat.getColor(requireContext(), R.color.silver);
+
+        if (isTwoPlayerMode) {
+            // Two-player mode is active
+            onePlayerModeButton.setBackgroundTintList(ColorStateList.valueOf(primaryColor));
+            twoPlayerModeButton.setBackgroundTintList(ColorStateList.valueOf(silverColor));
+        } else {
+            // One-player mode is active
+            onePlayerModeButton.setBackgroundTintList(ColorStateList.valueOf(silverColor));
+            twoPlayerModeButton.setBackgroundTintList(ColorStateList.valueOf(primaryColor));
+        }
+    }
+
+    // Helper method to resolve an attribute color
+    private int getThemeColor(@NonNull Context context, int resId) {
+        TypedValue typedValue = new TypedValue();
+        context.getTheme().resolveAttribute(resId, typedValue, true);
+        return typedValue.data;
     }
 
     private void setupDifficultySpinner() {
