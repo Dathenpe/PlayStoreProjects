@@ -1,12 +1,10 @@
 // C:/Users/Music_Minister/Desktop/PlayStore/PlayStoreProjects/Xavier/XavierAI/src/main/java/com/f9ld3/xavier/ai/V2/handlers/KnowledgeQueryHandler.java
-
 package com.f9ld3.xavier.ai.V2.handlers;
 
 import com.f9ld3.xavier.ai.V2.ConversationContext;
 import com.f9ld3.xavier.ai.V2.WolframAlphaClient;
 import com.f9ld3.xavier.ai.V2.WolframAlphaResult;
 import com.f9ld3.xavier.ai.V2.XavierCoreV2;
-// --- NEW: Import search service components ---
 import com.f9ld3.xavier.ai.V2.services.SearchService;
 import com.f9ld3.xavier.ai.V2.services.SearchService.SearchResult;
 
@@ -21,9 +19,8 @@ import java.util.regex.Pattern;
 public class KnowledgeQueryHandler implements IntentHandler {
 
 private final WolframAlphaClient wolframClient;
-private final SearchService searchService; // NEW: Add SearchService as a dependency
+private final SearchService searchService;
 
-// This list is static, final, and initialized only once for efficiency.
 private static final List<String> PREFIXES_TO_REMOVE;
 
 static {
@@ -42,7 +39,6 @@ private static final Set<String> STOP_WORDS = Set.of(
 		"would", "should", "tell", "me", "about", "republic"
 );
 
-// --- UPDATED: Constructor now accepts both clients ---
 public KnowledgeQueryHandler(WolframAlphaClient wolframClient, SearchService searchService) {
 	this.wolframClient = wolframClient;
 	this.searchService = searchService;
@@ -80,7 +76,9 @@ public String handle(String userInput, ConversationContext context) {
 		StringBuilder responseBuilder = new StringBuilder();
 		
 		if (!interpretation.isEmpty() && !interpretation.equalsIgnoreCase(queryToSend)) {
-			responseBuilder.append(String.format("Assuming you meant '%s':\n", interpretation));
+			// UPDATED: Smartly format the interpretation string for better readability.
+			String formattedInterpretation = formatInterpretation(interpretation);
+			responseBuilder.append(String.format("Assuming you meant '%s':\n", formattedInterpretation));
 		}
 		
 		String cleanedAnswer = answer.replace(" | ", ": ").replace("... | ", ". ");
@@ -90,18 +88,16 @@ public String handle(String userInput, ConversationContext context) {
 		
 		return responseBuilder.toString();
 	} else {
-		// --- NEW: FALLBACK STRATEGY - If Wolfram fails, try a web search ---
+		// --- FALLBACK STRATEGY - If Wolfram fails, try a web search ---
 		if (XavierCoreV2.DEBUG_MODE) {
 			System.out.println("[DEBUG] KnowledgeQueryHandler: Wolfram|Alpha failed. Falling back to web search.");
 		}
 		
-		// Use the original userInput for the web search for better context.
 		Optional<List<SearchResult>> searchResultsOpt = searchService.getSearchResults(userInput);
 		
 		if (searchResultsOpt.isPresent() && !searchResultsOpt.get().isEmpty()) {
 			SearchResult firstResult = searchResultsOpt.get().get(0);
 			context.clearLastFailedInput();
-			// Provide a slightly different response to indicate it's a web result
 			return String.format(
 					"I couldn't find a direct answer, but I found a web page that might help:\n\nTitle: %s\nSource: %s",
 					firstResult.title(),
@@ -144,7 +140,7 @@ public String extractQuery(String userInput) {
 }
 
 /**
- * A new helper method to extract the primary subject from a typical API answer string.
+ * A helper method to extract the primary subject from a typical API answer string.
  * @param answer The answer string from the API.
  * @return The cleaned subject.
  */
@@ -158,5 +154,30 @@ private String extractSubjectFromAnswer(String answer) {
 		return matcher.group(1).trim();
 	}
 	return answer.trim();
+}
+
+/**
+ * NEW: A helper method to format the interpretation string from Wolfram|Alpha into a more readable format.
+ * For example, it turns "Nigeria | continent" into "the continent of Nigeria".
+ *
+ * @param interpretation The raw interpretation string from the API.
+ * @return A formatted, more conversational string.
+ */
+private String formatInterpretation(String interpretation) {
+	String[] parts = interpretation.split("\\s*\\|\\s*");
+	if (parts.length == 2) {
+		// Capitalize the first letter of the topic for better grammar.
+		String topic = parts[0].trim();
+		String property = parts[1].trim();
+		
+		// Ensure the topic isn't empty before trying to capitalize it.
+		if (!topic.isEmpty()) {
+			topic = topic.substring(0, 1).toUpperCase() + topic.substring(1);
+		}
+		
+		return String.format("the %s of %s", property, topic);
+	}
+	// Fallback for interpretations that don't fit the "topic | property" pattern.
+	return interpretation;
 }
 }

@@ -18,9 +18,12 @@ private String lastFailedInput;
 private String pendingIntent;
 private String lastUserInput;
 
-// --- NEW: Fields for stateful search ---
+// --- Fields for stateful search ---
 private List<SearchService.SearchResult> lastSearchResults;
 private int lastSearchResultIndex = -1; // -1 indicates no active search
+
+// --- NEW: Fields for stateful riddles ---
+private String lastRiddleAnswer;
 
 private final Map<String, Object> entities = new HashMap<>();
 
@@ -47,7 +50,7 @@ public void clearLastFailedInput() { this.lastFailedInput = null; }
 public void setEntity(String key, Object value) { entities.put(key, value); }
 public Object getEntity(String key) { return entities.get(key); }
 
-// --- NEW: Getters, setters, and a clearer for search context ---
+// --- Getters, setters, and a clearer for search context ---
 public List<SearchService.SearchResult> getLastSearchResults() { return lastSearchResults; }
 public void setLastSearchResults(List<SearchService.SearchResult> lastSearchResults) { this.lastSearchResults = lastSearchResults; }
 
@@ -57,5 +60,13 @@ public void setLastSearchResultIndex(int lastSearchResultIndex) { this.lastSearc
 public void clearSearchContext() {
 	this.lastSearchResults = null;
 	this.lastSearchResultIndex = -1;
+}
+
+// --- NEW: Getters, setters, and a clearer for riddle context ---
+public String getLastRiddleAnswer() { return lastRiddleAnswer; }
+public void setLastRiddleAnswer(String lastRiddleAnswer) { this.lastRiddleAnswer = lastRiddleAnswer; }
+
+public void clearRiddleContext() {
+	this.lastRiddleAnswer = null;
 }
 }

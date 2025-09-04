@@ -2,6 +2,7 @@ package com.f9ld3.xavier.ai.V2.handlers;
 
 import com.f9ld3.xavier.ai.V2.ConversationContext;
 import com.f9ld3.xavier.ai.V2.services.SearchService;
+import com.f9ld3.xavier.ai.V2.services.SearchService.SearchServiceException;
 import com.f9ld3.xavier.ai.V2.services.SearchService.SearchResult;
 
 import java.util.List;
@@ -43,21 +44,28 @@ public String handle(String userInput, ConversationContext context) {
 }
 
 private String performNewSearch(String topic, ConversationContext context) {
-	Optional<List<SearchResult>> resultsOpt = searchService.getSearchResults(topic);
-	
-	if (resultsOpt.isPresent() && !resultsOpt.get().isEmpty()) {
-		List<SearchResult> results = resultsOpt.get();
-		// Store results in context for future "try another" requests.
-		context.setLastSearchResults(results);
-		context.setLastSearchResultIndex(0);
-		return formatResult(results.get(0));
-	} else {
-		// If search fails, clear any previous search context.
+	try {
+		Optional<List<SearchResult>> resultsOpt = searchService.getSearchResults(topic);
+		
+		if (resultsOpt.isPresent() && !resultsOpt.get().isEmpty()) {
+			List<SearchResult> results = resultsOpt.get();
+			// Store results in context for future "try another" requests.
+			context.setLastSearchResults(results);
+			context.setLastSearchResultIndex(0);
+			return formatResult(results.get(0));
+		} else {
+			// This case is now a fallback for when the API returns an empty list but no error.
+			context.clearSearchContext();
+			return String.format(
+					"That's a great question about how to %s. I couldn't find any quick instructions for that right now. I would recommend a web search for the most detailed guides.",
+					topic
+			);
+		}
+	} catch (SearchServiceException e) {
+		// If the service throws an exception (e.g., all keys fail), catch it here.
 		context.clearSearchContext();
-		return String.format(
-				"That's a great question about how to %s. I couldn't find any quick instructions for that right now. I would recommend a web search for the most detailed guides.",
-				topic
-		);
+		// Return a clean, specific error message that other handlers can check for.
+		return "SEARCH_FAILED: " + e.getMessage();
 	}
 }
 
@@ -85,10 +93,12 @@ private String getNextResult(ConversationContext context) {
  * Formats a SearchResult object into a comprehensive, user-friendly string.
  */
 private String formatResult(SearchResult result) {
+	// Ensure snippet is not null before trying to use it.
+	String snippetText = result.snippet() != null ? result.snippet() : "No snippet available.";
 	return String.format(
 			"Title: %s\nSnippet: \"%s...\"\nSource: %s",
 			result.title(),
-			result.snippet(),
+			snippetText,
 			result.link()
 	);
 }

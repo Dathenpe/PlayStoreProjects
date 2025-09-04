@@ -1,11 +1,5 @@
-# C:/Users/Music_Minister/Desktop/PlayStore/PlayStoreProjects/Xavier/XavierAI/src/main/resources/training_data.txt
-# --- Greetings ---
 greeting,hello
 greeting,hi there
-greeting,how are you
-greeting,how are you today
-greeting,how are you doing
-greeting,how's it going
 greeting,hey xavier
 greeting,hey there
 greeting,wassup
@@ -109,13 +103,47 @@ knowledge_query,tell me about the great wall of china
 knowledge_query,what is photosynthesis
 knowledge_query,can you tell me about the dancing plague
 
-# --- ChitChat ---
+# --- ChitChat (REFINED: Now the exclusive home for status queries) ---
+chitchat,how are you
+chitchat,how are you today
+chitchat,how are you doing
+chitchat,how's it going
+chitchat,how about you
 chitchat,got it
 chitchat,sounds good
 chitchat,that's fine
 chitchat,i see
-chitchat,i am bored
-chitchat,i am hungry
+chitchat,ok
+chitchat,okay
+chitchat,cool
+chitchat,nice
+chitchat,great
+chitchat,good
+chitchat,alright
+
+# --- User Status ---
+user_status_query,i am bored
+user_status_query,i'm bored
+user_status_query,feeling bored
+user_status_query,this is boring
+user_status_query,i am hungry
+user_status_query,i'm hungry
+user_status_query,feeling hungry
+user_status_query,i need food
+user_status_query,i'm feeling sad
+user_status_query,i feel sad
+user_status_query,i am unhappy
+user_status_query,feeling down
+user_status_query,i am so tired
+user_status_query,i'm sleepy
+user_status_query,i feel exhausted
+user_status_query,i'm happy
+user_status_query,i feel great
+user_status_query,i'm excited
+user_status_query,i'm curious
+user_status_query,feeling curious
+user_status_query,i am confused
+user_status_query,i don't understand
 
 # --- Gratitude ---
 gratitude,thanks a lot
@@ -162,6 +190,17 @@ fact_query,tell me something interesting
 fact_query,i want to learn something new
 fact_query,fact of the day
 fact_query,another fact
+
+# --- Riddle Queries ---
+riddle_query,tell me a riddle
+riddle_query,give me a riddle
+riddle_query,i want to solve a riddle
+riddle_query,ask me a riddle
+riddle_query,riddle me this
+riddle_query,what's the answer
+riddle_query,what is the answer
+riddle_query,i give up
+riddle_query,i don't know the answer
 
 # --- Internet Status Queries ---
 internet_status_query,are you connected to the internet
