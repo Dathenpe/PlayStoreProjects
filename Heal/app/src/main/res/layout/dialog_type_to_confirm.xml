@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+<TextView
+android:id="@+id/dialog_type_title"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="Final Confirmation"
+android:textAppearance="?attr/textAppearanceHeadline6"
+android:layout_marginBottom="12dp"/>
+
+<TextView
+android:id="@+id/dialog_type_message"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:text="To confirm, please type the following text exactly:"
+android:layout_marginBottom="8dp"/>
+
+<TextView
+android:id="@+id/dialog_type_challenge_text"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:textStyle="bold|italic"
+android:textSize="16sp"
+android:gravity="center"
+android:background="#E0E0E0"
+    android:padding="8dp"
+    android:layout_marginBottom="12dp"
+    android:text="challenge phrase will appear here" /> <!-- Placeholder -->
+
+<com.google.android.material.textfield.TextInputLayout
+android:id="@+id/dialog_type_textinputlayout_confirm"
+style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:hint="Type the text above">
+
+<com.google.android.material.textfield.TextInputEditText
+    android:id="@+id/dialog_type_edittext_confirm"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:inputType="textVisiblePassword|textNoSuggestions" /> <!-- textNoSuggestions to prevent autocorrect issues -->
+</com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>

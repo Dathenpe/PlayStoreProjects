@@ -19,4 +19,6 @@
     <dimen name="sudoku_subgrid_border_width">2dp</dimen>
     <dimen name="sudoku_cell_text_size">20sp</dimen>
     <dimen name="sudoku_grid_gap">1dp</dimen>
+    <dimen name="attached_image_preview_size">80dp</dimen>
+    <dimen name="attached_image_preview_margin">8dp</dimen>
 </resources>

@@ -10,6 +10,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.AlarmManager;
+import android.app.KeyguardManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -21,6 +22,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,8 +30,10 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
 import android.text.SpannableString;
+import android.text.format.DateFormat;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,7 +44,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
@@ -48,11 +54,14 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
@@ -67,14 +76,17 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -84,7 +96,10 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import drawing.DrawingCanvasFragment;
 import funcorner.MemoryMatchGameFragment;
@@ -93,6 +108,10 @@ import funcorner.SudokuGameFragment;
 import funcorner.TetrisGameFragment;
 import funcorner.TicTacToeGameFragment;
 import funcorner.WordScrambleGameFragment;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import records.AddEditContactDialogFragment;
 import records.CopingExercisesFragment;
 import records.EmergencyContact;
@@ -101,6 +120,8 @@ import records.JournalEntriesFragment;
 import records.MoodCheckinFragment;
 import records.RelapseHistoryFragment;
 import records.SavedStrategiesFragment;
+import retrofit2.Call;
+import retrofit2.Response;
 import ui.AIFragment;
 import ui.CustomMessageDialogFragment;
 import ui.FunCornerFragment;
@@ -134,7 +155,7 @@ class FragmentHistoryItem{
     }
 }
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,
-        AddEditContactDialogFragment.OnContactSavedListener,DrawingCanvasFragment.OnDrawingSavedListener  {
+        AddEditContactDialogFragment.OnContactSavedListener,DrawingCanvasFragment.OnDrawingSavedListener,TypeToConfirmDialogFragment.OnTypeConfirmListener   {
 
     private static final String KEY_LAST_RELAPSE_DATE = "lastRelapseDate" ;
     private static final String PREFS_RELAPSE = "RelapseCounterPrefs" ;
@@ -157,19 +178,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     BottomSheetBehavior<View> bottomSheetBehavior;
     private View overlayView;
     private View fragmentMain;
-    private TextInputEditText RecipientId;
-    private TextInputEditText SendMessage;
-    private Button sendMessage;
-    private Button cancelMessage;
-    private HashMap<String, String> sendData = new HashMap<>();
-    private EditText recipientEditText;
-    private EditText messageEditText;
-    private TextView userNameDisplayTextView;
-
+    private ActivityResultLauncher<PickVisualMediaRequest> pickMediaLauncher;
+    private ActivityResultLauncher<String[]> pickMultipleImagesLauncher;
+    private ExecutorService executorService;
+    private Handler mainHandler;
+    private ArrayList<Uri> attachedImageUris = new ArrayList<>();
     private int currentNavId = R.id.nav_home;
     private static final String FIRST_LAUNCH_KEY = "firstLaunch";
     // New key to track if the app crashed previously
     private static final String KEY_CRASHED_PREVIOUSLY = "crashedPreviously";
+    private LinearLayout imagesContainer;
 
 
     public SharedPreferences settingse;
@@ -473,7 +491,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     loadBottomSettingsFragment();
                     return true;
                 } else if (id == R.id.action_delete_account) {
-                    Toast.makeText(this, "Account deletion clicked", Toast.LENGTH_SHORT).show();
+                    initiateAccountDeletionProcess();
                     return true;
                 }
                 return false;
@@ -574,6 +592,222 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         }
 
+
+
+        executorService = Executors.newSingleThreadExecutor();
+        mainHandler = new Handler(Looper.getMainLooper());
+        pickMediaLauncher = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+            if (uri != null) {
+                attachedImageUris.clear();
+                attachedImageUris.add(uri);
+                updateAttachedImagesDisplay();
+            }
+        });
+        pickMultipleImagesLauncher = registerForActivityResult(new ActivityResultContracts.OpenMultipleDocuments(), uris -> {
+            if (uris != null && !uris.isEmpty()) {
+                // Check for the maximum number of images
+                if (uris.size() > 10) {
+                    Toast.makeText(this, "You can only attach a maximum of 10 images.", Toast.LENGTH_SHORT).show();
+                    return; // Exit without adding images
+                }
+                attachedImageUris.clear();
+                attachedImageUris.addAll(uris);
+                updateAttachedImagesDisplay();
+            }
+        });
+
+    }
+
+    private static final String[] CONFIRMATION_PHRASES = {
+            "permanently delete my account",
+            "erase all my data now",
+            "destroy my account completely",
+            "delete this account and all info",
+            "confirm permanent account removal",
+            "proceed with account termination",
+            "I understand all data will be lost",
+            "yes, delete everything",
+            "I want to close my account",
+            "delete my user profile and data",
+            "remove my account and history",
+            "permanently remove my account",
+            "I accept the deletion of my data",
+            "confirm account data deletion",
+            "delete my personal information",
+            "this action cannot be undone",
+            "close my account permanently",
+            "erase all application data",
+            "I wish to delete my account",
+            "perform permanent deletion",
+            "delete my entire account",
+            "delete my account and all data",
+            "remove all my information",
+            "proceed with deletion",
+            "confirm to delete my account",
+            "I am sure I want to delete",
+            "delete my data forever",
+            "I want to erase my account",
+            "terminate my account",
+            "I approve account deletion",
+            "erase my app data",
+            "permanently delete my profile",
+            "delete everything associated with this account",
+            "I am certain I want to delete",
+            "account deletion confirmed",
+            "erase my account now",
+            "yes, I want to delete",
+            "confirm the deletion of my account",
+            "delete my account permanently",
+            "remove my account and data",
+            "I am ready to delete my account",
+            "clear all my data",
+            "I wish to delete my profile",
+            "proceed to delete my account",
+            "delete my user account",
+            "confirm deletion",
+            "I want to permanently delete",
+            "erase all data",
+            "confirm this account deletion",
+            "delete my account"
+    };
+
+    private static final int REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS = 123;
+    private boolean waitingForDeviceAuthThenTextConfirm = false;
+    private String currentChallengeText; // To store the selected phrase
+    // =================================================================================
+    // MARK: - ACCOUNT DELETION SYSTEM
+    // =================================================================================
+
+    /**
+     * Step 1: Starts the account deletion flow.
+     * Checks if the device is secure and proceeds to the appropriate confirmation step.
+     */
+    private void initiateAccountDeletionProcess() {
+        KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+
+        // Randomly select the confirmation phrase at the start of the flow
+        currentChallengeText = CONFIRMATION_PHRASES[new Random().nextInt(CONFIRMATION_PHRASES.length)];
+
+        if (keyguardManager == null || !keyguardManager.isDeviceSecure()) {
+            // If device is not secure, skip to the text confirmation step with a warning.
+            Log.w(TAG, "Device is not secure. Proceeding directly to text confirmation.");
+            Toast.makeText(this, "Device screen lock not set. Please be extra careful.", Toast.LENGTH_LONG).show();
+            showTypeToConfirmDeletionDialog(currentChallengeText); // Use the randomized phrase
+            return;
+        }
+
+        // Device is secure, so create an intent to confirm device credentials.
+        Intent intent = keyguardManager.createConfirmDeviceCredentialIntent(
+                "Confirm Account Deletion",
+                "Authenticate to permanently erase all app data."
+        );
+
+        if (intent != null) {
+            waitingForDeviceAuthThenTextConfirm = true; // Set flag before starting activity
+            startActivityForResult(intent, REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS);
+        } else {
+            // Fallback in the rare case the intent could not be created.
+            Log.e(TAG, "createConfirmDeviceCredentialIntent returned null, despite device being secure.");
+            Toast.makeText(this, "Could not initiate device authentication. Please try again.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /**
+     * Step 2: Handles the result from the device credential confirmation.
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS) {
+            if (waitingForDeviceAuthThenTextConfirm) {
+                waitingForDeviceAuthThenTextConfirm = false; // Reset flag
+
+                if (resultCode == RESULT_OK) {
+                    // Authentication successful, proceed to the final text confirmation.
+                    Log.i(TAG, "Device authentication successful for account deletion.");
+                    // Use the randomized challenge text here
+                    showTypeToConfirmDeletionDialog(currentChallengeText);
+                } else {
+                    // Authentication failed or was cancelled.
+                    Log.w(TAG, "Device authentication failed or cancelled.");
+                    Toast.makeText(this, "Authentication failed. Account deletion cancelled.", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
+
+    /**
+     * Step 3: Shows the dialog requiring the user to type a confirmation phrase.
+     */
+    private void showTypeToConfirmDeletionDialog(String textToType) {
+        TypeToConfirmDialogFragment typeDialog = TypeToConfirmDialogFragment.newInstance(
+                "Final Deletion Confirmation",
+                "To permanently delete your account and all data, please type the following phrase exactly:",
+                textToType,
+                "Delete My Account Now",
+                "Cancel"
+        );
+
+        if (!isFinishing() && !isDestroyed()) {
+            typeDialog.show(getSupportFragmentManager(), "TypeToConfirmDeletionDialog");
+        } else {
+            Log.w(TAG, "Activity is finishing, cannot show TypeToConfirmDeletionDialog.");
+        }
+    }
+
+    /**
+     * Step 4 (Callback): Called when the user successfully types the confirmation text.
+     */
+    @Override
+    public void onTextConfirmed() {
+        Log.i(TAG, "Text confirmation successful. Proceeding with account deletion.");
+        Toast.makeText(this, "Verification complete. Deleting account...", Toast.LENGTH_SHORT).show();
+        performAccountDeletion();
+    }
+
+    /**
+     * Step 4 (Callback): Called when the user cancels the text confirmation dialog.
+     */
+    @Override
+    public void onTextConfirmationCancelled() {
+        Log.w(TAG, "Text confirmation step was cancelled.");
+        Toast.makeText(MainActivity.this, "Account deletion cancelled.", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Step 5: The final, destructive action. Clears all app data and restarts the app.
+     */
+    private void performAccountDeletion() {
+        Log.i(TAG, "PERFORMING ACCOUNT DELETION: Clearing all SharedPreferences...");
+
+        // Clear all SharedPreferences files
+        File prefsDir;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            prefsDir = new File(getApplicationInfo().dataDir, "shared_prefs");
+        } else {
+            // Fallback for older APIs
+            prefsDir = new File(getFilesDir().getParentFile(), "shared_prefs");
+        }
+
+        if (prefsDir.exists() && prefsDir.isDirectory()) {
+            String[] prefFileNames = prefsDir.list();
+            if (prefFileNames != null) {
+                for (String fileName : prefFileNames) {
+                    getSharedPreferences(fileName.replace(".xml", ""), MODE_PRIVATE).edit().clear().apply();
+                }
+            }
+        }
+
+        // Cancel all scheduled reminders
+        cancelAllReminders(this);
+
+        // Notify user and restart the app
+        Toast.makeText(this, "Account and all data deleted successfully.", Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finishAffinity(); // Close all activities in the current task
     }
 
     @Override
@@ -808,6 +1042,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(notificationUpdateReceiver);
+        if (executorService != null) {
+            executorService.shutdown();
+        }
+
     }
 
     private void loadFragmentHistory(){
@@ -1570,11 +1808,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 targetFragment = new HomeFragment();
                 shouldLoadFragment = true;
                 Handler handler = new Handler(Looper.getMainLooper());
-                handler.postDelayed(this::showSendPopup, 2500);
+                handler.postDelayed(this::showBugReportPopup, 2500);
             } else {
-                showSendPopup();
+                showBugReportPopup();
             }
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_suggestion) {
+            toolbarTitle = "Heal";
+            if (!(currentFragment instanceof HomeFragment)) {
+                targetFragment = new HomeFragment();
+                shouldLoadFragment = true;
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.postDelayed(this::showSuggestionPopup, 2500);
+            } else {
+                showSuggestionPopup();
+            }
+        }else if (id == R.id.nav_share) {
             toolbarTitle = "Heal";
             if (!(currentFragment instanceof HomeFragment)) {
                 targetFragment = new HomeFragment();
@@ -1613,75 +1861,337 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void showSendPopup() {
+    // START: JIRA BUG REPORTING METHODS
+    private void showBugReportPopup() {
         LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        View popupView = inflater.inflate(R.layout.send_window, null);
-        popupWindow = new PopupWindow(popupView, 900, ConstraintLayout.LayoutParams.WRAP_CONTENT, true);
+        View popupView = inflater.inflate(R.layout.bug_report_window, null);
+        popupWindow = new PopupWindow(
+                popupView,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                true);
+
+        popupWindow.showAtLocation(drawerLayout, Gravity.CENTER, 0, 0);
         popupWindow.setFocusable(true);
-        navigationView.setCheckedItem(R.id.nav_home);
-        ////to be implemented in the next update
-//        try {
-//            popupWindow.showAtLocation(fragmentMain, Gravity.CENTER, 0, 0);
-////            Button sendMessageButtonPopup = popupView.findViewById(R.id.buttonSend);
-////            if (sendMessageButtonPopup != null) {
-////                sendMessageButtonPopup.setOnClickListener(v -> {
-////                    EditText recipientEditTextPopup = popupView.findViewById(R.id.editTextRecipient);
-////                    EditText messageEditTextPopup = popupView.findViewById(R.id.editTextMessage);
-////                    if (recipientEditTextPopup != null && recipientEditTextPopup.length() == 0) {
-////                        Toast.makeText(this, "User ID Cannot Be empty", Toast.LENGTH_SHORT).show();
-////                    } else if (messageEditTextPopup != null && messageEditTextPopup.length() == 0) {
-////                        Toast.makeText(this, "Message cannot be empty", Toast.LENGTH_SHORT).show();
-////                    } else {
-////                        dismissSendPopupAndSaveData();
-////                    }
-////                });
-//            } else {
-//                Log.e(TAG, "buttonSend not found in send_window.xml");
-//                Toast.makeText(this, "Error: Send button not found", Toast.LENGTH_SHORT).show();
-//            }
-//
-//            Button cancelMessageButtonPopup = popupView.findViewById(R.id.buttonCancel);
-//            if (cancelMessageButtonPopup != null) {
-//                cancelMessageButtonPopup.setOnClickListener(v -> {
-//                    if (popupWindow != null && popupWindow.isShowing()) {
-//                        popupWindow.dismiss();
-//                        popupWindow = null;
-//                    }
-//                });
-//            } else {
-//                Log.e(TAG, "buttonCancel not found in send_window.xml");
-//                Toast.makeText(this, "Error: Cancel button not found", Toast.LENGTH_SHORT).show();
-//            }
-//
-//        } catch (Exception e) {
-//            Toast.makeText(this, "popup error", Toast.LENGTH_SHORT).show();
-//            Log.e(TAG, "Error showing popup", e);
-//        }
+
+        if (overlayView.getVisibility() == View.GONE) {
+            setStatusBarColor(R.color.status_bar_overlay_dark);
+            overlayView.setVisibility(View.VISIBLE);
+        }
+
+        final EditText summaryEditText = popupView.findViewById(R.id.bug_report_summary_edit_text);
+        final EditText descriptionEditText = popupView.findViewById(R.id.bug_report_description_edit_text);
+        Button attachImageButton = popupView.findViewById(R.id.bug_report_attach_image_button);
+        Button submitButton = popupView.findViewById(R.id.bug_report_submit_button);
+        Button cancelButton = popupView.findViewById(R.id.bug_report_cancel_button);
+        imagesContainer = popupView.findViewById(R.id.bug_report_images_container);
+        HorizontalScrollView imagesScrollView = popupView.findViewById(R.id.bug_report_images_scroll_view);
+
+        popupWindow.setOnDismissListener(() ->{
+            if (overlayView.getVisibility() == View.VISIBLE) {
+                setStatusBarColor(R.color.transparent);
+                overlayView.setVisibility(View.GONE);
+            }
+        });
+
+        cancelButton.setOnClickListener(v -> {
+            attachedImageUris.clear();
+            popupWindow.dismiss();
+            if (overlayView.getVisibility() == View.VISIBLE) {
+                setStatusBarColor(R.color.transparent);
+                overlayView.setVisibility(View.GONE);
+            }
+        });
+        submitButton.setOnClickListener(v -> {
+            String summary = summaryEditText.getText().toString();
+            String description = descriptionEditText.getText().toString();
+
+            if (summary.isEmpty()) {
+                Toast.makeText(this, "Please enter a summary for the bug report.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Submitting bug report...", Toast.LENGTH_LONG).show();
+
+                // 1. Create a copy of the list for the background thread.
+                ArrayList<Uri> urisToUpload = new ArrayList<>(attachedImageUris);
+
+                // 2. Clear the original list for the next time the popup is shown.
+                attachedImageUris.clear();
+
+                popupWindow.dismiss();
+                if (overlayView.getVisibility() == View.VISIBLE) {
+                    setStatusBarColor(R.color.transparent);
+                    overlayView.setVisibility(View.GONE);
+                }
+
+                // 3. Pass the COPY to the background thread.
+                submitBugToJiraOnBackgroundThread(summary, description, urisToUpload);
+            }
+        });
+//        popupWindow.setOnDismissListener(() -> attachedImageUris.clear());
+
+        attachImageButton.setOnClickListener(v -> {
+            if (attachedImageUris.size() >= 10) {
+                Toast.makeText(this, "Maximum of 10 images already attached.", Toast.LENGTH_SHORT).show();
+            } else {
+                pickMultipleImagesLauncher.launch(new String[]{"image/*"});
+            }
+        });
+
+        updateAttachedImagesDisplay();
     }
 
-//    private void dismissSendPopupAndSaveData() {
-//        if (popupWindow != null && popupWindow.isShowing()) {
-//            View popupContentView = popupWindow.getContentView();
-//            EditText recipientEditText = popupContentView.findViewById(R.id.editTextRecipient);
-//            EditText messageEditText = popupContentView.findViewById(R.id.editTextMessage);
-//
-//            if (recipientEditText != null) {
-//                sendData.put("recipient", recipientEditText.getText().toString());
-//            }
-//            if (messageEditText != null) {
-//                sendData.put("message", messageEditText.getText().toString());
-//            }
-//
-//            popupWindow.dismiss();
-//            popupWindow = null;
-//
-//            String savedRecipient = sendData.get("recipient");
-//            String savedMessage = sendData.get("message");
-//            Toast.makeText(this, "Message sent to " + savedRecipient, Toast.LENGTH_SHORT).show();
-//            Log.d("SendData", "Recipient: " + savedRecipient + ", Message: " + savedMessage);
-//        }
-//    }
+    private void updateAttachedImagesDisplay() {
+        if (imagesContainer != null) {
+            imagesContainer.removeAllViews(); // Clear previous views
+            for (Uri uri : attachedImageUris) {
+                addImagePreview(uri); // Add each image preview
+            }
+        }
+    }
 
+    private void addImagePreview(Uri imageUri) {
+        // Retrieve dimension values from resources
+        int imageSize = getResources().getDimensionPixelSize(R.dimen.attached_image_preview_size);
+        int imageMargin = getResources().getDimensionPixelSize(R.dimen.attached_image_preview_margin);
+
+        // Create a new ImageView
+        ImageView imageView = new ImageView(this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                imageSize,  // Use the defined size for width
+                imageSize   // Use the defined size for height
+        );
+        params.setMargins(0, 0, imageMargin, 0); // Use the defined margin for spacing
+        imageView.setLayoutParams(params);
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+        // Load the image into the ImageView using Glide or a similar library
+        Glide.with(this)
+                .load(imageUri)
+                .into(imageView);
+
+        // Add the ImageView to the container
+        imagesContainer.addView(imageView);
+    }
+
+    private void submitBugToJiraOnBackgroundThread(String summary, String description, ArrayList<Uri> attachedUris) {
+        executorService.execute(() -> {
+            try {
+                JiraApiService apiService = RetrofitClient.getJiraApiService();
+                String authHeader = RetrofitClient.getAuthHeader();
+
+                // Explicitly set the bug report project key
+                String jiraProjectKey = "BUG";
+
+                // 2. Create the Jira issue request
+                Project project = new Project(jiraProjectKey);
+                IssueType issueType = new IssueType("Bug");
+                Fields fields = new Fields(project, summary, description, issueType);
+                JiraIssueRequest request = new JiraIssueRequest(fields);
+
+                // 3. Make the API call to create the issue
+                Call<JiraIssueResponse> call = apiService.createIssue(authHeader, request);
+                Response<JiraIssueResponse> response = call.execute();
+
+                if (response.isSuccessful() && response.body() != null) {
+                    JiraIssueResponse issueResponse = response.body();
+                    String issueKey = issueResponse.getKey();
+                    mainHandler.post(() -> Toast.makeText(this, "Bug report submitted successfully!", Toast.LENGTH_LONG).show());
+
+                    // 4. If there are attachments, upload them
+                    if (!attachedUris.isEmpty()) {
+                        mainHandler.post(() -> Toast.makeText(this, "Uploading attachments...", Toast.LENGTH_SHORT).show());
+                        for (Uri imageUri : attachedUris) {
+                            uploadAttachmentToJiraOnBackgroundThread(issueKey, imageUri);
+                        }
+                    }
+                } else {
+                    String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
+                    Log.e(TAG, "Failed to create Jira issue: " + errorBody);
+                    mainHandler.post(() -> Toast.makeText(this, "Failed to submit bug report. " + response.code(), Toast.LENGTH_LONG).show());
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Exception while submitting bug report", e);
+                mainHandler.post(() -> Toast.makeText(this, "An error occurred while submitting. Check Your Internet Connection.", Toast.LENGTH_LONG).show());
+            }
+        });
+    }
+    private void uploadAttachmentToJiraOnBackgroundThread(String issueKey, Uri imageUri) {
+        executorService.execute(() -> {
+            try {
+                JiraApiService apiService = RetrofitClient.getJiraApiService();
+                String authHeader = RetrofitClient.getAuthHeader();
+
+                String fileName = "attachment_" + System.currentTimeMillis() + ".jpg";
+                File file = getFileFromUri(imageUri, fileName);
+
+                if (file == null) {
+                    mainHandler.post(() -> Toast.makeText(this, "Failed to read attachment file.", Toast.LENGTH_SHORT).show());
+                    return;
+                }
+
+                RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), file);
+                MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", file.getName(), requestBody);
+
+                Call<ResponseBody> call = apiService.addAttachment(authHeader, "no-check", issueKey, filePart);
+                Response<ResponseBody> response = call.execute();
+
+                file.delete(); // Clean up temp file
+
+                if (response.isSuccessful()) {
+
+                } else {
+                    String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
+                    Log.e(TAG, "Failed to upload attachment: " + errorBody);
+                    mainHandler.post(() -> Toast.makeText(this, "Failed to upload attachment: " + response.code(), Toast.LENGTH_SHORT).show());
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Exception while uploading attachment", e);
+                mainHandler.post(() -> Toast.makeText(this, "An error occurred during attachment upload.", Toast.LENGTH_SHORT).show());
+            }
+        });
+    }
+
+    private File getFileFromUri(Uri uri, String fileName) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            if (inputStream == null) return null;
+
+            File tempFile = new File(getCacheDir(), fileName);
+            FileOutputStream fos = new FileOutputStream(tempFile);
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = inputStream.read(buffer)) != -1) {
+                fos.write(buffer, 0, read);
+            }
+            fos.flush();
+            fos.close();
+            inputStream.close();
+            return tempFile;
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to create temp file from Uri", e);
+            return null;
+        }
+    }
+    // END: JIRA BUG REPORTING METHODS
+    private void showSuggestionPopup() {
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.suggestion_window, null);
+        popupWindow = new PopupWindow(
+                popupView,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                true);
+        popupWindow.showAtLocation(drawerLayout, Gravity.CENTER, 0, 0);
+
+        if (overlayView.getVisibility() == View.GONE) {
+            setStatusBarColor(R.color.status_bar_overlay_dark);
+            overlayView.setVisibility(View.VISIBLE);
+        }
+
+        // Update the title and icon for the Suggestion popup
+        TextView titleTextView = popupView.findViewById(R.id.textViewBugReportTitle);
+        titleTextView.setText("Suggestion");
+        titleTextView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_lightbulb, 0, 0, 0);
+
+        final EditText summaryEditText = popupView.findViewById(R.id.bug_report_summary_edit_text);
+        final EditText descriptionEditText = popupView.findViewById(R.id.bug_report_description_edit_text);
+        Button attachImageButton = popupView.findViewById(R.id.bug_report_attach_image_button);
+        Button submitButton = popupView.findViewById(R.id.bug_report_submit_button);
+        Button cancelButton = popupView.findViewById(R.id.bug_report_cancel_button);
+        imagesContainer = popupView.findViewById(R.id.bug_report_images_container);
+        HorizontalScrollView imagesScrollView = popupView.findViewById(R.id.bug_report_images_scroll_view);
+
+       popupWindow.setOnDismissListener(() ->{
+           if (overlayView.getVisibility() == View.VISIBLE) {
+               setStatusBarColor(R.color.transparent);
+               overlayView.setVisibility(View.GONE);
+           }
+       });
+        cancelButton.setOnClickListener(v -> {
+            attachedImageUris.clear();
+            popupWindow.dismiss();
+            if (overlayView.getVisibility() == View.VISIBLE) {
+                setStatusBarColor(R.color.transparent);
+                overlayView.setVisibility(View.GONE);
+            }
+        });
+        submitButton.setOnClickListener(v -> {
+            String summary = summaryEditText.getText().toString();
+            String description = descriptionEditText.getText().toString();
+
+            if (summary.isEmpty()) {
+                Toast.makeText(this, "Please enter a summary for the suggestion.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Submitting suggestion...", Toast.LENGTH_LONG).show();
+
+                // 1. Create a copy of the list for the background thread.
+                ArrayList<Uri> urisToUpload = new ArrayList<>(attachedImageUris);
+
+                // 2. Clear the original list for the next time the popup is shown.
+                attachedImageUris.clear();
+
+                popupWindow.dismiss();
+                if (overlayView.getVisibility() == View.VISIBLE) {
+                    setStatusBarColor(R.color.transparent);
+                    overlayView.setVisibility(View.GONE);
+                }
+
+                // 3. Pass the COPY to the background thread.
+                submitSuggestionToJiraOnBackgroundThread(summary, description, urisToUpload);
+            }
+        });
+
+
+        attachImageButton.setOnClickListener(v -> {
+            if (attachedImageUris.size() >= 10) {
+                Toast.makeText(this, "Maximum of 10 images already attached.", Toast.LENGTH_SHORT).show();
+            } else {
+                pickMultipleImagesLauncher.launch(new String[]{"image/*"});
+            }
+        });
+
+        updateAttachedImagesDisplay();
+    }
+    private void submitSuggestionToJiraOnBackgroundThread(String summary, String description, ArrayList<Uri> attachedUris) {
+        executorService.execute(() -> {
+            try {
+                JiraApiService apiService = RetrofitClient.getJiraApiService();
+                String authHeader = RetrofitClient.getAuthHeader();
+
+                // Explicitly set the suggestion project key
+                String jiraProjectKey = "SUGS";
+
+                // Use "Suggestion" as the issue type
+                Project project = new Project(jiraProjectKey);
+                IssueType issueType = new IssueType("Suggestions");
+                Fields fields = new Fields(project, summary, description, issueType);
+                JiraIssueRequest request = new JiraIssueRequest(fields);
+
+                Call<JiraIssueResponse> call = apiService.createIssue(authHeader, request);
+                Response<JiraIssueResponse> response = call.execute();
+
+                if (response.isSuccessful() && response.body() != null) {
+                    JiraIssueResponse issueResponse = response.body();
+                    String issueKey = issueResponse.getKey();
+                    mainHandler.post(() -> Toast.makeText(this, "Suggestion submitted successfully!", Toast.LENGTH_LONG).show());
+
+                    if (!attachedUris.isEmpty()) {
+                        mainHandler.post(() -> Toast.makeText(this, "Uploading attachments...", Toast.LENGTH_SHORT).show());
+                        for (Uri imageUri : attachedUris) {
+                            uploadAttachmentToJiraOnBackgroundThread(issueKey, imageUri);
+                        }
+                    }
+                } else {
+                    String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
+                    Log.e(TAG, "Failed to create Jira suggestion: " + errorBody);
+                    mainHandler.post(() -> Toast.makeText(this, "Failed to submit suggestion. " + response.code(), Toast.LENGTH_LONG).show());
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Exception while submitting suggestion", e);
+                mainHandler.post(() -> Toast.makeText(this, "An error occurred while submitting. Check Your Internet Connection.", Toast.LENGTH_LONG).show());
+            }
+        });
+    }
     public void loadFragment(Fragment fragment, int navId) {
         FragmentManager fm = getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
@@ -1970,7 +2480,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             notifications = new ArrayList<>();
         }
 
-        String timeStamp = android.text.format.DateFormat.format("MMM dd, hh:mm a", System.currentTimeMillis()).toString();
+        String timeStamp = DateFormat.format("MMM dd, hh:mm a", System.currentTimeMillis()).toString();
         notifications.add(0, timeStamp + " : " + message);
 
         while (notifications.size() > 5){

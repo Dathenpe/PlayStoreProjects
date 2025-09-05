@@ -14,6 +14,13 @@ android {
         versionName = "2.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // These fields are correctly configured to read from gradle.properties
+        buildConfigField("String", "GEMINI_API_KEY",    "\"${project.properties["GEMINI_API_KEY"] as String? ?: System.getenv("GEMINI_API_KEY") ?: ""}\"")
+        buildConfigField("String", "JIRA_BASE_URL",     "\"${project.properties["JIRA_BASE_URL"] as String? ?: System.getenv("JIRA_BASE_URL") ?: ""}\"")
+        buildConfigField("String", "JIRA_API_USERNAME", "\"${project.properties["JIRA_API_USERNAME"] as String? ?: System.getenv("JIRA_API_USERNAME") ?: ""}\"")
+        buildConfigField("String", "JIRA_API_TOKEN",    "\"${project.properties["JIRA_API_TOKEN"] as String? ?: System.getenv("JIRA_API_TOKEN") ?: ""}\"")
+        buildConfigField("String", "JIRA_PROJECT_KEY",  "\"${project.properties["JIRA_PROJECT_KEY"] as String? ?: System.getenv("JIRA_PROJECT_KEY") ?: ""}\"")
     }
 
     buildTypes {
@@ -23,12 +30,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            //redundant
-            buildConfigField("String", "GEMINI_API_KEY", "\"${project.properties["GEMINI_API_KEY"] as String? ?: System.getenv("GEMINI_API_KEY")}\"")
         }
-        //redundant
         debug {
-            buildConfigField("String", "GEMINI_API_KEY", "\"${project.properties["GEMINI_API_KEY"] as String? ?: System.getenv("GEMINI_API_KEY")}\"")
         }
     }
     compileOptions {
@@ -39,25 +42,30 @@ android {
         options.compilerArgs.add("-Xlint:deprecation")
     }
     buildFeatures {
-        viewBinding = true
         buildConfig = true
+        viewBinding = true
     }
 }
 
 dependencies {
-    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
-    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
-    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
-    implementation ("com.google.code.gson:gson:2.10.1")
-    implementation ("com.google.android.flexbox:flexbox:3.0.0")
-    implementation ("androidx.viewpager2:viewpager2:1.0.0")
-    implementation ("de.hdodenhof:circleimageview:3.1.0")
-    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
+    implementation(libs.mp.android.chart)
+    implementation(libs.gson)
+    implementation(libs.flexbox)
+    implementation(libs.viewpager2)
+    implementation(libs.circleimageview)
+    implementation(libs.glide)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp3.logging.interceptor)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.lifecycle.viewmodel.ktx)
+    annotationProcessor(libs.glide.compiler)
     implementation(libs.work.runtime)
     implementation(libs.media3.common)
-    annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")
     implementation(libs.appcompat)
-    implementation(libs.material) // This pulls in Material Design 3 components, including CardView and Button styles
+    implementation(libs.material)
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)

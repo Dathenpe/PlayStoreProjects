@@ -1,0 +1,128 @@
+<ScrollView
+xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:orientation="vertical"
+android:padding="16dp"
+android:gravity="center_horizontal"
+android:layout_gravity="center_vertical"
+android:elevation="8dp"
+android:clipToPadding="false"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+    android:fillViewport="true">
+    <LinearLayout
+        android:layout_width="320dp"
+        android:layout_marginTop="25dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/rounded_container"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/textViewBugReportTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:drawableStart="@drawable/bug"
+                android:drawablePadding="8dp"
+                android:drawableTint="?android:attr/textColorPrimary"
+                android:text="Bug Report"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutBugSubject"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Subject/Summary of the Bug"
+            app:layout_alignSelf="stretch">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/bug_report_summary_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapSentences"
+                android:minHeight="?attr/actionBarSize" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutBugDescription"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Detailed Bug Description"
+            app:layout_alignSelf="stretch">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/bug_report_description_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:minLines="3" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/bug_report_attach_image_button"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Attach Image"
+            app:icon="@drawable/ic_attach_file_white"
+            app:iconTint="?attr/colorPrimary" />
+
+        <HorizontalScrollView
+            android:id="@+id/bug_report_images_scroll_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+
+            <LinearLayout
+                android:id="@+id/bug_report_images_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" />
+
+        </HorizontalScrollView>
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            app:flexDirection="row"
+            app:justifyContent="flex_end">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/bug_report_cancel_button"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/bug_report_submit_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Submit" />
+
+        </com.google.android.flexbox.FlexboxLayout>
+
+    </LinearLayout>
+
+</ScrollView>
