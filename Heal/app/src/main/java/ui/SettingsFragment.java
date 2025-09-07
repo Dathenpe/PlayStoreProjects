@@ -1,13 +1,19 @@
 package ui;
 
+import android.Manifest;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +23,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -42,6 +50,7 @@ import java.util.Set;
 
 public class SettingsFragment extends Fragment {
 
+    private ActivityResultLauncher<String> requestNotificationPermissionLauncher;
     private View settingsRootView;
     private LinearLayout editNameLayout;
     private MaterialSwitch switchReminder;
@@ -81,6 +90,27 @@ public class SettingsFragment extends Fragment {
         } else {
             Toast.makeText(context, "Error: Fragment attached to wrong activity", Toast.LENGTH_SHORT).show();
         }
+    }
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Initialize the permission launcher
+        requestNotificationPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+            if (isGranted) {
+                Toast.makeText(getContext(), "Permission granted. Reminders can now be shown.", Toast.LENGTH_SHORT).show();
+                if (mainActivity != null) {
+                    mainActivity.onReminderSettingChanged(true);
+                }
+            } else {
+                // Permission denied, now show the rationale dialog to guide the user to settings.
+                Toast.makeText(getContext(), "Permission denied. Please enable it in settings to receive reminders.", Toast.LENGTH_LONG).show();
+                showPermissionRationaleDialog();
+                // Ensure the switch is turned off if permission is denied
+                if (switchReminder != null) {
+                    switchReminder.setChecked(false);
+                }
+            }
+        });
     }
 
     @Nullable
@@ -191,8 +221,18 @@ public class SettingsFragment extends Fragment {
                 sharedPreferences.edit().putBoolean("reminder_enabled", isChecked).apply();
                 if (mainActivity != null) {
                     if (isChecked) {
-                        Toast.makeText(getContext(), "Reminders enabled", Toast.LENGTH_SHORT).show();
-                        mainActivity.onReminderSettingChanged(true);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                                Toast.makeText(getContext(), "Reminders enabled", Toast.LENGTH_SHORT).show();
+                                mainActivity.onReminderSettingChanged(true);
+                            } else {
+                                // Permission is not granted, launch the permission request.
+                                requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+                            }
+                        } else {
+                            Toast.makeText(getContext(), "Reminders enabled", Toast.LENGTH_SHORT).show();
+                            mainActivity.onReminderSettingChanged(true);
+                        }
                     } else {
                         Toast.makeText(getContext(), "Reminders disabled", Toast.LENGTH_SHORT).show();
                         mainActivity.onReminderSettingChanged(false);
@@ -201,6 +241,30 @@ public class SettingsFragment extends Fragment {
             });
             isSwitchInitialized = true;
         }
+    }
+    private void showPermissionRationaleDialog() {
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                "Notification Permission",
+                "This app needs notification permission to show you reminders. Please enable it in the app settings.",
+                "Open Settings",
+                "Cancel"
+        );
+        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                // This is the key to fixing the logic: redirect the user to app settings
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", requireActivity().getPackageName(), null);
+                intent.setData(uri);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                // Do nothing, dialog will be dismissed
+            }
+        });
+        dialog.show(getParentFragmentManager(), "PermissionRationaleDialog");
     }
 
     private void setupInfoLayouts() {

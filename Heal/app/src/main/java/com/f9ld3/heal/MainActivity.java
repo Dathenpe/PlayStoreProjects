@@ -758,12 +758,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     /**
      * Step 4 (Callback): Called when the user successfully types the confirmation text.
+     * This now shows a final confirmation dialog before deleting.
      */
     @Override
     public void onTextConfirmed() {
-        Log.i(TAG, "Text confirmation successful. Proceeding with account deletion.");
-        Toast.makeText(this, "Verification complete. Deleting account...", Toast.LENGTH_SHORT).show();
-        performAccountDeletion();
+        Log.i(TAG, "Text confirmation successful. Showing final warning before deletion.");
+
+        // Create and show the final confirmation dialog
+        CustomMessageDialogFragment finalDialog = CustomMessageDialogFragment.newInstance(
+                "Final Warning",
+                "This action is permanent and cannot be undone. Are you absolutely sure you want to delete your account and all data?",
+                "Delete Forever",
+                "Cancel"
+        );
+
+        finalDialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                // User confirmed the final warning, now proceed with deletion
+                Toast.makeText(MainActivity.this, "Verification complete. Deleting account...", Toast.LENGTH_SHORT).show();
+                performAccountDeletion();
+            }
+
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                // User cancelled at the very last moment
+                onTextConfirmationCancelled(); // Reuse the existing cancel logic
+            }
+        });
+
+        finalDialog.show(getSupportFragmentManager(), "FinalDeleteConfirmationDialog");
     }
 
     /**
@@ -777,16 +801,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     /**
      * Step 5: The final, destructive action. Clears all app data and restarts the app.
+     * This version uses a hybrid approach to ensure all SharedPreferences are cleared.
      */
     private void performAccountDeletion() {
         Log.i(TAG, "PERFORMING ACCOUNT DELETION: Clearing all SharedPreferences...");
 
-        // Clear all SharedPreferences files
+        // --- Merged Logic ---
+
+        // 1. (Your Method) General cleanup attempt via file iteration.
+        // This will catch any unknown or dynamically created preference files.
         File prefsDir;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             prefsDir = new File(getApplicationInfo().dataDir, "shared_prefs");
         } else {
-            // Fallback for older APIs
             prefsDir = new File(getFilesDir().getParentFile(), "shared_prefs");
         }
 
@@ -794,15 +821,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String[] prefFileNames = prefsDir.list();
             if (prefFileNames != null) {
                 for (String fileName : prefFileNames) {
-                    getSharedPreferences(fileName.replace(".xml", ""), MODE_PRIVATE).edit().clear().apply();
+                    // We use commit() here for a synchronous, blocking call to be safer during shutdown.
+                    getSharedPreferences(fileName.replace(".xml", ""), MODE_PRIVATE).edit().clear().commit();
                 }
+                Log.i(TAG, "Completed general cleanup of " + prefFileNames.length + " preference files.");
             }
         }
+
+        // 2. (New Method) Explicitly clear all critical SharedPreferences files.
+        // This provides a reliable, guaranteed cleanup for known data, overcoming caching issues.
+        getSharedPreferences(PREFS_RELAPSE, MODE_PRIVATE).edit().clear().commit();
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().clear().commit(); // For Emergency Contacts
+        getSharedPreferences(PREFS_RECENTLY_VISITED, MODE_PRIVATE).edit().clear().commit(); // For Recently Visited
+        getSharedPreferences(PREFS_NOTIFICATIONS, MODE_PRIVATE).edit().clear().commit();
+        PreferenceManager.getDefaultSharedPreferences(this).edit().clear().commit(); // For Settings
+        fragmentHistoryMap.clear();
+        updateRecentlyVisitedChips();
+
+        Log.i(TAG, "All critical SharedPreferences have been explicitly cleared.");
+
+        // --- End of Merged Logic ---
 
         // Cancel all scheduled reminders
         cancelAllReminders(this);
 
-        // Notify user and restart the app
+        // Notify user and restart the app in a clean state
         Toast.makeText(this, "Account and all data deleted successfully.", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

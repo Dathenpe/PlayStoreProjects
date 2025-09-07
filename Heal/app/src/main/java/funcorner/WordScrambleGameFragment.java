@@ -1044,7 +1044,6 @@ public class WordScrambleGameFragment extends Fragment implements HighScoreDialo
         pausedCard.setVisibility(View.GONE); // Explicitly hide the paused card
         pauseButton.setIconResource(R.drawable.ic_play_arrow_white_24dp); // Show play icon
         overlayContainer.setVisibility(View.GONE); // Hide overlay
-        Toast.makeText(getContext(), "Game Paused (High Scores)", Toast.LENGTH_SHORT).show(); // Specific toast for high scores
         List<HighScoreEntry> scores = loadHighScores();
         // Pass the original scores directly to the dialog's newInstance method,
         // and pass null for localUserId as it's not used in this game's HighScoreDialogFragment.
