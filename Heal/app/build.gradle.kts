@@ -48,6 +48,8 @@ android {
 }
 
 dependencies {
+    implementation("net.objecthunter:exp4j:0.4.8")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.navigation.ui.ktx)
     implementation(libs.mp.android.chart)
@@ -61,6 +63,7 @@ dependencies {
     implementation(libs.okhttp3.logging.interceptor)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.google.firebase.crashlytics.buildtools)
     annotationProcessor(libs.glide.compiler)
     implementation(libs.work.runtime)
     implementation(libs.media3.common)

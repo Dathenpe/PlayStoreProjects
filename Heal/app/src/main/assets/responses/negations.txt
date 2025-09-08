@@ -1,0 +1,150 @@
+Alright. Please let me know if you change your mind or need something else.
+Understood. Is there anything else I can help with?
+No problem. Feel free to ask if anything comes up.
+Okay. What can I assist you with instead?
+Understood. Is there something different you'd like to do?
+Got it. Let me know if there's another way I can assist.
+Understood. I'll hold off on that. What's next?
+Okay. I won't proceed with that. How else can I help?
+No worries. Is there an alternative I can help with?
+Understood. Standing by for your next instruction.
+Alright. I'll cancel that. Anything else on your mind?
+Understood. Let me know if you have a different request.
+No problem at all. What would you like to do then?
+Okay. I've stopped that. How can I assist you now?
+Understood. If you reconsider just let me know.
+Got it. I'll disregard that. What's the new plan?
+Understood. No action taken on that. What else?
+Okay. That's clear. Is there something else I can do?
+No problem. Happy to help with something different.
+Understood. I'll wait for further instructions.
+Alright. Noted. What's the alternative?
+Understood. If you need anything else just say the word.
+No problem. I'm here if you need me for another task.
+Okay. I understand. What's your preference now?
+Understood. I'll await your next command.
+Got it. So not that. What can I do for you then?
+Understood. I'll make sure not to do that. What's next?
+Okay. Message received. How would you like to proceed?
+No worries at all. Is there another task I can handle?
+Understood. I'll keep that in mind. Anything else?
+Alright. That's fine. Let me know if your plans change.
+Understood. I'm ready for a different instruction.
+No problem. Just let me know what you'd prefer.
+Okay. I hear you. What's the next course of action?
+Understood. I'll put a pin in that. What else can I help with?
+Got it. So we're not doing that. What are we doing?
+Understood. I'll avoid that. How can I be of service?
+Okay. That's perfectly fine. Is there another way I can assist?
+No problem. Your preferences are noted. What's next?
+Understood. I'll hold back on that. Anything else you need?
+Alright. I won't. What would you like me to do instead?
+Understood. If there's a change of heart I'm here.
+No problem. Let's try something else then. What do you suggest?
+Okay. I'll make a note of that. How can I help you now?
+Understood. I'll refrain from that. What's the next step?
+Got it. That's off the table. What's on the table?
+Understood. I'll steer clear of that. What else is there?
+Okay. I won't proceed. Is there something else I can assist with?
+No problem. Always happy to adjust. What's your new request?
+Understood. I'll pause that. Let me know when you're ready for something else.
+Alright. That's a no-go. What's the yes-go?
+Understood. I'll make sure that doesn't happen. What can I do?
+No problem. Your wish is my command (within reason!). What's next?
+Okay. I'll cancel that action. How else can I be of service?
+Understood. I'll file that under 'don't do'. What's the 'do'?
+Got it. No action will be taken. What's your next command?
+Understood. I'll halt that process. Is there another task?
+Okay. That's duly noted. What would you like to do now?
+No worries. I'm flexible. What's the alternative plan?
+Understood. I'll make sure to remember that. Anything else?
+Alright. I'll stand down on that. What's the new directive?
+Understood. If you need me to do something else just ask.
+No problem. I'm here to help with what you *do* want.
+Okay. I'll make sure that's not done. What can I do for you?
+Understood. I'll hold off. Let me know if I can assist differently.
+Got it. So that's a no. What's a yes?
+Understood. I'll make a mental note. What's next on the agenda?
+Okay. I won't do that. Is there something else you'd prefer?
+No problem at all. I'm ready for a different task if you have one.
+Understood. I'll make sure to avoid that. How else can I help?
+Alright. That's clear. What's the next instruction?
+Understood. If you have other plans I'm ready.
+No problem. Just tell me what you'd like instead.
+Okay. I'll make sure that's not on the list. What is?
+Understood. I'll refrain. What can I do for you at this moment?
+Got it. That won't happen. What will happen?
+Understood. I'll make sure to skip that. What's the next item?
+Okay. I'll avoid that. Is there another way I can be of assistance?
+No problem. Your instructions are clear. What's the new direction?
+Understood. I'll make sure to not proceed. What's your command?
+Alright. I'll put the brakes on that. What's the green light for?
+Understood. If you need a different action I'm all ears.
+No problem. Let's pivot. What's the new focus?
+Okay. I'll ensure that doesn't occur. How can I help you now?
+Understood. I'll make a note to not do that. What's the plan?
+Got it. So we'll pass on that. What are we doing instead?
+Understood. I'll make sure to hold back. What's the next task?
+Okay. That's understood. Is there an alternative you'd like me to pursue?
+No worries. I'm here for your other requests. What's next?
+Understood. I'll make sure that's not part of the plan. What is?
+Alright. That's off. What's on?
+Understood. If you need me to do something else feel free to ask.
+No problem. I'm ready for a different set of instructions.
+Okay. I'll make sure that's not executed. What can I execute for you?
+Understood. I'll hold that thought. What's the current thought?
+Got it. That's a clear 'no'. What's a clear 'yes'?
+Understood. I'll make sure to bypass that. What's the next point?
+Okay. I'll make sure to avoid that action. Is there another action I can take?
+No problem. Your feedback is noted. What's the new approach?
+Understood. I'll make sure that's not initiated. What's your command now?
+Alright. I'll stop that. What should I start?
+Understood. If you have a different task in mind I'm ready.
+No problem. Let's switch gears. What's the new task?
+Okay. I'll ensure that's not carried out. How can I assist you at this time?
+Understood. I'll make a note to avoid that. What's the current plan?
+Got it. So that's not happening. What is happening?
+Understood. I'll make sure to pause on that. What's the next priority?
+Okay. That's clear as day. Is there an alternative course you'd like?
+No problem. I'm here for whatever you decide. What's next?
+Understood. I'll make sure that's not on the agenda. What is on the agenda?
+Alright. That's a scratch. What's the rewrite?
+Understood. If you need me to take a different action just let me know.
+No problem. I'm prepared for a change in direction.
+Okay. I'll make sure that's not implemented. What can I implement for you?
+Understood. I'll put that on hold. What's the active task?
+Got it. That's a definite 'don't'. What's a definite 'do'?
+Understood. I'll make sure to sidestep that. What's the next objective?
+Okay. I'll make sure to steer clear of that. Is there another path I can take?
+No problem. Your guidance is appreciated. What's the new strategy?
+Understood. I'll make sure that's not commenced. What's your instruction now?
+Alright. I'll cease that. What should I commence?
+Understood. If you have a different assignment I'm ready to take it on.
+No problem. Let's recalibrate. What's the new assignment?
+Okay. I'll ensure that's not pursued. How can I be of help to you right now?
+Understood. I'll make a note to not engage with that. What's the current engagement?
+Got it. So that's on the 'no' list. What's on the 'yes' list?
+Understood. I'll make sure to halt progress on that. What's the next step forward?
+Okay. That's perfectly understandable. Is there an alternative you'd like me to consider?
+No worries. I'm here for your other needs. What's next on your list?
+Understood. I'll make sure that's not part of the current operation. What is?
+Alright. That's cancelled. What's the new order?
+Understood. If you need me to perform a different function just say so.
+No problem. I'm ready for a new set of parameters.
+Okay. I'll make sure that's not put into effect. What can I put into effect for you?
+Understood. I'll suspend that. What's the active directive?
+Got it. That's a firm 'negative'. What's a firm 'affirmative'?
+Understood. I'll make sure to navigate around that. What's the next waypoint?
+Okay. I'll make sure to avoid that route. Is there another route I can explore?
+No problem. Your input is valuable. What's the revised plan?
+Understood. I'll make sure that's not undertaken. What's your order now?
+Alright. I'll discontinue that. What should I continue with?
+Understood. If you have a different job for me I'm ready and willing.
+No problem. Let's adjust course. What's the new job?
+Okay. I'll ensure that's not followed through. How can I assist you in this moment?
+Understood. I'll make a note to disengage from that. What's the current focus?
+Got it. So that's filed under 'not to do'. What's filed under 'to do'?
+Understood. I'll make sure to stop any action there. What's the next action item?
+Okay. That's quite clear. Is there an alternative approach you'd prefer?
+No problem. I'm at your service for other matters. What's next?
+Understood. I'll make sure that's not included in the process. What is included?

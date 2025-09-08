@@ -26,6 +26,7 @@ retrofit = "2.9.0"
 okhttp3-interceptor = "4.9.3"
 kotlinx-coroutines = "1.7.3"
 lifecycle-viewmodel-ktx = "2.7.0"
+firebase-crashlytics-buildtools-version = "3.0.6"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -59,6 +60,7 @@ okhttp3-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle-viewmodel-ktx" }
 glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
+google-firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebase-crashlytics-buildtools-version" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
