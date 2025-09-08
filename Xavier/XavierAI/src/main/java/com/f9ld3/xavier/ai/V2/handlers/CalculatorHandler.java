@@ -1,3 +1,4 @@
+// C:/Users/Music_Minister/Desktop/PlayStore/PlayStoreProjects/Xavier/XavierAI/src/main/java/com/f9ld3/xavier/ai/V2/handlers/CalculatorHandler.java
 package com.f9ld3.xavier.ai.V2.handlers;
 
 import com.f9ld3.xavier.ai.V2.ConversationContext;
@@ -18,17 +19,19 @@ private static final DecimalFormat FORMATTER = new DecimalFormat("0.############
 
 @Override
 public String handle(String userInput, ConversationContext context) {
-	String expressionString = (String) context.getEntity("calculator_query");
-	
-	if (expressionString == null || expressionString.isBlank()) {
-		expressionString = userInput;
-	}
+	// UPDATED: Use the new context API to safely get the expression.
+	// It now correctly uses getEntityFromCurrentContext("expression") and handles the Optional result.
+	String expressionString = context.getEntityFromCurrentContext("expression")
+			                          .map(String::valueOf)
+			                          .orElse(userInput);
 	
 	String numericExpression = NumberWordConverter.convertWordsToNumbers(expressionString);
 	
 	// --- UPDATED: More intelligent sanitization to handle natural language math ---
 	String sanitizedExpression = numericExpression
 			                             .toLowerCase()
+			                             // NEW: Remove conversational prefixes to allow the expression to be parsed correctly.
+			                             .replaceAll("^what is |^what's |^calculate |^compute ", "")
 			                             // NEW: Remove the bot's name from the expression to avoid confusing the parser.
 			                             .replaceAll("\\bxavier\\b", "")
 			                             // Convert "square root of" and "root of" to the sqrt() function
@@ -47,6 +50,7 @@ public String handle(String userInput, ConversationContext context) {
 			                             .replaceAll("[^a-z0-9\\s\\+\\-\\*\\/\\.\\(\\)\\^]", "");
 	
 	try {
+		// The exp4j library is powerful enough to handle spaces correctly.
 		Expression expression = new ExpressionBuilder(sanitizedExpression).build();
 		double result = expression.evaluate();
 		

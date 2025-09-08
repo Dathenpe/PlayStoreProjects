@@ -1,3 +1,4 @@
+// C:/Users/Music_Minister/Desktop/PlayStore/PlayStoreProjects/Xavier/XavierAI/src/main/java/com/f9ld3/xavier/ai/V2/utils/EntityExtractor.java
 package com.f9ld3.xavier.ai.V2.utils;
 
 import java.util.regex.Matcher;
@@ -9,10 +10,10 @@ import java.util.regex.Pattern;
  */
 public final class EntityExtractor {
 
-// This pattern looks for common location prepositions and captures everything that follows.
-// It's designed to grab the location from phrases like "weather in london" or "time for new york".
+// FIX: This pattern is now non-greedy (.+?) and optionally matches (but does not capture)
+// common temporal adverbs at the end of the string.
 private static final Pattern LOCATION_PATTERN = Pattern.compile(
-		".*\\b(?:in|for|at|of|near)\\b\\s+(.+)",
+		".*\\b(?:in|for|at|of|near)\\b\\s+(.+?)(?:\\s+(?:right now|currently|today|now))?$",
 		Pattern.CASE_INSENSITIVE
 );
 
@@ -34,6 +35,7 @@ public static String extractLocation(String userInput) {
 	
 	if (matcher.matches()) {
 		// If a preposition is found, return the text that follows it.
+		// The optional group for temporal adverbs is ignored, cleaning the output.
 		return matcher.group(1).trim();
 	} else {
 		// If no preposition is found, try to strip known command phrases as a fallback.

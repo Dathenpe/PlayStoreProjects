@@ -7,7 +7,7 @@ package com.f9ld3.xavier.ai.V2.utils;
 public class ProgressBar implements Runnable {
 
 private volatile boolean running = true;
-private final char[] spinner = new char[]{'|', '/', '-', '\\'};
+private final char[] spinner = new char[]{'.', '.', '-', '\\'};
 
 @Override
 public void run() {

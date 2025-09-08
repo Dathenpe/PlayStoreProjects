@@ -3,13 +3,22 @@ package com.f9ld3.xavier.ai.V2.handlers;
 import com.f9ld3.xavier.ai.V2.ConversationContext;
 import com.f9ld3.xavier.ai.V2.XavierCoreV2;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
- * Handles user corrections by taking a new subject and re-running the last failed query
- * with the updated context. This enables the AI to recover from misunderstandings.
+ * Handles user corrections (e.g., "no, I meant...").
+ * This handler intelligently extracts the user's intended query and re-routes it
+ * through the main AI core for a fresh analysis, respecting the user's explicit intent.
  */
 public class CorrectionHandler implements IntentHandler {
 
 private final XavierCoreV2 core;
+
+// REFINED: This pattern is now more robust and handles a wider variety of natural language corrections.
+private static final Pattern CORRECTION_PATTERN = Pattern.compile(
+		"(?i)(?:no,?|nope,?|actually,?|i mean|i meant|what i meant was|i meant to say)\\s*(.+)"
+);
 
 public CorrectionHandler(XavierCoreV2 core) {
 	this.core = core;
@@ -17,39 +26,34 @@ public CorrectionHandler(XavierCoreV2 core) {
 
 @Override
 public String handle(String userInput, ConversationContext context) {
-	String lastFailedQuery = context.getLastFailedInput();
+	Matcher matcher = CORRECTION_PATTERN.matcher(userInput);
 	
-	if (lastFailedQuery == null || lastFailedQuery.isBlank()) {
-		return "I'm not sure what we were trying to do. Could you please ask your question again?";
+	if (matcher.find()) {
+		// Extract the corrected query (e.g., "the word artichoke").
+		String correctedQuery = matcher.group(1).trim();
+		
+		if (correctedQuery.isEmpty()) {
+			return "What did you mean instead?";
+		}
+		
+		// Create a new, clean context for the re-routed query to avoid state conflicts.
+		// We preserve the username for a personal touch.
+		ConversationContext newContext = new ConversationContext();
+		newContext.setUsername(context.getUsername());
+		
+		if (XavierCoreV2.DEBUG_MODE) {
+			System.out.println("[DEBUG] CorrectionHandler: Rerouting new query: '" + correctedQuery + "'");
+		}
+		
+		// Re-route the corrected query through the main getResponse method.
+		// This ensures it goes through the entire prediction pipeline again.
+		String newResponse = core.getResponse(correctedQuery, newContext);
+		
+		// Prepend a conversational acknowledgement to the new response.
+		return "My mistake. Let's try this instead:\n\n" + newResponse;
 	}
 	
-	// The entity for the correction is the new subject, extracted by the PatternHandler in XavierCoreV2.
-	String newSubject = (String) context.getEntity("correction");
-	
-	if (newSubject == null || newSubject.isBlank()) {
-		// If the pattern didn't capture an entity (e.g., user just says "no, france"),
-		// we treat the whole input as the correction.
-		newSubject = userInput.replaceAll("(?i)^(no,|i mean|i meant)", "").trim();
-	}
-	
-	if (newSubject.isBlank()) {
-		return "I see you're trying to correct something, but I didn't catch the new topic. What did you mean?";
-	}
-	
-	if (XavierCoreV2.DEBUG_MODE) {
-		System.out.printf("[DEBUG] CorrectionHandler: Last failed query: '%s'%n", lastFailedQuery);
-		System.out.printf("[DEBUG] CorrectionHandler: New subject from correction: '%s'%n", newSubject);
-	}
-	
-	// Update the context with the new, corrected subject.
-	context.setLastSubject(newSubject);
-	
-	// Clear the last failed input so we don't get stuck in a correction loop.
-	context.clearLastFailedInput();
-	
-	// Re-route the *original failed query* back through the main pipeline.
-	// This will likely trigger the FollowUpHandler again, which will now have
-	// the correct subject ("france") to work with.
-	return core.getResponse(lastFailedQuery, context);
+	// Fallback if the pattern somehow fails to match, though it's unlikely.
+	return "I'm not sure what you meant. Could you please rephrase your question?";
 }
 }

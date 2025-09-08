@@ -8,36 +8,40 @@ import com.f9ld3.xavier.ai.V2.XavierCoreV2;
 import com.f9ld3.xavier.ai.V2.services.SearchService;
 import com.f9ld3.xavier.ai.V2.services.SearchService.SearchResult;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Handles general knowledge questions by first querying the Wolfram|Alpha API for factual data.
  * If that fails, it falls back to a general web search for broader topics.
+ * REFACTORED: Now fully integrated with the new context stack and entity system.
  */
 public class KnowledgeQueryHandler implements IntentHandler {
 
 private final WolframAlphaClient wolframClient;
 private final SearchService searchService;
 
+// REFINED: Compile the pattern once for performance.
+private static final Pattern SUBJECT_PATTERN = Pattern.compile("^([^,(]+)");
+
 private static final List<String> PREFIXES_TO_REMOVE;
 
 static {
-	List<String> prefixes = Arrays.asList(
-			"tell me about", "can you tell me about", "do you know about",
-			"give me information on", "information about", "search for",
-			"look up", "find out about", "what do you know about",
-			"tell me", "explain"
-	);
-	prefixes.sort(Comparator.comparingInt(String::length).reversed());
-	PREFIXES_TO_REMOVE = prefixes;
+	// REFINED: Use a stream for a more modern and declarative initialization.
+	PREFIXES_TO_REMOVE = Arrays.asList(
+					"tell me about", "can you tell me about", "do you know about",
+					"give me information on", "information about", "search for",
+					"look up", "find out about", "what do you know about",
+					"tell me", "explain", "what is", "what's", "who is", "who's"
+			).stream()
+			                     .sorted(Comparator.comparingInt(String::length).reversed())
+			                     .collect(Collectors.toList());
 }
-private static final Set<String> STOP_WORDS = Set.of(
-		"a", "an", "the", "of", "in", "on", "at", "for", "to", "is", "are", "was", "were",
-		"who", "what", "when", "where", "why", "how", "do", "does", "did", "can", "could",
-		"would", "should", "tell", "me", "about", "republic"
-);
 
 public KnowledgeQueryHandler(WolframAlphaClient wolframClient, SearchService searchService) {
 	this.wolframClient = wolframClient;
@@ -51,9 +55,6 @@ public String handle(String userInput, ConversationContext context) {
 	}
 	
 	String queryToSend = extractQuery(userInput);
-	if (queryToSend.isEmpty()) {
-		queryToSend = userInput;
-	}
 	
 	if (XavierCoreV2.DEBUG_MODE) {
 		System.out.println("[DEBUG] KnowledgeQueryHandler: Original input: '" + userInput + "'");
@@ -64,19 +65,18 @@ public String handle(String userInput, ConversationContext context) {
 	Optional<WolframAlphaResult> resultOpt = wolframClient.getFullResult(queryToSend);
 	
 	if (resultOpt.isPresent()) {
-		context.clearLastFailedInput();
 		WolframAlphaResult result = resultOpt.get();
 		String answer = result.getAnswer();
 		String interpretation = result.getInterpretation();
 		
+		// UPDATED: Use the new entity system to store the subject in the current context.
 		String subject = extractSubjectFromAnswer(answer);
-		context.setLastSubject(subject);
-		if (XavierCoreV2.DEBUG_MODE) System.out.printf("[DEBUG] KnowledgeQueryHandler: Setting last subject from answer: '%s'%n", subject);
+		context.addEntityToCurrentContext("subject", subject);
+		if (XavierCoreV2.DEBUG_MODE) System.out.printf("[DEBUG] KnowledgeQueryHandler: Added entity 'subject': '%s'%n", subject);
 		
 		StringBuilder responseBuilder = new StringBuilder();
 		
 		if (!interpretation.isEmpty() && !interpretation.equalsIgnoreCase(queryToSend)) {
-			// UPDATED: Smartly format the interpretation string for better readability.
 			String formattedInterpretation = formatInterpretation(interpretation);
 			responseBuilder.append(String.format("Assuming you meant '%s':\n", formattedInterpretation));
 		}
@@ -93,26 +93,36 @@ public String handle(String userInput, ConversationContext context) {
 			System.out.println("[DEBUG] KnowledgeQueryHandler: Wolfram|Alpha failed. Falling back to web search.");
 		}
 		
-		Optional<List<SearchResult>> searchResultsOpt = searchService.getSearchResults(userInput);
-		
-		if (searchResultsOpt.isPresent() && !searchResultsOpt.get().isEmpty()) {
-			SearchResult firstResult = searchResultsOpt.get().get(0);
-			context.clearLastFailedInput();
-			return String.format(
-					"I couldn't find a direct answer, but I found a web page that might help:\n\nTitle: %s\nSource: %s",
-					firstResult.title(),
-					firstResult.link()
-			);
-		} else {
-			// --- FINAL FALLBACK: Both Wolfram and Web Search failed ---
-			context.setLastFailedInput(userInput);
-			return "That's a great question, but I couldn't find a specific answer for it.";
+		// FIX: Wrap the search service call in a try-catch block for graceful failure.
+		try {
+			Optional<List<SearchResult>> searchResultsOpt = searchService.getSearchResults(userInput);
+			
+			if (searchResultsOpt.isPresent() && !searchResultsOpt.get().isEmpty()) {
+				SearchResult firstResult = searchResultsOpt.get().get(0);
+				
+				context.addEntityToCurrentContext("subject", firstResult.title());
+				if (XavierCoreV2.DEBUG_MODE) System.out.printf("[DEBUG] KnowledgeQueryHandler: Added entity from search: '%s'%n", firstResult.title());
+				
+				return String.format(
+						"I couldn't find a direct answer, but I found a web page that might help:\n\nTitle: %s\nSource: %s",
+						firstResult.title(),
+						firstResult.link()
+				);
+			}
+		} catch (SearchService.SearchServiceException e) {
+			System.err.println("WARN: KnowledgeQueryHandler fallback search failed. Reason: " + e.getMessage());
+			// Fall through to the final fallback message.
 		}
+		
+		// --- FINAL FALLBACK: Both Wolfram and Web Search failed ---
+		return "That's a great question, but I couldn't find a specific answer for it at the moment.";
 	}
 }
 
 /**
- * A helper to strip common conversational prefixes while preserving the core question.
+ * REFINED: A helper to strip common conversational prefixes while preserving the core question.
+ * This version no longer uses a broad stop-word list, which is less likely to remove
+ * important keywords from the query.
  */
 public String extractQuery(String userInput) {
 	String query = userInput.toLowerCase().replaceAll("\\?$", "").trim();
@@ -122,21 +132,14 @@ public String extractQuery(String userInput) {
 	}
 	
 	for (String prefix : PREFIXES_TO_REMOVE) {
+		// Use startsWith to check for the prefix followed by a space to avoid partial matches.
 		if (query.startsWith(prefix + " ")) {
-			query = query.substring(prefix.length()).trim();
-			break;
+			return query.substring(prefix.length()).trim();
 		}
 	}
 	
-	String[] words = query.split("\\s+");
-	StringBuilder finalQuery = new StringBuilder();
-	for (String word : words) {
-		if (!STOP_WORDS.contains(word)) {
-			finalQuery.append(word).append(" ");
-		}
-	}
-	
-	return finalQuery.toString().trim();
+	// If no prefix was found, return the cleaned query.
+	return query;
 }
 
 /**
@@ -148,8 +151,8 @@ private String extractSubjectFromAnswer(String answer) {
 	if (answer == null || answer.isBlank()) {
 		return "";
 	}
-	Pattern subjectPattern = Pattern.compile("^([^,(]+)");
-	Matcher matcher = subjectPattern.matcher(answer);
+	// Use the pre-compiled pattern for better performance.
+	Matcher matcher = SUBJECT_PATTERN.matcher(answer);
 	if (matcher.find()) {
 		return matcher.group(1).trim();
 	}
@@ -157,7 +160,7 @@ private String extractSubjectFromAnswer(String answer) {
 }
 
 /**
- * NEW: A helper method to format the interpretation string from Wolfram|Alpha into a more readable format.
+ * A helper method to format the interpretation string from Wolfram|Alpha into a more readable format.
  * For example, it turns "Nigeria | continent" into "the continent of Nigeria".
  *
  * @param interpretation The raw interpretation string from the API.
@@ -166,13 +169,17 @@ private String extractSubjectFromAnswer(String answer) {
 private String formatInterpretation(String interpretation) {
 	String[] parts = interpretation.split("\\s*\\|\\s*");
 	if (parts.length == 2) {
-		// Capitalize the first letter of the topic for better grammar.
 		String topic = parts[0].trim();
 		String property = parts[1].trim();
 		
 		// Ensure the topic isn't empty before trying to capitalize it.
 		if (!topic.isEmpty()) {
 			topic = topic.substring(0, 1).toUpperCase() + topic.substring(1);
+		}
+		
+		// Handle special cases for better grammar
+		if (property.endsWith("s")) { // e.g., "actors" -> "the actors in"
+			return String.format("the %s in %s", property, topic);
 		}
 		
 		return String.format("the %s of %s", property, topic);

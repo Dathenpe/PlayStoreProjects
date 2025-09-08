@@ -1,9 +1,11 @@
+// C:/Users/Music_Minister/Desktop/PlayStore/PlayStoreProjects/Xavier/XavierAI/src/main/java/com/f9ld3/xavier/ai/V2/handlers/TimeQueryHandler.java
 package com.f9ld3.xavier.ai.V2.handlers;
 
 import com.f9ld3.xavier.ai.V2.ConversationContext;
 import com.f9ld3.xavier.ai.V2.XavierCoreV2;
 import com.f9ld3.xavier.ai.V2.services.IPGeolocationService;
 import com.f9ld3.xavier.ai.V2.services.LocationResolverService;
+import com.f9ld3.xavier.ai.V2.utils.EntityExtractor;
 import com.f9ld3.xavier.ai.V2.utils.SharedHttpClient;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -24,9 +26,7 @@ import java.util.Optional;
 
 /**
  * A unified and intelligent handler for all time-related queries.
- * It reads a location from the context (extracted by the core pipeline),
- * automatically detects the user's location via IP if none is provided, or
- * uses the coordinates from a geocoding service to fetch the timezone.
+ * REFACTORED: Now fully integrated with the new context stack and entity system.
  */
 public class TimeQueryHandler implements IntentHandler {
 
@@ -45,16 +45,30 @@ public TimeQueryHandler(LocationResolverService locationResolver, IPGeolocationS
 
 @Override
 public String handle(String userInput, ConversationContext context) {
-	// The handler is now simpler. It gets the location entity from the context,
-	// which was extracted by the PatternHandler in the core pipeline.
-	String location = (String) context.getEntity("location");
+	// UPDATED: Use the new context API to safely get the location entity.
+	Optional<String> locationOpt = context.getEntityFromCurrentContext("subject")
+			                               .map(String::valueOf);
 	
 	// Case 1: A specific location was extracted by the core pipeline.
-	if (location != null && !location.isBlank()) {
-		return getTimeForLocation(location, context);
+	if (locationOpt.isPresent() && !locationOpt.get().isBlank()) {
+		return getTimeForLocation(locationOpt.get(), context);
 	}
 	
-	// Case 2: No location mentioned. Try to get it automatically via IP.
+	// FIX: More robust check for no-location queries. If the input is just about "time"
+	// and doesn't contain location prepositions, go straight to IP/default time.
+	String cleanedInput = userInput.toLowerCase().trim();
+	boolean isGenericTimeQuery = cleanedInput.matches("(?i).*(what's|what is|tell me|the)?\\s*time\\??$");
+	
+	if (!isGenericTimeQuery) {
+		// Only if it's NOT a generic query, try to extract a location as a fallback.
+		String extractedLocation = EntityExtractor.extractLocation(userInput);
+		if (extractedLocation != null && !extractedLocation.isBlank()) {
+			if (XavierCoreV2.DEBUG_MODE) System.out.println("[DEBUG] TimeQueryHandler: No entity in context, but manually extracted '" + extractedLocation + "'.");
+			return getTimeForLocation(extractedLocation, context);
+		}
+	}
+	
+	// Case 2: No location mentioned or it's a generic query. Try to get it automatically via IP.
 	if (XavierCoreV2.DEBUG_MODE) System.out.println("[DEBUG] No location in time query context. Attempting IP Geolocation.");
 	Optional<JsonObject> geoDataOpt = ipGeolocationService.getCurrentLocation();
 	
@@ -120,7 +134,8 @@ private String getTimeForLocation(String location, ConversationContext context) 
 		
 	} catch (Exception e) {
 		System.err.println("Time Handler Error: " + e.getMessage());
-		context.setLastFailedInput(location); // Remember the failed query subject
+		// UPDATED: The 'setLastFailedInput' method is no longer needed.
+		// The context stack handles conversational state.
 		return "I'm sorry, I ran into an issue trying to find the time for '" + location + "'. Please try again.";
 	}
 }

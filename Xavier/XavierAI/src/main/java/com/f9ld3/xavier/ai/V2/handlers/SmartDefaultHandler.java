@@ -7,8 +7,12 @@ import com.f9ld3.xavier.ai.V2.services.SearchService;
 import com.f9ld3.xavier.ai.V2.services.SearchService.SearchResult;
 import com.f9ld3.xavier.ai.V2.utils.ResponseGenerator;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * An intelligent default handler that acts as a final safety net.
@@ -20,6 +24,23 @@ public class SmartDefaultHandler implements IntentHandler {
 private final WolframAlphaClient wolframClient;
 private final SearchService searchService;
 
+// REFINED: Compile the pattern once for performance.
+private static final Pattern SUBJECT_PATTERN = Pattern.compile("^([^,(]+)");
+
+private static final List<String> PREFIXES_TO_REMOVE;
+
+static {
+	// REFINED: Use a stream for a more modern and declarative initialization.
+	PREFIXES_TO_REMOVE = Arrays.asList(
+					"tell me about", "can you tell me about", "do you know about",
+					"give me information on", "information about", "search for",
+					"look up", "find out about", "what do you know about",
+					"tell me", "explain", "what is", "what's", "who is", "who's"
+			).stream()
+			                     .sorted(Comparator.comparingInt(String::length).reversed())
+			                     .collect(Collectors.toList());
+}
+
 public SmartDefaultHandler(WolframAlphaClient wolframClient, SearchService searchService) {
 	this.wolframClient = wolframClient;
 	this.searchService = searchService;
@@ -27,8 +48,12 @@ public SmartDefaultHandler(WolframAlphaClient wolframClient, SearchService searc
 
 @Override
 public String handle(String userInput, ConversationContext context) {
+	// FIX: Extract a clean query to prevent passing conversational phrases
+	// like "whats the weather" to the API.
+	String queryToSend = extractQuery(userInput);
+	
 	// --- PRIMARY STRATEGY: Attempt to get a factual answer from Wolfram|Alpha ---
-	Optional<WolframAlphaResult> resultOpt = wolframClient.getFullResult(userInput);
+	Optional<WolframAlphaResult> resultOpt = wolframClient.getFullResult(queryToSend);
 	
 	if (resultOpt.isPresent()) {
 		WolframAlphaResult result = resultOpt.get();
@@ -38,7 +63,7 @@ public String handle(String userInput, ConversationContext context) {
 	
 	// --- FALLBACK STRATEGY: If Wolfram fails, try a web search ---
 	try {
-		Optional<List<SearchResult>> searchResultsOpt = searchService.getSearchResults(userInput);
+		Optional<List<SearchResult>> searchResultsOpt = searchService.getSearchResults(queryToSend);
 		if (searchResultsOpt.isPresent() && !searchResultsOpt.get().isEmpty()) {
 			SearchResult firstResult = searchResultsOpt.get().get(0);
 			return String.format(
@@ -54,5 +79,24 @@ public String handle(String userInput, ConversationContext context) {
 	
 	// --- FINAL FALLBACK: If all attempts fail, give a generic response ---
 	return ResponseGenerator.getIntelligentFallback();
+}
+
+/**
+ * Helper to strip common conversational prefixes.
+ */
+public String extractQuery(String userInput) {
+	String query = userInput.toLowerCase().replaceAll("\\?$", "").trim();
+	
+	if (query.startsWith("xavier ")) {
+		query = query.substring("xavier ".length());
+	}
+	
+	for (String prefix : PREFIXES_TO_REMOVE) {
+		if (query.startsWith(prefix + " ")) {
+			return query.substring(prefix.length()).trim();
+		}
+	}
+	
+	return query;
 }
 }

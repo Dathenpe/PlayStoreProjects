@@ -1,24 +1,50 @@
+# C:/Users/Music_Minister/Desktop/PlayStore/PlayStoreProjects/Xavier/XavierAI/src/main/resources/training_data.txt
+# --- Greetings ---
 greeting,hello
+greeting,hi
 greeting,hi there
+greeting,hey
 greeting,hey xavier
 greeting,hey there
+greeting,good morning
+greeting,good afternoon
+greeting,good evening
+greeting,greetings
 greeting,wassup
 greeting,what's up
 greeting,sup
 greeting,yo
 greeting,xavier
-
+greeting,hello bot
+greeting,are you there
+greeting,you there?
 
 # --- Goodbyes ---
+goodbye,bye
 goodbye,bye bye
 goodbye,see you later
 goodbye,goodbye
+goodbye,farewell
+goodbye,talk to you later
+goodbye,ttyl
+goodbye,i'm leaving
+goodbye,got to go
+goodbye,i'm out
+goodbye,catch you later
+goodbye,have a good one
+goodbye,exit
+goodbye,quit
+goodbye,end conversation
 
 # --- Unified Time Queries ---
 time_query,what time is it
 time_query,can you tell me the time
 time_query,the time please
 time_query,current time
+time_query,what is the time
+time_query,what's the time
+time_query,do you have the time
+time_query,give me the time
 time_query,what is the time in japan
 time_query,what time is it in london right now
 time_query,tell me the time for new york
@@ -26,12 +52,27 @@ time_query,current time in lagos
 time_query,what is the timezone in canada
 time_query,what is the time in australia
 time_query,time in tokyo please
+time_query,what time is it in berlin
+time_query,tell me the current time in cairo
+time_query,timezone for sydney
+time_query,what time is it over in moscow
+time_query,could you tell me the time in paris
+time_query,time check for beijing
+time_query,what is the local time in rio de janeiro
 
 # --- Date Queries ---
 date_query,what is today's date
 date_query,show me the date
 date_query,what is the date
 date_query,what day is it
+date_query,what's the date today
+date_query,tell me today's date
+date_query,can you give me the date
+date_query,what day of the week is it
+date_query,current date
+date_query,the date
+date_query,is it monday
+date_query,what's the full date
 
 # --- Weather Queries ---
 weather_query,what's the weather like
@@ -48,6 +89,15 @@ weather_query,check lekki lagos
 weather_query,check for toronto canada
 weather_query,what is the temperature in berlin
 weather_query,is it cold in moscow
+weather_query,weather report for seattle
+weather_query,how hot is it in dubai
+weather_query,will it rain today
+weather_query,is there a chance of snow
+weather_query,what's the wind speed
+weather_query,give me the weather update
+weather_query,how's it looking outside
+weather_query,temperature in celsius for paris
+weather_query,fahrenheit in miami
 
 # --- Calculator ---
 calculator_query,what is 5 plus 3
@@ -57,6 +107,19 @@ calculator_query,what's 50 minus 25
 calculator_query,what is the square root of 16
 calculator_query,9 to the power of 2
 calculator_query,what is ten percent of two hundred
+calculator_query,calculate 15 * 4
+calculator_query,what is 75 + 13
+calculator_query,solve 3^3
+calculator_query,what's 88 / 11
+calculator_query,compute the root of 81
+calculator_query,120 minus 45
+calculator_query,500 times 3.5
+calculator_query,what is 25% of 1000
+calculator_query,add 12 and 54
+calculator_query,subtract 10 from 30
+calculator_query,multiply 7 by 8
+calculator_query,divide 144 by 12
+calculator_query,what is 2 to the power of 10
 
 # --- Follow-ups (More focused) ---
 follow_up,what about in london
@@ -70,6 +133,17 @@ follow_up,how did he die
 follow_up,where was she born
 follow_up,what was its primary purpose
 follow_up,is it day or night there
+follow_up,what about him
+follow_up,and for her
+follow_up,how about them
+follow_up,tell me more
+follow_up,go on
+follow_up,and then what
+follow_up,what else
+follow_up,more details please
+follow_up,can you elaborate
+follow_up,what about its history
+follow_up,and its population
 
 # --- Bot Identity ---
 about_bot,who are you
@@ -79,6 +153,15 @@ about_bot,what can you do
 about_bot,tell me about yourself
 about_bot,describe yourself
 about_bot,what are your features
+about_bot,what is your name
+about_bot,what's your purpose
+about_bot,who built you
+about_bot,what are your capabilities
+about_bot,what are your limitations
+about_bot,are you a robot
+about_bot,what kind of AI are you
+about_bot,tell me about your creator
+about_bot,what are you good at
 
 # --- General Knowledge ---
 knowledge_query,what is an apple
@@ -102,6 +185,22 @@ knowledge_query,what are the benefits of exercise
 knowledge_query,tell me about the great wall of china
 knowledge_query,what is photosynthesis
 knowledge_query,can you tell me about the dancing plague
+knowledge_query,who was albert einstein
+knowledge_query,what is the mitochondria
+knowledge_query,explain black holes
+knowledge_query,where is the amazon rainforest
+knowledge_query,what caused world war 2
+knowledge_query,tell me about cleopatra
+knowledge_query,what is dna
+knowledge_query,who wrote hamlet
+knowledge_query,what is the largest planet
+knowledge_query,describe the water cycle
+knowledge_query,what is artificial intelligence
+knowledge_query,who is isaac newton
+knowledge_query,what is the meaning of life
+knowledge_query,tell me about the renaissance
+knowledge_query,what is a neuron
+knowledge_query,where is mount everest
 
 # --- ChitChat (REFINED: Now the exclusive home for status queries) ---
 chitchat,how are you
@@ -109,6 +208,8 @@ chitchat,how are you today
 chitchat,how are you doing
 chitchat,how's it going
 chitchat,how about you
+chitchat,how have you been
+chitchat,you good
 chitchat,got it
 chitchat,sounds good
 chitchat,that's fine
@@ -120,48 +221,94 @@ chitchat,nice
 chitchat,great
 chitchat,good
 chitchat,alright
+chitchat,i understand
+chitchat,makes sense
+chitchat,roger that
+chitchat,fair enough
+chitchat,that's cool
+chitchat,sweet
 
 # --- User Status ---
 user_status_query,i am bored
 user_status_query,i'm bored
 user_status_query,feeling bored
 user_status_query,this is boring
+user_status_query,entertain me
+user_status_query,i have nothing to do
 user_status_query,i am hungry
 user_status_query,i'm hungry
 user_status_query,feeling hungry
 user_status_query,i need food
+user_status_query,what should i eat
+user_status_query,suggest a recipe
+user_status_query,i'm starving
 user_status_query,i'm feeling sad
 user_status_query,i feel sad
 user_status_query,i am unhappy
 user_status_query,feeling down
+user_status_query,cheer me up
+user_status_query,i'm not feeling great
 user_status_query,i am so tired
 user_status_query,i'm sleepy
 user_status_query,i feel exhausted
+user_status_query,i need to sleep
 user_status_query,i'm happy
 user_status_query,i feel great
 user_status_query,i'm excited
+user_status_query,this is awesome
 user_status_query,i'm curious
 user_status_query,feeling curious
+user_status_query,i want to know more
 user_status_query,i am confused
 user_status_query,i don't understand
+user_status_query,that's confusing
+user_status_query,explain that again
 
 # --- Gratitude ---
+gratitude,thanks
+gratitude,thank you
 gratitude,thanks a lot
 gratitude,much appreciated
 gratitude,i appreciate it
 gratitude,thank you so much
+gratitude,thanks a bunch
+gratitude,you're a lifesaver
+gratitude,i owe you one
+gratitude,cheers
+gratitude,thx
+gratitude,tnx
 
 # --- Confirmation ---
+confirmation,yes
+confirmation,yep
+confirmation,yeah
+confirmation,no
+confirmation,nope
 confirmation,correct
 confirmation,that's right
 confirmation,that's wrong
 confirmation,incorrect
 confirmation,you are correct
+confirmation,that's it
+confirmation,exactly
+confirmation,you got it
+confirmation,that's not it
+confirmation,not quite
+confirmation,that's incorrect
+confirmation,affirmative
+confirmation,negative
 
 # --- Correction ---
 correction,i mean canada
 correction,no i meant paris
 correction,i meant to say new york
+correction,actually i meant
+correction,what i meant was
+correction,no i said
+correction,i wanted to ask about
+correction,my mistake i meant
+correction,let me rephrase
+correction,try again i meant
 
 # --- Dictionary Queries ---
 dictionary_query,what is the meaning of elephant
@@ -170,6 +317,12 @@ dictionary_query,define serendipity
 dictionary_query,can you define paradox
 dictionary_query,what does ephemeral mean
 dictionary_query,meaning of philosophy
+dictionary_query,what's the definition of gravity
+dictionary_query,define democracy
+dictionary_query,meaning of the word empathy
+dictionary_query,can you tell me what symbiotic means
+dictionary_query,what is the definition of irony
+dictionary_query,define photosynthesis
 
 # --- Joke Queries ---
 joke_query,tell me a joke
@@ -180,6 +333,12 @@ joke_query,joke
 joke_query,tell me 5 jokes
 joke_query,give me 10 jokes
 joke_query,another joke please
+joke_query,make me laugh
+joke_query,got any good jokes
+joke_query,tell me something funny
+joke_query,hit me with a joke
+joke_query,i need a laugh
+joke_query,do you know any jokes
 
 # --- Fun Fact Queries ---
 fact_query,tell me a fun fact
@@ -190,6 +349,11 @@ fact_query,tell me something interesting
 fact_query,i want to learn something new
 fact_query,fact of the day
 fact_query,another fact
+fact_query,tell me something i don't know
+fact_query,hit me with a fact
+fact_query,random fact please
+fact_query,share an interesting fact
+fact_query,got any fun facts
 
 # --- Riddle Queries ---
 riddle_query,tell me a riddle
@@ -201,6 +365,14 @@ riddle_query,what's the answer
 riddle_query,what is the answer
 riddle_query,i give up
 riddle_query,i don't know the answer
+riddle_query,i want a riddle
+riddle_query,challenge me with a riddle
+riddle_query,got any riddles
+riddle_query,another riddle
+riddle_query,tell me the answer
+riddle_query,i'm stumped
+riddle_query,what's the solution
+riddle_query,i have no idea
 
 # --- Internet Status Queries ---
 internet_status_query,are you connected to the internet
@@ -211,3 +383,35 @@ internet_status_query,are you online
 internet_status_query,is the internet working
 internet_status_query,what is your current network status
 internet_status_query,do you have an internet connection
+internet_status_query,can you reach the internet
+internet_status_query,is your connection okay
+internet_status_query,test your internet
+internet_status_query,network check
+internet_status_query,are you connected
+
+# --- NEW: Set Username ---
+set_username,my name is bob
+set_username,call me sarah
+set_username,you can call me alex
+set_username,i want you to call me jordan
+
+# --- NEW: Get Username ---
+get_username,what is my name
+get_username,do you know my name
+get_username,what do you call me
+get_username,say my name
+
+# --- NEW: How-To Queries ---
+how_to_query,how do i tie a tie
+how_to_query,how to bake a cake
+how_to_query,explain how to change a tire
+how_to_query,what are the steps to learn guitar
+how_to_query,next
+how_to_query,another one
+how_to_query,show me the next step
+
+# --- NEW: List Queries ---
+list_query,give me a list of planets
+list_query,name some programming languages
+list_query,list the continents
+list_query,what are some types of dogs

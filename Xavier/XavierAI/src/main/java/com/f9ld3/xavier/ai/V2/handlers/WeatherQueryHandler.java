@@ -1,10 +1,11 @@
+// C:/Users/Music_Minister/Desktop/PlayStore/PlayStoreProjects/Xavier/XavierAI/src/main/java/com/f9ld3/xavier/ai/V2/handlers/WeatherQueryHandler.java
 package com.f9ld3.xavier.ai.V2.handlers;
 
 import com.f9ld3.xavier.ai.V2.ConversationContext;
-import com.f9ld3.xavier.ai.V2.EntityExtractor;
 import com.f9ld3.xavier.ai.V2.XavierCoreV2;
 import com.f9ld3.xavier.ai.V2.services.IPGeolocationService;
 import com.f9ld3.xavier.ai.V2.services.LocationResolverService;
+import com.f9ld3.xavier.ai.V2.utils.EntityExtractor;
 import com.f9ld3.xavier.ai.V2.utils.SharedHttpClient;
 import com.f9ld3.xavier.ai.V2.utils.WeatherParser;
 import com.google.gson.JsonElement;
@@ -16,14 +17,13 @@ import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 /**
- * Handles weather queries. It can extract a location from the user's input,
+ * Handles weather queries. It can get a location from the context,
  * automatically detect the user's location via IP if none is provided, or
  * ask for a location as a final fallback.
+ * REFACTORED: Now fully integrated with the new context stack and entity system.
  */
 public class WeatherQueryHandler implements IntentHandler {
 
@@ -31,8 +31,6 @@ private final LocationResolverService locationResolver;
 private final IPGeolocationService ipGeolocationService;
 private final String apiKey;
 private static final String WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&appid=%s&units=metric";
-// A list of common non-location words to help identify generic queries.
-private static final List<String> GENERIC_QUERY_WORDS = Arrays.asList("what", "is", "the", "weather", "like", "tell", "me", "forecast", "how's", "how");
 
 public WeatherQueryHandler(LocationResolverService locationResolver, IPGeolocationService ipGeolocationService, String apiKey) {
 	this.locationResolver = locationResolver;
@@ -42,21 +40,29 @@ public WeatherQueryHandler(LocationResolverService locationResolver, IPGeolocati
 
 @Override
 public String handle(String userInput, ConversationContext context) {
-	// First, try to extract a location from the input.
-	String location = EntityExtractor.extractLocation(userInput);
+	// UPDATED: Use the new context API to safely get the location entity.
+	Optional<String> locationOpt = context.getEntityFromCurrentContext("subject")
+			                               .map(String::valueOf)
+			                               .filter(s -> !s.isBlank()); // Ensure it's not blank
 	
-	// NEW: Sanity check to prevent generic questions from being treated as locations.
-	// If the extracted "location" contains multiple generic words, it's not a real location.
-	boolean isGenericQuery = location != null && Arrays.stream(location.split("\\s+"))
-			                                             .filter(GENERIC_QUERY_WORDS::contains)
-			                                             .count() > 1;
-	
-	// Case 1: A specific, valid location is mentioned in the query.
-	if (location != null && !isGenericQuery) {
-		return getWeatherForLocation(location, context);
+	// Case 1: A specific location was extracted by the core pipeline.
+	if (locationOpt.isPresent()) {
+		return getWeatherForLocation(locationOpt.get(), context);
 	}
 	
-	// Case 2: No location mentioned (or it was a generic query). Try to get it automatically via IP.
+	// FIX: Add a fallback to manually extract the location if it's not in the context.
+	String cleanedInput = userInput.toLowerCase().trim();
+	boolean isGenericWeatherQuery = cleanedInput.matches("(?i).*(what's|what is|tell me|the)?\\s*(weather|forecast|temperature)\\??$");
+	
+	if (!isGenericWeatherQuery) {
+		String extractedLocation = EntityExtractor.extractLocation(userInput);
+		if (extractedLocation != null && !extractedLocation.isBlank()) {
+			if (XavierCoreV2.DEBUG_MODE) System.out.println("[DEBUG] WeatherQueryHandler: No entity in context, but manually extracted '" + extractedLocation + "'.");
+			return getWeatherForLocation(extractedLocation, context);
+		}
+	}
+	
+	// Case 2: No location mentioned. Try to get it automatically via IP.
 	if (XavierCoreV2.DEBUG_MODE) System.out.println("[DEBUG] No valid location in weather query. Attempting IP Geolocation.");
 	Optional<JsonObject> geoDataOpt = ipGeolocationService.getCurrentLocation();
 	
@@ -72,7 +78,6 @@ public String handle(String userInput, ConversationContext context) {
 	
 	// Case 3: IP Geolocation failed or no location was found. Fallback to asking the user.
 	if (XavierCoreV2.DEBUG_MODE) System.out.println("[DEBUG] IP Geolocation failed. Asking user for location.");
-	context.setPendingIntent("weather_query");
 	return "Of course. For which location would you like the weather forecast?";
 }
 
@@ -112,14 +117,13 @@ private String getWeatherForLocation(String location, ConversationContext contex
 		
 	} catch (Exception e) {
 		System.err.println("Weather Handler Error: " + e.getMessage());
-		context.setLastFailedInput(location); // Remember the failed query subject
 		
 		// More specific error handling
 		String errorMessage = e.getMessage().toLowerCase();
 		if (errorMessage.contains("api") || errorMessage.contains("401") || errorMessage.contains("failed")) {
 			return "I'm having trouble connecting to my weather service at the moment. This could be due to an invalid API key or a network issue.";
 		}
-		return "I ran into an unexpected error trying to get the weather for " + location + ". My apologies.";
+		return "I ran into an unexpected error trying to get the weather for '" + location + "'. My apologies.";
 	}
 }
 }
