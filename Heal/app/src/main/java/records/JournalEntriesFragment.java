@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 import records.JournalEntryAdapter.OnJournalEntryClickListener;
+import ui.CustomMessageDialogFragment;
 import ui.HomeFragment;
 
 public class JournalEntriesFragment extends Fragment implements
@@ -121,10 +123,32 @@ public class JournalEntriesFragment extends Fragment implements
 
     @Override
     public void onJournalEntryClick(HomeFragment.JournalEntry entry) {
-        // Launch the new EditJournalEntryDialogFragment
-        EditJournalEntryDialogFragment dialogFragment = EditJournalEntryDialogFragment.newInstance(entry);
-        dialogFragment.setTargetFragment(this, 0); // Set target fragment to receive results
-        dialogFragment.show(getParentFragmentManager(), "EditJournalEntryDialog");
+        // Create and show the CustomMessageDialogFragment first
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                "Journal Entry", // Dialog title
+                entry.getText(),   // Dialog message (the journal entry text)
+                "Edit",            // Positive button text
+                "Close"            // Negative button text
+        );
+
+        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                // This is the "Edit" button click
+                EditJournalEntryDialogFragment editDialog = EditJournalEntryDialogFragment.newInstance(entry);
+                editDialog.setTargetFragment(JournalEntriesFragment.this, 0);
+                editDialog.show(getParentFragmentManager(), "EditJournalEntryDialog");
+                dialogFragment.dismiss(); // Dismiss the current dialog
+            }
+
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                // This is the "Close" button click
+                dialogFragment.dismiss(); // Just dismiss the dialog
+            }
+        });
+
+        dialog.show(getParentFragmentManager(), "ViewJournalEntryDialog");
     }
 
     // --- Implementation of OnJournalEntryModifiedListener ---

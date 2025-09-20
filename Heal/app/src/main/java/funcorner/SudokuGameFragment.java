@@ -37,7 +37,6 @@ import java.util.Random;
 import java.util.Stack;
 
 import ui.CustomMessageDialogFragment; // Assuming this is correct
-import wordscramble.InfoDialogFragment;
 
 public class SudokuGameFragment extends Fragment implements CustomMessageDialogFragment.OnMessageDialogListener {
 
@@ -333,10 +332,13 @@ public class SudokuGameFragment extends Fragment implements CustomMessageDialogF
     }
 
     private void showGameInfoDialog() {
-        InfoDialogFragment dialog = InfoDialogFragment.newInstance(
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
                 "How to Play Sudoku",
-                "Fill the grid so that each row, column, and 3x3 box contains the digits 1 to 9 without repetition. Use the number pad to fill in the empty cells. You can clear a selected cell with the 'Clear' button. The 'Check' button will verify if your solution is correct."
+                "Fill the grid so that each row, column, and 3x3 box contains the digits 1 to 9 without repetition. Use the number pad to fill in the empty cells. You can clear a selected cell with the 'Clear' button. The 'Check' button will verify if your solution is correct.",
+                "Close",
+                null
         );
+        dialog.setListener(this);
         dialog.show(getParentFragmentManager(), "game_info");
     }
 
@@ -356,6 +358,9 @@ public class SudokuGameFragment extends Fragment implements CustomMessageDialogF
                 Log.d(TAG, "Difficulty changed to: " + selectedDifficulty);
                 overlayContainer.setVisibility(View.GONE);
                 startNewGame(selectedDifficulty);
+                break;
+            case "game_info":
+                // No special action needed, the dialog will dismiss itself.
                 break;
         }
     }

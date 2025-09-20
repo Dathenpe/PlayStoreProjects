@@ -14,9 +14,9 @@
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:paddingTop="64dp"
-    android:paddingBottom="76dp"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:listitem="@layout/item_ai_message" />
+        android:paddingBottom="76dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/item_ai_message" />
 
     <!-- Icons and FABs are drawn after RecyclerView, so they appear on top -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -43,6 +43,20 @@
         android:contentDescription="Network status icon"
         app:tint="?attr/colorOnSurfaceVariant"/> <!-- Removed duplicate android:tint -->
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_scroll_to_bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="72dp"
+        android:contentDescription="Scroll to bottom"
+        android:src="@drawable/ic_arrow_downward"
+        android:visibility="gone"
+        app:backgroundTint="?attr/colorPrimary"
+        app:fabSize="mini"
+        app:rippleColor="?attr/colorPrimaryContainer"
+        app:tint="@color/black" />
     <!-- Input container at the bottom, drawn last among these main elements -->
     <LinearLayout
         android:id="@+id/input_container"
@@ -90,13 +104,13 @@
             app:icon="@drawable/ic_send"
             app:iconTint="?attr/colorOnPrimary"
             app:iconGravity="textStart"
-        app:iconPadding="0dp"
-        android:padding="0dp"
-        android:insetTop="0dp"
-        android:insetBottom="0dp"
-        android:insetLeft="0dp"
-        android:insetRight="0dp"
-        android:backgroundTint="?attr/colorPrimary"
-        app:cornerRadius="25dp" />
+            app:iconPadding="0dp"
+            android:padding="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:backgroundTint="?attr/colorPrimary"
+            app:cornerRadius="25dp" />
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -63,7 +63,7 @@
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/sliderViewPager"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="260dp"
                 android:layout_marginBottom="16dp"/>
 
             <!-- Positive Action Tracker Card -->

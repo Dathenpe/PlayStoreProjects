@@ -53,7 +53,6 @@ import ui.CustomMessageDialogFragment;
 import wordscramble.GameMode;
 import wordscramble.HighScoreDialogFragment;
 import wordscramble.HighScoreEntry;
-import wordscramble.InfoDialogFragment;
 
 public class WordScrambleGameFragment extends Fragment implements HighScoreDialogFragment.OnDismissListener { // Implement OnDismissListener
 
@@ -444,20 +443,19 @@ public class WordScrambleGameFragment extends Fragment implements HighScoreDialo
     /**
      * Shows the game information dialog.
      */
-
     private void showInfoDialog() {
         String infoTitle = "Welcome to Word Scramble!";
         String infoContent = "How to Play:\n" +
- "Unscramble the letters to form the correct word. Tap on letters to add them to your guess. Tap a selected letter in the guess area to remove it, or use the backspace button. Long-press backspace to clear your entire guess.\n\n" +
- "Scoring:\n" +
- "You get 10 points for each correct word.\n\n" +
- "Clues:\n" +
- "You start with 5 clues per game session. You can use up to 2 clues per word. In Endless Mode, you earn one clue every 3 rounds. A clue inputs the next correct letter where applicable.\n\n" +
- "Game Modes:\n" +
- "- Endless: Play as many rounds as you like. Your score is saved when you choose to \"Save and Quit\".\n\n" +
- "- 10 Rounds / 20 Rounds: Complete the set number of rounds. Your score is automatically saved at the end of the game.\n\n" +
- "Good luck and have fun!";
-        InfoDialogFragment dialog = InfoDialogFragment.newInstance(infoTitle, infoContent);
+                "Unscramble the letters to form the correct word. Tap on letters to add them to your guess. Tap a selected letter in the guess area to remove it, or use the backspace button. Long-press backspace to clear your entire guess.\n\n" +
+                "Scoring:\n" +
+                "You get 10 points for each correct word.\n\n" +
+                "Clues:\n" +
+                "You start with 5 clues per game session. You can use up to 2 clues per word. In Endless Mode, you earn one clue every 3 rounds. A clue inputs the next correct letter where applicable.\n\n" +
+                "Game Modes:\n" +
+                "- Endless: Play as many rounds as you like. Your score is saved when you choose to \"Save and Quit\".\n\n" +
+                "- 10 Rounds / 20 Rounds: Complete the set number of rounds. Your score is automatically saved at the end of the game.\n\n" +
+                "Good luck and have fun!";
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(infoTitle, infoContent, "Close", null);
         dialog.show(getParentFragmentManager(), "game_info");
     }
 

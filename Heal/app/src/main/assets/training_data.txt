@@ -1,4 +1,3 @@
-# C:/Users/Music_Minister/Desktop/PlayStore/PlayStoreProjects/Xavier/XavierAI/src/main/resources/training_data.txt
 # --- Greetings ---
 greeting,hello
 greeting,hi

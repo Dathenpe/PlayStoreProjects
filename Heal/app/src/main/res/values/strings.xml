@@ -87,7 +87,7 @@
     <string name="mood_over_time_title">Mood Over Time</string>
     <string name="article_person">Article Person</string>
 
-    <string-array name="motivational_quotes">
+    <string-array name="motivational_quotes_widget">
         <!-- Acknowledging Pain & Validating Feelings -->
         <item>"It's okay to not be okay. Your feelings are valid, even the difficult ones."</item>
         <item>"Healing doesn't mean the damage never existed. It means the damage no longer controls your life."</item>
@@ -191,11 +191,605 @@
      <string name="tetris_title">Tetris</string>
     <string name="game_info_title"> Welcome to Tetris!</string>
 
-    <string name="tetris_info_how_to_play">How to Play:\n\nGuide the falling blocks (Tetrominoes) to create solid horizontal lines without any gaps. The game board is 10 blocks wide by 20 blocks high. The more lines you clear at once, the more points you score. The game ends when a new piece cannot be placed on the board.</string>
+    <string name="tetris_info_how_to_play">How to Play: Guide the falling blocks (Tetrominoes) to create solid horizontal lines. The game ends when a new piece cannot be placed on the board.</string>
 
-    <string name="tetris_info_controls_main">Main Controls:\n\n- Gamepad Icon: Press the main Floating Action Button (FAB) at the bottom-right of the screen to toggle the full set of gameplay controls.\n- Pause/Play Icon: Press this to pause or resume the game. This button is only visible when the controls menu is closed.</string>
+    <string name="tetris_info_controls">Controls: Use the Main FAB (bottom-right) to access controls. The Pause/Play button is visible when controls are closed. In the FAB menu, you can Rotate pieces, move them Left/Right, or speed up their fall with the Down Arrow.</string>
 
-    <string name="tetris_info_controls_fab">Controls (via FAB menu):\n\n- Rotate: Rotates the current piece 90 degrees clockwise.\n- Left/Right Arrows: Moves the current piece horizontally across the board.\n- Down Arrow: Moves the current piece down one block. Pieces fall automatically, but you can use this button to drop them faster.</string>
+    <string name="tetris_info_scoring">Scoring: Clear lines to score points. Your points are multiplied by your current level, and you level up every 1000 points. Points per line: 1 Line (100), 2 Lines (300), 3 Lines (500), 4 Lines (800 - Tetris!).</string>
 
-    <string name="tetris_info_scoring">Scoring:\n\n- Score points by clearing lines. The points you earn are multiplied by your current level. You level up for every 1000 points you score.\n\n- 1 Line: 100 points\n- 2 Lines: 300 points\n- 3 Lines: 500 points\n- 4 Lines (Tetris!): 800 points</string>
+    <string-array name="motivational_quotes">
+        <item>Believe you can and you\'re halfway there. –Theodore Roosevelt</item>
+        <item>The only way to do great work is to love what you do. –Steve Jobs</item>
+        <item>The future belongs to those who believe in the beauty of their dreams. –Eleanor Roosevelt</item>
+        <item>The journey of a thousand miles begins with a single step. –Lao Tzu</item>
+        <item>That which does not kill us makes us stronger. –Friedrich Nietzsche</item>
+        <item>Life is 10% what happens to us and 90% how we react to it. –Charles R. Swindoll</item>
+        <item>The best time to plant a tree was 20 years ago. The second best time is now. –Chinese Proverb</item>
+        <item>An unexamined life is not worth living. –Socrates</item>
+        <item>Eighty percent of success is showing up. –Woody Allen</item>
+        <item>Your time is limited, don’t waste it living someone else’s life. –Steve Jobs</item>
+        <item>Winning isn’t everything, but wanting to win is. –Vince Lombardi</item>
+        <item>I am not a product of my circumstances. I am a product of my decisions. –Stephen Covey</item>
+        <item>Every child is an artist. The problem is how to remain an artist once he grows up. –Pablo Picasso</item>
+        <item>You can never cross the ocean until you have the courage to lose sight of the shore. –Christopher Columbus</item>
+        <item>I’ve learned that people will forget what you said, people will forget what you did, but people will never forget how you made them feel. –Maya Angelou</item>
+        <item>Whether you think you can or you think you can’t, you’re right. –Henry Ford</item>
+        <item>The two most important days in your life are the day you are born and the day you find out why. –Mark Twain</item>
+        <item>Whatever you can do, or dream you can, begin it. Boldness has genius, power and magic in it. –Johann Wolfgang von Goethe</item>
+        <item>The best revenge is massive success. –Frank Sinatra</item>
+        <item>People often say that motivation doesn’t last. Well, neither does bathing. That’s why we recommend it daily. –Zig Ziglar</item>
+        <item>Life shrinks or expands in proportion to one’s courage. –Anais Nin</item>
+        <item>If you hear a voice within you say ‘you cannot paint,’ then by all means paint and that voice will be silenced. –Vincent Van Gogh</item>
+        <item>There is only one way to avoid criticism: do nothing, say nothing, and be nothing. –Aristotle</item>
+        <item>The only person you are destined to become is the person you decide to be. –Ralph Waldo Emerson</item>
+        <item>Go confidently in the direction of your dreams. Live the life you have imagined. –Henry David Thoreau</item>
+        <item>When I stand before God at the end of my life, I would hope that I would not have a single bit of talent left and could say, I used everything you gave me. –Erma Bombeck</item>
+        <item>Few things can help an individual more than to place responsibility on him, and to let him know that you trust him. –Booker T. Washington</item>
+        <item>Certain things catch your eye, but pursue only those that capture the heart. –Ancient Indian Proverb</item>
+        <item>What\'s money? A man is a success if he gets up in the morning and goes to bed at night and in between does what he wants to do. –Bob Dylan</item>
+        <item>I didn’t fail the test. I just found 100 ways to do it wrong. –Benjamin Franklin</item>
+        <item>In order to succeed, your desire for success should be greater than your fear of failure. –Bill Cosby</item>
+        <item>A person who never made a mistake never tried anything new. –Albert Einstein</item>
+        <item>The person who says it cannot be done should not interrupt the person who is doing it. –Chinese Proverb</item>
+        <item>There are no traffic jams along the extra mile. –Roger Staubach</item>
+        <item>It is never too late to be what you might have been. –George Eliot</item>
+        <item>You become what you believe. –Oprah Winfrey</item>
+        <item>I would rather die of passion than of boredom. –Vincent van Gogh</item>
+        <item>A truly rich man is one whose children run into his arms when his hands are empty. –Unknown</item>
+        <item>It is not what you do for your children, but what you have taught them to do for themselves, that will make them successful human beings. –Ann Landers</item>
+        <item>If you want your children to turn out well, spend twice as much time with them, and half as much money. –Abigail Van Buren</item>
+        <item>Build your own dreams, or someone else will hire you to build theirs. –Farrah Gray</item>
+        <item>The battles that count aren’t the ones for gold medals. The struggles within yourself–the invisible battles inside all of us–that’s where it’s at. –Jesse Owens</item>
+        <item>Education is the most powerful weapon which you can use to change the world. –Nelson Mandela</item>
+        <item>The only thing to fear is fear itself. –Franklin D. Roosevelt</item>
+        <item>Well done is better than well said. –Benjamin Franklin</item>
+        <item>The best and most beautiful things in the world cannot be seen or even touched - they must be felt with the heart. –Helen Keller</item>
+        <item>It is our choices, Harry, that show what we truly are, far more than our abilities. –J.K. Rowling</item>
+        <item>Don\'t be afraid to give up the good to go for the great. –John D. Rockefeller</item>
+        <item>Happiness is not something ready made. It comes from your own actions. –Dalai Lama</item>
+        <item>If you\'re offered a seat on a rocket ship, don\'t ask what seat! Just get on. –Sheryl Sandberg</item>
+        <item>If the wind will not serve, take to the oars. –Latin Proverb</item>
+        <item>You can’t fall if you don’t climb. But there’s no joy in living your whole life on the ground. –Unknown</item>
+        <item>We must believe that we are gifted for something, and that this thing, at whatever cost, must be attained. –Marie Curie</item>
+        <item>Too many of us are not living our dreams because we are living our fears. –Les Brown</item>
+        <item>Challenges are what make life interesting and overcoming them is what makes life meaningful. –Joshua J. Marine</item>
+        <item>If you want to lift yourself up, lift up someone else. –Booker T. Washington</item>
+        <item>I have been impressed with the urgency of doing. Knowing is not enough; we must apply. Being willing is not enough; we must do. –Leonardo da Vinci</item>
+        <item>Limitations live only in our minds. But if we use our imaginations, our possibilities become limitless. –Jamie Paolinetti</item>
+        <item>You take your life in your own hands, and what happens? A terrible thing, no one to blame. –Erica Jong</item>
+        <item>What’s the point of being alive if you don’t at least try to do something remarkable? –John Green</item>
+        <item>Life is not about finding yourself. Life is about creating yourself. –George Bernard Shaw</item>
+        <item>Nothing in the world is more common than unsuccessful people with talent. –Anonymous</item>
+        <item>Knowledge is being aware of what you can do. Wisdom is knowing when not to do it. –Anonymous</item>
+        <item>Your problem isn\'t the problem. Your reaction is the problem. –Anonymous</item>
+        <item>You can do anything, but not everything. –Anonymous</item>
+        <item>Success is the sum of small efforts, repeated day-in and day-out. –Robert Collier</item>
+        <item>If you want to achieve greatness stop asking for permission. –Anonymous</item>
+        <item>Things work out best for those who make the best of how things work out. –John Wooden</item>
+        <item>To live a creative life, we must lose our fear of being wrong. –Anonymous</item>
+        <item>If you are not willing to risk the usual you will have to settle for the ordinary. –Jim Rohn</item>
+        <item>Trust because you are willing to accept the risk, not because it\'s safe or certain. –Anonymous</item>
+        <item>Take up one idea. Make that one idea your life--think of it, dream of it, live on that idea. Let the brain, muscles, nerves, every part of your body, be full of that idea, and just leave every other idea alone. This is the way to success. –Swami Vivekananda</item>
+        <item>All our dreams can come true if we have the courage to pursue them. –Walt Disney</item>
+        <item>Good things come to people who wait, but better things come to those who go out and get them. –Anonymous</item>
+        <item>If you do what you always did, you will get what you always got. –Anonymous</item>
+        <item>Success is walking from failure to failure with no loss of enthusiasm. –Winston Churchill</item>
+        <item>Just when the caterpillar thought the world was ending, he turned into a butterfly. –Proverb</item>
+        <item>Successful entrepreneurs are givers and not takers of positive energy. –Anonymous</item>
+        <item>Whenever you see a successful person you only see the public glories, never the private sacrifices to reach them. –Vaibhav Shah</item>
+        <item>Opportunities don\'t happen, you create them. –Chris Grosser</item>
+        <item>Try not to become a person of success, but rather try to become a person of value. –Albert Einstein</item>
+        <item>Great minds discuss ideas; average minds discuss events; small minds discuss people. –Eleanor Roosevelt</item>
+        <item>I have not failed. I\'ve just found 10,000 ways that won\'t work. –Thomas A. Edison</item>
+        <item>If you don\'t value your time, neither will others. Stop giving away your time and talents--start charging for it. –Kim Garst</item>
+        <item>A successful man is one who can lay a firm foundation with the bricks others have thrown at him. –David Brinkley</item>
+        <item>No one can make you feel inferior without your consent. –Eleanor Roosevelt</item>
+        <item>The whole secret of a successful life is to find out what is one’s destiny to do, and then do it. –Henry Ford</item>
+        <item>If you’re going through hell keep going. –Winston Churchill</item>
+        <item>The ones who are crazy enough to think they can change the world, are the ones who do. –Anonymous</item>
+        <item>Don’t raise your voice, improve your argument. –Anonymous</item>
+        <item>What seems to us as bitter trials are often blessings in disguise. –Oscar Wilde</item>
+        <item>The meaning of life is to find your gift. The purpose of life is to give it away. –Anonymous</item>
+        <item>The distance between insanity and genius is measured only by success. –Bruce Feirstein</item>
+        <item>When you stop chasing the wrong things, you give the right things a chance to catch you. –Lolly Daskal</item>
+        <item>Don’t be afraid to give up the good to go for the great. –John D. Rockefeller</item>
+        <item>No masterpiece was ever created by a lazy artist. –Anonymous</item>
+        <item>Happiness is a butterfly, which when pursued, is always beyond your grasp, but which, if you will sit down quietly, may alight upon you. –Nathaniel Hawthorne</item>
+        <item>If you can\'t explain it simply, you don\'t understand it well enough. –Albert Einstein</item>
+        <item>Blessed are those who can give without remembering and take without forgetting. –Anonymous</item>
+        <item>Do one thing every day that scares you. –Anonymous</item>
+        <item>What’s the point of being alive if you don’t at least try to do something remarkable. –Anonymous</item>
+        <item>Life is not about finding yourself. Life is about creating yourself. –Lolly Daskal</item>
+        <item>Nothing in the world is more common than unsuccessful people with talent. –Anonymous</item>
+        <item>The starting point of all achievement is desire. –Napoleon Hill</item>
+        <item>Success is the progressive realization of a worthy ideal. –Earl Nightingale</item>
+        <item>All progress takes place outside the comfort zone. –Michael John Bobak</item>
+        <item>You may only succeed if you desire succeeding; you may only fail if you do not mind failing. –Philippos</item>
+        <item>Courage is resistance to fear, mastery of fear--not absence of fear. –Mark Twain</item>
+        <item>Only put off until tomorrow what you are willing to die having left undone. –Pablo Picasso</item>
+        <item>We become what we think about most of the time, and that\'s the strangest secret. –Earl Nightingale</item>
+        <item>The only place where success comes before work is in the dictionary. –Vidal Sassoon</item>
+        <item>I find that the harder I work, the more luck I seem to have. –Thomas Jefferson</item>
+        <item>The only way to do great work is to love what you do. –Steve Jobs</item>
+        <item>If you want to achieve excellence, you can get there today. As of this second, quit doing less-than-excellent work. –Thomas J. Watson</item>
+        <item>If your actions inspire others to dream more, learn more, do more and become more, you are a leader. –John Quincy Adams</item>
+        <item>Don\'t let what you cannot do interfere with what you can do. –John R. Wooden</item>
+        <item>The harder the conflict, the more glorious the triumph. –Thomas Paine</item>
+        <item>I am a great believer in luck, and I find the harder I work the more I have of it. –Thomas Jefferson</item>
+        <item>The future belongs to the competent. Get good, get better, be the best! –Brian Tracy</item>
+        <item>I’ve missed more than 9,000 shots in my career. I’ve lost almost 300 games. 26 times I’ve been trusted to take the game winning shot and missed. I’ve failed over and over and over again in my life. And that is why I succeed. –Michael Jordan</item>
+        <item>Strive not to be a success, but rather to be of value. –Albert Einstein</item>
+        <item>The most common way people give up their power is by thinking they don’t have any. –Alice Walker</item>
+        <item>The mind is everything. What you think you become. –Buddha</item>
+        <item>The best way to predict the future is to create it. –Peter Drucker</item>
+        <item>The most difficult thing is the decision to act, the rest is merely tenacity. –Amelia Earhart</item>
+        <item>You miss 100% of the shots you don’t take. –Wayne Gretzky</item>
+        <item>You must be the change you wish to see in the world. –Mahatma Gandhi</item>
+        <item>Act as if what you do makes a difference. It does. –William James</item>
+        <item>Success is not final, failure is not fatal: it is the courage to continue that counts. –Winston S. Churchill</item>
+        <item>Never bend your head. Always hold it high. Look the world straight in the eye. –Helen Keller</item>
+        <item>What you get by achieving your goals is not as important as what you become by achieving your goals. –Zig Ziglar</item>
+        <item>Believe you can and you’re halfway there. –Theodore Roosevelt</item>
+        <item>When you have a dream, you’ve got to grab it and never let go. –Carol Burnett</item>
+        <item>I can’t change the direction of the wind, but I can adjust my sails to always reach my destination. –Jimmy Dean</item>
+        <item>No matter what you’re going through, there’s a light at the end of the tunnel. –Demi Lovato</item>
+        <item>It is our attitude at the beginning of a difficult task which, more than anything else, will affect its successful outcome. –William James</item>
+        <item>Life is like riding a bicycle. To keep your balance, you must keep moving. –Albert Einstein</item>
+        <item>Just don’t give up trying to do what you really want to do. Where there is love and inspiration, I don’t think you can go wrong. –Ella Fitzgerald</item>
+        <item>Limit your ‘always’ and your ‘nevers.’ –Amy Poehler</item>
+        <item>Nothing is impossible. The word itself says ‘I’m possible!’ –Audrey Hepburn</item>
+        <item>You are never too old to set another goal or to dream a new dream. –C.S. Lewis</item>
+        <item>Try to be a rainbow in someone else’s cloud. –Maya Angelou</item>
+        <item>You do not find the happy life. You make it. –Camilla Eyring Kimball</item>
+        <item>Inspiration comes from within yourself. One has to be positive. When you’re positive, good things happen. –Deep Roy</item>
+        <item>Sometimes you will never know the value of a moment, until it becomes a memory. –Dr. Seuss</item>
+        <item>The most wasted of days is one without laughter. –e. e. cummings</item>
+        <item>You must not lose faith in humanity. Humanity is an ocean; if a few drops of the ocean are dirty, the ocean does not become dirty. –Mahatma Gandhi</item>
+        <item>Keep your face to the sunshine and you cannot see a shadow. –Helen Keller</item>
+        <item>Stay foolish to stay sane. –Maxime Lagacé</item>
+        <item>Stay hungry. Stay foolish. –Steve Jobs</item>
+        <item>Whatever you are, be a good one. –Abraham Lincoln</item>
+        <item>You only live once, but if you do it right, once is enough. –Mae West</item>
+        <item>Never let the fear of striking out keep you from playing the game. –Babe Ruth</item>
+        <item>Not how long, but how well you have lived is the main thing. –Seneca</item>
+        <item>If life were predictable it would cease to be life, and be without flavor. –Eleanor Roosevelt</item>
+        <item>The whole secret of a successful life is to find out what is one’s destiny to do, and then do it. –Henry Ford</item>
+        <item>In order to write about life first you must live it. –Ernest Hemingway</item>
+        <item>The big lesson in life, baby, is never be scared of anyone or anything. –Frank Sinatra</item>
+        <item>Curiosity about life in all of its aspects, I think, is still the secret of great creative people. –Leo Burnett</item>
+        <item>Life is not a problem to be solved, but a reality to be experienced. –Soren Kierkegaard</item>
+        <item>The unexamined life is not worth living. –Socrates</item>
+        <item>Turn your wounds into wisdom. –Oprah Winfrey</item>
+        <item>The purpose of our lives is to be happy. –Dalai Lama</item>
+        <item>I like criticism. It makes you strong. –LeBron James</item>
+        <item>Everything you can imagine is real. –Pablo Picasso</item>
+        <item>Where there is a will, there is a way. If there is a chance in a million that you can do something, anything, to keep what you want from ending, do it. –Pauline Kael</item>
+        <item>Do what you can, with what you have, where you are. –Theodore Roosevelt</item>
+        <item>It’s not the years in your life that count. It’s the life in your years. –Abraham Lincoln</item>
+        <item>Change your thoughts and you change your world. –Norman Vincent Peale</item>
+        <item>If you tell the truth, you don’t have to remember anything. –Mark Twain</item>
+        <item>Have enough courage to start and enough heart to finish. –Jessica N. S. Yourko</item>
+        <item>Hate cannot drive out hate: only love can do that. –Martin Luther King Jr.</item>
+        <item>To be the best, you must be able to handle the worst. –Wilson Kanadi</item>
+        <item>A friend is someone who gives you total freedom to be yourself. –Jim Morrison</item>
+        <item>The only impossible journey is the one you never begin. –Tony Robbins</item>
+        <item>In this life we cannot do great things. We can only do small things with great love. –Mother Teresa</item>
+        <item>Only a life lived for others is a life worthwhile. –Albert Einstein</item>
+        <item>The greatest pleasure in life is doing what people say you cannot do. –Walter Bagehot</item>
+        <item>You will face many defeats in life, but never let yourself be defeated. –Maya Angelou</item>
+        <item>The greatest glory in living lies not in never falling, but in rising every time we fall. –Nelson Mandela</item>
+        <item>In the end, it’s not the years in your life that count. It’s the life in your years. –Abraham Lincoln</item>
+        <item>Never let the fear of striking out keep you from playing the game. –Babe Ruth</item>
+        <item>Life is either a daring adventure or nothing at all. –Helen Keller</item>
+        <item>Many of life’s failures are people who did not realize how close they were to success when they gave up. –Thomas A. Edison</item>
+        <item>You have brains in your head. You have feet in your shoes. You can steer yourself any direction you choose. –Dr. Seuss</item>
+        <item>If you want to live a happy life, tie it to a goal, not to people or things. –Albert Einstein</item>
+        <item>Success is not how high you have climbed, but how you make a positive difference to the world. –Roy T. Bennett</item>
+        <item>Live as if you were to die tomorrow. Learn as if you were to live forever. –Mahatma Gandhi</item>
+        <item>That’s one small step for a man, one giant leap for mankind. –Neil Armstrong</item>
+    </string-array>
+
+    <string-array name="interesting_facts">
+        <item>The shortest war in history lasted only 38 to 45 minutes. –Zanzibar-British War</item>
+        <item>A group of crows is called a \"murder.\" –Animal Kingdom</item>
+        <item>The total weight of all ants on Earth is estimated to be the same as the total weight of all humans on Earth. –Scientific Study</item>
+        <item>Honey never spoils. –Food Science</item>
+        <item>Octopuses have three hearts. –Marine Biology</item>
+        <item>A day on Venus is longer than a year on Venus. –Astronomy</item>
+        <item>Bananas are berries, but strawberries aren\'t. –Botany</item>
+        <item>The Eiffel Tower can be 15 cm taller during the summer due to thermal expansion. –Physics</item>
+        <item>The national animal of Scotland is the unicorn. –National Symbols</item>
+        <item>There are more trees on Earth than stars in the Milky Way galaxy. –Nature</item>
+        <item>Cleopatra was born closer to the moon landing than to the construction of the Great Pyramid of Giza. –History</item>
+        <item>Humans share 50% of their DNA with bananas. –Genetics</item>
+        <item>A single cloud can weigh more than a million pounds. –Meteorology</item>
+        <item>A jiffy is an actual unit of time: 1/100th of a second. –Measurement</item>
+        <item>There are more fake flamingos in the world than real ones. –Pop Culture</item>
+        <item>The Hawaiian alphabet has only 12 letters. –Linguistics</item>
+        <item>A shrimp\'s heart is in its head. –Marine Biology</item>
+        <item>It is impossible for most people to lick their own elbow. –Human Anatomy</item>
+        <item>Slugs have four noses. –Zoology</item>
+        <item>Sound cannot travel in a vacuum. –Physics</item>
+        <item>The dot over the letter \'i\' is called a tittle. –Typography</item>
+        <item>Wombats poop in cubes. –Zoology</item>
+        <item>An ostrich\'s eye is bigger than its brain. –Ornithology</item>
+        <item>Goats have rectangular pupils. –Zoology</item>
+        <item>The first oranges weren\'t orange. –Horticulture</item>
+        <item>There are more possible iterations of a game of chess than there are atoms in the known universe. –Game Theory</item>
+        <item>A bolt of lightning is five times hotter than the surface of the sun. –Meteorology</item>
+        <item>Butterflies taste with their feet. –Entomology</item>
+        <item>The inventor of the Pringles can is now buried in one. –History</item>
+        <item>The longest time between two twins being born is 87 days. –Medical Records</item>
+        <item>The unicorn is the national animal of Scotland. –Folklore</item>
+        <item>Hot water will turn into ice faster than cold water. –Physics (Mpemba effect)</item>
+        <item>The Mona Lisa has no eyebrows. –Art History</item>
+        <item>The strongest muscle in the body is the tongue. –Anatomy</item>
+        <item>Ants never sleep. –Entomology</item>
+        <item>Coca-Cola was originally green. –Brand History</item>
+        <item>The most common name in the world is Mohammed. –Demographics</item>
+        <item>When the moon is directly overhead, you weigh slightly less. –Physics</item>
+        <item>Camels have three eyelids to protect themselves from blowing sand. –Zoology</item>
+        <item>There are two credit cards for every person in the United States. –Finance</item>
+        <item>A snail can sleep for three years. –Zoology</item>
+        <item>No word in the English language rhymes with month, orange, silver, or purple. –Linguistics</item>
+        <item>The electric chair was invented by a dentist. –Inventions</item>
+        <item>A cat has 32 muscles in each ear. –Veterinary Science</item>
+        <item>A duck\'s quack doesn\'t echo, and no one knows why. –Acoustics</item>
+        <item>In the course of an average lifetime, a person will walk the equivalent of three times around the world. –Human Behavior</item>
+        <item>A cockroach can live for nine days without its head before it starves to death. –Entomology</item>
+        <item>The name of all the continents end with the same letter that they start with. –Geography</item>
+        <item>You are born with 300 bones, but by adulthood you have 206. –Anatomy</item>
+        <item>The human heart creates enough pressure when it pumps out to the body to squirt blood 30 feet. –Physiology</item>
+        <item>A crocodile cannot stick its tongue out. –Herpetology</item>
+        <item>Like fingerprints, everyone\'s tongue print is different. –Biometrics</item>
+        <item>The giant squid has the largest eyes in the world. –Marine Biology</item>
+        <item>Polar bears are left-handed. –Zoology</item>
+        <item>The average person falls asleep in seven minutes. –Sleep Science</item>
+        <item>Stewardesses is the longest word typed with only the left hand. –Typing</item>
+        <item>Maine is the only state whose name is just one syllable. –US Geography</item>
+        <item>There is a city named Rome on every continent except Antarctica. –Geography</item>
+        <item>The world\'s oldest piece of chewing gum is 9,000 years old. –Archaeology</item>
+        <item>A mole can dig a tunnel 300 feet long in just one night. –Zoology</item>
+        <item>The "sixth sick sheik\'s sixth sheep\'s sick" is believed to be the toughest tongue twister in the English language. –Linguistics</item>
+        <item>It\'s physically impossible for pigs to look up into the sky. –Zoology</item>
+        <item>Rats and horses can\'t vomit. –Veterinary Science</item>
+        <item>If you sneeze too hard, you can fracture a rib. –Medicine</item>
+        <item>Wearing headphones for just an hour can increase the bacteria in your ear by 700 times. –Health</item>
+        <item>The cigarette lighter was invented before the match. –Inventions</item>
+        <item>Dragonflies have six legs but cannot walk. –Entomology</item>
+        <item>Most dust particles in your house are made from dead skin. –Biology</item>
+        <item>An average person’s yearly fast food intake will contain 12 pubic hairs. –Food Safety</item>
+        <item>A hippo can open its mouth wide enough to fit a 4-foot-tall child inside. –Zoology</item>
+        <item>There are more stars in space than there are grains of sand on every beach in the world. –Astronomy</item>
+        <item>The praying mantis is the only insect that can turn its head. –Entomology</item>
+        <item>Some worms will eat themselves if they can\'t find any food. –Zoology</item>
+        <item>Dolphins sleep with one eye open. –Marine Biology</item>
+        <item>It is possible to lead a cow upstairs... but not downstairs. –Animal Husbandry</item>
+        <item>A sheep, a duck and a rooster were the first passengers in a hot air balloon. –History</item>
+        <item>The sentence, "The quick brown fox jumps over the lazy dog" uses every letter in the English language. –Linguistics</item>
+        <item>Shakespeare invented the words "assassination" and "bump." –Literature</item>
+        <item>The average woman uses her height in lipstick every 5 years. –Cosmetics</item>
+        <item>The blue whale is the largest animal on Earth, and its heart is the size of a small car. –Marine Biology</item>
+        <item>A group of owls is called a parliament. –Ornithology</item>
+        <item>The first alarm clock could only ring at 4 a.m. –Inventions</item>
+        <item>A group of rhinos is called a crash. –Zoology</item>
+        <item>A group of jellyfish is called a smack. –Marine Biology</item>
+        <item>The Earth is not a perfect sphere; it\'s slightly flattened at the poles and bulges at the equator. –Geophysics</item>
+        <item>A flamingo can only eat when its head is upside down. –Ornithology</item>
+        <item>The longest recorded flight of a chicken is 13 seconds. –Poultry Science</item>
+        <item>The sound of a whip cracking is actually a small sonic boom. –Physics</item>
+        <item>Banging your head against a wall for one hour burns 150 calories. –Human Biology</item>
+        <item>Some cats are allergic to people. –Veterinary Science</item>
+        <item>Your stomach has to produce a new layer of mucus every two weeks or it will digest itself. –Physiology</item>
+        <item>The average human brain weighs about 3 pounds. –Anatomy</item>
+        <item>The first-ever VCR was the size of a piano. –Technology</item>
+        <item>The oldest known living land animal is a tortoise named Jonathan, who is over 190 years old. –Biology</item>
+        <item>The word "nerd" was first coined by Dr. Seuss in "If I Ran the Zoo." –Etymology</item>
+        <item>The King of Hearts is the only king without a mustache. –Playing Cards</item>
+        <item>A "moment" is a medieval unit of time equal to 90 seconds. –History</item>
+        <item>In Switzerland, it is illegal to own just one guinea pig. –Law</item>
+        <item>The human nose can detect over 1 trillion scents. –Biology</item>
+        <item>A company that makes special effects for movies owns the patent for fake snow. –Film Industry</item>
+        <item>The word "avocado" comes from the Aztec word for "testicle." –Etymology</item>
+        <item>Human teeth are the only part of the body that cannot heal themselves. –Anatomy</item>
+        <item>It would take 1,200,000 mosquitoes, each sucking once, to completely drain the average human of blood. –Entomology</item>
+        <item>A group of pugs is called a grumble. –Zoology</item>
+        <item>There’s a geyser on one of Saturn’s moons that shoots water 200 miles into space. –Astronomy</item>
+        <item>The state of Florida is bigger than England. –Geography</item>
+        <item>There are more nerve cells in the human brain than there are stars in our galaxy. –Neuroscience</item>
+        <item>The Great Wall of China is not visible from the moon with the naked eye. –Space Exploration</item>
+        <item>The can opener was invented 48 years after the can. –Inventions</item>
+        <item>A day on Mercury is longer than its year. –Astronomy</item>
+        <item>Sea otters hold hands when they sleep so they don’t float away. –Marine Biology</item>
+        <item>Ketchup was sold in the 1830s as medicine. –History</item>
+        <item>More people are killed by vending machines than by sharks each year. –Statistics</item>
+        <item>The original name for the search engine Google was Backrub. –Tech History</item>
+        <item>The country of Liechtenstein is the world\'s largest exporter of false teeth. –Economics</item>
+        <item>Oxford University is older than the Aztec Empire. –History</item>
+        <item>A baby bat is called a pup. –Zoology</item>
+        <item>The heart of a blue whale is so big, a human can swim through its arteries. –Marine Biology</item>
+        <item>There is a town in Norway called Hell. –Geography</item>
+        <item>The first movie ever to be rated PG-13 was "Red Dawn" in 1984. –Film History</item>
+        <item>The ampersand symbol "(&amp;) is a stylised representation of the Latin word "et," meaning "and." –Typography</item>
+        <item>A platypus is one of the few mammals that lay eggs. –Zoology</item>
+        <item>Armadillos are the only other animal besides humans that can get leprosy. –Zoology</item>
+        <item>The longest English word is 189,819 letters long and is the chemical name for titin. –Chemistry</item>
+        <item>The fear of long words is called hippopotomonstrosesquippedaliophobia. –Psychology</item>
+        <item>In Japan, letting a sumo wrestler make your baby cry is considered good luck. –Culture</item>
+        <item>The color of a chile pepper does not indicate its spiciness. –Botany</item>
+        <item>The official bird of the state of California is the California gull. –Ornithology</item>
+        <item>Only female mosquitoes bite. –Entomology</item>
+        <item>The term "deja vu" is French for "already seen." –Linguistics</item>
+        <item>The human body contains enough iron to make a 3-inch nail. –Biochemistry</item>
+        <item>The "tin" in a tin can is actually a thin layer of tin over a steel can. –Materials Science</item>
+        <item>The word "lethologica" describes the state of not being able to remember the word you want. –Psychology</item>
+        <item>The first person to use the "insanity defense" was U.S. Congressman Daniel Sickles. –Legal History</item>
+        <item>A group of porcupines is called a prickle. –Zoology</item>
+        <item>The surface of Mars is covered in rust, which gives it its red color. –Astronomy</item>
+        <item>The hashtag symbol (#) is technically called an octothorpe. –Typography</item>
+        <item>A Galápagos tortoise can live for over 100 years. –Zoology</item>
+        <item>The world’s largest desert is Antarctica. –Geography</item>
+        <item>The state of Kentucky has more bourbon barrels than people. –Statistics</item>
+        <item>The fear of the number 13 is called triskaidekaphobia. –Psychology</item>
+        <item>A group of ferrets is called a business. –Zoology</item>
+        <item>The first person to be convicted of speeding was going eight mph. –History</item>
+        <item>Cows kill more people each year than sharks. –Statistics</item>
+        <item>The first computer was invented in the 1940s. –Technology</item>
+        <item>The human brain is about 75% water. –Anatomy</item>
+        <item>The word "checkmate" in chess comes from the Persian phrase "Shah Mat," which means "the king is dead." –Etymology</item>
+        <item>A hummingbird weighs less than a penny. –Ornithology</item>
+        <item>The world\'s oldest wooden wheel has been around for more than 5,000 years. –Archaeology</item>
+        <item>The word "sarcasm" comes from a Greek word meaning "to tear flesh." –Etymology</item>
+        <item>In the 16th century, Turkish women could legally divorce their husbands if they did not provide enough coffee. –History</item>
+        <item>The Pacific Ocean is the world’s largest ocean and contains more than half of the free water on Earth. –Geography</item>
+        <item>The word "robot" comes from the Czech word "robota," meaning "forced labor." –Etymology</item>
+        <item>A single strand of spaghetti is called a spaghetto. –Linguistics</item>
+        <item>It rains diamonds on Saturn and Jupiter. –Astronomy</item>
+        <item>A female kangaroo has three vaginas. –Zoology</item>
+        <item>The fear of being tickled by feathers is called pteronophobia. –Psychology</item>
+        <item>The quietest room in the world is an anechoic chamber at Microsoft’s headquarters, where you can hear your own heartbeat. –Acoustics</item>
+        <item>There are more lifeforms living on your skin than there are people on the planet. –Microbiology</item>
+        <item>The word "muscle" comes from a Latin term meaning "little mouse." –Etymology</item>
+        <item>Chewing gum burns about 11 calories per hour. –Health</item>
+        <item>The smallest bone in the human body is the stapes bone in the ear. –Anatomy</item>
+        <item>The highest-grossing film of all time is "Avatar," released in 2009. –Film Industry</item>
+        <item>The average person produces enough saliva in their lifetime to fill two swimming pools. –Physiology</item>
+        <item>The first email was sent in 1971 by Ray Tomlinson. –Technology</item>
+        <item>A group of frogs is called an army. –Zoology</item>
+        <item>The country of Brazil is named after a tree. –Etymology</item>
+        <item>The shortest commercial flight in the world lasts for only 90 seconds. –Aviation</item>
+        <item>A baby octopus is about the size of a flea when it is born. –Marine Biology</item>
+        <item>The longest time a person has gone without sleep is 11 days and 25 minutes. –Human Endurance</item>
+        <item>The world’s largest rubber duck is over six stories high. –Pop Culture</item>
+        <item>The fear of beautiful women is called venustraphobia. –Psychology</item>
+        <item>There is a species of jellyfish that is immortal. –Marine Biology</item>
+        <item>The first product to have a barcode was a pack of Wrigley’s gum. –Retail History</item>
+        <item>An adult human is made up of approximately 7,000,000,000,000,000,000,000,000,000 atoms. –Physics</item>
+        <item>The cornea is the only part of the body with no blood supply; it gets its oxygen directly from the air. –Anatomy</item>
+        <item>The word "disaster" comes from an astrological term meaning "bad star." –Etymology</item>
+        <item>A chameleon’s tongue is twice as long as its body. –Herpetology</item>
+        <item>The word "queue" is the only word in the English language that is still pronounced the same way when the last four letters are removed. –Linguistics</item>
+        <item>A group of kangaroos is called a mob. –Zoology</item>
+        <item>The first McDonald’s menu did not include French fries. –Brand History</item>
+        <item>Giraffes have no vocal cords. –Zoology</item>
+        <item>The human eye can distinguish about 10 million different colors. –Biology</item>
+        <item>The first man to urinate on the moon was Buzz Aldrin. –Space Exploration</item>
+        <item>The average four year-old child asks 400 questions a day. –Child Development</item>
+        <item>The longest place name on the planet is 85 letters long. –Geography</item>
+        <item>The 100 folds in a chef\'s hat represent 100 ways to cook an egg. –Culinary Arts</item>
+    </string-array>
+
+    <string-array name="positive_affirmations">
+        <item>I am capable of amazing things. –Affirmation</item>
+        <item>I am surrounded by love and support. –Affirmation</item>
+        <item>I am growing and becoming a better version of myself every day. –Affirmation</item>
+        <item>I am worthy of happiness and success. –Affirmation</item>
+        <item>I am confident in my abilities. –Affirmation</item>
+        <item>I choose to be positive and optimistic. –Affirmation</item>
+        <item>I am strong, resilient, and brave. –Affirmation</item>
+        <item>I attract positive energy into my life. –Affirmation</item>
+        <item>I am at peace with my past. –Affirmation</item>
+        <item>I am excited about my future. –Affirmation</item>
+        <item>I am grateful for all that I have. –Affirmation</item>
+        <item>I trust my intuition and make wise decisions. –Affirmation</item>
+        <item>I am a magnet for miracles. –Affirmation</item>
+        <item>I have the power to create the life I desire. –Affirmation</item>
+        <item>I am in control of my thoughts, feelings, and actions. –Affirmation</item>
+        <item>I release all negativity and welcome positivity. –Affirmation</item>
+        <item>My potential to succeed is infinite. –Affirmation</item>
+        <item>I am a creative being with endless ideas. –Affirmation</item>
+        <item>I love and accept myself for who I am. –Affirmation</item>
+        <item>Every day is a new opportunity for growth. –Affirmation</item>
+        <item>I am filled with energy and vitality. –Affirmation</item>
+        <item>I am a kind and compassionate person. –Affirmation</item>
+        <item>I attract loving and supportive relationships. –Affirmation</item>
+        <item>I am open to receiving abundance in all forms. –Affirmation</item>
+        <item>I am proud of my accomplishments. –Affirmation</item>
+        <item>I forgive myself and others. –Affirmation</item>
+        <item>I am a beacon of light and love. –Affirmation</item>
+        <item>I have the courage to face any challenge. –Affirmation</item>
+        <item>My body is healthy, and I honor it. –Affirmation</item>
+        <item>I am deserving of love and respect. –Affirmation</item>
+        <item>I am a valuable and important person. –Affirmation</item>
+        <item>I radiate confidence and self-esteem. –Affirmation</item>
+        <item>I am financially abundant. –Affirmation</item>
+        <item>I am a lifelong learner. –Affirmation</item>
+        <item>My mind is calm and peaceful. –Affirmation</item>
+        <item>I am a source of inspiration to others. –Affirmation</item>
+        <item>I embrace change and welcome new experiences. –Affirmation</item>
+        <item>I am a good friend and a loving partner. –Affirmation</item>
+        <item>I am making a positive impact on the world. –Affirmation</item>
+        <item>I am worthy of my dreams. –Affirmation</item>
+        <item>I am a powerful creator. –Affirmation</item>
+        <item>I am aligned with my purpose. –Affirmation</item>
+        <item>I am a unique and special individual. –Affirmation</item>
+        <item>I am a problem-solver. –Affirmation</item>
+        <item>I am a successful and prosperous person. –Affirmation</item>
+        <item>I am a loving and caring soul. –Affirmation</item>
+        <item>I am a beautiful person, inside and out. –Affirmation</item>
+        <item>I am a patient and understanding individual. –Affirmation</item>
+        <item>I am a forgiving and compassionate being. –Affirmation</item>
+        <item>I am a joyful and enthusiastic person. –Affirmation</item>
+        <item>I am a determined and persistent individual. –Affirmation</item>
+        <item>I am a focused and disciplined person. –Affirmation</item>
+        <item>I am a motivated and ambitious individual. –Affirmation</item>
+        <item>I am a passionate and driven person. –Affirmation</item>
+        <item>I am an intelligent and wise individual. –Affirmation</item>
+        <item>I am a creative and innovative person. –Affirmation</item>
+        <item>I am an organized and efficient individual. –Affirmation</item>
+        <item>I am a responsible and reliable person. –Affirmation</item>
+        <item>I am a trustworthy and honest individual. –Affirmation</item>
+        <item>I am a loyal and faithful person. –Affirmation</item>
+        <item>I am a generous and giving individual. –Affirmation</item>
+        <item>I am a humble and modest person. –Affirmation</item>
+        <item>I am a respectful and courteous individual. –Affirmation</item>
+        <item>I am a polite and considerate person. –Affirmation</item>
+        <item>I am a thoughtful and caring individual. –Affirmation</item>
+        <item>I am an empathetic and compassionate person. –Affirmation</item>
+        <item>I am a supportive and encouraging individual. –Affirmation</item>
+        <item>I am a positive and optimistic person. –Affirmation</item>
+        <item>I am a happy and content individual. –Affirmation</item>
+        <item>I am a peaceful and serene person. –Affirmation</item>
+        <item>I am a balanced and centered individual. –Affirmation</item>
+        <item>I am a grounded and stable person. –Affirmation</item>
+        <item>I am a confident and self-assured individual. –Affirmation</item>
+        <item>I am a courageous and brave person. –Affirmation</item>
+        <item>I am a strong and resilient individual. –Affirmation</item>
+        <item>I am a powerful and capable person. –Affirmation</item>
+        <item>I am a successful and prosperous individual. –Affirmation</item>
+        <item>I am a wealthy and abundant person. –Affirmation</item>
+        <item>I am a healthy and vibrant individual. –Affirmation</item>
+        <item>I am a fit and active person. –Affirmation</item>
+        <item>I am a well-rested and rejuvenated individual. –Affirmation</item>
+        <item>I am a loved and cherished person. –Affirmation</item>
+        <item>I am a valued and appreciated individual. –Affirmation</item>
+        <item>I am a respected and admired person. –Affirmation</item>
+        <item>I am a blessed and fortunate individual. –Affirmation</item>
+        <item>I am a grateful and thankful person. –Affirmation</item>
+        <item>I am a happy and joyful individual. –Affirmation</item>
+        <item>I am a peaceful and serene individual. –Affirmation</item>
+        <item>I am a calm and relaxed person. –Affirmation</item>
+        <item>I am a focused and clear-minded individual. –Affirmation</item>
+        <item>I am a motivated and driven person. –Affirmation</item>
+        <item>I am a passionate and enthusiastic individual. –Affirmation</item>
+        <item>I am a creative and imaginative person. –Affirmation</item>
+        <item>I am an intelligent and knowledgeable individual. –Affirmation</item>
+        <item>I am a wise and discerning person. –Affirmation</item>
+        <item>I am a kind and gentle individual. –Affirmation</item>
+        <item>I am a loving and compassionate person. –Affirmation</item>
+        <item>I am a generous and giving person. –Affirmation</item>
+        <item>I am a helpful and supportive individual. –Affirmation</item>
+        <item>I am a cooperative and collaborative person. –Affirmation</item>
+        <item>I am a flexible and adaptable individual. –Affirmation</item>
+        <item>I am an open-minded and receptive person. –Affirmation</item>
+        <item>I am a tolerant and accepting individual. –Affirmation</item>
+        <item>I am a patient and forbearing person. –Affirmation</item>
+        <item>I am a forgiving and merciful individual. –Affirmation</item>
+        <item>I am a humble and unassuming person. –Affirmation</item>
+        <item>I am a honest and truthful individual. –Affirmation</item>
+        <item>I am a reliable and dependable person. –Affirmation</item>
+        <item>I am a responsible and accountable individual. –Affirmation</item>
+        <item>I am a disciplined and self-controlled person. –Affirmation</item>
+        <item>I am a persistent and persevering individual. –Affirmation</item>
+        <item>I am a resilient and resourceful person. –Affirmation</item>
+        <item>I am a courageous and fearless individual. –Affirmation</item>
+        <item>I am a confident and self-assured person. –Affirmation</item>
+        <item>I am a powerful and influential individual. –Affirmation</item>
+        <item>I am a successful and accomplished person. –Affirmation</item>
+        <item>I am a prosperous and wealthy individual. –Affirmation</item>
+        <item>I am a healthy and whole person. –Affirmation</item>
+        <item>I am a vibrant and energetic individual. –Affirmation</item>
+        <item>I am a beautiful and attractive person. –Affirmation</item>
+        <item>I am a loved and adored individual. –Affirmation</item>
+        <item>I am a valued and respected person. –Affirmation</item>
+        <item>I am a cherished and appreciated individual. –Affirmation</item>
+        <item>I am a blessed and favored person. –Affirmation</item>
+        <item>I am a grateful and appreciative individual. –Affirmation</item>
+        <item>I am a happy and fulfilled person. –Affirmation</item>
+        <item>I am a peaceful and tranquil individual. –Affirmation</item>
+        <item>I am a balanced and harmonious person. –Affirmation</item>
+        <item>I am a whole and complete individual. –Affirmation</item>
+        <item>I am a perfect and divine being. –Affirmation</item>
+        <item>I am a unique and special person. –Affirmation</item>
+        <item>I am a gifted and talented individual. –Affirmation</item>
+        <item>I am a creative and resourceful person. –Affirmation</item>
+        <item>I am an intelligent and insightful individual. –Affirmation</item>
+        <item>I am a wise and knowledgeable person. –Affirmation</item>
+        <item>I am a kind and compassionate individual. –Affirmation</item>
+        <item>I am a loving and caring person. –Affirmation</item>
+        <item>I am a generous and benevolent individual. –Affirmation</item>
+        <item>I am a helpful and cooperative person. –Affirmation</item>
+        <item>I am a supportive and encouraging person. –Affirmation</item>
+        <item>I am a positive and uplifting individual. –Affirmation</item>
+        <item>I am a happy and cheerful person. –Affirmation</item>
+        <item>I am a peaceful and calm individual. –Affirmation</item>
+        <item>I am a balanced and centered person. –Affirmation</item>
+        <item>I am a confident and poised individual. –Affirmation</item>
+        <item>I am a courageous and bold person. –Affirmation</item>
+        <item>I am a strong and powerful individual. –Affirmation</item>
+        <item>I am a successful and thriving person. –Affirmation</item>
+        <item>I am a prosperous and affluent individual. –Affirmation</item>
+        <item>I am a healthy and thriving person. –Affirmation</item>
+        <item>I am a vibrant and lively individual. –Affirmation</item>
+        <item>I am a beautiful and radiant person. –Affirmation</item>
+        <item>I am a loved and cherished individual. –Affirmation</item>
+        <item>I am a valued and esteemed person. –Affirmation</item>
+        <item>I am a respected and honored individual. –Affirmation</item>
+        <item>I am a blessed and grateful person. –Affirmation</item>
+        <item>I am a thankful and appreciative individual. –Affirmation</item>
+        <item>I am a joyful and blissful person. –Affirmation</item>
+        <item>I am a serene and tranquil individual. –Affirmation</item>
+        <item>I am a harmonious and peaceful person. –Affirmation</item>
+        <item>I am a complete and whole individual. –Affirmation</item>
+        <item>I am a divine and perfect being. –Affirmation</item>
+        <item>My life is a gift and I cherish every moment. –Affirmation</item>
+        <item>I am in charge of my own happiness. –Affirmation</item>
+        <item>I have everything I need to be successful. –Affirmation</item>
+        <item>I am constantly evolving into a better person. –Affirmation</item>
+        <item>I choose to focus on the good in every situation. –Affirmation</item>
+        <item>I am a magnet for positive experiences. –Affirmation</item>
+        <item>My heart is open to giving and receiving love. –Affirmation</item>
+        <item>I am living a life of purpose and meaning. –Affirmation</item>
+        <item>I am a masterpiece and a work in progress simultaneously. –Affirmation</item>
+        <item>I embrace my unique journey with joy. –Affirmation</item>
+        <item>I release the need to compare myself to others. –Affirmation</item>
+        <item>I am the architect of my reality. –Affirmation</item>
+        <item>I have boundless energy and enthusiasm for life. –Affirmation</item>
+        <item>I trust the process of life. –Affirmation</item>
+        <item>I am resilient and can handle anything that comes my way. –Affirmation</item>
+        <item>I am a source of positivity for those around me. –Affirmation</item>
+        <item>I am proud of the person I am becoming. –Affirmation</item>
+        <item>I am open to new possibilities and opportunities. –Affirmation</item>
+        <item>My thoughts are my own, and I choose positive ones. –Affirmation</item>
+        <item>I am worthy of all the good things life has to offer. –Affirmation</item>
+        <item>I let go of what I cannot control and focus on what I can. –Affirmation</item>
+        <item>I am a loving and supportive presence in the lives of others. –Affirmation</item>
+        <item>I am grateful for my body and all that it does for me. –Affirmation</item>
+        <item>I have the strength to overcome any obstacle. –Affirmation</item>
+        <item>I am a force for good in the world. –Affirmation</item>
+        <item>I am enough. –Affirmation</item>
+    </string-array>
+
+
+    <array name="material_shapes">
+        <item>@drawable/outline_diamond_24</item>
+        <item>@drawable/outline_rectangle_24</item>
+        <item>@drawable/outline_circle_24</item>
+        <item>@drawable/outline_star_24</item>
+        <item>@drawable/outline_hexagon_24</item>
+        <item>@drawable/outline_pentagon_24</item>
+        <item>@drawable/outline_triangle_24</item>
+        <item>@drawable/outline_square_24</item>
+        <item>@drawable/outline_ellipse_24</item>
+        <item>@drawable/outline_octagon_24</item>
+        <item>@drawable/outline_rhombus_24</item>
+        <item>@drawable/outline_parallelogram_24</item>
+        <item>@drawable/outline_kite_24</item>
+        <item>@drawable/outline_sphere_24</item>
+        <item>@drawable/outline_cylinder_24</item>
+        <item>@drawable/outline_cone_24</item>
+        <item>@drawable/outline_line_24</item>
+        <item>@drawable/outline_arc_24</item>
+        <item>@drawable/outline_wave_24</item>
+    </array>
 </resources>

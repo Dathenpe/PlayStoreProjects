@@ -2,6 +2,7 @@ package records;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -105,17 +106,17 @@ public class EditJournalEntryDialogFragment extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        Dialog dialog = getDialog();
-        if (dialog != null) {
+        if (getDialog() != null && getDialog().getWindow() != null) {
+            // Get screen width
+            int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+            // Set dialog width to a percentage of the screen width
+            int dialogWidth = (int) (screenWidth * 0.85); // 85% of screen width
+            Dialog dialog = getDialog();
             Window window = dialog.getWindow();
-            if (window != null) {
-                WindowManager.LayoutParams layoutParams = window.getAttributes();
-                layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-                layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
-                layoutParams.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
-                window.setAttributes(layoutParams);
-                window.setBackgroundDrawableResource(android.R.color.transparent);
-            }
+            WindowManager.LayoutParams layoutParams = window.getAttributes();
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+            layoutParams.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
+            getDialog().getWindow().setLayout(dialogWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
     }
 

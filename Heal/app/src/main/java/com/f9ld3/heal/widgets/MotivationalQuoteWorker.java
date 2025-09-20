@@ -25,7 +25,7 @@ public class MotivationalQuoteWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        String[] quotes = context.getResources().getStringArray(R.array.motivational_quotes);
+        String[] quotes = context.getResources().getStringArray(R.array.motivational_quotes_widget);
         String randomQuote = quotes[new Random().nextInt(quotes.length)];
 
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.motivational_widget_layout);

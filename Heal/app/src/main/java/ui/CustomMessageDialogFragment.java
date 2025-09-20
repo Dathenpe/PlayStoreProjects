@@ -186,23 +186,4 @@ public class CustomMessageDialogFragment extends DialogFragment {
         }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        Bundle args = getArguments();
-        int customLayoutResId = 0;
-        if (args != null) {
-            customLayoutResId = args.getInt(ARG_CUSTOM_LAYOUT_RES_ID, 0);
-        }
-
-        if (getDialog() != null && getDialog().getWindow() != null) {
-            if (customLayoutResId == R.layout.dialog_image_viewer) {
-                // For image viewer, set to WRAP_CONTENT for height and MATCH_PARENT for width
-                getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            } else {
-                // For other dialogs, set width to MATCH_PARENT and height to WRAP_CONTENT
-                getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            }
-        }
-    }
 }

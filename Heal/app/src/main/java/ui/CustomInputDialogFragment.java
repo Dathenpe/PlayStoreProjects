@@ -1,5 +1,6 @@
 package ui;
 
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -67,13 +68,15 @@ public class CustomInputDialogFragment extends DialogFragment {
 
         return view;
     }
-
     @Override
     public void onStart() {
         super.onStart();
-        // Set the dialog width to match parent to increase its size
         if (getDialog() != null && getDialog().getWindow() != null) {
-            getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            // Get screen width
+            int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+            // Set dialog width to a percentage of the screen width
+            int dialogWidth = (int) (screenWidth * 0.85); // 85% of screen width
+            getDialog().getWindow().setLayout(dialogWidth, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
     }
 

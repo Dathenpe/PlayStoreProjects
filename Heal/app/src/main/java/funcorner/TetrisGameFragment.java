@@ -484,8 +484,7 @@ public class TetrisGameFragment extends Fragment implements HighScoresDialogFrag
 
     private String getTetrisInfoContent() {
         return getResString(R.string.tetris_info_how_to_play) + "\n\n" +
-                getResString(R.string.tetris_info_controls_fab) + "\n\n" +
-                getResString(R.string.tetris_info_controls_main) + "\n\n" +
+                getResString(R.string.tetris_info_controls) + "\n\n" +
                 getResString(R.string.tetris_info_scoring);
     }
 

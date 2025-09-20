@@ -70,7 +70,7 @@ public class HomeFragment extends Fragment {
 
     private MainActivity mainActivity;
 
-    private static final long AUTO_SCROLL_DELAY = 3000;
+    private static final long AUTO_SCROLL_DELAY = 5000;
     private static final long COOLDOWN_DURATION = 24 * 60 * 60 * 1000; // 24 hours (not used anymore, but kept for consistency)
     private static final int MAX_STRATEGIES_DISPLAYED = 3;
     private static final String PREFS_MOOD = "mood_prefs";
@@ -417,6 +417,7 @@ public class HomeFragment extends Fragment {
         mainActivity.MenuTrigger.setVisibility(View.VISIBLE);
         mainActivity.navigationView.setCheckedItem(R.id.nav_home);
         mainActivity.Fab.setVisibility(View.VISIBLE);
+        mainActivity.shakeView(mainActivity.Fab);
     }
     @Override
     public void onPause() {
@@ -719,27 +720,24 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        submitCheckinButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isCheckinAllowed()) {
-                    if(moodInputText.length() != 0 ){
-                        if (moodSeekBarTouched == true){
-                            saveMoodData();
-                            saveLastCheckinTime();
-                            checkDailyCheckin();
-                            Handler handler = new Handler();
-                            handler.postDelayed(() -> setupMoodCheckin(),1000);
-                        }else {
-                            Toast.makeText(mainActivity, "Move the mood bar first", Toast.LENGTH_SHORT).show();
-                        }
-                    }else{
-                        Toast.makeText(mainActivity, "Mood input cannot be empty", Toast.LENGTH_SHORT).show();
+        submitCheckinButton.setOnClickListener(v -> {
+            if (isCheckinAllowed()) {
+                if(moodInputText.length() != 0 ){
+                    if (moodSeekBarTouched == true){
+                        saveMoodData();
+                        saveLastCheckinTime();
+                        checkDailyCheckin();
+                        Handler handler = new Handler();
+                        handler.postDelayed(() -> setupMoodCheckin(),1000);
+                    }else {
+                        Toast.makeText(mainActivity, "Move the mood bar first", Toast.LENGTH_SHORT).show();
                     }
-
-                } else {
-                    Toast.makeText(getContext(), "You can only check in once per day.", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(mainActivity, "Mood input cannot be empty", Toast.LENGTH_SHORT).show();
                 }
+
+            } else {
+                Toast.makeText(getContext(), "You can only check in once per day.", Toast.LENGTH_SHORT).show();
             }
         });
         // Re-set listeners for disabled state to show toasts

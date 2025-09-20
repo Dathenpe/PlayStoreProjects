@@ -204,4 +204,26 @@
         <item name="android:letterSpacing">0.01</item>
         <item name="android:lineHeight">20sp</item>
     </style>
+    <style name="ShapeAppearance.ExpressiveCard.AllRound" parent="ShapeAppearance.Material3.Corner.Medium">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">28dp</item>
+    </style>
+
+    <!-- A style for cards with a large rounded corner on the top-left and bottom-right, and medium rounded corners on the other two. -->
+    <style name="ShapeAppearance.ExpressiveCard.TopLeft.BottomRight" parent="ShapeAppearance.Material3.Corner.Medium">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">28dp</item>
+        <item name="cornerSizeTopRight">16dp</item>
+        <item name="cornerSizeBottomRight">28dp</item>
+        <item name="cornerSizeBottomLeft">16dp</item>
+    </style>
+
+    <!-- A style for cards with a large rounded corner on the bottom-left and top-right, and medium rounded corners on the other two. -->
+    <style name="ShapeAppearance.ExpressiveCard.BottomLeft.TopRight" parent="ShapeAppearance.Material3.Corner.Medium">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">16dp</item>
+        <item name="cornerSizeTopRight">28dp</item>
+        <item name="cornerSizeBottomRight">16dp</item>
+        <item name="cornerSizeBottomLeft">28dp</item>
+    </style>
 </resources>
