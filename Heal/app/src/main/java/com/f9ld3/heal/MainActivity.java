@@ -113,6 +113,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import records.AddEditContactDialogFragment;
+import records.AudioLogsFragment;
 import records.CopingExercisesFragment;
 import records.EmergencyContact;
 import records.EmergencyContactsFragment;
@@ -1160,7 +1161,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     chip.setOnClickListener(v ->{
                         int clickedNavId = (int) v.getTag();
                         if (clickedNavId == R.id.nav_coping_exercises || clickedNavId == R.id.nav_journal_entries || clickedNavId == R.id.nav_mood_checkin ||
-                                clickedNavId == R.id.nav_saved_strategies || clickedNavId == R.id.nav_relapse_history ||
+                                clickedNavId == R.id.nav_saved_strategies || clickedNavId == R.id.nav_relapse_history || clickedNavId == R.id.nav_audio_logs ||
                                 clickedNavId == R.id.nav_word_scramble || clickedNavId == R.id.nav_tetris || clickedNavId == R.id.nav_memory_match || clickedNavId == R.id.nav_paint || clickedNavId == R.id.nav_sudoku || clickedNavId == R.id.nav_tic_tac_toe){
                             loadFragmentFromChip(clickedNavId);
                         } else if (clickedNavId == R.id.nav_emergency_contacts) {
@@ -1302,7 +1303,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             targetFragment = new RelapseHistoryFragment();
             toolbarTitle = "My Relapse History";
             navigationView.setCheckedItem(R.id.nav_records);
-        } else if (navId == R.id.nav_word_scramble) {
+        }else if (navId == R.id.nav_audio_logs) {
+            targetFragment = new AudioLogsFragment();
+            toolbarTitle = "My Audio Logs";
+            navigationView.setCheckedItem(R.id.nav_records);
+        }else if (navId == R.id.nav_word_scramble) {
             targetFragment = new WordScrambleGameFragment();
             toolbarTitle = "Word Scramble Game";
             navigationView.setCheckedItem(R.id.nav_fun_corner);

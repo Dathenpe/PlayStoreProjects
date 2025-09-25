@@ -153,6 +153,29 @@
                     style="?attr/textAppearanceTitleLarge" />
             </com.google.android.material.card.MaterialCardView>
 
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_rowWeight="1"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:id="@+id/audio_logs_container"
+                app:cardBackgroundColor="?attr/colorPrimaryContainer"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:text="Audio Library"
+                    android:textColor="?attr/colorOnPrimaryContainer"
+                    style="?attr/textAppearanceTitleLarge" />
+            </com.google.android.material.card.MaterialCardView>
+
         </GridLayout>
     </ScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

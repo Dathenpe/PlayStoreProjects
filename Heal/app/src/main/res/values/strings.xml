@@ -178,17 +178,17 @@
         <item>Medium</item>
         <item>Hard</item>
     </string-array>
-     <string name="score_format">Score: %d</string>
-     <string name="level_format">Level: %d</string>
-     <string name="final_score_format">Final Score: %d</string>
-     <string name="game_over_toast">Game Over! Score: %d</string>
-     <string name="game_paused_toast">Game Paused</string>
-     <string name="game_resumed_toast">Game Resumed</string>
-     <string name="open_game_controls_desc">Open Game Controls</string>
-     <string name="close_game_controls_desc">Close Game Controls</string>
-     <string name="pause_desc">Pause</string>
-     <string name="play_desc">Play</string>
-     <string name="tetris_title">Tetris</string>
+    <string name="score_format">Score: %d</string>
+    <string name="level_format">Level: %d</string>
+    <string name="final_score_format">Final Score: %d</string>
+    <string name="game_over_toast">Game Over! Score: %d</string>
+    <string name="game_paused_toast">Game Paused</string>
+    <string name="game_resumed_toast">Game Resumed</string>
+    <string name="open_game_controls_desc">Open Game Controls</string>
+    <string name="close_game_controls_desc">Close Game Controls</string>
+    <string name="pause_desc">Pause</string>
+    <string name="play_desc">Play</string>
+    <string name="tetris_title">Tetris</string>
     <string name="game_info_title"> Welcome to Tetris!</string>
 
     <string name="tetris_info_how_to_play">How to Play: Guide the falling blocks (Tetrominoes) to create solid horizontal lines. The game ends when a new piece cannot be placed on the board.</string>

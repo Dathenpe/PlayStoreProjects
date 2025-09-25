@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center_horizontal"
+    android:elevation="8dp"
+    android:clipToPadding="false"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        android:layout_margin="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Record Audio Log"
+                android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                android:textColor="?attr/colorOnSurface"
+                android:layout_marginBottom="24dp"
+                android:gravity="center_horizontal" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:hintEnabled="true"
+                android:hint="Log Title">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/audioTitleInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapSentences"
+                    android:maxLength="50"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Chronometer
+                android:id="@+id/chronometer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?attr/textAppearanceTitleLarge"
+                android:textColor="?attr/colorSecondary"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp" />
+
+            <LinearLayout
+                android:id="@+id/waveformVisualizer"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="24dp"
+                android:gravity="center"
+                android:orientation="horizontal" />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/recordButton"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_gravity="center_horizontal"
+                android:contentDescription="Record/Stop Button"
+                app:icon="@drawable/ic_mic"
+                app:iconTint="?attr/colorOnPrimary"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="32dp"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                app:backgroundTint="?attr/colorPrimary"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="32dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/cancelButton"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="CANCEL"
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorPrimary"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="?attr/colorPrimary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/saveButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:text="SAVE"
+                    android:textSize="16sp"
+                    app:backgroundTint="?attr/colorPrimary"
+                    android:textColor="?attr/colorOnPrimary"
+                    app:cornerRadius="12dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</ScrollView>

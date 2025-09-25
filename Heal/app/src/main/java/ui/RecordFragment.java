@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.f9ld3.heal.MainActivity;
 import com.f9ld3.heal.R;
 
+import records.AudioLogsFragment;
 import records.CopingExercisesFragment;
 import records.JournalEntriesFragment;
 import records.MoodCheckinFragment;
@@ -31,6 +32,7 @@ public class RecordFragment extends Fragment {
     private FrameLayout journalEntriesContainer;
     private FrameLayout emergencyContactsContainer;
     private FrameLayout relapseHistoryContainer;
+    private FrameLayout audioLogsContainer;
 
     private ScrollView recordScrollView;
 
@@ -69,6 +71,7 @@ public class RecordFragment extends Fragment {
         journalEntriesContainer = view.findViewById(R.id.journal_entries_container);
         emergencyContactsContainer = view.findViewById(R.id.emergency_contacts_container);
         relapseHistoryContainer = view.findViewById(R.id.relapse_history_container);
+        audioLogsContainer = view.findViewById(R.id.audio_logs_container);
         View loadingProgressBar = view.findViewById(R.id.loading_progress_bar);
         recordScrollView = view.findViewById(R.id.record_scroll_view);
 
@@ -115,9 +118,14 @@ public class RecordFragment extends Fragment {
             mainActivity.loadContacts();
         });
         relapseHistoryContainer.setOnClickListener(v -> {
-            mainActivity.loadFragment(new RelapseHistoryFragment(), R.id.nav_relapse_history); // Use a new nav ID if you add one
+            mainActivity.loadFragment(new RelapseHistoryFragment(), R.id.nav_relapse_history);
             mainActivity.toolbar.setTitle("My Relapse History");
             mainActivity.addFragmentToHistory(R.id.nav_relapse_history, "My Relapse History");
+        });
+        audioLogsContainer.setOnClickListener(v -> {
+            mainActivity.loadFragment(new AudioLogsFragment(), R.id.nav_audio_logs);
+            mainActivity.toolbar.setTitle("My Audio Logs");
+            mainActivity.addFragmentToHistory(R.id.nav_audio_logs, "My Audio Logs");
         });
     }
     @Override
