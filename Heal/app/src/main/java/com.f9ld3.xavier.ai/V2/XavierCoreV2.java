@@ -251,6 +251,11 @@ public class XavierCoreV2 {
             // --- UPDATED: Apply content safety filter to AI's generated response ---
             String finalResponse = response == null ? ResponseGenerator.getIntelligentFallback() : response; // Ensure response is not null
 
+            if (finalResponse != null) {
+                finalResponse = finalResponse.replaceAll("\\*\\*", "").replaceAll("\\*", "");
+                if (DEBUG_MODE) Log.d(TAG, "getResponse: Applied asterisk filter. Filtered response: '" + finalResponse + "'");
+            }
+
             ContentSafetyResult aiOutputSafetyResult = contentSafetyFilter.analyzeContent(finalResponse);
             if (!aiOutputSafetyResult.isSafe()) {
                 Log.w(TAG, "getResponse: AI generated unsafe content! Original response: '" + finalResponse + "'. Details: " + aiOutputSafetyResult);
@@ -343,33 +348,58 @@ public class XavierCoreV2 {
 
     private void registerPatterns() {
         Log.i(TAG, "registerPatterns: START");
+
+        // --- HIGH PRIORITY / CONTEXTUAL PATTERNS ---
         patternHandler.registerPattern("set_username", "(?i)^(?:my name is|call me|please call me|you can call me)\\s+(.+)$");
         patternHandler.registerPattern("get_username", "(?i)^(?:what is|what's|do you know) my name\\??$");
         patternHandler.registerPattern("correction", "(?i)^(?:no,?|nope,?|actually,?|i mean|i meant|what i meant was|i meant to say|no i meant|no i said)\\s*(.+)$");
+        patternHandler.registerPattern("follow_up", "(?i)^(and )?(what|how) about (him|her|it|them|there)\\??$");
+        patternHandler.registerPattern("follow_up", "(?i)^(tell me more|go on|what else|more details|can you elaborate|and its population|and its history|tell me another)\\??$");
+        patternHandler.registerPattern("how_to_query", "(?i)^(try another|another one|next one|show me another|give me another|more info)$"); // Follow-up for lists/facts
+
+        // --- SPECIFIC UTILITY QUERIES (Should be high priority to avoid overlap) ---
         patternHandler.registerPattern("joke_query", "(?i)^(?:tell me|give me|i want to hear) (?:a|another|\\d+)?\\s*joke$");
         patternHandler.registerPattern("riddle_query", "(?i)^(?:tell me a|ask me a|give me a)?\\s*riddle$");
         patternHandler.registerPattern("fact_query", "(?i)^(?:tell me|give me) (?:a|another)?\\s*(?:fun|interesting|random)?\\s*fact$");
         patternHandler.registerPattern("internet_status_query", "(?i)^(?:check|what's) (?:your|the) (?:internet|network) (?:status|connection)|are you online\\??$");
+        String userStatusKeywords = "bored|boring|hungry|hungey|starving|famished|sad|unhappy|down|depressed|tired|sleepy|exhausted|happy|excited|great|fantastic|curious|confused|worried|scared";
+        patternHandler.registerPattern("user_status_query", "(?i)^(?:i am|i'm|i feel|feeling|that's|this is)\\s+(" + userStatusKeywords + ")$");
+        patternHandler.registerPattern("user_status_query", "(?i)^(entertain me|cheer me up|i need food)$");
+
+        // --- CALCULATION (Should be before knowledge_query as it uses 'what is/what's') ---
+        // Note: I am not changing the 'calculator_query' patterns, but their placement is key.
+        patternHandler.registerPattern("calculator_query", "(?i)^(?:calculate|compute|what is|what's)\\s+(.*(?:\\d|plus|minus|times|divided|root|power|percent|\\^|\\*|\\/|\\+|-).*)$");
+        patternHandler.registerPattern("calculator_query", "^[\\d\\s()+\\-*/.^x]+$");
+
+        // --- DICTIONARY (Should be before knowledge_query as it uses 'what is/what's') ---
         patternHandler.registerPattern("dictionary_query", "(?i)^(?:what is|what's|what does)?(?: the)? (?:meaning of|definition of) (?:the word )?(.+?)(?: mean)?\\??$");
         patternHandler.registerPattern("dictionary_query", "(?i)^(?:define) (?:the word )?(.+)$");
+
+        // --- TIME / WEATHER (Should be before knowledge_query as it uses 'what is/what's') ---
         patternHandler.registerPattern("time_query", "(?i)^(?:what's|what is|tell me) (?:the )?time$");
         patternHandler.registerPattern("time_query", "(?i)^(?:what's|what is|tell me) (?:the )?time (?:in|for|at) (.+)$");
         patternHandler.registerPattern("time_query", "(?i)^(?:what's|what is) (?:the )?timezone (?:in|for|at) (.+)$");
         patternHandler.registerPattern("weather_query", "(?i)^(?:what's|what is|how's|tell me|check) (?:the )?(?:weather|forecast|temperature)$");
         patternHandler.registerPattern("weather_query", "(?i)^(?:what's|what is|how's|tell me|check) (?:the )?(?:weather|forecast|temperature) (?:in|for|at) (.+)$");
-        patternHandler.registerPattern("calculator_query", "(?i)^(?:calculate|compute|what is|what's)\\s+(.*(?:\\d|plus|minus|times|divided|root|power|percent|\\^|\\*|\\/|\\+|-).*)$");
-        patternHandler.registerPattern("calculator_query", "^[\\d\\s()+\\-*/.^x]+$");
-        String userStatusKeywords = "bored|boring|hungry|hungey|starving|famished|sad|unhappy|down|depressed|tired|sleepy|exhausted|happy|excited|great|fantastic|curious|confused|worried|scared";
-        patternHandler.registerPattern("user_status_query", "(?i)^(?:i am|i'm|i feel|feeling|that's|this is)\\s+(" + userStatusKeywords + ")$");
-        patternHandler.registerPattern("user_status_query", "(?i)^(entertain me|cheer me up|i need food)$");
-        patternHandler.registerPattern("follow_up", "(?i)^(and )?(what|how) about (him|her|it|them|there)\\??$");
-        patternHandler.registerPattern("follow_up", "(?i)^(tell me more|go on|what else|more details|can you elaborate|and its population|and its history|tell me another)\\??$");
-        patternHandler.registerPattern("how_to_query", "(?i)^(try another|another one|next one|show me another|give me another|more info)$");
-        patternHandler.registerPattern("list_query", "(?i)^(?:tell me|give me|show me) (?:a |\\d+ )?(?:common |popular |top )?(.+)$");
+
+        // --- KNOWLEDGE / LIST / HOW-TO QUERIES (General, placed last) ---
+        // New: Place specific list/how-to before the very general knowledge query
         patternHandler.registerPattern("how_to_query", "(?i)^(?:xavier\\s+)?(?:how to|how do i|explain how to|what are the steps to) (.+)$");
         patternHandler.registerPattern("list_query", "(?i)^(?:xavier\\s+)?(?:list of|give me a list of|name some|what are some) (?:the |some |\\d+ )?(?:common |popular |top )?(.+)$");
+
+        // This pattern handles "tell me about X" and "who is X"
         patternHandler.registerPattern("knowledge_query", "(?i)^(?:xavier\\s+)?(?:who is|who are|where is|tell me about|explain|can you tell me about|do you know about|lets talk about|can we discuss) (.+)$");
+
+        // New: Reintroduce a filtered 'what is' for knowledge_query that only matches if no other specific intent matched.
+        // The original: patternHandler.registerPattern("knowledge_query", "(?i)^(?:what is|what are|what's) (.+)$"); IS REMOVED.
+        // The more specific queries above now handle the 'what is' cases for time, weather, calculator, and dictionary.
+
+        // Final fallback pattern for general 'what is'/'what are' that was removed. It is generally safer to let the
+        // Naive Bayes Classifier and Fuzzy Matcher handle the remaining generic 'what is' knowledge questions.
+        // If you absolutely must have a pattern, it should be the final one and is what will be caught by the patternHandler.
+        // Re-adding the broad 'what is' pattern, but making it the ABSOLUTE LAST pattern registered to ensure all other specific patterns run first.
         patternHandler.registerPattern("knowledge_query", "(?i)^(?:what is|what are|what's) (.+)$");
+
         Log.i(TAG, "registerPatterns: END. Pattern registration complete.");
     }
 

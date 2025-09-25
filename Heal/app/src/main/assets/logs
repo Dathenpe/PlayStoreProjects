@@ -1,0 +1,771 @@
+--------- beginning of crash
+--------- beginning of system
+---------------------------- PROCESS STARTED (20849) for package com.f9ld3.heal ----------------------------
+--------- beginning of main
+2025-09-25 11:04:04.823 20849-20849 com.f9ld3.heal          com.f9ld3.heal                       I  Late-enabling -Xcheck:jni
+2025-09-25 11:04:04.844 20849-20849 com.f9ld3.heal          com.f9ld3.heal                       I  Unquickening 19 vdex files!
+2025-09-25 11:04:04.866 20849-20869 IPCThreadState          com.f9ld3.heal                       D  FREEZE_BINDER: open freeze success fd, uid:10490
+2025-09-25 11:04:05.672 20849-20849 LoadedApk               com.f9ld3.heal                       I  No resource references to update in package com.transsion.theme.icon
+2025-09-25 11:04:05.674 20849-20849 NetworkSecurityConfig   com.f9ld3.heal                       D  No Network Security Config specified, using platform default
+2025-09-25 11:04:05.674 20849-20849 NetworkSecurityConfig   com.f9ld3.heal                       D  No Network Security Config specified, using platform default
+2025-09-25 11:04:05.675 20849-20849 libc                    com.f9ld3.heal                       E  Access denied finding property "ro.vendor.pref_scale_resolution"
+2025-09-25 11:04:05.701 20849-20849 WM-WrkMgrInitializer    com.f9ld3.heal                       D  Initializing WorkManager with default configuration.
+2025-09-25 11:04:05.769 20849-20849 TetheringManager        com.f9ld3.heal                       I  registerTetheringEventCallback:com.f9ld3.heal
+2025-09-25 11:04:05.782 20849-20849 WM-PackageManagerHelper com.f9ld3.heal                       D  Skipping component enablement for androidx.work.impl.background.systemjob.SystemJobService
+2025-09-25 11:04:05.782 20849-20849 WM-Schedulers           com.f9ld3.heal                       D  Created SystemJobScheduler and enabled SystemJobService
+2025-09-25 11:04:05.880 20849-20879 WM-ForceStopRunnable    com.f9ld3.heal                       D  The default process name was not specified.
+2025-09-25 11:04:05.881 20849-20879 WM-ForceStopRunnable    com.f9ld3.heal                       D  Performing cleanup operations.
+2025-09-25 11:04:05.929 20849-20882 libMEOW                 com.f9ld3.heal                       D  meow reload base cfg path: na
+2025-09-25 11:04:05.929 20849-20882 libMEOW                 com.f9ld3.heal                       D  meow reload overlay cfg path: na
+2025-09-25 11:04:05.931 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Reconciling jobs
+2025-09-25 11:04:05.933 20849-20882 libMEOW_gift            com.f9ld3.heal                       I  open /data/performance/gift/arc.ini
+2025-09-25 11:04:05.934 20849-20882 libMEOW                 com.f9ld3.heal                       D  applied 1 plugins for [com.f9ld3.heal]:
+2025-09-25 11:04:05.934 20849-20882 libMEOW                 com.f9ld3.heal                       D    plugin 1: [libMEOW_gift.so]:
+2025-09-25 11:04:06.006 20849-20849 ActivityThread          com.f9ld3.heal                       D  ++ activityComponent:com.f9ld3.heal/com.f9ld3.heal.MainActivityAliasGreen counts:null
+2025-09-25 11:04:06.012 20849-20879 WM-ForceStopRunnable    com.f9ld3.heal                       D  Application was force-stopped, rescheduling.
+2025-09-25 11:04:06.035 20849-20849 AppCompatDelegate       com.f9ld3.heal                       D  Checking for metadata for AppLocalesMetadataHolderService : Service not found
+2025-09-25 11:04:06.042 20849-20849 AppTurboFactory         com.f9ld3.heal                       D  AppTurboFactory new
+2025-09-25 11:04:06.045 20849-20849 AppTurboService         com.f9ld3.heal                       D  mTidEnabled false
+2025-09-25 11:04:06.047 20849-20849 AppTurboService         com.f9ld3.heal                       D  AppTurboService.initializeAppTurboFactory()
+2025-09-25 11:04:06.048 20849-20849 AppTurboPolicyImpl      com.f9ld3.heal                       D  AppTurboPolicyImpl new
+2025-09-25 11:04:06.099 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID d4382b66-b2f8-456d-b477-a4b512128050Job ID 5556
+2025-09-25 11:04:06.101 20849-20849 AppTurboService         com.f9ld3.heal                       D  initialize
+2025-09-25 11:04:06.102 20849-20849 AppTurboService         com.f9ld3.heal                       D   mAppTurboTouchSlop = 0 mIsTpTurboApp = false
+2025-09-25 11:04:06.102 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:06.104 20849-20849 AppTurboService         com.f9ld3.heal                       D  versionName 2.78
+2025-09-25 11:04:06.105 20849-20849 os.SingleLice           com.f9ld3.heal                       D  instance successfully. com.transsion.scrollshot.v1.ScrollShotImplLice@f9a2c59 from com.transsion.scrollshot.ScrollShotImplLiceFactory
+2025-09-25 11:04:06.105 20849-20849 os.SingleLiceFactory    com.f9ld3.heal                       D  instance successfully. com.transsion.scrollshot.v1.ScrollShotImplLice@f9a2c59 from android.view.IViewLice
+2025-09-25 11:04:06.105 20849-20849 os.LiceInfo             com.f9ld3.heal                       D  instance successfully. com.transsion.view.ViewLice@3fe301e from android.view.IViewLice
+2025-09-25 11:04:06.105 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID 814666a0-446f-4f8d-b06f-58b39e9cc2d2Job ID 5557
+2025-09-25 11:04:06.112 20849-20849 os.SingleLice           com.f9ld3.heal                       D  instance successfully. com.transsion.freeform.v1.FreeformLice@3b83515 from com.transsion.freeform.FreeformLiceFactory
+2025-09-25 11:04:06.112 20849-20849 os.SingleLiceFactory    com.f9ld3.heal                       D  instance successfully. com.transsion.freeform.v1.FreeformLice@3b83515 from com.android.internal.IInternalViewLice
+2025-09-25 11:04:06.112 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID be292e9b-2d64-4615-8b1a-a0ab54ea62d7Job ID 5558
+2025-09-25 11:04:06.112 20849-20849 os.SingleLice           com.f9ld3.heal                       D  instance successfully. com.transsion.whitenavigation.v1.WhiteNavigationLice@8d9302a from com.transsion.whitenavigation.WhiteNavigationLiceFactory
+2025-09-25 11:04:06.112 20849-20849 os.SingleLiceFactory    com.f9ld3.heal                       D  instance successfully. com.transsion.whitenavigation.v1.WhiteNavigationLice@8d9302a from com.android.internal.IInternalViewLice
+2025-09-25 11:04:06.112 20849-20849 os.LiceInfo             com.f9ld3.heal                       D  instance successfully. com.transsion.internal.InternalViewLice@ba27e1b from com.android.internal.IInternalViewLice
+2025-09-25 11:04:06.118 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID 970da8ec-3aaa-45a0-8e8c-c066b35bd1dcJob ID 5559
+2025-09-25 11:04:06.124 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID 0d05b6ed-ed05-482b-8895-2185008f1192Job ID 5560
+2025-09-25 11:04:06.130 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID 4241fc84-5aa2-4cf3-8a6c-16e27dbb5346Job ID 5561
+2025-09-25 11:04:06.136 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID 5fbc7d98-a274-4940-a2bd-2c05f696177bJob ID 5562
+2025-09-25 11:04:06.143 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID 4fb15531-276a-4e62-a932-ac2448cf73b8Job ID 5563
+2025-09-25 11:04:06.150 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID 4c5a05a2-37f5-4f38-a6e6-622315e3f306Job ID 5564
+2025-09-25 11:04:06.156 20849-20849 com.f9ld3.heal          com.f9ld3.heal                       W  Accessing hidden method Landroid/view/ViewGroup;->makeOptionalFitsSystemWindows()V (greylist, reflection, allowed)
+2025-09-25 11:04:06.157 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID f1414ee0-a1eb-4e1f-a13a-4179fb239261Job ID 5565
+2025-09-25 11:04:06.166 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID 2fa38a6a-7773-4ffb-8f94-e1d071d9e5ddJob ID 5566
+2025-09-25 11:04:06.170 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:06.174 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID e8d603af-3d1d-49bc-b31c-86fdf4facaedJob ID 5567
+2025-09-25 11:04:06.182 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID 954ab6a4-8287-41cc-9232-e014a7b5d679Job ID 5568
+2025-09-25 11:04:06.189 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID b7c6d47d-5d90-4c64-8f88-b920edeb2ef2Job ID 5569
+2025-09-25 11:04:06.196 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID e2469977-ecef-4962-905d-15765651dbc6Job ID 5570
+2025-09-25 11:04:06.202 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID f769e612-fd26-46ee-9bc7-c4d6b2e01e29Job ID 5571
+2025-09-25 11:04:06.208 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID cc2223d1-9344-47ba-8fd2-e5156df8046cJob ID 5572
+2025-09-25 11:04:06.214 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID c431ec6e-479c-4c0e-914f-03c0bc49e5d0Job ID 5573
+2025-09-25 11:04:06.221 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID e7bfc208-b8c1-48dd-882e-0de1707de3faJob ID 5574
+2025-09-25 11:04:06.228 20849-20879 WM-SystemJobScheduler   com.f9ld3.heal                       D  Scheduling work ID 14ab9a28-c909-4bd6-aeca-76749dc9d045Job ID 5575
+2025-09-25 11:04:06.249 20849-20849 AppCompatViewInflater   com.f9ld3.heal                       I  app:theme is now deprecated. Please move to using android:theme instead.
+2025-09-25 11:04:06.170 20849-20849 chatty                  com.f9ld3.heal                       I  uid=10490(com.f9ld3.heal) identical 2 lines
+2025-09-25 11:04:06.170 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:06.331 20849-20887 WM-PackageManagerHelper com.f9ld3.heal                       D  Skipping component enablement for androidx.work.impl.background.systemalarm.RescheduleReceiver
+2025-09-25 11:04:06.350 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:06.486 20849-20849 MainActivity            com.f9ld3.heal                       D  Icon alias com.f9ld3.heal.MainActivityAliasGreen set to DISABLED
+2025-09-25 11:04:06.488 20849-20849 MainActivity            com.f9ld3.heal                       D  Icon alias com.f9ld3.heal.MainActivityAliasGreen set to ENABLED
+2025-09-25 11:04:06.492 20849-20849 MainActivity            com.f9ld3.heal                       D  All notifications cleared on app launch.
+2025-09-25 11:04:06.557 20849-20849 MainActivity            com.f9ld3.heal                       D  Fragment history loaded. Items: 3
+2025-09-25 11:04:06.626 20849-20849 MainActivity            com.f9ld3.heal                       D  Chips updated. Displaying 3 chips.
+2025-09-25 11:04:06.637 20849-20849 MainActivity            com.f9ld3.heal                       D  Cancelled reminder with stored request code 1730
+2025-09-25 11:04:06.639 20849-20849 MainActivity            com.f9ld3.heal                       D  Cancelled reminder with stored request code 830
+2025-09-25 11:04:06.640 20849-20849 MainActivity            com.f9ld3.heal                       D  Cancelled reminder with stored request code 1630
+2025-09-25 11:04:06.642 20849-20849 MainActivity            com.f9ld3.heal                       D  Cancelled reminder with stored request code 1030
+2025-09-25 11:04:06.648 20849-20849 MainActivity            com.f9ld3.heal                       D  Scheduled alarm for 8:30 with request code 830
+2025-09-25 11:04:06.650 20849-20849 MainActivity            com.f9ld3.heal                       D  Scheduled alarm for 10:30 with request code 1030
+2025-09-25 11:04:06.653 20849-20849 MainActivity            com.f9ld3.heal                       D  Scheduled alarm for 16:30 with request code 1630
+2025-09-25 11:04:06.655 20849-20849 MainActivity            com.f9ld3.heal                       D  Scheduled alarm for 17:30 with request code 1730
+2025-09-25 11:04:06.655 20849-20849 MainActivity            com.f9ld3.heal                       D  Scheduled 4 custom reminders.
+2025-09-25 11:04:06.662 20849-20849 MainActivity            com.f9ld3.heal                       D  MainActivity: onCreate - isFirstLaunch: false
+2025-09-25 11:04:06.671 20849-20849 MainActivity            com.f9ld3.heal                       D  Emergency contacts loaded. Count: 3
+2025-09-25 11:04:06.674 20849-20849 MainActivity            com.f9ld3.heal                       D  onCreate: bottomSheetBehavior initialized: true
+2025-09-25 11:04:06.681 20849-20894 ActivityThreadLice      com.f9ld3.heal                       D  received OSMessage 110001
+2025-09-25 11:04:06.681 20849-20894 ActivityThreadLice      com.f9ld3.heal                       D  send OSMessage 110001 to [-1]
+2025-09-25 11:04:06.476 20849-20849 chatty                  com.f9ld3.heal                       I  uid=10490(com.f9ld3.heal) identical 6 lines
+2025-09-25 11:04:06.476 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:06.683 20849-20894 OSServiceManager        com.f9ld3.heal                       D  update local os service os.activity from null to android.os.BinderProxy@214a6b9
+2025-09-25 11:04:06.693 20849-20849 MainActivity            com.f9ld3.heal                       D  All notifications cleared on app resume.
+2025-09-25 11:04:06.704 20849-20849 SurfaceFactory          com.f9ld3.heal                       I  [static] sSurfaceFactory = com.mediatek.view.impl.SurfaceFactoryImpl@26f9f98
+2025-09-25 11:04:06.705 20849-20849 libc                    com.f9ld3.heal                       E  Access denied finding property "ro.vendor.tgpa_resolution_tuner"
+2025-09-25 11:04:06.712 20849-20849 libc                    com.f9ld3.heal                       E  Access denied finding property "ro.vendor.scaler_version"
+2025-09-25 11:04:06.713 20849-20849 libc                    com.f9ld3.heal                       E  Access denied finding property "ro.vendor.scaler_version"
+2025-09-25 11:04:06.722 20849-20849 ViewRootIm...liasGreen] com.f9ld3.heal                       D  hardware acceleration = true , fakeHwAccelerated = false, sRendererDisabled = false, forceHwAccelerated = false, sSystemRendererDisabled = false
+2025-09-25 11:04:06.731 20849-20849 libMEOW                 com.f9ld3.heal                       D  applied 1 plugins for [com.f9ld3.heal]:
+2025-09-25 11:04:06.731 20849-20849 libMEOW                 com.f9ld3.heal                       D    plugin 1: [libMEOW_gift.so]:
+2025-09-25 11:04:06.732 20849-20849 InputTransport          com.f9ld3.heal                       I  Create ARC handle: 0xb400006e8b0ae8c0
+2025-09-25 11:04:06.732 20849-20849 InputTransport          com.f9ld3.heal                       I  InputConsumer create TRAN_APPTURBO_ENABLE disable
+2025-09-25 11:04:06.736 20849-20849 PhoneWindow             com.f9ld3.heal                       V  DecorView setVisiblity: visibility = 0, Parent = android.view.ViewRootImpl@d8b1d44, this = DecorView@dbe5e2d[MainActivityAliasGreen]
+2025-09-25 11:04:06.739 20849-20849 Choreographer           com.f9ld3.heal                       I  Skipped 75 frames!  The application may be doing too much work on its main thread.
+2025-09-25 11:04:06.797 20849-20880 libMEOW                 com.f9ld3.heal                       D  applied 1 plugins for [com.f9ld3.heal]:
+2025-09-25 11:04:06.797 20849-20880 libMEOW                 com.f9ld3.heal                       D    plugin 1: [libMEOW_gift.so]:
+2025-09-25 11:04:06.806 20849-20880 GED                     com.f9ld3.heal                       I  [GT]_get_procNameprocess pid(20849)
+2025-09-25 11:04:06.806 20849-20880 GED                     com.f9ld3.heal                       I  [GT]_getprocess name(com.f9ld3.heal)
+2025-09-25 11:04:06.806 20849-20880 com.f9ld3.heal          com.f9ld3.heal                       I  [GT] ret(1) gt_status(00000000) aniso_debug_level(0) gt_aniso_max_level(16) ani so mask(00000001) tri mask(00000002)
+2025-09-25 11:04:06.806 20849-20880 libMEOW_gift            com.f9ld3.heal                       I  ctx:0xb400006fbb15e238, ARC not Enabled.
+2025-09-25 11:04:06.813 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:06.813 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:07.019 20849-20880 ion                     com.f9ld3.heal                       E  ioctl c0044901 failed with code -1: Invalid argument
+2025-09-25 11:04:07.162 20849-20880 OpenGLRenderer          com.f9ld3.heal                       I  Davey! duration=1255ms; Flags=1, IntendedVsync=687697470295217, Vsync=687698303628542, OldestInputEvent=9223372036854775807, NewestInputEvent=0, HandleInputStart=687698304453682, AnimationStart=687698304462912, PerformTraversalsStart=687698304841374, DrawStart=687698565458220, SyncQueued=687698580882528, SyncStart=687698581312066, IssueDrawCommandsStart=687698581602528, SwapBuffers=687698724956066, FrameCompleted=687698726213989, DequeueBufferDuration=154385, QueueBufferDuration=645539, GpuCompleted=0,
+2025-09-25 11:04:07.186 20849-20849 Choreographer           com.f9ld3.heal                       I  Skipped 38 frames!  The application may be doing too much work on its main thread.
+2025-09-25 11:04:08.701 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:08.757 20849-20849 chatty                  com.f9ld3.heal                       I  uid=10490(com.f9ld3.heal) identical 4 lines
+2025-09-25 11:04:08.758 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:09.288 20849-20849 ContentValues           com.f9ld3.heal                       D  HomeFragment: updateRelapseCounter - Read lastRelapseTime: 1753548929178
+2025-09-25 11:04:09.424 20849-20849 MainActivity            com.f9ld3.heal                       D  MainActivity: loadFragment - Fragment loaded: HomeFragment
+2025-09-25 11:04:09.425 20849-20849 MainActivity            com.f9ld3.heal                       D  MainActivity: handleWidgetIntent - Loading HomeFragment (regular launch).
+2025-09-25 11:04:09.425 20849-20849 Choreographer           com.f9ld3.heal                       I  Skipped 67 frames!  The application may be doing too much work on its main thread.
+2025-09-25 11:04:09.523 20849-20849 ContentValues           com.f9ld3.heal                       D  HomeFragment: updateRelapseCounter - Read lastRelapseTime: 1753548929178
+2025-09-25 11:04:09.524 20849-20880 OpenGLRenderer          com.f9ld3.heal                       I  Davey! duration=850ms; Flags=0, IntendedVsync=687700237563967, Vsync=687700982008404, OldestInputEvent=687700228000000, NewestInputEvent=687700739000000, HandleInputStart=687700990305990, AnimationStart=687700993910220, PerformTraversalsStart=687700994923528, DrawStart=687701073575220, SyncQueued=687701079674220, SyncStart=687701079966528, IssueDrawCommandsStart=687701080289913, SwapBuffers=687701087193682, FrameCompleted=687701088510605, DequeueBufferDuration=227692, QueueBufferDuration=687077, GpuCompleted=0,
+2025-09-25 11:04:10.062 20849-20849 ViewRootImpl[Tooltip]   com.f9ld3.heal                       D  hardware acceleration = true , fakeHwAccelerated = false, sRendererDisabled = false, forceHwAccelerated = false, sSystemRendererDisabled = false
+2025-09-25 11:04:10.067 20849-20849 InputTransport          com.f9ld3.heal                       I  Create ARC handle: 0xb400006e8b056e10
+2025-09-25 11:04:10.067 20849-20849 InputTransport          com.f9ld3.heal                       I  InputConsumer create TRAN_APPTURBO_ENABLE disable
+2025-09-25 11:04:10.313 20849-20849 View                    com.f9ld3.heal                       D  [Warning] assignParent to null: this = android.widget.LinearLayout{3ae91d6 V.E...... ........ 0,0-528,135}
+2025-09-25 11:04:10.330 20849-20849 InputTransport          com.f9ld3.heal                       I  Destroy ARC handle: 0xb400006e8b056e10
+2025-09-25 11:04:10.527 20849-20849 ContentValues           com.f9ld3.heal                       D  HomeFragment: updateRelapseCounter - Read lastRelapseTime: 1753548929178
+2025-09-25 11:04:11.715 20849-20849 ContentValues           com.f9ld3.heal                       D  HomeFragment: updateRelapseCounter - Read lastRelapseTime: 1753548929178
+2025-09-25 11:04:11.729 20849-20849 MainActivity            com.f9ld3.heal                       D  MainActivity: onNavigationItemSelected - Loading Gemini Fragment
+2025-09-25 11:04:11.742 20849-20849 AIFragment              com.f9ld3.heal                       D  onAttach called.
+2025-09-25 11:04:11.743 20849-20849 AIFragment              com.f9ld3.heal                       D  onCreateView called.
+2025-09-25 11:04:11.745 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:11.746 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:11.843 20849-20849 AIFragment              com.f9ld3.heal                       I  onViewCreated: START
+2025-09-25 11:04:11.843 20849-20849 AIFragment              com.f9ld3.heal                       D  onViewCreated: Setting up RecyclerView...
+2025-09-25 11:04:11.843 20849-20849 AIFragment              com.f9ld3.heal                       D  setupRecyclerView: START
+2025-09-25 11:04:11.845 20849-20849 AIFragment              com.f9ld3.heal                       D  setupRecyclerView: END
+2025-09-25 11:04:11.845 20849-20849 AIFragment              com.f9ld3.heal                       D  onViewCreated: Loading chat history...
+2025-09-25 11:04:11.845 20849-20849 AIFragment              com.f9ld3.heal                       D  loadChatHistory: START
+2025-09-25 11:04:11.861 20849-20849 AIFragment              com.f9ld3.heal                       I  loadChatHistory: Successfully loaded 57 messages.
+2025-09-25 11:04:11.862 20849-20849 AIFragment              com.f9ld3.heal                       D  loadChatHistory: END
+2025-09-25 11:04:11.862 20849-20849 AIFragment              com.f9ld3.heal                       D  onViewCreated: Initializing Xavier...
+2025-09-25 11:04:11.862 20849-20849 AIFragment              com.f9ld3.heal                       I  initializeXavier: START
+2025-09-25 11:04:11.866 20849-20849 AIFragment              com.f9ld3.heal                       I  initializeXavier: END (background task submitted)
+2025-09-25 11:04:11.866 20849-20931 AIFragment              com.f9ld3.heal                       I  initializeXavier_background: START
+2025-09-25 11:04:11.866 20849-20931 AIFragment              com.f9ld3.heal                       D  initializeXavier_background: Initializing ResponseGenerator...
+2025-09-25 11:04:11.867 20849-20849 AIFragment              com.f9ld3.heal                       D  updateNetworkStatusVisuals: Network isConnected = true
+2025-09-25 11:04:11.867 20849-20849 AIFragment              com.f9ld3.heal                       I  onViewCreated: END
+2025-09-25 11:04:11.868 20849-20849 AIFragment              com.f9ld3.heal                       D  onStart: Registering network receiver.
+2025-09-25 11:04:11.874 20849-20931 AIFragment              com.f9ld3.heal                       D  initializeXavier_background: ContentSafetyFilter initialized.
+2025-09-25 11:04:11.874 20849-20931 AIFragment              com.f9ld3.heal                       D  initializeXavier_background: Creating XavierCoreV2 instance...
+2025-09-25 11:04:11.875 20849-20849 AIFragment              com.f9ld3.heal                       D  onResume called.
+2025-09-25 11:04:11.876 20849-20849 AIFragment              com.f9ld3.heal                       D  updateNetworkStatusVisuals: Network isConnected = true
+2025-09-25 11:04:11.878 20849-20849 MainActivity            com.f9ld3.heal                       D  MainActivity: loadFragment - Fragment loaded: AIFragment
+2025-09-25 11:04:11.879 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  XavierCoreV2_Constructor: START
+2025-09-25 11:04:11.880 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  XavierCoreV2_Constructor: ContentSafetyFilter instance assigned.
+2025-09-25 11:04:11.880 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  XavierCoreV2_Constructor: Getting SharedHttpClient instance...
+2025-09-25 11:04:11.883 20849-20849 MainActivity            com.f9ld3.heal                       D  Fragment history saved. Items: 3
+2025-09-25 11:04:11.946 20849-20849 MainActivity            com.f9ld3.heal                       D  Chips updated. Displaying 3 chips.
+2025-09-25 11:04:11.946 20849-20849 MainActivity            com.f9ld3.heal                       D  Added to history: Xavier. Current history size: 3
+2025-09-25 11:04:11.951 20849-20849 Choreographer           com.f9ld3.heal                       I  Skipped 34 frames!  The application may be doing too much work on its main thread.
+2025-09-25 11:04:11.951 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  XavierCoreV2_Constructor: SharedHttpClient instance obtained: true
+2025-09-25 11:04:11.951 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  XavierCoreV2_Constructor: Loading API keys and clients...
+2025-09-25 11:04:11.951 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  loadApiKeysAndClients: START
+2025-09-25 11:04:11.952 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  loadApiKeysAndClients: api.properties loaded successfully.
+2025-09-25 11:04:11.952 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  loadApiKeysAndClients: Initializing WolframAlphaClient with 3 keys.
+2025-09-25 11:04:11.955 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  loadApiKeysAndClients: WolframAlphaClient initialized.
+2025-09-25 11:04:11.956 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  loadApiKeysAndClients: END
+2025-09-25 11:04:11.956 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  XavierCoreV2_Constructor: Registering handlers...
+2025-09-25 11:04:11.956 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  registerHandlers: START
+2025-09-25 11:04:11.956 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  registerHandlers: Registering JokeService...
+2025-09-25 11:04:11.983 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  registerHandlers: Registering RiddleService...
+2025-09-25 11:04:11.990 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  registerHandlers: Registering FunFactService...
+2025-09-25 11:04:11.992 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  registerHandlers: Registering simple handlers...
+2025-09-25 11:04:11.998 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  registerHandlers: Registering InternetStatusHandler...
+2025-09-25 11:04:11.998 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  registerHandlers: Registering core logic handlers...
+2025-09-25 11:04:12.000 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  registerHandlers: Registering SearchService and default handler...
+2025-09-25 11:04:12.005 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  registerHandlers: Registering location-based services (Weather/Time)...
+2025-09-25 11:04:12.039 20849-20931 LocationResolverSvc     com.f9ld3.heal                       I  LocationFuzzyMatcher trained with 343 cache keys.
+2025-09-25 11:04:12.042 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  registerHandlers: Location services (Weather/Time) registered successfully.
+2025-09-25 11:04:12.042 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  registerHandlers: Registering DictionaryService...
+2025-09-25 11:04:12.043 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  registerHandlers: Registering HowToQueryHandler...
+2025-09-25 11:04:12.043 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  registerHandlers: Registering GenerativeService for List/Knowledge queries...
+2025-09-25 11:04:12.046 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  registerHandlers: END. Handler registration complete.
+2025-09-25 11:04:12.046 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  XavierCoreV2_Constructor: Registering direct matches...
+2025-09-25 11:04:12.046 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  registerDirectMatches: START
+2025-09-25 11:04:12.046 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  registerDirectMatches: END. Direct match registration complete. Size: 34
+2025-09-25 11:04:12.046 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  XavierCoreV2_Constructor: Registering patterns...
+2025-09-25 11:04:12.046 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  registerPatterns: START
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  registerPatterns: END. Pattern registration complete.
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  XavierCoreV2_Constructor: Direct Matches Initialized. Size: 34
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'hi' -> 'greeting'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'no' -> 'confirmation'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'thx' -> 'gratitude'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'nope' -> 'confirmation'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'what is your name' -> 'about_bot'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'thank you' -> 'gratitude'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'yeah' -> 'confirmation'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'good' -> 'chitchat'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'sup' -> 'greeting'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'yh' -> 'confirmation'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'tell me about yourself' -> 'about_bot'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'thanks' -> 'gratitude'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'yo' -> 'greeting'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'wassup' -> 'greeting'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'what's up' -> 'greeting'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'ok' -> 'chitchat'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'hey' -> 'greeting'
+2025-09-25 11:04:12.048 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'okay' -> 'chitchat'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'how do you do' -> 'greeting'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'yep' -> 'confirmation'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'yes' -> 'confirmation'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'cool' -> 'chitchat'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'yes please' -> 'confirmation'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'who are you' -> 'about_bot'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'what are you' -> 'about_bot'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'great' -> 'chitchat'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'nice' -> 'chitchat'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'alright' -> 'chitchat'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'what's your name' -> 'about_bot'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'bye' -> 'goodbye'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'exit' -> 'goodbye'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'quit' -> 'goodbye'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'hello' -> 'greeting'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       V  XavierCoreV2_Constructor: Direct Match Entry: 'tnx' -> 'gratitude'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  XavierCoreV2_Constructor: END
+2025-09-25 11:04:12.049 20849-20931 AIFragment              com.f9ld3.heal                       D  initializeXavier_background: XavierCoreV2 instance created.
+2025-09-25 11:04:12.049 20849-20931 AIFragment              com.f9ld3.heal                       D  initializeXavier_background: Starting Xavier training...
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  train: START - Training from asset: 'training_data.txt'
+2025-09-25 11:04:12.049 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  train: Loading data from asset 'training_data.txt' using appContext...
+2025-09-25 11:04:12.214 20849-20849 AIFragment              com.f9ld3.heal                       D  NetworkChangeReceiver: onReceive - Network state changed.
+2025-09-25 11:04:12.216 20849-20849 AIFragment              com.f9ld3.heal                       D  updateNetworkStatusVisuals: Network isConnected = true
+2025-09-25 11:04:12.345 20849-20865 com.f9ld3.heal          com.f9ld3.heal                       I  NativeAlloc concurrent copying GC freed 91669(4241KB) AllocSpace objects, 23(504KB) LOS objects, 58% free, 8733KB/20MB, paused 183us total 167.414ms
+2025-09-25 11:04:12.357 20849-20932 ProfileInstaller        com.f9ld3.heal                       D  Installing profile for com.f9ld3.heal
+2025-09-25 11:04:12.521 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  train: Data loaded. Documents: 1467, Labels: 1467
+2025-09-25 11:04:12.521 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  train: Fitting NaiveBayesClassifier...
+2025-09-25 11:04:12.578 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  train: NaiveBayesClassifier training complete!
+2025-09-25 11:04:12.578 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  train: Training FuzzyMatcher with 1467 phrases...
+2025-09-25 11:04:12.579 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  train: Fuzzy Matcher training complete!
+2025-09-25 11:04:12.579 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  train: END - XavierCoreV2 training successfully COMPLETE!
+2025-09-25 11:04:12.579 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  train: Final isTrained state after attempt: true
+2025-09-25 11:04:12.579 20849-20931 AIFragment              com.f9ld3.heal                       I  initializeXavier_background: Xavier training finished. isTrained: true
+2025-09-25 11:04:12.579 20849-20931 AIFragment              com.f9ld3.heal                       D  initializeXavier_background: Loading conversation context...
+2025-09-25 11:04:12.579 20849-20931 AIFragment              com.f9ld3.heal                       D  loadConversationContext: START
+2025-09-25 11:04:12.583 20849-20931 AIFragment              com.f9ld3.heal                       I  loadConversationContext: Successfully loaded.
+2025-09-25 11:04:12.583 20849-20931 AIFragment              com.f9ld3.heal                       D  loadConversationContext: END
+2025-09-25 11:04:12.583 20849-20931 AIFragment              com.f9ld3.heal                       D  initializeXavier_background: Conversation context loaded/created.
+2025-09-25 11:04:12.583 20849-20931 AIFragment              com.f9ld3.heal                       I  initializeXavier_background: SUCCESS - Xavier is ready and trained!
+2025-09-25 11:04:12.583 20849-20931 AIFragment              com.f9ld3.heal                       I  initializeXavier_background: END
+2025-09-25 11:04:12.584 20849-20849 AIFragment              com.f9ld3.heal                       D  initializeXavier_background_ui: Updating UI (ready state).
+2025-09-25 11:04:12.585 20849-20849 AIFragment              com.f9ld3.heal                       D  updateNetworkStatusVisuals: Network isConnected = true
+2025-09-25 11:04:14.473 20849-20849 AssistStructure         com.f9ld3.heal                       I  Flattened final assist data: 2360 bytes, containing 1 windows, 19 views
+2025-09-25 11:04:14.520 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:14.524 20849-20849 chatty                  com.f9ld3.heal                       I  uid=10490(com.f9ld3.heal) identical 2 lines
+2025-09-25 11:04:14.524 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:15.032 20849-20864 com.f9ld3.heal          com.f9ld3.heal                       I  Compiler allocated 4303KB to compile void android.view.ViewRootImpl.performTraversals()
+2025-09-25 11:04:17.683 20849-20849 AIFragment              com.f9ld3.heal                       I  handleSendButtonClick: START
+2025-09-25 11:04:17.699 20849-20849 AIFragment              com.f9ld3.heal                       I  handleSendButtonClick: User message to send: 'HI'
+2025-09-25 11:04:17.701 20849-20849 AIFragment              com.f9ld3.heal                       D  saveChatHistory: Attempting to save 58 messages.
+2025-09-25 11:04:17.710 20849-20849 AIFragment              com.f9ld3.heal                       I  saveChatHistory: Success. Items: 58
+2025-09-25 11:04:17.736 20849-20849 AIFragment              com.f9ld3.heal                       I  sendMessageToAi: START for query: 'HI'
+2025-09-25 11:04:17.746 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_background: START for query: 'HI'
+2025-09-25 11:04:17.746 20849-20931 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_background: Calling xavier.getResponse for: 'HI'
+2025-09-25 11:04:17.746 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  getResponse: START for userInput: 'HI'
+2025-09-25 11:04:17.746 20849-20849 AIFragment              com.f9ld3.heal                       I  sendMessageToAi: END (CompletableFuture submitted) for query: 'HI'
+2025-09-25 11:04:17.746 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: AI is trained. Proceeding with input: 'HI'
+2025-09-25 11:04:17.747 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Sentiment Score for 'HI': 0.00
+2025-09-25 11:04:17.747 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Running prediction pipeline for: 'HI'
+2025-09-25 11:04:17.747 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  [PIPELINE_START] Processing Raw User Input: 'HI'
+2025-09-25 11:04:17.747 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_INFO] Cleaned User Input: 'hi'
+2025-09-25 11:04:17.747 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_STEP] Checking Direct Match for: 'hi'
+2025-09-25 11:04:17.747 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_RESULT] Direct exact match. Input: 'hi', Intent: greeting
+2025-09-25 11:04:17.747 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  [PIPELINE_END] Path: Direct Match.
+2025-09-25 11:04:17.749 20849-20849 AIFragment              com.f9ld3.heal                       I  handleSendButtonClick: END
+2025-09-25 11:04:17.749 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Predicted Intent: 'greeting', Entity: 'null'
+2025-09-25 11:04:17.749 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Intent to handle (after context): 'greeting'
+2025-09-25 11:04:17.749 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Final Intent to Handle: 'greeting' | Using Handler: GreetingHandler
+2025-09-25 11:04:17.749 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Calling handler.handle() for intent: 'greeting' with input: 'HI'
+2025-09-25 11:04:17.750 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Applied asterisk filter. Filtered response: 'Hello! How can I enhance your productivity today?'
+2025-09-25 11:04:17.775 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  getResponse: END. Response from handler for 'HI': 'Hello! How can I enhance your productivity today?'
+2025-09-25 11:04:17.775 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_background: Received response from XavierCoreV2: 'Hello! How can I enhance your productivity today?'
+2025-09-25 11:04:17.775 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_whenComplete: START. ResponseText: 'Hello! How can I enhance your productivity today?'
+2025-09-25 11:04:17.776 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_whenComplete: END.
+2025-09-25 11:04:17.847 20849-20849 IInputConnectionWrapper com.f9ld3.heal                       W  beginBatchEdit on inactive InputConnection
+2025-09-25 11:04:17.847 20849-20849 IInputConnectionWrapper com.f9ld3.heal                       W  setComposingRegion on inactive InputConnection
+2025-09-25 11:04:17.848 20849-20849 IInputConnectionWrapper com.f9ld3.heal                       W  endBatchEdit on inactive InputConnection
+2025-09-25 11:04:17.858 20849-20849 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_whenComplete_ui: Updating UI.
+2025-09-25 11:04:17.868 20849-20849 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_whenComplete_ui: Adding AI response: 'Hello! How can I enhance your productivity today?'
+2025-09-25 11:04:17.868 20849-20849 AIFragment              com.f9ld3.heal                       D  saveChatHistory: Attempting to save 59 messages.
+2025-09-25 11:04:17.871 20849-20849 AIFragment              com.f9ld3.heal                       I  saveChatHistory: Success. Items: 59
+2025-09-25 11:04:17.871 20849-20849 AIFragment              com.f9ld3.heal                       D  saveConversationContext: START
+2025-09-25 11:04:17.872 20849-20849 AIFragment              com.f9ld3.heal                       I  saveConversationContext: Success.
+2025-09-25 11:04:17.872 20849-20849 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_whenComplete_ui: UI update complete.
+2025-09-25 11:04:17.873 20849-20849 IInputConnectionWrapper com.f9ld3.heal                       W  beginBatchEdit on inactive InputConnection
+2025-09-25 11:04:17.873 20849-20849 IInputConnectionWrapper com.f9ld3.heal                       W  setComposingRegion on inactive InputConnection
+2025-09-25 11:04:17.873 20849-20849 IInputConnectionWrapper com.f9ld3.heal                       W  endBatchEdit on inactive InputConnection
+2025-09-25 11:04:17.906 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:17.945 20849-20849 IInputConnectionWrapper com.f9ld3.heal                       W  getExtractedText on inactive InputConnection
+2025-09-25 11:04:17.959 20849-20849 IInputConnectionWrapper com.f9ld3.heal                       W  getTextBeforeCursor on inactive InputConnection
+2025-09-25 11:04:17.984 20849-20849 IInputConnectionWrapper com.f9ld3.heal                       W  beginBatchEdit on inactive InputConnection
+2025-09-25 11:04:17.984 20849-20849 IInputConnectionWrapper com.f9ld3.heal                       W  setComposingRegion on inactive InputConnection
+2025-09-25 11:04:17.984 20849-20849 IInputConnectionWrapper com.f9ld3.heal                       W  endBatchEdit on inactive InputConnection
+2025-09-25 11:04:17.906 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:18.067 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:18.067 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:21.182 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:21.182 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:24.689 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:24.689 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:25.742 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:25.742 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:27.017 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:27.017 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:27.716 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:27.724 20849-20849 chatty                  com.f9ld3.heal                       I  uid=10490(com.f9ld3.heal) identical 2 lines
+2025-09-25 11:04:27.724 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:28.824 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:28.824 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:29.022 20849-20849 AIFragment              com.f9ld3.heal                       I  handleSendButtonClick: START
+2025-09-25 11:04:29.034 20849-20849 AIFragment              com.f9ld3.heal                       I  handleSendButtonClick: User message to send: 'What's my name'
+2025-09-25 11:04:29.035 20849-20849 AIFragment              com.f9ld3.heal                       D  saveChatHistory: Attempting to save 60 messages.
+2025-09-25 11:04:29.041 20849-20849 AIFragment              com.f9ld3.heal                       I  saveChatHistory: Success. Items: 60
+2025-09-25 11:04:29.051 20849-20849 AIFragment              com.f9ld3.heal                       I  sendMessageToAi: START for query: 'What's my name'
+2025-09-25 11:04:29.061 20849-20849 AIFragment              com.f9ld3.heal                       I  sendMessageToAi: END (CompletableFuture submitted) for query: 'What's my name'
+2025-09-25 11:04:29.061 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_background: START for query: 'What's my name'
+2025-09-25 11:04:29.061 20849-20931 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_background: Calling xavier.getResponse for: 'What's my name'
+2025-09-25 11:04:29.061 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  getResponse: START for userInput: 'What's my name'
+2025-09-25 11:04:29.061 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: AI is trained. Proceeding with input: 'What's my name'
+2025-09-25 11:04:29.062 20849-20849 AIFragment              com.f9ld3.heal                       I  handleSendButtonClick: END
+2025-09-25 11:04:29.064 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Sentiment Score for 'What's my name': 0.00
+2025-09-25 11:04:29.064 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Running prediction pipeline for: 'What's my name'
+2025-09-25 11:04:29.065 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  [PIPELINE_START] Processing Raw User Input: 'What's my name'
+2025-09-25 11:04:29.065 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_INFO] Cleaned User Input: 'whats my name'
+2025-09-25 11:04:29.066 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_STEP] Checking Direct Match for: 'whats my name'
+2025-09-25 11:04:29.066 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_STEP] Checking Fuzzy Direct Match for: 'whats my name'
+2025-09-25 11:04:29.073 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_STEP] Checking Pattern Match for: 'whats my name'
+2025-09-25 11:04:29.076 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_STEP] Tokenizing and Checking Classifier for: 'What's my name' (using original for TextProcessor)
+2025-09-25 11:04:29.077 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_INFO] Tokens for classifier: [whats, my, name]
+2025-09-25 11:04:29.078 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_INFO] Classifier raw result - Predicted: get_username, Confidence: 0.6033849937990095
+2025-09-25 11:04:29.078 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_RESULT] Classifier success. Intent: get_username
+2025-09-25 11:04:29.078 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  [PIPELINE_END] Path: Classifier Match.
+2025-09-25 11:04:29.079 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Predicted Intent: 'get_username', Entity: 'null'
+2025-09-25 11:04:29.079 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Intent to handle (after context): 'get_username'
+2025-09-25 11:04:29.079 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Final Intent to Handle: 'get_username' | Using Handler: GetUsernameHandler
+2025-09-25 11:04:29.079 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Calling handler.handle() for intent: 'get_username' with input: 'What's my name'
+2025-09-25 11:04:29.079 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Applied asterisk filter. Filtered response: 'Your name is Dammy.'
+2025-09-25 11:04:29.108 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  getResponse: END. Response from handler for 'What's my name': 'Your name is Dammy.'
+2025-09-25 11:04:29.109 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_background: Received response from XavierCoreV2: 'Your name is Dammy.'
+2025-09-25 11:04:29.109 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_whenComplete: START. ResponseText: 'Your name is Dammy.'
+2025-09-25 11:04:29.109 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_whenComplete: END.
+2025-09-25 11:04:29.114 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:29.114 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:29.122 20849-20849 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_whenComplete_ui: Updating UI.
+2025-09-25 11:04:29.132 20849-20849 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_whenComplete_ui: Adding AI response: 'Your name is Dammy.'
+2025-09-25 11:04:29.133 20849-20849 AIFragment              com.f9ld3.heal                       D  saveChatHistory: Attempting to save 61 messages.
+2025-09-25 11:04:29.138 20849-20849 AIFragment              com.f9ld3.heal                       I  saveChatHistory: Success. Items: 61
+2025-09-25 11:04:29.138 20849-20849 AIFragment              com.f9ld3.heal                       D  saveConversationContext: START
+2025-09-25 11:04:29.139 20849-20849 AIFragment              com.f9ld3.heal                       I  saveConversationContext: Success.
+2025-09-25 11:04:29.139 20849-20849 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_whenComplete_ui: UI update complete.
+2025-09-25 11:04:29.139 20849-20849 IInputConnectionWrapper com.f9ld3.heal                       W  getExtractedText on inactive InputConnection
+2025-09-25 11:04:29.189 20849-20849 IInputConnectionWrapper com.f9ld3.heal                       W  getTextBeforeCursor on inactive InputConnection
+2025-09-25 11:04:29.212 20849-20849 IInputConnectionWrapper com.f9ld3.heal                       W  beginBatchEdit on inactive InputConnection
+2025-09-25 11:04:29.212 20849-20849 IInputConnectionWrapper com.f9ld3.heal                       W  setComposingRegion on inactive InputConnection
+2025-09-25 11:04:29.212 20849-20849 IInputConnectionWrapper com.f9ld3.heal                       W  endBatchEdit on inactive InputConnection
+2025-09-25 11:04:29.297 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:29.297 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:29.991 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:29.991 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:31.329 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:31.329 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:31.862 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:31.862 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:32.581 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:32.581 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:32.808 20849-20849 AIFragment              com.f9ld3.heal                       I  handleSendButtonClick: START
+2025-09-25 11:04:32.818 20849-20849 AIFragment              com.f9ld3.heal                       I  handleSendButtonClick: User message to send: 'What is the time'
+2025-09-25 11:04:32.818 20849-20849 AIFragment              com.f9ld3.heal                       D  saveChatHistory: Attempting to save 62 messages.
+2025-09-25 11:04:32.820 20849-20849 AIFragment              com.f9ld3.heal                       I  saveChatHistory: Success. Items: 62
+2025-09-25 11:04:32.827 20849-20849 AIFragment              com.f9ld3.heal                       I  sendMessageToAi: START for query: 'What is the time'
+2025-09-25 11:04:32.838 20849-20849 AIFragment              com.f9ld3.heal                       I  sendMessageToAi: END (CompletableFuture submitted) for query: 'What is the time'
+2025-09-25 11:04:32.840 20849-20849 AIFragment              com.f9ld3.heal                       I  handleSendButtonClick: END
+2025-09-25 11:04:32.841 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_background: START for query: 'What is the time'
+2025-09-25 11:04:32.841 20849-20931 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_background: Calling xavier.getResponse for: 'What is the time'
+2025-09-25 11:04:32.841 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  getResponse: START for userInput: 'What is the time'
+2025-09-25 11:04:32.841 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: AI is trained. Proceeding with input: 'What is the time'
+2025-09-25 11:04:32.843 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Sentiment Score for 'What is the time': 0.00
+2025-09-25 11:04:32.843 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Running prediction pipeline for: 'What is the time'
+2025-09-25 11:04:32.843 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  [PIPELINE_START] Processing Raw User Input: 'What is the time'
+2025-09-25 11:04:32.845 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_INFO] Cleaned User Input: 'what is the time'
+2025-09-25 11:04:32.845 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_STEP] Checking Direct Match for: 'what is the time'
+2025-09-25 11:04:32.845 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_STEP] Checking Fuzzy Direct Match for: 'what is the time'
+2025-09-25 11:04:32.846 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_STEP] Checking Pattern Match for: 'what is the time'
+2025-09-25 11:04:32.846 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_RESULT] Pattern match. Intent: time_query, Entity: null
+2025-09-25 11:04:32.846 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  [PIPELINE_END] Path: Pattern Match.
+2025-09-25 11:04:32.847 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Predicted Intent: 'time_query', Entity: 'null'
+2025-09-25 11:04:32.847 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Intent to handle (after context): 'time_query'
+2025-09-25 11:04:32.847 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Final Intent to Handle: 'time_query' | Using Handler: TimeQueryHandler
+2025-09-25 11:04:32.847 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Calling handler.handle() for intent: 'time_query' with input: 'What is the time'
+2025-09-25 11:04:32.848 20849-20931 TimeQueryHandler        com.f9ld3.heal                       D  No location in time query context or generic query. Attempting IP Geolocation.
+2025-09-25 11:04:32.848 20849-20931 IPGeolocationService    com.f9ld3.heal                       D  Attempting to fetch current IP geolocation...
+2025-09-25 11:04:32.910 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:32.910 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:32.931 20849-20931 IPGeolocationService    com.f9ld3.heal                       E  Network error during IP Geolocation lookup. Reason: CLEARTEXT communication to ip-api.com not permitted by network security policy (Ask Gemini)
+                                                                                                    java.net.UnknownServiceException: CLEARTEXT communication to ip-api.com not permitted by network security policy
+                                                                                                    	at okhttp3.internal.connection.RealConnection.connect(RealConnection.kt:188)
+                                                                                                    	at okhttp3.internal.connection.ExchangeFinder.findConnection(ExchangeFinder.kt:226)
+                                                                                                    	at okhttp3.internal.connection.ExchangeFinder.findHealthyConnection(ExchangeFinder.kt:106)
+                                                                                                    	at okhttp3.internal.connection.ExchangeFinder.find(ExchangeFinder.kt:74)
+                                                                                                    	at okhttp3.internal.connection.RealCall.initExchange$okhttp(RealCall.kt:255)
+                                                                                                    	at okhttp3.internal.connection.ConnectInterceptor.intercept(ConnectInterceptor.kt:32)
+                                                                                                    	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+                                                                                                    	at okhttp3.internal.cache.CacheInterceptor.intercept(CacheInterceptor.kt:95)
+                                                                                                    	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+                                                                                                    	at okhttp3.internal.http.BridgeInterceptor.intercept(BridgeInterceptor.kt:83)
+                                                                                                    	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+                                                                                                    	at okhttp3.internal.http.RetryAndFollowUpInterceptor.intercept(RetryAndFollowUpInterceptor.kt:76)
+                                                                                                    	at okhttp3.internal.http.RealInterceptorChain.proceed(RealInterceptorChain.kt:109)
+                                                                                                    	at okhttp3.internal.connection.RealCall.getResponseWithInterceptorChain$okhttp(RealCall.kt:201)
+                                                                                                    	at okhttp3.internal.connection.RealCall.execute(RealCall.kt:154)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.services.IPGeolocationService.getCurrentLocation(IPGeolocationService.java:65)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.handlers.TimeQueryHandler.handle(TimeQueryHandler.java:104)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.XavierCoreV2.getResponse(XavierCoreV2.java:249)
+                                                                                                    	at ui.AIFragment.lambda$sendMessageToAi$9$ui-AIFragment(AIFragment.java:402)
+                                                                                                    	at ui.AIFragment$$ExternalSyntheticLambda5.get(D8$$SyntheticClass:0)
+                                                                                                    	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1627)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+                                                                                                    	at java.lang.Thread.run(Thread.java:923)
+2025-09-25 11:04:32.931 20849-20931 TimeQueryHandler        com.f9ld3.heal                       D  IP Geolocation service returned no data.
+2025-09-25 11:04:32.931 20849-20931 TimeQueryHandler        com.f9ld3.heal                       D  IP Geolocation failed or no timezone found. Falling back to system default time.
+2025-09-25 11:04:32.942 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:32.951 20849-20849 chatty                  com.f9ld3.heal                       I  uid=10490(com.f9ld3.heal) identical 2 lines
+2025-09-25 11:04:32.951 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:33.010 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Applied asterisk filter. Filtered response: 'In my current location (West Africa Time), the current time is 11:04 AM (Africa/Lagos) on Thursday.'
+2025-09-25 11:04:33.042 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  getResponse: END. Response from handler for 'What is the time': 'In my current location (West Africa Time), the current time is 11:04 AM (Africa/Lagos) on Thursday.'
+2025-09-25 11:04:33.042 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_background: Received response from XavierCoreV2: 'In my current location (West Africa Time), the current time is 11:04 AM (Africa/Lagos) on Thursday.'
+2025-09-25 11:04:33.042 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_whenComplete: START. ResponseText: 'In my current location (West Africa Time), the current time is 11:04 AM (Africa/Lagos) on Thursday.'
+2025-09-25 11:04:33.042 20849-20849 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_whenComplete_ui: Updating UI.
+2025-09-25 11:04:33.043 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_whenComplete: END.
+2025-09-25 11:04:33.053 20849-20849 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_whenComplete_ui: Adding AI response: 'In my current location (West Africa Time), the current time is 11:04 AM (Africa/Lagos) on Thursday.'
+2025-09-25 11:04:33.053 20849-20849 AIFragment              com.f9ld3.heal                       D  saveChatHistory: Attempting to save 63 messages.
+2025-09-25 11:04:33.055 20849-20849 AIFragment              com.f9ld3.heal                       I  saveChatHistory: Success. Items: 63
+2025-09-25 11:04:33.055 20849-20849 AIFragment              com.f9ld3.heal                       D  saveConversationContext: START
+2025-09-25 11:04:33.055 20849-20849 AIFragment              com.f9ld3.heal                       I  saveConversationContext: Success.
+2025-09-25 11:04:33.055 20849-20849 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_whenComplete_ui: UI update complete.
+2025-09-25 11:04:33.155 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:33.206 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:33.206 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:33.155 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:33.843 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:33.843 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:35.099 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:35.099 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:35.758 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:35.758 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:37.460 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:37.460 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:37.629 20849-20849 AIFragment              com.f9ld3.heal                       I  handleSendButtonClick: START
+2025-09-25 11:04:37.636 20849-20849 AIFragment              com.f9ld3.heal                       I  handleSendButtonClick: User message to send: 'Who is tinubu'
+2025-09-25 11:04:37.637 20849-20849 AIFragment              com.f9ld3.heal                       D  saveChatHistory: Attempting to save 64 messages.
+2025-09-25 11:04:37.638 20849-20849 AIFragment              com.f9ld3.heal                       I  saveChatHistory: Success. Items: 64
+2025-09-25 11:04:37.645 20849-20849 AIFragment              com.f9ld3.heal                       I  sendMessageToAi: START for query: 'Who is tinubu'
+2025-09-25 11:04:37.658 20849-20849 AIFragment              com.f9ld3.heal                       I  sendMessageToAi: END (CompletableFuture submitted) for query: 'Who is tinubu'
+2025-09-25 11:04:37.659 20849-20849 AIFragment              com.f9ld3.heal                       I  handleSendButtonClick: END
+2025-09-25 11:04:37.663 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_background: START for query: 'Who is tinubu'
+2025-09-25 11:04:37.663 20849-20931 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_background: Calling xavier.getResponse for: 'Who is tinubu'
+2025-09-25 11:04:37.663 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  getResponse: START for userInput: 'Who is tinubu'
+2025-09-25 11:04:37.663 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: AI is trained. Proceeding with input: 'Who is tinubu'
+2025-09-25 11:04:37.665 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Sentiment Score for 'Who is tinubu': 0.00
+2025-09-25 11:04:37.665 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Running prediction pipeline for: 'Who is tinubu'
+2025-09-25 11:04:37.665 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  [PIPELINE_START] Processing Raw User Input: 'Who is tinubu'
+2025-09-25 11:04:37.666 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_INFO] Cleaned User Input: 'who is tinubu'
+2025-09-25 11:04:37.666 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_STEP] Checking Direct Match for: 'who is tinubu'
+2025-09-25 11:04:37.666 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_STEP] Checking Fuzzy Direct Match for: 'who is tinubu'
+2025-09-25 11:04:37.669 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_STEP] Checking Pattern Match for: 'who is tinubu'
+2025-09-25 11:04:37.672 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_RESULT] Pattern match. Intent: knowledge_query, Entity: tinubu
+2025-09-25 11:04:37.673 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  [PIPELINE_END] Path: Pattern Match.
+2025-09-25 11:04:37.674 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Predicted Intent: 'knowledge_query', Entity: 'tinubu'
+2025-09-25 11:04:37.674 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Pushing new stateful context: knowledge_query
+2025-09-25 11:04:37.677 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Added entity 'subject':'tinubu' to context
+2025-09-25 11:04:37.677 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Intent to handle (after context): 'knowledge_query'
+2025-09-25 11:04:37.677 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Final Intent to Handle: 'knowledge_query' | Using Handler: KnowledgeQueryHandler
+2025-09-25 11:04:37.677 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Calling handler.handle() for intent: 'knowledge_query' with input: 'Who is tinubu'
+2025-09-25 11:04:37.680 20849-20931 KnowledgeQueryHandler   com.f9ld3.heal                       D  KnowledgeQueryHandler: Original input: 'Who is tinubu'
+2025-09-25 11:04:37.680 20849-20931 KnowledgeQueryHandler   com.f9ld3.heal                       D  KnowledgeQueryHandler: Sending cleaned query to Wolfram|Alpha: 'tinubu'
+2025-09-25 11:04:37.682 20849-20931 WolframAlphaClient      com.f9ld3.heal                       D  Requesting WolframAlpha with AppID ending ...YYHE, URL: https://api.wolframalpha.com/v2/query?appid=3L279GYYHE&input=tinubu&output=xml&format=plaintext
+2025-09-25 11:04:37.700 20849-20931 System.out              com.f9ld3.heal                       I  [socket]:check permission begin!
+2025-09-25 11:04:37.700 20849-20931 System                  com.f9ld3.heal                       W  ClassLoader referenced unknown path: system/framework/mediatek-cta.jar
+2025-09-25 11:04:37.700 20849-20931 System.out              com.f9ld3.heal                       I  [socket] e:java.lang.ClassNotFoundException: com.mediatek.cta.CtaUtils
+2025-09-25 11:04:37.705 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:37.723 20849-20849 chatty                  com.f9ld3.heal                       I  uid=10490(com.f9ld3.heal) identical 2 lines
+2025-09-25 11:04:37.723 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:37.754 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:37.754 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:40.430 20849-20931 WolframAlphaClient      com.f9ld3.heal                       W  Could not set FEATURE_SECURE_PROCESSING on DocumentBuilderFactory. This might be a security risk. (Ask Gemini)
+                                                                                                    javax.xml.parsers.ParserConfigurationException: http://javax.xml.XMLConstants/feature/secure-processing
+                                                                                                    	at org.apache.harmony.xml.parsers.DocumentBuilderFactoryImpl.setFeature(DocumentBuilderFactoryImpl.java:101)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.parseFullResult(WolframAlphaClient.java:207)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.getFullResult(WolframAlphaClient.java:178)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.handlers.KnowledgeQueryHandler.handle(KnowledgeQueryHandler.java:73)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.XavierCoreV2.getResponse(XavierCoreV2.java:249)
+                                                                                                    	at ui.AIFragment.lambda$sendMessageToAi$9$ui-AIFragment(AIFragment.java:402)
+                                                                                                    	at ui.AIFragment$$ExternalSyntheticLambda5.get(D8$$SyntheticClass:0)
+                                                                                                    	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1627)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+                                                                                                    	at java.lang.Thread.run(Thread.java:923)
+2025-09-25 11:04:40.432 20849-20931 WolframAlphaClient      com.f9ld3.heal                       E  Unexpected exception with WolframAlpha AppID ending ...YYHE while processing query: 'tinubu'. Reason: This parser does not support specification "Unknown" version "0.0" (Ask Gemini)
+                                                                                                    java.lang.UnsupportedOperationException: This parser does not support specification "Unknown" version "0.0"
+                                                                                                    	at javax.xml.parsers.DocumentBuilderFactory.setXIncludeAware(DocumentBuilderFactory.java:475)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.parseFullResult(WolframAlphaClient.java:213)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.getFullResult(WolframAlphaClient.java:178)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.handlers.KnowledgeQueryHandler.handle(KnowledgeQueryHandler.java:73)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.XavierCoreV2.getResponse(XavierCoreV2.java:249)
+                                                                                                    	at ui.AIFragment.lambda$sendMessageToAi$9$ui-AIFragment(AIFragment.java:402)
+                                                                                                    	at ui.AIFragment$$ExternalSyntheticLambda5.get(D8$$SyntheticClass:0)
+                                                                                                    	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1627)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+                                                                                                    	at java.lang.Thread.run(Thread.java:923)
+2025-09-25 11:04:40.432 20849-20931 WolframAlphaClient      com.f9ld3.heal                       D  Requesting WolframAlpha with AppID ending ...K98P, URL: https://api.wolframalpha.com/v2/query?appid=XPYYLEK98P&input=tinubu&output=xml&format=plaintext
+2025-09-25 11:04:42.020 20849-20931 WolframAlphaClient      com.f9ld3.heal                       W  Could not set FEATURE_SECURE_PROCESSING on DocumentBuilderFactory. This might be a security risk. (Ask Gemini)
+                                                                                                    javax.xml.parsers.ParserConfigurationException: http://javax.xml.XMLConstants/feature/secure-processing
+                                                                                                    	at org.apache.harmony.xml.parsers.DocumentBuilderFactoryImpl.setFeature(DocumentBuilderFactoryImpl.java:101)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.parseFullResult(WolframAlphaClient.java:207)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.getFullResult(WolframAlphaClient.java:178)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.handlers.KnowledgeQueryHandler.handle(KnowledgeQueryHandler.java:73)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.XavierCoreV2.getResponse(XavierCoreV2.java:249)
+                                                                                                    	at ui.AIFragment.lambda$sendMessageToAi$9$ui-AIFragment(AIFragment.java:402)
+                                                                                                    	at ui.AIFragment$$ExternalSyntheticLambda5.get(D8$$SyntheticClass:0)
+                                                                                                    	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1627)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+                                                                                                    	at java.lang.Thread.run(Thread.java:923)
+2025-09-25 11:04:42.022 20849-20931 WolframAlphaClient      com.f9ld3.heal                       E  Unexpected exception with WolframAlpha AppID ending ...K98P while processing query: 'tinubu'. Reason: This parser does not support specification "Unknown" version "0.0" (Ask Gemini)
+                                                                                                    java.lang.UnsupportedOperationException: This parser does not support specification "Unknown" version "0.0"
+                                                                                                    	at javax.xml.parsers.DocumentBuilderFactory.setXIncludeAware(DocumentBuilderFactory.java:475)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.parseFullResult(WolframAlphaClient.java:213)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.getFullResult(WolframAlphaClient.java:178)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.handlers.KnowledgeQueryHandler.handle(KnowledgeQueryHandler.java:73)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.XavierCoreV2.getResponse(XavierCoreV2.java:249)
+                                                                                                    	at ui.AIFragment.lambda$sendMessageToAi$9$ui-AIFragment(AIFragment.java:402)
+                                                                                                    	at ui.AIFragment$$ExternalSyntheticLambda5.get(D8$$SyntheticClass:0)
+                                                                                                    	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1627)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+                                                                                                    	at java.lang.Thread.run(Thread.java:923)
+2025-09-25 11:04:42.023 20849-20931 WolframAlphaClient      com.f9ld3.heal                       D  Requesting WolframAlpha with AppID ending ...GT74, URL: https://api.wolframalpha.com/v2/query?appid=HGGGWHGT74&input=tinubu&output=xml&format=plaintext
+2025-09-25 11:04:42.977 20849-20931 WolframAlphaClient      com.f9ld3.heal                       W  Could not set FEATURE_SECURE_PROCESSING on DocumentBuilderFactory. This might be a security risk. (Ask Gemini)
+                                                                                                    javax.xml.parsers.ParserConfigurationException: http://javax.xml.XMLConstants/feature/secure-processing
+                                                                                                    	at org.apache.harmony.xml.parsers.DocumentBuilderFactoryImpl.setFeature(DocumentBuilderFactoryImpl.java:101)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.parseFullResult(WolframAlphaClient.java:207)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.getFullResult(WolframAlphaClient.java:178)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.handlers.KnowledgeQueryHandler.handle(KnowledgeQueryHandler.java:73)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.XavierCoreV2.getResponse(XavierCoreV2.java:249)
+                                                                                                    	at ui.AIFragment.lambda$sendMessageToAi$9$ui-AIFragment(AIFragment.java:402)
+                                                                                                    	at ui.AIFragment$$ExternalSyntheticLambda5.get(D8$$SyntheticClass:0)
+                                                                                                    	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1627)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+                                                                                                    	at java.lang.Thread.run(Thread.java:923)
+2025-09-25 11:04:42.978 20849-20931 WolframAlphaClient      com.f9ld3.heal                       E  Unexpected exception with WolframAlpha AppID ending ...GT74 while processing query: 'tinubu'. Reason: This parser does not support specification "Unknown" version "0.0" (Ask Gemini)
+                                                                                                    java.lang.UnsupportedOperationException: This parser does not support specification "Unknown" version "0.0"
+                                                                                                    	at javax.xml.parsers.DocumentBuilderFactory.setXIncludeAware(DocumentBuilderFactory.java:475)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.parseFullResult(WolframAlphaClient.java:213)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.getFullResult(WolframAlphaClient.java:178)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.handlers.KnowledgeQueryHandler.handle(KnowledgeQueryHandler.java:73)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.XavierCoreV2.getResponse(XavierCoreV2.java:249)
+                                                                                                    	at ui.AIFragment.lambda$sendMessageToAi$9$ui-AIFragment(AIFragment.java:402)
+                                                                                                    	at ui.AIFragment$$ExternalSyntheticLambda5.get(D8$$SyntheticClass:0)
+                                                                                                    	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1627)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+                                                                                                    	at java.lang.Thread.run(Thread.java:923)
+2025-09-25 11:04:42.978 20849-20931 WolframAlphaClient      com.f9ld3.heal                       E  All WolframAlpha AppIDs failed for query: 'tinubu'
+2025-09-25 11:04:42.978 20849-20931 KnowledgeQueryHandler   com.f9ld3.heal                       D  KnowledgeQueryHandler: Wolfram|Alpha failed. Falling back to web search for: tinubu
+2025-09-25 11:04:42.979 20849-20931 SearchService           com.f9ld3.heal                       D  Attempting search for 'Who is tinubu' with key ending in: ...a571
+2025-09-25 11:04:42.993 20849-20931 System.out              com.f9ld3.heal                       I  [socket]:check permission begin!
+2025-09-25 11:04:44.592 20849-20931 SearchService           com.f9ld3.heal                       D  Successful search response. Body: {"searchParameters":{"q":"Who+is+tinubu","type":"search","engine":"google"},"answerBox":{"snippet":"Asiwaju Bola Ahmed Adekunle Tinubu GCFR (born 29 March 1952) is a Nigerian politician serving as the 16th and current president of Nigeria since 2023.","title":"Bola Tinubu - Wikipedia","link":"https://en.wikipedia.org/wiki/Bola_Tinubu"},"knowledgeGraph":{"title":"Bola Ahmed Tinubu","type":"President of Nigeria","imageUrl":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhwk1KMrsJo5Cn5wW5Eb2l9jAYXZRgN8w&s=0","description":"Asiwaju Bola Ahmed Adekunle Tinubu GCFR is a Nigerian politician serving as the 16th and current president of Nigeria since 2023. He previously served as the governor of Lagos State from 1999 to 2007, and senator for Lagos West in the Third...","descriptionSource":"Wikipedia","descriptionLink":"https://en.wikipedia.org/wiki/Bola_Tinubu","attributes":{"Born":"March 29, 1952 (age 73 years), Lagos, Nigeria","Party":"All Progressives Congress","Children":"Seyi Tinubu, Habibat Tinubu, and Jide Tinubu","Spouse":"Remi Tinubu (m. 1987)","Books":"A toast to excellence","Parents":"Abibatu Mogaji","Education":"Chicago State University (1977–1979) and Richard J. Daley College"}},"organic":[{"title":"Bola Tinubu | Biography, Wife, Chicago, & Facts - Britannica","link":"https://www.britannica.com/biography/Bola-Tinubu","snippet":"Bola Tinubu (born March 29, 1952, Colony and Protectorate of Nigeria, now Nigeria) is a Nigerian accountant and politician who has been president of Nigeria ...","position":1},{"title":"Bola Ahmed Tinubu (@officialABAT) / X","link":"https://x.com/officialabat?lang=en","snippet":"The President, Commander-in-Chief of the Armed Forces, Federal Republic of Nigeria. Asiwaju Bola Ahmed Tinubu GCFR.","position":2},{"title":"Bola Tinubu - Innovations for Successful Societies","link":"https://successfulsocieties.princeton.edu/interviews/bola-tinubu","snippet":"Bola Tinubu, former governor of the state of Lagos in Nigeria, reflects on his administration's successes in reforming the civil service, reducing corruption,","position":3},{"title":"Bola Ahmed Tinubu (GCFR) – The Statehouse, Abuja","link":"https://statehouse.gov.ng/team/bola-ahmed-tinubu/","snippet":"He is serving as the 16th and Current President of the Federal Republic of Nigeria, after serving as the Governor of Lagos State from the year 1999 to 2007.","position":4},{"title":"Asiwaju Bola Ahmed Tinubu - Facebook","link":"https://www.facebook.com/officialasiwajubat/","snippet":"Asiwaju Bola Ahmed Tinubu. 620246 likes · 108657 talking about this. The President, Commander-in-Chief of the Armed Forces, Federal Republic of Nigeria.","position":5},{"title":"Who is Bola Tinubu, Nigeria's new president? – DW – 05/29/2023","link":"https://www.dw.com/en/who-is-nigerias-new-president-bola-tinubu/a-64851330","snippet":"Tinubu is believed to be one of Nigeria's richest politicians but the source of his wealth is unknown. The political kingmaker has interests in a number of ...","position":6},{"title":"Asiwaju Bola Ahmed Tinubu GCFR (@officialasiwajubat) - Instagram","link":"https://www.instagram.com/officialasiwajubat/?hl=en","snippet":"President and Commander-in-Chief of the Armed Forces of the Federal Republic of Nigeria · Photo shared by Asiwaju Bola Ahmed Tinubu GCFR on August 28, 2025 ...","position":7},{"title":"Auto-Biography – President Bola Ahmed Tinubu GCFR","link":"https://www.nigerianembassy.co.il/2015-elections/","snippet":"His Excellency Chief Bola Ahmed Adekunle Tinubu GCFR (born 29 March 1952) is a Nigerian politician who has served as the 16th president of Nigeria since 2023. ...","position":8}],"peopleAlsoAsk":[{"question":"Who is Tinubu's real mother?","snippet":"Abibatu Mogaji\nAbibatu Mogaji. Chief Abibatu Mogaji OON MFR (16 October 1916 – 15 June 2013) was a Nigerian business magnate and the Ìyál'ọ́jà of Lagos. She was the mother of the president of Nigeria Chief Bola Tinubu.","title":"Abibatu Mogaji - Wikipedia","link":"https:
+2025-09-25 11:04:44.610 20849-20931 KnowledgeQueryHandler   com.f9ld3.heal                       D  KnowledgeQueryHandler finished. Popping context.
+2025-09-25 11:04:44.610 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Applied asterisk filter. Filtered response: 'I couldn't find a direct answer, but I found a web page that might help:
+
+                                                                                                    Title: Bola Tinubu | Biography, Wife, Chicago, & Facts - Britannica
+                                                                                                    Source: https://www.britannica.com/biography/Bola-Tinubu'
+2025-09-25 11:04:44.658 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  getResponse: END. Response from handler for 'Who is tinubu': 'I couldn't find a direct answer, but I found a web page that might help:
+
+                                                                                                    Title: Bola Tinubu | Biography, Wife, Chicago, & Facts - Britannica
+                                                                                                    Source: https://www.britannica.com/biography/Bola-Tinubu'
+2025-09-25 11:04:44.658 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_background: Received response from XavierCoreV2: 'I couldn't find a direct answer, but I found a web page that might help:
+
+                                                                                                    Title: Bola Tinubu | Biography, Wife, Chicago, & Facts - Britannica
+                                                                                                    Source: https://www.britannica.com/biography/Bola-Tinubu'
+2025-09-25 11:04:44.658 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_whenComplete: START. ResponseText: 'I couldn't find a direct answer, but I found a web page that might help:
+
+                                                                                                    Title: Bola Tinubu | Biography, Wife, Chicago, & Facts - Britannica
+                                                                                                    Source: https://www.britannica.com/biography/Bola-Tinubu'
+2025-09-25 11:04:44.658 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_whenComplete: END.
+2025-09-25 11:04:44.658 20849-20849 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_whenComplete_ui: Updating UI.
+2025-09-25 11:04:44.673 20849-20849 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_whenComplete_ui: Adding AI response: 'I couldn't find a direct answer, but I found a web page that might help:
+
+                                                                                                    Title: Bola Tinubu | Biography, Wife, Chicago, & Facts - Britannica
+                                                                                                    Source: https://www.britannica.com/biography/Bola-Tinubu'
+2025-09-25 11:04:44.673 20849-20849 AIFragment              com.f9ld3.heal                       D  saveChatHistory: Attempting to save 65 messages.
+2025-09-25 11:04:44.676 20849-20849 AIFragment              com.f9ld3.heal                       I  saveChatHistory: Success. Items: 65
+2025-09-25 11:04:44.676 20849-20849 AIFragment              com.f9ld3.heal                       D  saveConversationContext: START
+2025-09-25 11:04:44.677 20849-20849 AIFragment              com.f9ld3.heal                       I  saveConversationContext: Success.
+2025-09-25 11:04:44.677 20849-20849 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_whenComplete_ui: UI update complete.
+2025-09-25 11:04:44.691 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:44.723 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:44.723 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:44.691 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:04:48.007 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:48.007 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:50.173 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:50.173 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:53.412 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:53.412 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:55.597 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:55.597 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:57.493 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:57.493 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:57.706 20849-20849 AIFragment              com.f9ld3.heal                       I  handleSendButtonClick: START
+2025-09-25 11:04:57.714 20849-20849 AIFragment              com.f9ld3.heal                       I  handleSendButtonClick: User message to send: 'Where is tinubu'
+2025-09-25 11:04:57.715 20849-20849 AIFragment              com.f9ld3.heal                       D  saveChatHistory: Attempting to save 66 messages.
+2025-09-25 11:04:57.716 20849-20849 AIFragment              com.f9ld3.heal                       I  saveChatHistory: Success. Items: 66
+2025-09-25 11:04:57.724 20849-20849 AIFragment              com.f9ld3.heal                       I  sendMessageToAi: START for query: 'Where is tinubu'
+2025-09-25 11:04:57.731 20849-20849 AIFragment              com.f9ld3.heal                       I  sendMessageToAi: END (CompletableFuture submitted) for query: 'Where is tinubu'
+2025-09-25 11:04:57.731 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_background: START for query: 'Where is tinubu'
+2025-09-25 11:04:57.731 20849-20931 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_background: Calling xavier.getResponse for: 'Where is tinubu'
+2025-09-25 11:04:57.732 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  getResponse: START for userInput: 'Where is tinubu'
+2025-09-25 11:04:57.732 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: AI is trained. Proceeding with input: 'Where is tinubu'
+2025-09-25 11:04:57.733 20849-20849 AIFragment              com.f9ld3.heal                       I  handleSendButtonClick: END
+2025-09-25 11:04:57.733 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Sentiment Score for 'Where is tinubu': 0.00
+2025-09-25 11:04:57.734 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Running prediction pipeline for: 'Where is tinubu'
+2025-09-25 11:04:57.734 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  [PIPELINE_START] Processing Raw User Input: 'Where is tinubu'
+2025-09-25 11:04:57.734 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_INFO] Cleaned User Input: 'where is tinubu'
+2025-09-25 11:04:57.734 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_STEP] Checking Direct Match for: 'where is tinubu'
+2025-09-25 11:04:57.734 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_STEP] Checking Fuzzy Direct Match for: 'where is tinubu'
+2025-09-25 11:04:57.734 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_STEP] Checking Pattern Match for: 'where is tinubu'
+2025-09-25 11:04:57.735 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  [PIPELINE_RESULT] Pattern match. Intent: knowledge_query, Entity: tinubu
+2025-09-25 11:04:57.735 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  [PIPELINE_END] Path: Pattern Match.
+2025-09-25 11:04:57.735 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Predicted Intent: 'knowledge_query', Entity: 'tinubu'
+2025-09-25 11:04:57.735 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Pushing new stateful context: knowledge_query
+2025-09-25 11:04:57.735 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Added entity 'subject':'tinubu' to context
+2025-09-25 11:04:57.735 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Intent to handle (after context): 'knowledge_query'
+2025-09-25 11:04:57.735 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Final Intent to Handle: 'knowledge_query' | Using Handler: KnowledgeQueryHandler
+2025-09-25 11:04:57.735 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Calling handler.handle() for intent: 'knowledge_query' with input: 'Where is tinubu'
+2025-09-25 11:04:57.736 20849-20931 KnowledgeQueryHandler   com.f9ld3.heal                       D  KnowledgeQueryHandler: Original input: 'Where is tinubu'
+2025-09-25 11:04:57.736 20849-20931 KnowledgeQueryHandler   com.f9ld3.heal                       D  KnowledgeQueryHandler: Sending cleaned query to Wolfram|Alpha: 'where is tinubu'
+2025-09-25 11:04:57.739 20849-20931 WolframAlphaClient      com.f9ld3.heal                       D  Requesting WolframAlpha with AppID ending ...YYHE, URL: https://api.wolframalpha.com/v2/query?appid=3L279GYYHE&input=where+is+tinubu&output=xml&format=plaintext
+2025-09-25 11:04:57.776 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:57.826 20849-20849 chatty                  com.f9ld3.heal                       I  uid=10490(com.f9ld3.heal) identical 4 lines
+2025-09-25 11:04:57.826 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:04:59.941 20849-20931 WolframAlphaClient      com.f9ld3.heal                       W  Could not set FEATURE_SECURE_PROCESSING on DocumentBuilderFactory. This might be a security risk. (Ask Gemini)
+                                                                                                    javax.xml.parsers.ParserConfigurationException: http://javax.xml.XMLConstants/feature/secure-processing
+                                                                                                    	at org.apache.harmony.xml.parsers.DocumentBuilderFactoryImpl.setFeature(DocumentBuilderFactoryImpl.java:101)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.parseFullResult(WolframAlphaClient.java:207)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.getFullResult(WolframAlphaClient.java:178)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.handlers.KnowledgeQueryHandler.handle(KnowledgeQueryHandler.java:73)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.XavierCoreV2.getResponse(XavierCoreV2.java:249)
+                                                                                                    	at ui.AIFragment.lambda$sendMessageToAi$9$ui-AIFragment(AIFragment.java:402)
+                                                                                                    	at ui.AIFragment$$ExternalSyntheticLambda5.get(D8$$SyntheticClass:0)
+                                                                                                    	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1627)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+                                                                                                    	at java.lang.Thread.run(Thread.java:923)
+2025-09-25 11:04:59.944 20849-20931 WolframAlphaClient      com.f9ld3.heal                       E  Unexpected exception with WolframAlpha AppID ending ...YYHE while processing query: 'where is tinubu'. Reason: This parser does not support specification "Unknown" version "0.0" (Ask Gemini)
+                                                                                                    java.lang.UnsupportedOperationException: This parser does not support specification "Unknown" version "0.0"
+                                                                                                    	at javax.xml.parsers.DocumentBuilderFactory.setXIncludeAware(DocumentBuilderFactory.java:475)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.parseFullResult(WolframAlphaClient.java:213)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.getFullResult(WolframAlphaClient.java:178)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.handlers.KnowledgeQueryHandler.handle(KnowledgeQueryHandler.java:73)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.XavierCoreV2.getResponse(XavierCoreV2.java:249)
+                                                                                                    	at ui.AIFragment.lambda$sendMessageToAi$9$ui-AIFragment(AIFragment.java:402)
+                                                                                                    	at ui.AIFragment$$ExternalSyntheticLambda5.get(D8$$SyntheticClass:0)
+                                                                                                    	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1627)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+                                                                                                    	at java.lang.Thread.run(Thread.java:923)
+2025-09-25 11:04:59.949 20849-20931 WolframAlphaClient      com.f9ld3.heal                       D  Requesting WolframAlpha with AppID ending ...K98P, URL: https://api.wolframalpha.com/v2/query?appid=XPYYLEK98P&input=where+is+tinubu&output=xml&format=plaintext
+2025-09-25 11:05:02.510 20849-20931 WolframAlphaClient      com.f9ld3.heal                       W  Could not set FEATURE_SECURE_PROCESSING on DocumentBuilderFactory. This might be a security risk. (Ask Gemini)
+                                                                                                    javax.xml.parsers.ParserConfigurationException: http://javax.xml.XMLConstants/feature/secure-processing
+                                                                                                    	at org.apache.harmony.xml.parsers.DocumentBuilderFactoryImpl.setFeature(DocumentBuilderFactoryImpl.java:101)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.parseFullResult(WolframAlphaClient.java:207)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.getFullResult(WolframAlphaClient.java:178)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.handlers.KnowledgeQueryHandler.handle(KnowledgeQueryHandler.java:73)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.XavierCoreV2.getResponse(XavierCoreV2.java:249)
+                                                                                                    	at ui.AIFragment.lambda$sendMessageToAi$9$ui-AIFragment(AIFragment.java:402)
+                                                                                                    	at ui.AIFragment$$ExternalSyntheticLambda5.get(D8$$SyntheticClass:0)
+                                                                                                    	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1627)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+                                                                                                    	at java.lang.Thread.run(Thread.java:923)
+2025-09-25 11:05:02.511 20849-20931 WolframAlphaClient      com.f9ld3.heal                       E  Unexpected exception with WolframAlpha AppID ending ...K98P while processing query: 'where is tinubu'. Reason: This parser does not support specification "Unknown" version "0.0" (Ask Gemini)
+                                                                                                    java.lang.UnsupportedOperationException: This parser does not support specification "Unknown" version "0.0"
+                                                                                                    	at javax.xml.parsers.DocumentBuilderFactory.setXIncludeAware(DocumentBuilderFactory.java:475)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.parseFullResult(WolframAlphaClient.java:213)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.getFullResult(WolframAlphaClient.java:178)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.handlers.KnowledgeQueryHandler.handle(KnowledgeQueryHandler.java:73)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.XavierCoreV2.getResponse(XavierCoreV2.java:249)
+                                                                                                    	at ui.AIFragment.lambda$sendMessageToAi$9$ui-AIFragment(AIFragment.java:402)
+                                                                                                    	at ui.AIFragment$$ExternalSyntheticLambda5.get(D8$$SyntheticClass:0)
+                                                                                                    	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1627)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+                                                                                                    	at java.lang.Thread.run(Thread.java:923)
+2025-09-25 11:05:02.512 20849-20931 WolframAlphaClient      com.f9ld3.heal                       D  Requesting WolframAlpha with AppID ending ...GT74, URL: https://api.wolframalpha.com/v2/query?appid=HGGGWHGT74&input=where+is+tinubu&output=xml&format=plaintext
+2025-09-25 11:05:04.580 20849-20931 WolframAlphaClient      com.f9ld3.heal                       W  Could not set FEATURE_SECURE_PROCESSING on DocumentBuilderFactory. This might be a security risk. (Ask Gemini)
+                                                                                                    javax.xml.parsers.ParserConfigurationException: http://javax.xml.XMLConstants/feature/secure-processing
+                                                                                                    	at org.apache.harmony.xml.parsers.DocumentBuilderFactoryImpl.setFeature(DocumentBuilderFactoryImpl.java:101)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.parseFullResult(WolframAlphaClient.java:207)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.getFullResult(WolframAlphaClient.java:178)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.handlers.KnowledgeQueryHandler.handle(KnowledgeQueryHandler.java:73)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.XavierCoreV2.getResponse(XavierCoreV2.java:249)
+                                                                                                    	at ui.AIFragment.lambda$sendMessageToAi$9$ui-AIFragment(AIFragment.java:402)
+                                                                                                    	at ui.AIFragment$$ExternalSyntheticLambda5.get(D8$$SyntheticClass:0)
+                                                                                                    	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1627)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+                                                                                                    	at java.lang.Thread.run(Thread.java:923)
+2025-09-25 11:05:04.582 20849-20931 WolframAlphaClient      com.f9ld3.heal                       E  Unexpected exception with WolframAlpha AppID ending ...GT74 while processing query: 'where is tinubu'. Reason: This parser does not support specification "Unknown" version "0.0" (Ask Gemini)
+                                                                                                    java.lang.UnsupportedOperationException: This parser does not support specification "Unknown" version "0.0"
+                                                                                                    	at javax.xml.parsers.DocumentBuilderFactory.setXIncludeAware(DocumentBuilderFactory.java:475)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.parseFullResult(WolframAlphaClient.java:213)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.WolframAlphaClient.getFullResult(WolframAlphaClient.java:178)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.handlers.KnowledgeQueryHandler.handle(KnowledgeQueryHandler.java:73)
+                                                                                                    	at com.f9ld3.xavier.ai.V2.XavierCoreV2.getResponse(XavierCoreV2.java:249)
+                                                                                                    	at ui.AIFragment.lambda$sendMessageToAi$9$ui-AIFragment(AIFragment.java:402)
+                                                                                                    	at ui.AIFragment$$ExternalSyntheticLambda5.get(D8$$SyntheticClass:0)
+                                                                                                    	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1627)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+                                                                                                    	at java.lang.Thread.run(Thread.java:923)
+2025-09-25 11:05:04.582 20849-20931 WolframAlphaClient      com.f9ld3.heal                       E  All WolframAlpha AppIDs failed for query: 'where is tinubu'
+2025-09-25 11:05:04.582 20849-20931 KnowledgeQueryHandler   com.f9ld3.heal                       D  KnowledgeQueryHandler: Wolfram|Alpha failed. Falling back to web search for: where is tinubu
+2025-09-25 11:05:04.584 20849-20931 SearchService           com.f9ld3.heal                       D  Attempting search for 'Where is tinubu' with key ending in: ...cb08
+2025-09-25 11:05:05.380 20849-20931 SearchService           com.f9ld3.heal                       D  Successful search response. Body: {"searchParameters":{"q":"Where+is+tinubu","type":"search","engine":"google"},"organic":[{"title":"Bola Tinubu - Wikipedia","link":"https://en.wikipedia.org/wiki/Bola_Tinubu","snippet":"Asiwaju Bola Ahmed Adekunle Tinubu GCFR (born 29 March 1952) is a Nigerian politician serving as the 16th and current president of Nigeria since 2023.","sitelinks":[{"title":"President of Nigeria","link":"https://en.wikipedia.org/wiki/President_of_Nigeria"},{"title":"Remi Tinubu","link":"https://en.wikipedia.org/wiki/Remi_Tinubu"},{"title":"Wale Tinubu","link":"https://en.wikipedia.org/wiki/Wale_Tinubu"},{"title":"Abibatu Mogaji","link":"https://en.wikipedia.org/wiki/Abibatu_Mogaji"}],"position":1},{"title":"President Tinubu Arrives Brazil to Begin State Visit","link":"https://statehouse.gov.ng/news/president-tinubu-arrives-brazil-to-begin-state-visit/","snippet":"President Bola Tinubu arrived on Monday in Brasília, Brazil, to commence a state visit. President Tinubu, who flew in from Los Angeles, United ...","date":"Aug 25, 2025","position":2},{"title":"President Tinubu Returns To Nigeria After Two-Week Brazil, St ...","link":"https://www.youtube.com/watch?v=nKNZuwY43Mg","snippet":"President Tinubu Returns To Nigeria After Two-Week Brazil, St Lucia Trips. 34K views · 2 months ago #Nigerianews #ChannelsTv # ...","date":"Jul 13, 2025","position":3},{"title":"Bola Ahmed Tinubu (@officialABAT) / X","link":"https://x.com/officialabat?lang=en","snippet":"The President, Commander-in-Chief of the Armed Forces, Federal Republic of Nigeria. Asiwaju Bola Ahmed Tinubu GCFR.","position":4},{"title":"President Tinubu Embarks on State Visit to Saint Lucia, Attends ...","link":"https://statehouse.gov.ng/news/president-tinubu-embarks-on-state-visit-to-saint-lucia-attends-bricks-summit-in-brazil/","snippet":"President Bola Tinubu will depart Abuja on Saturday, June 28, 2025, on a two-nation visit to Saint Lucia and Brazil.","date":"Jun 28, 2025","position":5},{"title":"President Tinubu returns to Abuja after two-nation visit to Japan, Brazil","link":"https://www.youtube.com/watch?v=D9UEFHJF1WQ","snippet":"President Tinubu returns to Abuja after two-nation visit to Japan, Brazil · Comments. Add a comment... 11:47. Go to channel · She's 12.","date":"Aug 28, 2025","position":6},{"title":"President Bola Ahmed Tinubu will today return to Abuja ... - Instagram","link":"https://www.instagram.com/reel/DItbqPmgsQq/","snippet":"President Bola Ahmed Tinubu will today return to Abuja after spending days in the United Kingdom. Follow TVC News for more updates.","position":7},{"title":"Asiwaju Bola Ahmed Tinubu - Facebook","link":"https://www.facebook.com/officialasiwajubat/","snippet":"Asiwaju Bola Ahmed Tinubu. 620349 likes · 109055 talking about this. The President, Commander-in-Chief of the Armed Forces, Federal Republic of Nigeria.","position":8},{"title":"Asiwaju Bola Ahmed Tinubu GCFR (@officialasiwajubat) - Instagram","link":"https://www.instagram.com/officialasiwajubat/?hl=en","snippet":"President and Commander-in-Chief of the Armed Forces of the Federal Republic of Nigeria · Photo shared by Asiwaju Bola Ahmed Tinubu GCFR on August 28, 2025 ...","position":9},{"title":"Official Visit- Arrival of H.E. Bola Ahmed Tinubu, President Of Nigeria ...","link":"https://www.youtube.com/watch?v=Gq2RaflQzlQ","snippet":"Official Visit- Arrival of H.E. Bola Ahmed Tinubu, President Of Nigeria (June 28,2025)","date":"Jun 29, 2025","position":10}],"peopleAlsoAsk":[{"question":"Is Bola Tinubu in Nigeria now?","snippet":"Asiwaju Bola Ahmed Adekunle Tinubu GCFR (born 29 March 1952) is a Nigerian politician serving as the 16th and current president of Nigeria since 2023.","title":"Bola Tinubu - Wikipedia","link":"https://en.wikipedia.org/wiki/Bola_Tinubu"},{"question":"Who is Nigeria's President now?","snippet":"Bola Ahmed Tinubu\nBola Ahmed Tinubu (GCFR) The inauguration of Senator Bola Ahmed Tinubu as President of the Federal Republic of Nigeria on May 29, 2023 was historic. He is serving as the
+2025-09-25 11:05:05.384 20849-20931 KnowledgeQueryHandler   com.f9ld3.heal                       D  KnowledgeQueryHandler finished. Popping context.
+2025-09-25 11:05:05.386 20849-20931 XavierCoreV2            com.f9ld3.heal                       D  getResponse: Applied asterisk filter. Filtered response: 'I couldn't find a direct answer, but I found a web page that might help:
+
+                                                                                                    Title: Bola Tinubu - Wikipedia
+                                                                                                    Source: https://en.wikipedia.org/wiki/Bola_Tinubu'
+2025-09-25 11:05:05.405 20849-20931 XavierCoreV2            com.f9ld3.heal                       I  getResponse: END. Response from handler for 'Where is tinubu': 'I couldn't find a direct answer, but I found a web page that might help:
+
+                                                                                                    Title: Bola Tinubu - Wikipedia
+                                                                                                    Source: https://en.wikipedia.org/wiki/Bola_Tinubu'
+2025-09-25 11:05:05.405 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_background: Received response from XavierCoreV2: 'I couldn't find a direct answer, but I found a web page that might help:
+
+                                                                                                    Title: Bola Tinubu - Wikipedia
+                                                                                                    Source: https://en.wikipedia.org/wiki/Bola_Tinubu'
+2025-09-25 11:05:05.405 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_whenComplete: START. ResponseText: 'I couldn't find a direct answer, but I found a web page that might help:
+
+                                                                                                    Title: Bola Tinubu - Wikipedia
+                                                                                                    Source: https://en.wikipedia.org/wiki/Bola_Tinubu'
+2025-09-25 11:05:05.406 20849-20849 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_whenComplete_ui: Updating UI.
+2025-09-25 11:05:05.411 20849-20931 AIFragment              com.f9ld3.heal                       I  sendMessageToAi_whenComplete: END.
+2025-09-25 11:05:05.420 20849-20849 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_whenComplete_ui: Adding AI response: 'I couldn't find a direct answer, but I found a web page that might help:
+
+                                                                                                    Title: Bola Tinubu - Wikipedia
+                                                                                                    Source: https://en.wikipedia.org/wiki/Bola_Tinubu'
+2025-09-25 11:05:05.420 20849-20849 AIFragment              com.f9ld3.heal                       D  saveChatHistory: Attempting to save 67 messages.
+2025-09-25 11:05:05.422 20849-20849 AIFragment              com.f9ld3.heal                       I  saveChatHistory: Success. Items: 67
+2025-09-25 11:05:05.423 20849-20849 AIFragment              com.f9ld3.heal                       D  saveConversationContext: START
+2025-09-25 11:05:05.423 20849-20849 AIFragment              com.f9ld3.heal                       I  saveConversationContext: Success.
+2025-09-25 11:05:05.423 20849-20849 AIFragment              com.f9ld3.heal                       D  sendMessageToAi_whenComplete_ui: UI update complete.
+2025-09-25 11:05:05.432 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-09-25 11:05:05.455 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:05:05.455 20849-20849 SpannableStringBuilder  com.f9ld3.heal                       E  SPAN_EXCLUSIVE_EXCLUSIVE spans cannot have a zero length
+2025-09-25 11:05:05.432 20849-20849 AppTurboService         com.f9ld3.heal                       D   getSettingSupport resullt = false mSettingCloudEnable = true

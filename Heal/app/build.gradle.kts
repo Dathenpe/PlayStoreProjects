@@ -63,7 +63,6 @@ dependencies {
     implementation(libs.okhttp3.logging.interceptor)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.lifecycle.viewmodel.ktx)
-    implementation(libs.google.firebase.crashlytics.buildtools)
     annotationProcessor(libs.glide.compiler)
     implementation(libs.work.runtime)
     implementation(libs.media3.common)

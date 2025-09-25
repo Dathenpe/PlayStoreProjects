@@ -1,4 +1,3 @@
-// --- Start of AIFragment.java (Updated) ---
 package ui;
 
 import android.content.BroadcastReceiver;
@@ -23,8 +22,17 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+// Imports for Jira Integration
+import com.f9ld3.heal.Fields;
+import com.f9ld3.heal.IssueType;
+import com.f9ld3.heal.JiraApiService;
+import com.f9ld3.heal.JiraIssueRequest;
+import com.f9ld3.heal.JiraIssueResponse;
 import com.f9ld3.heal.MainActivity;
+import com.f9ld3.heal.Project;
 import com.f9ld3.heal.R;
+import com.f9ld3.heal.RetrofitClient;
 import com.f9ld3.xavier.ai.V2.ConversationContext;
 import com.f9ld3.xavier.ai.V2.XavierCoreV2;
 import com.f9ld3.xavier.ai.V2.utils.ContentSafetyFilter;
@@ -43,10 +51,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import Ai.ChatAdapter;
 import Ai.ChatMessage;
+import retrofit2.Call;
+import retrofit2.Response;
 
 public class AIFragment extends Fragment implements CustomMessageDialogFragment.OnMessageDialogListener {
 
-    private static final String TAG = "AIFragment"; // UI_TAG
+    private static final String TAG = "AIFragment";
     private static final String PREFS_NAME = "XavierAiPrefs";
     private static final String KEY_CHAT_HISTORY = "chatHistory";
     private static final String KEY_CONVERSATION_CONTEXT = "conversationContext";
@@ -56,7 +66,8 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
     private TextInputEditText messageInputEditText;
     private MaterialButton sendButton;
     private FloatingActionButton fabClearChat;
-    private FloatingActionButton fabScrollToBottom; // New variable
+    private FloatingActionButton fabScrollToBottom;
+    private FloatingActionButton fabUploadLogs; // New FAB for uploading logs
     private ImageView networkStatusIcon;
 
     private ChatAdapter chatAdapter;
@@ -68,7 +79,6 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
     private ConversationContext conversationContext;
     private boolean isXavierReadyAndTrained = false; // Combined flag
 
-    // --- NEW: ContentSafetyFilter instance ---
     private ContentSafetyFilter contentSafetyFilter;
 
     private final ExecutorService xavierExecutor = Executors.newSingleThreadExecutor();
@@ -117,21 +127,23 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
         messageInputEditText = view.findViewById(R.id.message_input_edit_text);
         sendButton = view.findViewById(R.id.send_button);
         fabClearChat = view.findViewById(R.id.fab_clear_chat);
-        fabScrollToBottom = view.findViewById(R.id.fab_scroll_to_bottom); // Initialize new FAB
+        fabScrollToBottom = view.findViewById(R.id.fab_scroll_to_bottom);
         networkStatusIcon = view.findViewById(R.id.network_status_icon);
+        fabUploadLogs = view.findViewById(R.id.fab_upload_logs); // Initialize new FAB
 
         Log.d(TAG, "onViewCreated: Setting up RecyclerView...");
         setupRecyclerView();
 
         Log.d(TAG, "onViewCreated: Loading chat history...");
-        loadChatHistory(); // Also initializes chatMessages and adapter if needed
+        loadChatHistory();
 
         Log.d(TAG, "onViewCreated: Initializing Xavier...");
-        initializeXavier(); // This will also load/create conversationContext
+        initializeXavier();
 
         sendButton.setOnClickListener(v -> handleSendButtonClick());
         fabClearChat.setOnClickListener(v -> showClearHistoryConfirmationDialog());
-        fabScrollToBottom.setOnClickListener(v -> chatRecyclerView.smoothScrollToPosition(chatMessages.size() - 1)); // Handle click
+        fabScrollToBottom.setOnClickListener(v -> chatRecyclerView.smoothScrollToPosition(chatMessages.size() - 1));
+        fabUploadLogs.setOnClickListener(v -> showUploadConfirmationDialog()); // Set listener for new FAB
 
         updateNetworkStatusVisuals();
 
@@ -217,17 +229,15 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
         }
 
         if (!messageText.isEmpty()) {
-            // --- UPDATED: Apply content safety filter to user input ---
             ContentSafetyResult userSafetyResult = contentSafetyFilter.analyzeContent(messageText);
             if (!userSafetyResult.isSafe()) {
                 Log.w(TAG, "handleSendButtonClick: Unsafe content detected from user: '" + messageText + "'. Details: " + userSafetyResult);
                 String feedbackMessage;
-                // Provide tiered feedback based on severity
                 if (userSafetyResult.getSeverityScore() >= 0.95) {
                     feedbackMessage = "Your message contains critically unsafe content. I cannot process this. Further attempts may result in restrictions.";
                 } else if (userSafetyResult.getSeverityScore() >= 0.8) {
                     feedbackMessage = "I cannot respond to that. Please keep our conversation respectful and appropriate. Your message contained highly inappropriate content.";
-                } else { // MODERATE_RISK or LOW_RISK
+                } else {
                     feedbackMessage = "I cannot respond to that. Please keep our conversation respectful and appropriate.";
                 }
                 addMessageToChat(new ChatMessage(feedbackMessage, false), true);
@@ -235,14 +245,13 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
                 Log.i(TAG, "handleSendButtonClick: END (unsafe user content)");
                 return;
             }
-            // --- END UPDATED FILTER ---
 
             Log.i(TAG, "handleSendButtonClick: User message to send: '" + messageText + "'");
             ChatMessage userMessage = new ChatMessage(messageText, true);
             addMessageToChat(userMessage, true);
             messageInputEditText.setText("");
 
-            sendMessageToAi(messageText); // This passes the *clean* messageText to the AI
+            sendMessageToAi(messageText);
             hideKeyboard(messageInputEditText);
         } else {
             Log.d(TAG, "handleSendButtonClick: Empty message entered. Toast shown.");
@@ -277,13 +286,10 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
                 Log.d(TAG, "initializeXavier_background: Initializing ResponseGenerator...");
                 ResponseGenerator.init(safeContext.getApplicationContext());
 
-                // --- NEW: Initialize ContentSafetyFilter ---
                 contentSafetyFilter = new ContentSafetyFilter();
                 Log.d(TAG, "initializeXavier_background: ContentSafetyFilter initialized.");
-                // --- END NEW ---
 
                 Log.d(TAG, "initializeXavier_background: Creating XavierCoreV2 instance...");
-                // Pass the ContentSafetyFilter instance to XavierCoreV2's constructor if it also needs to filter internally
                 xavier = new XavierCoreV2(safeContext.getApplicationContext(), contentSafetyFilter);
                 Log.d(TAG, "initializeXavier_background: XavierCoreV2 instance created.");
 
@@ -297,11 +303,11 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
                 }
 
                 Log.d(TAG, "initializeXavier_background: Loading conversation context...");
-                loadConversationContext(); // Ensure this is robust
+                loadConversationContext();
 
                 if (conversationContext == null) {
                     Log.w(TAG, "initializeXavier_background: ConversationContext was null after load, creating new.");
-                    conversationContext = new ConversationContext(); // Ensure ConversationContext() constructor is safe
+                    conversationContext = new ConversationContext();
                 }
 
                 Log.d(TAG, "initializeXavier_background: Conversation context loaded/created.");
@@ -345,16 +351,15 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
 
     private void setupRecyclerView() {
         Log.d(TAG, "setupRecyclerView: START");
-        if (chatMessages == null) { // Should be initialized before loadChatHistory
+        if (chatMessages == null) {
             chatMessages = new ArrayList<>();
         }
-        chatAdapter = new ChatAdapter(chatMessages); // Assuming ChatAdapter constructor is safe
+        chatAdapter = new ChatAdapter(chatMessages);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContextSafe());
         layoutManager.setStackFromEnd(true);
         if (chatRecyclerView != null) {
             chatRecyclerView.setLayoutManager(layoutManager);
             chatRecyclerView.setAdapter(chatAdapter);
-            // Add scroll listener for the new button
             chatRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
                 @Override
                 public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -367,7 +372,6 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
                     int lastVisibleItemPosition = layoutManager.findLastVisibleItemPosition();
                     int totalItemCount = chatAdapter.getItemCount();
 
-                    // Show the button if the last visible item is NOT the last item in the list
                     if (lastVisibleItemPosition < totalItemCount - 1) {
                         fabScrollToBottom.show();
                     } else {
@@ -384,39 +388,27 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
     private void sendMessageToAi(String userQuery) {
         Log.i(TAG, "sendMessageToAi: START for query: '" + userQuery + "'");
 
-        // The input is already filtered in handleSendButtonClick(), so no need for a redundant filter here.
-
         showLoadingIndicator(true);
         showInputDisabled(true);
 
         CompletableFuture.supplyAsync(() -> {
             Log.i(TAG, "sendMessageToAi_background: START for query: '" + userQuery + "'");
-            if (xavier == null) {
-                Log.e(TAG, "sendMessageToAi_background: Xavier instance is NULL.");
-                return "Error: AI (Xavier) is not ready.";
-            }
-            Log.d(TAG, "sendMessageToAi_background: Xavier.isTrained() = " + xavier.isTrained());
-            if (!xavier.isTrained()) {
-                Log.e(TAG, "sendMessageToAi_background: Xavier is NOT TRAINED.");
+            if (xavier == null || !xavier.isTrained()) {
+                Log.e(TAG, "sendMessageToAi_background: Xavier instance is NULL or not trained.");
                 return "I'm still learning. Please try again in a moment.";
             }
             if (conversationContext == null) {
                 Log.w(TAG, "sendMessageToAi_background: ConversationContext is NULL. Creating new one.");
-                // Ensure ConversationContext constructor and methods are thread-safe if accessed elsewhere,
-                // though here it's on xavierExecutor thread.
                 conversationContext = new ConversationContext();
             }
             Log.d(TAG, "sendMessageToAi_background: Calling xavier.getResponse for: '" + userQuery + "'");
-            String response = xavier.getResponse(userQuery, conversationContext); // This is the call to XavierCoreV2
+            String response = xavier.getResponse(userQuery, conversationContext);
             Log.i(TAG, "sendMessageToAi_background: Received response from XavierCoreV2: '" + response + "'");
             return response;
         }, xavierExecutor).whenComplete((responseText, throwable) -> {
             Log.i(TAG, "sendMessageToAi_whenComplete: START. ResponseText: '" + responseText + "'");
             if (throwable != null) {
-                Log.e(TAG, "sendMessageToAi_whenComplete: Throwable received for query '" + userQuery + "': " + throwable.toString(), throwable);
-                if (throwable.getCause() != null) {
-                    Log.e(TAG, "sendMessageToAi_whenComplete: CAUSE: " + throwable.getCause().toString(), throwable.getCause());
-                }
+                Log.e(TAG, "sendMessageToAi_whenComplete: Throwable received for query '" + userQuery + "':", throwable);
             }
 
             if (getActivity() != null) {
@@ -425,29 +417,21 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
                     showLoadingIndicator(false);
                     showInputDisabled(false);
 
+                    String finalResponse;
                     if (throwable != null) {
                         Log.d(TAG, "sendMessageToAi_whenComplete_ui: Handling throwable.");
-                        addMessageToChat(new ChatMessage("Sorry, I encountered an internal error. Please try again.", false), true);
+                        finalResponse = "Sorry, I encountered an internal error. Please try again.";
                     } else {
                         Log.d(TAG, "sendMessageToAi_whenComplete_ui: Adding AI response: '" + responseText + "'");
-                        String finalResponse = (responseText == null || responseText.isBlank()) ? "Sorry, I didn't get a response." : responseText;
-
-                        // --- UPDATED: Apply content safety filter to AI's output ---
-                        ContentSafetyResult aiOutputSafetyResult = contentSafetyFilter.analyzeContent(finalResponse);
-                        if (!aiOutputSafetyResult.isSafe()) {
-                            Log.w(TAG, "sendMessageToAi_whenComplete_ui: AI generated unsafe content! Original: '" + finalResponse + "'. Details: " + aiOutputSafetyResult);
-                            // Replace unsafe AI response with a generic disclaimer
-                            finalResponse = "I'm sorry, but I cannot display this response as it violates content safety guidelines. Please ask another question.";
-                        }
-                        // --- END UPDATED FILTER ---
-
-                        addMessageToChat(new ChatMessage(finalResponse, false), true);
+                        finalResponse = (responseText == null || responseText.isBlank()) ? "Sorry, I didn't get a response." : responseText;
                     }
-                    saveConversationContext(); // Save context after getting a response
+
+                    addMessageToChat(new ChatMessage(finalResponse, false), true);
+                    saveConversationContext();
                     Log.d(TAG, "sendMessageToAi_whenComplete_ui: UI update complete.");
                 });
             } else {
-                Log.w(TAG, "sendMessageToAi_whenComplete: getActivity() is NULL. Cannot update UI. Response was: '" + responseText + "', Throwable: " + (throwable != null ? throwable.getMessage() : "null"));
+                Log.w(TAG, "sendMessageToAi_whenComplete: getActivity() is NULL. Cannot update UI.");
             }
             Log.i(TAG, "sendMessageToAi_whenComplete: END.");
         });
@@ -455,7 +439,6 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
     }
 
     private void showLoadingIndicator(boolean show) {
-        // Log.v(TAG, "showLoadingIndicator: " + show); // Verbose, uncomment if needed
         if (chatAdapter == null || chatMessages == null || chatRecyclerView == null) {
             Log.w(TAG, "showLoadingIndicator: Adapter, messages, or RecyclerView is null. Cannot show/hide indicator.");
             return;
@@ -481,17 +464,11 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
     }
 
     private void addMessageToChat(ChatMessage message, boolean saveHistory) {
-        // Log.d(TAG, "addMessageToChat: User=" + message.isUserMessage() + ", Text='" + message.getText() + "', saveHistory=" + saveHistory);
         if (chatMessages == null || chatAdapter == null) {
             Log.e(TAG, "addMessageToChat: chatMessages or chatAdapter is null!");
             return;
         }
-        if (chatRecyclerView == null) {
-            Log.e(TAG, "addMessageToChat: chatRecyclerView is null!");
-            // Attempt to re-find it? Or just log and accept UI won't update.
-        }
 
-        // Remove typing indicator if an AI message is coming in
         if (!message.isUserMessage() && loadingIndicatorMessage != null) {
             showLoadingIndicator(false);
         }
@@ -507,7 +484,6 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
     }
 
     private void showInputDisabled(boolean isDisabled) {
-        // Log.d(TAG, "showInputDisabled: " + isDisabled);
         if (messageInputEditText != null) messageInputEditText.setEnabled(!isDisabled);
         if (sendButton != null) sendButton.setEnabled(!isDisabled);
         if (inputContainer != null) inputContainer.setAlpha(isDisabled ? 0.7f : 1.0f);
@@ -537,10 +513,10 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
         Context safeContext = getContextSafe();
         if (safeContext == null) {
             Log.w(TAG, "loadChatHistory: Context is null. Cannot load.");
-            if (chatMessages == null) chatMessages = new ArrayList<>(); // Still init if null
+            if (chatMessages == null) chatMessages = new ArrayList<>();
             return;
         }
-        if (chatMessages == null) chatMessages = new ArrayList<>(); // Ensure initialized
+        if (chatMessages == null) chatMessages = new ArrayList<>();
 
         if (chatAdapter == null && chatRecyclerView != null) {
             Log.w(TAG, "loadChatHistory: chatAdapter was null, creating new one.");
@@ -557,7 +533,6 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
                     chatMessages.clear();
                     chatMessages.addAll(loadedMessages);
                     Log.i(TAG, "loadChatHistory: Successfully loaded " + chatMessages.size() + " messages.");
-                    // Notify adapter on UI thread
                     if (getActivity() != null) {
                         getActivity().runOnUiThread(() -> {
                             if (chatAdapter != null) chatAdapter.notifyDataSetChanged();
@@ -565,7 +540,7 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
                                 chatRecyclerView.scrollToPosition(chatMessages.size() - 1);
                             }
                         });
-                    } else if (chatAdapter != null) { // Fallback if activity not available
+                    } else if (chatAdapter != null) {
                         chatAdapter.notifyDataSetChanged();
                         if (chatRecyclerView != null && !chatMessages.isEmpty()) {
                             chatRecyclerView.scrollToPosition(chatMessages.size() - 1);
@@ -663,11 +638,33 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
         }
     }
 
+    private void showUploadConfirmationDialog() {
+        Log.d(TAG, "showUploadConfirmationDialog called.");
+        if (chatMessages == null || chatMessages.size() <= 1) {
+            Toast.makeText(getContextSafe(), "There is not enough conversation to upload.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        CustomMessageDialogFragment dialogFragment = CustomMessageDialogFragment.newInstance(
+                "Help Improve Xavier?",
+                "Would you like to upload your current chat session to help us improve Xavier's responses? Your conversation will be reviewed by our developers. This action is anonymous and cannot be undone.",
+                "Upload",
+                "Cancel"
+        );
+        dialogFragment.setListener(this);
+        if (getParentFragmentManager() != null) {
+            dialogFragment.show(getParentFragmentManager(), "UploadLogsDialog");
+        } else {
+            Log.e(TAG, "FragmentManager is null, cannot show UploadLogsDialog.");
+        }
+    }
+
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
         Log.d(TAG, "onDialogPositiveClick: " + dialog.getTag());
         if ("ClearHistoryDialog".equals(dialog.getTag())) {
             clearChatHistory();
+        } else if ("UploadLogsDialog".equals(dialog.getTag())) {
+            uploadChatLogsToJira();
         }
     }
 
@@ -676,8 +673,71 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
         Log.d(TAG, "onDialogNegativeClick: " + dialog.getTag());
     }
 
+    private void uploadChatLogsToJira() {
+        if (chatMessages == null || chatMessages.isEmpty()) {
+            Toast.makeText(getContextSafe(), "Chat log is empty.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        StringBuilder logBuilder = new StringBuilder();
+        logBuilder.append("--- Xavier Chat Log ---\n\n");
+        for (ChatMessage message : chatMessages) {
+            if (message.isTypingIndicator()) continue;
+            String prefix = message.isUserMessage() ? "User: " : "Xavier: ";
+            logBuilder.append(prefix).append(message.getText()).append("\n\n");
+        }
+        logBuilder.append("--- End of Log ---");
+
+        String formattedLog = logBuilder.toString();
+        String summary = "Xavier Chat Log Submission";
+
+        Toast.makeText(getContextSafe(), "Uploading chat log...", Toast.LENGTH_LONG).show();
+        submitLogsToJiraOnBackgroundThread(summary, formattedLog);
+    }
+
+    private void submitLogsToJiraOnBackgroundThread(String summary, String description) {
+        xavierExecutor.execute(() -> {
+            try {
+                JiraApiService apiService = RetrofitClient.getJiraApiService();
+                String authHeader = RetrofitClient.getAuthHeader();
+
+                // UPDATED: Project key is now "XVL" as requested
+                String jiraProjectKey = "XVL";
+                String issueTypeName = "Story";
+
+                Project project = new Project(jiraProjectKey);
+                IssueType issueType = new IssueType(issueTypeName);
+                Fields fields = new Fields(project, summary, description, issueType);
+                JiraIssueRequest request = new JiraIssueRequest(fields);
+
+                Call<JiraIssueResponse> call = apiService.createIssue(authHeader, request);
+                Response<JiraIssueResponse> response = call.execute();
+
+                if (getActivity() != null) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        getActivity().runOnUiThread(() ->
+                                Toast.makeText(getContextSafe(), "Thank you! Your feedback has been submitted.", Toast.LENGTH_LONG).show()
+                        );
+                    } else {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
+                        Log.e(TAG, "Failed to create Jira issue for log submission: " + errorBody);
+                        getActivity().runOnUiThread(() ->
+                                Toast.makeText(getContextSafe(), "Failed to submit logs. Error: " + response.code(), Toast.LENGTH_LONG).show()
+                        );
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Exception while submitting chat logs to Jira", e);
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() ->
+                            Toast.makeText(getContextSafe(), "An error occurred. Please check your internet connection.", Toast.LENGTH_LONG).show()
+                    );
+                }
+            }
+        });
+    }
+
     private void hideKeyboard(View view) {
-        // Log.v(TAG, "hideKeyboard called."); // Verbose
         Context safeContext = getContextSafe();
         if (safeContext != null && view != null) {
             InputMethodManager imm = (InputMethodManager) safeContext.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -691,7 +751,6 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
         if (this.context != null) return this.context;
         if (getActivity() != null) return getActivity();
         if (getView() != null && getView().getContext() != null) return getView().getContext();
-        // Log.w(TAG, "getContextSafe() returned null at this point."); // Log only if it's truly problematic
         return null;
     }
 
@@ -704,11 +763,9 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
         messageInputEditText = null;
         sendButton = null;
         fabClearChat = null;
-        fabScrollToBottom = null; // Also release this view
+        fabScrollToBottom = null;
+        fabUploadLogs = null; // Also release this new view
         networkStatusIcon = null;
-        // chatAdapter = null; // Can be problematic if async tasks are still running.
-        // Better to let it be GC'd with the fragment if not explicitly cleared,
-        // or ensure all background tasks are cancelled before nulling.
     }
 
     @Override
@@ -716,7 +773,7 @@ public class AIFragment extends Fragment implements CustomMessageDialogFragment.
         super.onDestroy();
         Log.i(TAG, "onDestroy: START. Shutting down executor.");
         if (xavierExecutor != null && !xavierExecutor.isShutdown()) {
-            List<Runnable> droppedTasks = xavierExecutor.shutdownNow(); // Attempt to stop ongoing tasks
+            List<Runnable> droppedTasks = xavierExecutor.shutdownNow();
             if (!droppedTasks.isEmpty()) {
                 Log.w(TAG, "onDestroy: " + droppedTasks.size() + " tasks were dropped from xavierExecutor.");
             }

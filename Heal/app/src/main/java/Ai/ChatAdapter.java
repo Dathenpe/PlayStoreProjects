@@ -1,5 +1,6 @@
 package Ai;
 
+import android.text.method.LinkMovementMethod; // Import this
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,14 +15,22 @@ import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatMessageViewHolder> {
     private List<ChatMessage> messages;
+    private OnItemLongClickListener onItemLongClickListener;
 
     private static final int VIEW_TYPE_USER_MESSAGE = 1;
     private static final int VIEW_TYPE_AI_MESSAGE = 2;
     private static final int VIEW_TYPE_LOADING_MESSAGE = 3;
 
+    public interface OnItemLongClickListener {
+        void onAiMessageLongClick(ChatMessage message);
+    }
 
     public ChatAdapter(List<ChatMessage> messages) {
         this.messages = messages;
+    }
+
+    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
+        this.onItemLongClickListener = listener;
     }
 
     @Override
@@ -45,7 +54,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatMessageVie
             view = inflater.inflate(R.layout.item_user_message, parent, false);
         } else if (viewType == VIEW_TYPE_AI_MESSAGE) {
             view = inflater.inflate(R.layout.item_ai_message, parent, false);
-        } else { // VIEW_TYPE_LOADING_MESSAGE
+        } else {
             view = inflater.inflate(R.layout.item_loading_message, parent, false);
         }
         return new ChatMessageViewHolder(view);
@@ -54,16 +63,35 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatMessageVie
     @Override
     public void onBindViewHolder(@NonNull ChatMessageViewHolder holder, int position) {
         ChatMessage message = messages.get(position);
-        // The loading message layout might have its own text or just a progress bar
         if (!message.isLoadingMessage()) {
             holder.messageTextView.setText(message.getText());
+
+            // Check if it's an AI message
+            if (!message.isUserMessage()) {
+                // ADDED: Enable link clicking for AI messages
+                holder.messageTextView.setMovementMethod(LinkMovementMethod.getInstance());
+
+                // Set long click listener for AI messages to enable copying
+                if (onItemLongClickListener != null) {
+                    holder.itemView.setOnLongClickListener(v -> {
+                        onItemLongClickListener.onAiMessageLongClick(message);
+                        return true;
+                    });
+                } else {
+                    holder.itemView.setOnLongClickListener(null);
+                }
+            } else {
+                // For user messages:
+
+                // Clear long click listener on the item view (so default TextView long-click works)
+                holder.itemView.setOnLongClickListener(null);
+
+                // REMOVED: holder.messageTextView.setMovementMethod(null);
+                // By not calling setMovementMethod(null), we allow the
+                // android:textIsSelectable="true" in item_user_message.xml
+                // to enable the default copy/selection behavior on the TextView itself.
+            }
         }
-        // If it's a loading message, the text is often static or handled by the XML
-        // and the ProgressBar visibility might be handled in XML too.
-        // If you need to dynamically change text or progress bar visibility for loading:
-        // if (holder.typingIndicatorProgress != null) {
-        //     holder.typingIndicatorProgress.setVisibility(message.isLoadingMessage() ? View.VISIBLE : View.GONE);
-        // }
     }
 
     @Override
@@ -73,12 +101,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatMessageVie
 
     static class ChatMessageViewHolder extends RecyclerView.ViewHolder {
         TextView messageTextView;
-        // ProgressBar typingIndicatorProgress; // Optional, if you want to control it from adapter
 
         public ChatMessageViewHolder(@NonNull View itemView) {
             super(itemView);
             messageTextView = itemView.findViewById(R.id.message_text_view);
-            // typingIndicatorProgress = itemView.findViewById(R.id.typing_indicator_progress); // Optional
         }
     }
 }

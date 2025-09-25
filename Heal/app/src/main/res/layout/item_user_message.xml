@@ -22,6 +22,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?attr/textAppearanceBodyMedium"
             android:textColor="?attr/colorOnPrimaryContainer"
-            android:textIsSelectable="true"/>
-    </com.google.android.material.card.MaterialCardView>
+            android:autoLink="web"
+            android:linksClickable="true"
+            android:textIsSelectable="true"/> </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

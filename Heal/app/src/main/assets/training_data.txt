@@ -17,6 +17,38 @@ greeting,xavier
 greeting,hello bot
 greeting,are you there
 greeting,you there?
+greeting,salutations
+greeting,how do you do
+greeting,pleased to meet you
+greeting,what's good
+greeting,what's happening
+greeting,greetings and salutations
+greeting,howdy
+greeting,hiya
+greeting,how's everything
+greeting,how's it hanging
+greeting,what's new
+greeting,good day
+greeting,hello, nice to meet you
+greeting,hey, how's it going
+greeting,hello, is anyone there
+greeting,hi, are you awake
+greeting,good to see you
+greeting,it's a pleasure to speak with you
+greeting,nice to talk to you
+greeting,how are things
+greeting,how's your day
+greeting,what's the latest
+greeting,hello again
+greeting,hi, good to see you
+greeting,greetings, friend
+greeting,hey, what's up
+greeting,hello, how can I help you
+greeting,yo, what's the word
+greeting,what's crackin'
+greeting,hi, how's your day going
+greeting,good to hear from you
+greeting,hey there, how are you
 
 # --- Goodbyes ---
 goodbye,bye
@@ -34,6 +66,31 @@ goodbye,have a good one
 goodbye,exit
 goodbye,quit
 goodbye,end conversation
+goodbye,later
+goodbye,until next time
+goodbye,take it easy
+goodbye,i have to go now
+goodbye,be well
+goodbye,cheerio
+goodbye,cya
+goodbye,so long
+goodbye,i'll be back
+goodbye,have a nice day
+goodbye,peace out
+goodbye,goodnight
+goodbye,adieu
+goodbye,ciao
+goodbye,i'm signing off
+goodbye,that's all for now
+goodbye,i'm logging off
+goodbye,see ya
+goodbye,have a good day
+goodbye,i'm off
+goodbye,talk to you soon
+goodbye,it was nice talking to you
+goodbye,i've got to run
+goodbye,time to go
+goodbye,gotta split
 
 # --- Unified Time Queries ---
 time_query,what time is it
@@ -58,6 +115,82 @@ time_query,what time is it over in moscow
 time_query,could you tell me the time in paris
 time_query,time check for beijing
 time_query,what is the local time in rio de janeiro
+time_query,what is the time in mumbai
+time_query,what's the time in rome
+time_query,current time in seoul
+time_query,tell me the time in dubai
+time_query,time in shanghai
+time_query,what's the time in mexico city
+time_query,what is the time in buenos aires
+time_query,current time in cape town
+time_query,what time is it in amsterdam
+time_query,give me the time for istanbul
+time_query,time in bangkok please
+time_query,what's the time in stockholm
+time_query,time in dublin
+time_query,current time in lisbon
+time_query,what time is it in helsinki
+time_query,what is the time in athens
+time_query,tell me the time in warsaw
+time_query,what's the time in vienna
+time_query,current time in prague
+time_query,what time is it in brussels
+time_query,time in zurich
+time_query,tell me the time in oslo
+time_query,what is the time in kuala lumpur
+time_query,current time in singapore
+time_query,what time is it in manila
+time_query,time in jakarta
+time_query,what is the time in hanoi
+time_query,current time in taipei
+time_query,what time is it in karachi
+time_query,what is the time in bogota
+time_query,current time in lima
+time_query,what time is it in santiago
+time_query,time in caracas
+time_query,what is the time in la paz
+time_query,what time is it in quito
+time_query,current time in montevideo
+time_query,what time is it in santiago de chile
+time_query,time in buenos aires
+time_query,what is the time in rio de janeiro
+time_query,current time in sao paulo
+time_query,what time is it in mexico city
+time_query,time in bogota, colombia
+time_query,what is the time in perth
+time_query,current time in auckland
+time_query,what time is it in wellington
+time_query,time in fiji
+time_query,what is the time in honolulu
+time_query,current time in anchorage
+time_query,what time is it in reykjavik
+time_query,time in copenhagen
+time_query,what is the time in budapest
+time_query,current time in bucharest
+time_query,what time is it in sofia
+time_query,time in kiev
+time_query,what is the time in nairobi
+time_query,current time in addis ababa
+time_query,what time is it in johannesburg
+time_query,time in pretoria
+time_query,what is the time in cairo
+time_query,current time in tunis
+time_query,what time is it in casablanca
+time_query,time in algiers
+time_query,what is the time in abuja
+time_query,current time in accra
+time_query,what time is it in dakar
+time_query,time in bamako
+time_query,what is the time in porto-novo
+time_query,what's the timezone in ghana
+time_query,tell me the time in the united kingdom
+time_query,current time in the philippines
+time_query,what time is it in china
+time_query,what's the time in south africa
+time_query,time in the middle east
+time_query,what is the time zone for russia
+time_query,current time in indonesia
+time_query,what is the time in new zealand
 
 # --- Date Queries ---
 date_query,what is today's date
@@ -72,6 +205,34 @@ date_query,current date
 date_query,the date
 date_query,is it monday
 date_query,what's the full date
+date_query,what date is it today
+date_query,can you tell me what day it is
+date_query,what is the present date
+date_query,can you show me the calendar date
+date_query,what's the current day
+date_query,give me the date for today
+date_query,today's date please
+date_query,what is the day and date
+date_query,is today saturday
+date_query,tell me the date and day
+date_query,can you tell me today's full date
+date_query,what is the day today
+date_query,is it tuesday
+date_query,what's the date right now
+date_query,can you tell me the date
+date_query,what is the calendar date
+date_query,what's the current date
+date_query,show me the full date
+date_query,what day is today
+date_query,is today a weekend
+date_query,what day of the week is today
+date_query,tell me the current date
+date_query,can you confirm the date
+date_query,what's the precise date
+date_query,what's the date right now
+date_query,is it the 25th
+date_query,is it the 1st of january
+date_query,what is the date today's date
 
 # --- Weather Queries ---
 weather_query,what's the weather like
@@ -97,6 +258,63 @@ weather_query,give me the weather update
 weather_query,how's it looking outside
 weather_query,temperature in celsius for paris
 weather_query,fahrenheit in miami
+weather_query,what is the current weather
+weather_query,what's the climate like today
+weather_query,will it be a clear day
+weather_query,is the sun out
+weather_query,is it going to be cloudy
+weather_query,what's the chance of precipitation
+weather_query,is it going to storm
+weather_query,tell me the weather in beijing
+weather_query,what is the weather in rome
+weather_query,forecast for sydney
+weather_query,how is the weather in tokyo
+weather_query,what's the temp in mumbai
+weather_query,is it humid in bangkok
+weather_query,what's the weather like in rio de janeiro
+weather_query,how's the weather in mexico city
+weather_query,will it be windy in chicago
+weather_query,what's the forecast for tomorrow
+weather_query,what about the weather on the weekend
+weather_query,is it hot outside
+weather_query,is it chilly outside
+weather_query,how's the visibility
+weather_query,tell me the temperature
+weather_query,what's the barometric pressure
+weather_query,will it be a warm day
+weather_query,what's the weather for this evening
+weather_query,will it be a rainy day
+weather_query,is there a risk of thunderstorms
+weather_query,what's the dew point
+weather_query,what's the humidity level
+weather_query,is the air quality good
+weather_query,will it be frosty tonight
+weather_query,what's the UV index
+weather_query,what's the forecast for the next 7 days
+weather_query,how is the weather in seoul
+weather_query,weather in amsterdam
+weather_query,is it raining in london
+weather_query,what's the weather forecast for paris
+weather_query,will it snow in new york
+weather_query,current weather in lagos
+weather_query,what is the temperature in toronto
+weather_query,how's the weather in dubai
+weather_query,weather in los angeles
+weather_query,is it sunny in barcelona
+weather_query,what's the forecast for berlin
+weather_query,will it be cloudy in cairo
+weather_query,how's the weather in moscow today
+weather_query,is there a flood warning
+weather_query,is it going to be foggy
+weather_query,what's the weather like in singapore
+weather_query,forecast for hong kong
+weather_query,is it a clear night sky
+weather_query,what's the weather in santiago
+weather_query,will it rain in jakarta
+weather_query,weather in cape town
+weather_query,what's the forecast for beijing
+weather_query,is it cold in helsinki
+weather_query,what's the weather in sydney
 
 # --- Calculator ---
 calculator_query,what is 5 plus 3
@@ -119,6 +337,86 @@ calculator_query,subtract 10 from 30
 calculator_query,multiply 7 by 8
 calculator_query,divide 144 by 12
 calculator_query,what is 2 to the power of 10
+calculator_query,what is 23 + 45
+calculator_query,calculate 78 - 32
+calculator_query,compute 9 * 11
+calculator_query,what is 250 / 5
+calculator_query,find the square root of 64
+calculator_query,what is 4 to the power of 3
+calculator_query,what is twenty percent of eighty
+calculator_query,calculate 17 + 8
+calculator_query,what is 99 - 55
+calculator_query,solve 5^2
+calculator_query,what's 121 / 11
+calculator_query,compute the root of 49
+calculator_query,150 + 75
+calculator_query,300 times 0.5
+calculator_query,what is 15% of 300
+calculator_query,add 89 and 11
+calculator_query,subtract 20 from 100
+calculator_query,multiply 13 by 4
+calculator_query,divide 500 by 10
+calculator_query,what is 6 to the power of 4
+calculator_query,what's 7 minus 2
+calculator_query,calculate 12 plus 12
+calculator_query,compute 8 times 6
+calculator_query,what is 54 divided by 9
+calculator_query,find the square root of 100
+calculator_query,10 to the power of 3
+calculator_query,what is fifty percent of six hundred
+calculator_query,calculate 20 * 5
+calculator_query,what is 42 + 21
+calculator_query,solve 7^2
+calculator_query,what's 60 / 5
+calculator_query,compute the root of 36
+calculator_query,250 minus 125
+calculator_query,100 times 10
+calculator_query,what is 5% of 200
+calculator_query,add 33 and 66
+calculator_query,subtract 40 from 80
+calculator_query,multiply 9 by 9
+calculator_query,divide 81 by 9
+calculator_query,what is 3 to the power of 4
+calculator_query,what's 15+15
+calculator_query,calculate 100/2
+calculator_query,compute 5*10
+calculator_query,what is 20-5
+calculator_query,find the square root of 25
+calculator_query,8 to the power of 2
+calculator_query,what is twenty percent of one hundred
+calculator_query,calculate 1.5 * 2
+calculator_query,what is 50 + 50
+calculator_query,solve 4^4
+calculator_query,what's 200 / 20
+calculator_query,compute the root of 144
+calculator_query,300 minus 150
+calculator_query,25 times 4
+calculator_query,what is 10% of 50
+calculator_query,add 7 and 7
+calculator_query,subtract 5 from 10
+calculator_query,multiply 6 by 6
+calculator_query,divide 48 by 6
+calculator_query,what is 2 to the power of 8
+calculator_query,what is 10 + 10
+calculator_query,calculate 20 - 5
+calculator_query,compute 4 * 5
+calculator_query,what's 10 / 2
+calculator_query,find the square root of 9
+calculator_query,3 to the power of 3
+calculator_query,what is ten percent of fifty
+calculator_query,calculate 12 * 3
+calculator_query,what is 65 + 35
+calculator_query,solve 8^2
+calculator_query,what's 100 / 10
+calculator_query,compute the root of 169
+calculator_query,55 minus 20
+calculator_query,200 times 0.25
+calculator_query,what is 30% of 500
+calculator_query,add 44 and 55
+calculator_query,subtract 15 from 60
+calculator_query,multiply 11 by 11
+calculator_query,divide 225 by 15
+calculator_query,what is 5 to the power of 3
 
 # --- Follow-ups (More focused) ---
 follow_up,what about in london
@@ -143,6 +441,37 @@ follow_up,more details please
 follow_up,can you elaborate
 follow_up,what about its history
 follow_up,and its population
+follow_up,what about the next day
+follow_up,and the day after that
+follow_up,can you give me more information
+follow_up,could you expand on that
+follow_up,what was the cause of that
+follow_up,tell me about the aftermath
+follow_up,what happened next
+follow_up,how did that happen
+follow_up,can you provide additional details
+follow_up,and what's the history of that
+follow_up,tell me about the people involved
+follow_up,what's the population density
+follow_up,what are the statistics
+follow_up,what was the effect
+follow_up,and the results
+follow_up,what are the current conditions
+follow_up,can you tell me more about that subject
+follow_up,give me further details
+follow_up,how did they do it
+follow_up,what was the outcome
+follow_up,what about their family
+follow_up,and what were the key events
+follow_up,what happened to them
+follow_up,and the implications
+follow_up,what was the significance
+follow_up,and the long-term effects
+follow_up,what were the consequences
+follow_up,and the background
+follow_up,can you give me more context
+follow_up,what's the latest update
+follow_up,and what happened after that
 
 # --- Bot Identity ---
 about_bot,who are you
@@ -161,6 +490,42 @@ about_bot,are you a robot
 about_bot,what kind of AI are you
 about_bot,tell me about your creator
 about_bot,what are you good at
+about_bot,what is your function
+about_bot,who is your developer
+about_bot,are you human
+about_bot,what is your name, xavier
+about_bot,what's your mission
+about_bot,how do you work
+about_bot,what's your programming language
+about_bot,are you sentient
+about_bot,do you have a personality
+about_bot,what's your purpose in life
+about_bot,can you feel emotions
+about_bot,are you a machine
+about_bot,what is your backstory
+about_bot,where do you come from
+about_bot,what do you specialize in
+about_bot,what are your skills
+about_bot,can you learn
+about_bot,are you a virtual assistant
+about_bot,who designed you
+about_bot,what is your core function
+about_bot,what is your existence
+about_bot,what are you designed for
+about_bot,how were you created
+about_bot,can you think
+about_bot,are you a large language model
+about_bot,what makes you, you
+about_bot,what do you know about yourself
+about_bot,what's your identity
+about_bot,can you introduce yourself
+about_bot,what is your primary goal
+about_bot,what's your name and purpose
+about_bot,are you an AI
+about_bot,tell me more about your design
+about_bot,what's your origin story
+about_bot,who created you
+about_bot,what is your core programming
 
 # --- General Knowledge ---
 knowledge_query,what is an apple
@@ -200,6 +565,84 @@ knowledge_query,what is the meaning of life
 knowledge_query,tell me about the renaissance
 knowledge_query,what is a neuron
 knowledge_query,where is mount everest
+knowledge_query,what is a black hole
+knowledge_query,who discovered penicillin
+knowledge_query,what is the boiling point of water
+knowledge_query,tell me about the pyramids of giza
+knowledge_query,what is the capital of italy
+knowledge_query,who is elon musk
+knowledge_query,what is blockchain technology
+knowledge_query,explain what a supernova is
+knowledge_query,where is the eiffel tower
+knowledge_query,what is the process of photosynthesis
+knowledge_query,who invented the telephone
+knowledge_query,what are the layers of the atmosphere
+knowledge_query,tell me about the cold war
+knowledge_query,what is a gene
+knowledge_query,who painted the mona lisa
+knowledge_query,what is the human heart's function
+knowledge_query,explain the big bang theory
+knowledge_query,where is the sahara desert
+knowledge_query,what is the world's largest ocean
+knowledge_query,who was martin luther king jr
+knowledge_query,what is a republic
+knowledge_query,tell me about the industrial revolution
+knowledge_query,what is the function of the brain
+knowledge_query,where is the great barrier reef
+knowledge_query,what are the types of rocks
+knowledge_query,who wrote 'to kill a mockingbird'
+knowledge_query,what is a black swan event
+knowledge_query,explain how a computer works
+knowledge_query,what is a stock market
+knowledge_query,who is queen elizabeth ii
+knowledge_query,what is the principle of a lever
+knowledge_query,tell me about the american civil war
+knowledge_query,what is the role of the ozone layer
+knowledge_query,where are the andes mountains
+knowledge_query,what is the difference between a virus and bacteria
+knowledge_query,who invented the printing press
+knowledge_query,what is a meteor
+knowledge_query,tell me about the berlin wall
+knowledge_query,what is the primary component of the sun
+knowledge_query,where is the taj mahal
+knowledge_query,what are the stages of a butterfly's life cycle
+knowledge_query,who was napoleon bonaparte
+knowledge_query,what is a volcano
+knowledge_query,explain the concept of supply and demand
+knowledge_query,what is the capital of spain
+knowledge_query,who is the current prime minister of the uk
+knowledge_query,what is a supernova
+knowledge_query,explain the concept of a black hole
+knowledge_query,tell me about the history of the internet
+knowledge_query,what are the main types of clouds
+knowledge_query,who invented the steam engine
+knowledge_query,what is the significance of the magna carta
+knowledge_query,tell me about the silk road
+knowledge_query,what is a nebula
+knowledge_query,explain the greenhouse effect
+knowledge_query,what is the chemical formula for water
+knowledge_query,who was julius caesar
+knowledge_query,what is the deepest part of the ocean
+knowledge_query,explain the process of evolution
+knowledge_query,what is the capital of japan
+knowledge_query,who is bill gates
+knowledge_query,what is a superconductor
+knowledge_query,tell me about the cold war
+knowledge_query,what is the purpose of the lungs
+knowledge_query,who discovered electricity
+knowledge_query,what are the seven wonders of the ancient world
+knowledge_query,explain the concept of time travel
+knowledge_query,where is the colosseum
+knowledge_query,what is the capital of egypt
+knowledge_query,who is the founder of amazon
+knowledge_query,what is the main difference between a planet and a star
+knowledge_query,tell me about the french revolution
+knowledge_query,what is a fossil
+knowledge_query,who wrote the lord of the rings
+knowledge_query,what is a tsunami
+knowledge_query,explain the carbon cycle
+knowledge_query,who was galileo galilei
+knowledge_query,what is the theory of relativity
 
 # --- ChitChat (REFINED: Now the exclusive home for status queries) ---
 chitchat,how are you
@@ -226,6 +669,63 @@ chitchat,roger that
 chitchat,fair enough
 chitchat,that's cool
 chitchat,sweet
+chitchat,how's life
+chitchat,what's up with you
+chitchat,how are things with you
+chitchat,everything good
+chitchat,are you doing well
+chitchat,are you feeling good
+chitchat,that's understandable
+chitchat,that's a good point
+chitchat,i get it
+chitchat,perfect
+chitchat,wonderful
+chitchat,excellent
+chitchat,i see what you mean
+chitchat,that makes a lot of sense
+chitchat,copy that
+chitchat,absolutely
+chitchat,totally
+chitchat,no problem
+chitchat,that's great
+chitchat,nice one
+chitchat,awesome
+chitchat,fantastic
+chitchat,cool beans
+chitchat,i appreciate that
+chitchat,that's a nice thought
+chitchat,i follow
+chitchat,all clear
+chitchat,i'm with you
+chitchat,sounds like a plan
+chitchat,that's very interesting
+chitchat,good to know
+chitchat,i'm glad to hear that
+chitchat,how are you feeling
+chitchat,what's the latest
+chitchat,how are you holding up
+chitchat,what's new with you
+chitchat,you sound good
+chitchat,i hope you are well
+chitchat,things are good
+chitchat,i'm doing alright
+chitchat,i'm doing great
+chitchat,i am well
+chitchat,everything is fine
+chitchat,i am doing fine
+chitchat,i'm doing okay
+chitchat,i am good
+chitchat,everything's going well
+chitchat,it's all good
+chitchat,i'm doing pretty good
+chitchat,i'm fine, thanks for asking
+chitchat,i'm doing wonderfully
+chitchat,i'm in a good mood
+chitchat,i'm doing well, and you?
+chitchat,i'm excellent
+chitchat,i'm feeling great
+chitchat,i am feeling fine
+chitchat,i'm doing quite well
 
 # --- User Status ---
 user_status_query,i am bored
@@ -262,6 +762,49 @@ user_status_query,i am confused
 user_status_query,i don't understand
 user_status_query,that's confusing
 user_status_query,explain that again
+user_status_query,i'm just bored
+user_status_query,can you give me something to do
+user_status_query,i'm so bored right now
+user_status_query,what can i do to kill time
+user_status_query,i'm feeling a bit restless
+user_status_query,i'm famished
+user_status_query,my stomach is growling
+user_status_query,i'm so hungry, what should i eat
+user_status_query,i could really use some food
+user_status_query,i'm in the mood for something to eat
+user_status_query,i'm feeling blue
+user_status_query,i'm a little sad
+user_status_query,can you make me feel better
+user_status_query,i need some cheering up
+user_status_query,i'm feeling miserable
+user_status_query,i'm just so drained
+user_status_query,i'm completely worn out
+user_status_query,i need a nap
+user_status_query,i'm ready for bed
+user_status_query,i feel so happy
+user_status_query,i'm in a good mood
+user_status_query,i'm so happy right now
+user_status_query,i'm overjoyed
+user_status_query,this is fantastic
+user_status_query,i'm feeling inquisitive
+user_status_query,i have some questions
+user_status_query,i'm so confused
+user_status_query,this is hard to follow
+user_status_query,can you clarify that
+user_status_query,i'm feeling perplexed
+user_status_query,i'm so exhausted
+user_status_query,i need a break
+user_status_query,i'm feeling joyful
+user_status_query,i am delighted
+user_status_query,i'm in a great mood
+user_status_query,this is truly amazing
+user_status_query,i have a question
+user_status_query,i am puzzled
+user_status_query,i am feeling a bit puzzled
+user_status_query,i need some help understanding this
+user_status_query,can you simplify that for me
+user_status_query,i'm feeling overwhelmed
+user_status_query,i'm a bit overwhelmed
 
 # --- Gratitude ---
 gratitude,thanks
@@ -276,6 +819,37 @@ gratitude,i owe you one
 gratitude,cheers
 gratitude,thx
 gratitude,tnx
+gratitude,thanks a million
+gratitude,i really appreciate your help
+gratitude,you've been very helpful, thank you
+gratitude,i'm grateful
+gratitude,i can't thank you enough
+gratitude,thanks for everything
+gratitude,you're the best
+gratitude,i'm so grateful for your help
+gratitude,thank you for that
+gratitude,that's very kind of you
+gratitude,i appreciate your effort
+gratitude,much obliged
+gratitude,thanks for the information
+gratitude,i'm thankful
+gratitude,thanks a whole lot
+gratitude,you've been a great help
+gratitude,thanks for your time
+gratitude,i'm so thankful for this
+gratitude,thanks a ton
+gratitude,you are a great help
+gratitude,thank you for your assistance
+gratitude,thanks, that's what I needed
+gratitude,i appreciate this
+gratitude,thanks so much
+gratitude,you've been a big help
+gratitude,i'm truly grateful
+gratitude,thanks for all your help
+gratitude,i appreciate your support
+gratitude,thank you very much
+gratitude,you have been helpful, thanks
+gratitude,thank you for answering my question
 
 # --- Confirmation ---
 confirmation,yes
@@ -296,8 +870,50 @@ confirmation,not quite
 confirmation,that's incorrect
 confirmation,affirmative
 confirmation,negative
+confirmation,sure
+confirmation,of course
+confirmation,definitely
+confirmation,absolutely
+confirmation,certainly
+confirmation,for sure
+confirmation,that is correct
+confirmation,you're right
+confirmation,that is true
+confirmation,you've got it
+confirmation,precisely
+confirmation,that's what I said
+confirmation,that is not right
+confirmation,you're wrong
+confirmation,that's false
+confirmation,i disagree
+confirmation,not exactly
+confirmation,that's a good summary
+confirmation,i think so
+confirmation,i believe so
+confirmation,i guess so
+confirmation,i don't think so
+confirmation,i'm not sure
+confirmation,that is exactly what i meant
+confirmation,no, that's not it
+confirmation,you're on the right track
+confirmation,almost
+confirmation,that's the one
+confirmation,you hit the nail on the head
+confirmation,that's a fair statement
+confirmation,you nailed it
+confirmation,exactly right
+confirmation,that's what i was looking for
+confirmation,you've got it spot on
+confirmation,that's the answer
+confirmation,you are right on
+confirmation,that's not what i meant
+confirmation,you've misunderstood me
+confirmation,that is a common misconception
+confirmation,that's a little off
+confirmation,not exactly correct
+confirmation,i don't believe so
 
-# --- Correction ---
+### --- Correction ---
 correction,i mean canada
 correction,no i meant paris
 correction,i meant to say new york
@@ -308,8 +924,52 @@ correction,i wanted to ask about
 correction,my mistake i meant
 correction,let me rephrase
 correction,try again i meant
+correction,i was referring to
+correction,the question was about
+correction,sorry, i meant
+correction,no, that's not what i said
+correction,what i really meant was
+correction,i should have said
+correction,pardon me, i meant to say
+correction,can we go back to
+correction,let's clarify that
+correction,i meant the other one
+correction,i got that wrong, i meant
+correction,that was an error, i meant
+correction,let's correct that
+correction,no, the city was
+correction,i meant to ask about the date
+correction,i was talking about the weather
+correction,let me be more specific
+correction,i'm sorry, that was not right
+correction,no, i was asking about the temperature
+correction,let's change the subject
+correction,i meant the number
+correction,not that, the other one
+correction,i was asking about the year
+correction,i meant the historical figure
+correction,let's try that again
+correction,i'm sorry, i should have been clearer
+correction,i'm confused, i meant
+correction,i didn't mean that
+correction,that was a slip of the tongue
+correction,i'm correcting myself
+correction,no, let's talk about the food
+correction,i mean the formula
+correction,not that, the other city
+correction,let me correct myself
+correction,i wanted to know about the other thing
+correction,i'm rephrasing my question
+correction,i said the opposite
+correction,that was my fault, i meant
+correction,what i should have asked was
+correction,i was actually wondering about
+correction,no, i didn't mean that at all
+correction,can we reset
+correction,let's start over
+correction,i misspoke, i meant
 
-# --- Dictionary Queries ---
+### --- Dictionary Queries ---
 dictionary_query,what is the meaning of elephant
 dictionary_query,define the word ubiquitous
 dictionary_query,define serendipity
@@ -322,8 +982,85 @@ dictionary_query,meaning of the word empathy
 dictionary_query,can you tell me what symbiotic means
 dictionary_query,what is the definition of irony
 dictionary_query,define photosynthesis
+dictionary_query,what is the meaning of 'procrastinate'
+dictionary_query,define the term 'zeitgeist'
+dictionary_query,what is the definition of 'rhetoric'
+dictionary_query,can you explain 'cognitive'
+dictionary_query,what does 'perfunctory' mean
+dictionary_query,define 'epistemology'
+dictionary_query,what's the meaning of 'quintessential'
+dictionary_query,can you tell me the definition of 'synergy'
+dictionary_query,what does 'nebulous' mean
+dictionary_query,define 'cacophony'
+dictionary_query,meaning of 'juxtapose'
+dictionary_query,what's the definition of 'ludicrous'
+dictionary_query,can you define 'meticulous'
+dictionary_query,what does 'benevolent' mean
+dictionary_query,define 'ubiquitous'
+dictionary_query,what is the meaning of 'aberration'
+dictionary_query,define 'esoteric'
+dictionary_query,what does 'sanguine' mean
+dictionary_query,what is the definition of 'veracity'
+dictionary_query,can you define 'mellifluous'
+dictionary_query,what does 'gregarious' mean
+dictionary_query,define the word 'facetious'
+dictionary_query,what is the meaning of 'plethora'
+dictionary_query,what does 'quagmire' mean
+dictionary_query,define the term 'dichotomy'
+dictionary_query,what is the definition of 'belligerent'
+dictionary_query,can you tell me the meaning of 'fastidious'
+dictionary_query,what does 'obfuscate' mean
+dictionary_query,define 'chicanery'
+dictionary_query,what is the definition of 'palliative'
+dictionary_query,can you define 'recalcitrant'
+dictionary_query,what does 'insidious' mean
+dictionary_query,define the word 'relegate'
+dictionary_query,what is the meaning of 'conundrum'
+dictionary_query,what does 'egregious' mean
+dictionary_query,define the term 'ostracize'
+dictionary_query,what is the definition of 'fortuitous'
+dictionary_query,can you tell me the meaning of 'perfidious'
+dictionary_query,what does 'impetuous' mean
+dictionary_query,define 'lugubrious'
+dictionary_query,what is the meaning of 'ignominious'
+dictionary_query,what does 'salient' mean
+dictionary_query,define the word 'parsimonious'
+dictionary_query,what is the definition of 'querulous'
+dictionary_query,can you tell me the meaning of 'sycophant'
+dictionary_query,what does 'vacillate' mean
+dictionary_query,define 'ubiquitous'
+dictionary_query,what is the meaning of 'abrogate'
+dictionary_query,what does 'prosaic' mean
+dictionary_query,define 'iconoclast'
+dictionary_query,what is the definition of 'inchoate'
+dictionary_query,what does 'pulchritude' mean
+dictionary_query,define 'solipsism'
+dictionary_query,what is the meaning of 'ephemeral'
+dictionary_query,what does 'capricious' mean
+dictionary_query,define 'enervate'
+dictionary_query,what is the definition of 'obstreperous'
+dictionary_query,what does 'perfidious' mean
+dictionary_query,define 'philistine'
+dictionary_query,what is the meaning of 'pusillanimous'
+dictionary_query,what does 'sentient' mean
+dictionary_query,define 'somnambulist'
+dictionary_query,what is the definition of 'spurious'
+dictionary_query,what does 'titillate' mean
+dictionary_query,define 'unctuous'
+dictionary_query,what is the meaning of 'vituperate'
+dictionary_query,what does 'winsome' mean
+dictionary_query,define 'zenith'
+dictionary_query,what is the definition of 'zephyr'
+dictionary_query,what does 'abjure' mean
+dictionary_query,define 'alacrity'
+dictionary_query,what is the meaning of 'arcane'
+dictionary_query,what does 'avarice' mean
+dictionary_query,define 'calumny'
+dictionary_query,what is the definition of 'circumspect'
+dictionary_query,what does 'cogent' mean
+dictionary_query,define 'concord'
 
-# --- Joke Queries ---
+### --- Joke Queries ---
 joke_query,tell me a joke
 joke_query,can you tell a joke
 joke_query,i want to hear a joke
@@ -338,8 +1075,63 @@ joke_query,tell me something funny
 joke_query,hit me with a joke
 joke_query,i need a laugh
 joke_query,do you know any jokes
+joke_query,can you crack a joke
+joke_query,tell me a funny story
+joke_query,i'm in the mood for a joke
+joke_query,can you share a joke
+joke_query,tell me a pun
+joke_query,tell me a joke, please
+joke_query,do you have a joke for me
+joke_query,what's a good joke you know
+joke_query,make me smile with a joke
+joke_query,tell me a joke that will make me laugh
+joke_query,tell me a joke about a computer
+joke_query,do you have any dad jokes
+joke_query,what's the funniest joke you know
+joke_query,i need a chuckle
+joke_query,can you tell me a short joke
+joke_query,tell me a knock-knock joke
+joke_query,give me a silly joke
+joke_query,i want to hear a witty joke
+joke_query,tell me an animal joke
+joke_query,do you have a joke about food
+joke_query,tell me a clever joke
+joke_query,what's a good joke to tell
+joke_query,give me a lighthearted joke
+joke_query,i'm ready for a joke
+joke_query,hit me with your best joke
+joke_query,can you tell me a science joke
+joke_query,i'm feeling like a joke
+joke_query,share a joke with me
+joke_query,tell me a quick joke
+joke_query,i need a good joke
+joke_query,what's your favorite joke
+joke_query,tell me a classic joke
+joke_query,do you have a new joke
+joke_query,tell me a joke about a programmer
+joke_query,can you tell me a joke about a car
+joke_query,i'm looking for a joke
+joke_query,give me something funny to think about
+joke_query,tell me a joke about a doctor
+joke_query,do you have any new jokes
+joke_query,tell me a joke about a robot
+joke_query,i want to hear a good one
+joke_query,can you tell me a joke about a school
+joke_query,tell me a joke, if you have one
+joke_query,i'm ready for a laugh
+joke_query,share a joke please
+joke_query,give me another laugh
+joke_query,tell me a joke about an animal
+joke_query,do you know any jokes about food
+joke_query,hit me with a funny one
+joke_query,tell me a joke about a lawyer
+joke_query,i'm in a funny mood, give me a joke
+joke_query,can you tell me a joke about a physicist
+joke_query,tell me a joke about a king
+joke_query,give me a new joke
+joke_query,i need a good laugh
 
-# --- Fun Fact Queries ---
+### --- Fun Fact Queries ---
 fact_query,tell me a fun fact
 fact_query,give me a random fact
 fact_query,do you know any interesting facts
@@ -353,8 +1145,57 @@ fact_query,hit me with a fact
 fact_query,random fact please
 fact_query,share an interesting fact
 fact_query,got any fun facts
+fact_query,can you give me a cool fact
+fact_query,do you have a random piece of trivia
+fact_query,tell me a cool piece of information
+fact_query,give me a surprising fact
+fact_query,what's an interesting tidbit
+fact_query,can you tell me something surprising
+fact_query,i'm in the mood for a fun fact
+fact_query,what's a weird fact you know
+fact_query,tell me a little-known fact
+fact_query,do you have a new fun fact
+fact_query,share a bit of knowledge
+fact_query,give me a quick fact
+fact_query,tell me a historical fact
+fact_query,do you know a science fact
+fact_query,what's a cool animal fact
+fact_query,tell me a fact about space
+fact_query,give me a fact about history
+fact_query,what's a fun fact about the human body
+fact_query,tell me a fact about animals
+fact_query,do you have any interesting trivia
+fact_query,share a random piece of trivia
+fact_query,i'd like to hear a fun fact
+fact_query,what's a crazy fact you know
+fact_query,tell me something amazing
+fact_query,give me a fact that will blow my mind
+fact_query,can you share a fact from the animal kingdom
+fact_query,tell me a fact about science
+fact_query,what's a fun fact about a place
+fact_query,give me a fun fact about a person
+fact_query,do you have a fun fact about a country
+fact_query,share a fact about the world
+fact_query,what's a fact about technology
+fact_query,tell me something about a famous person
+fact_query,can you share a fun fact about a movie
+fact_query,give me a fun fact about food
+fact_query,do you know any fun facts about sports
+fact_query,tell me a fact about the ocean
+fact_query,what's a fun fact about the moon
+fact_query,give me a fun fact about music
+fact_query,do you have a fun fact about a historical event
+fact_query,tell me a fun fact about a book
+fact_query,what's a fun fact about a city
+fact_query,give me a fact about a language
+fact_query,do you know a fun fact about space exploration
+fact_query,share a fact about a landmark
+fact_query,tell me a fun fact about the solar system
+fact_query,what's a fun fact about the universe
+fact_query,give me an unusual fact
+fact_query,can you tell me a quick and interesting fact
 
-# --- Riddle Queries ---
+### --- Riddle Queries ---
 riddle_query,tell me a riddle
 riddle_query,give me a riddle
 riddle_query,i want to solve a riddle
@@ -372,8 +1213,54 @@ riddle_query,tell me the answer
 riddle_query,i'm stumped
 riddle_query,what's the solution
 riddle_query,i have no idea
+riddle_query,can you ask me a riddle
+riddle_query,do you have a riddle for me
+riddle_query,i'm ready for a riddle
+riddle_query,hit me with a riddle
+riddle_query,let's do a riddle
+riddle_query,can you tell me a hard riddle
+riddle_query,give me a tricky riddle
+riddle_query,i think I know the answer
+riddle_query,can you give me a hint
+riddle_query,i'm guessing the answer is
+riddle_query,is the answer...
+riddle_query,what is the correct answer
+riddle_query,what's the solution to your riddle
+riddle_query,tell me the final answer
+riddle_query,i'm giving up, what is it
+riddle_query,i can't figure it out
+riddle_query,that's a tough one
+riddle_query,what is your riddle
+riddle_query,i want to try a new riddle
+riddle_query,can you give me a new riddle
+riddle_query,another one please
+riddle_query,i am ready for a challenge
+riddle_query,do you have a classic riddle
+riddle_query,can you tell me a clever riddle
+riddle_query,give me a funny riddle
+riddle_query,i'm ready to solve a riddle
+riddle_query,what's the answer to that riddle
+riddle_query,i'm so close, but I can't get it
+riddle_query,what is it
+riddle_query,i'm not sure, what's the answer
+riddle_query,i'm out of ideas
+riddle_query,what is the end result
+riddle_query,i don't know the riddle answer
+riddle_query,i am drawing a blank
+riddle_query,can you reveal the solution
+riddle_query,tell me the answer to your riddle
+riddle_query,i'm at a loss for the answer
+riddle_query,i have no clue
+riddle_query,i'm still thinking
+riddle_query,can you tell me the answer now
+riddle_query,i'm ready to hear the answer
+riddle_query,is this the answer?
+riddle_query,is it
+riddle_query,the answer is
+riddle_query,i've figured it out
+riddle_query,i'm confident in my answer
 
-# --- Internet Status Queries ---
+### --- Internet Status Queries ---
 internet_status_query,are you connected to the internet
 internet_status_query,check your network connection
 internet_status_query,do you have internet
@@ -387,20 +1274,119 @@ internet_status_query,is your connection okay
 internet_status_query,test your internet
 internet_status_query,network check
 internet_status_query,are you connected
+internet_status_query,can you access the web
+internet_status_query,are you offline
+internet_status_query,is there a network issue
+internet_status_query,do you have a valid connection
+internet_status_query,are you able to browse
+internet_status_query,is your internet access functioning
+internet_status_query,what is your network connectivity
+internet_status_query,can you check your server connection
+internet_status_query,is the network down for you
+internet_status_query,what's your internet speed
+internet_status_query,are you experiencing any connection problems
+internet_status_query,can you check if you are online
+internet_status_query,is your wifi working
+internet_status_query,can you access external data
+internet_status_query,is the network stable
+internet_status_query,what is your uptime
+internet_status_query,are you able to connect to the network
+internet_status_query,can you access my requested information online
+internet_status_query,is your network connection active
+internet_status_query,are you linked to the network
+internet_status_query,is your network connection strong
+internet_status_query,are you getting an internet signal
+internet_status_query,what's the status of your connection
+internet_status_query,can you access the internet right now
+internet_status_query,do you have a connection
+internet_status_query,is your network okay
+internet_status_query,what's the network status
+internet_status_query,are you connected to a network
+internet_status_query,is your connection good
+internet_status_query,are you offline or online
+internet_status_query,is your network working
+internet_status_query,can you verify your internet status
+internet_status_query,are you connected to the cloud
+internet_status_query,what is your internet connection like
+internet_status_query,are you able to get online
+internet_status_query,is your network connection reliable
+internet_status_query,can you access the internet for me
+internet_status_query,are you having network issues
+internet_status_query,is your connection secure
 
-# --- NEW: Set Username ---
+### --- NEW: Set Username ---
 set_username,my name is bob
 set_username,call me sarah
 set_username,you can call me alex
 set_username,i want you to call me jordan
+set_username,i am called bob
+set_username,my name's sarah
+set_username,please refer to me as alex
+set_username,from now on, call me jordan
+set_username,my handle is bob
+set_username,my name is sarah, nice to meet you
+set_username,you can call me by the name alex
+set_username,i would like to be called jordan
+set_username,the name's bob
+set_username,i go by the name sarah
+set_username,my user name is alex
+set_username,my preferred name is jordan
+set_username,i'd like you to call me bob
+set_username,you should call me sarah
+set_username,my first name is alex
+set_username,my nickname is jordan
+set_username,my name is bob, what's yours
+set_username,call me sarah, please
+set_username,my name is alex, pleased to meet you
+set_username,i'd like to be addressed as jordan
+set_username,i am bob
+set_username,i am sarah
+set_username,i am alex
+set_username,i am jordan
+set_username,let's use bob as my name
+set_username,let's use sarah as my name
+set_username,let's use alex as my name
+set_username,let's use jordan as my name
+set_username,you may call me bob
+set_username,you may call me sarah
+set_username,you may call me alex
+set_username,you may call me jordan
 
-# --- NEW: Get Username ---
+### --- NEW: Get Username ---
 get_username,what is my name
 get_username,do you know my name
 get_username,what do you call me
 get_username,say my name
+get_username,can you tell me my name
+get_username,what name do you have for me
+get_username,do you remember my name
+get_username,do you know who i am
+get_username,what's my name
+get_username,have you stored my name
+get_username,can you say my name
+get_username,do you know what i am called
+get_username,what is the name you have for me
+get_username,can you address me by my name
+get_username,what name have you saved for me
+get_username,do you remember who i am
+get_username,what do you call me now
+get_username,can you call me by my name
+get_username,do you know my user name
+get_username,have you learned my name
+get_username,what is my preferred name
+get_username,do you know my nickname
+get_username,can you tell me what you call me
+get_username,what name do you have for me in your memory
+get_username,am i still bob
+get_username,what name did i tell you to call me
+get_username,can you call out my name
+get_username,what's the name you use for me
+get_username,do you have a name for me
+get_username,what is the name you know me by
+get_username,can you tell me my name, please
+get_username,what do you have me saved as
 
-# --- NEW: How-To Queries ---
+### --- NEW: How-To Queries ---
 how_to_query,how do i tie a tie
 how_to_query,how to bake a cake
 how_to_query,explain how to change a tire
@@ -408,9 +1394,119 @@ how_to_query,what are the steps to learn guitar
 how_to_query,next
 how_to_query,another one
 how_to_query,show me the next step
+how_to_query,tell me how to tie a tie
+how_to_query,can you teach me how to bake a cake
+how_to_query,what's the process for changing a tire
+how_to_query,how do i start learning guitar
+how_to_query,what's the next step
+how_to_query,can you give me the next instruction
+how_to_query,what's the next thing to do
+how_to_query,what's the procedure for baking a cake
+how_to_query,walk me through changing a tire
+how_to_query,tell me the steps to learn guitar
+how_to_query,how do you tie a necktie
+how_to_query,what's the recipe for baking a cake
+how_to_query,how do i replace a flat tire
+how_to_query,what are the fundamental steps to learn guitar
+how_to_query,can you walk me through the steps
+how_to_query,how do I make a paper airplane
+how_to_query,what is the process for boiling an egg
+how_to_query,how to cook spaghetti
+how_to_query,tell me how to start a blog
+how_to_query,what are the steps for doing laundry
+how_to_query,how do you brew coffee
+how_to_query,what is the best way to clean windows
+how_to_query,how to change a lightbulb
+how_to_query,show me how to sew on a button
+how_to_query,how do i build a fire
+how_to_query,what's the procedure for painting a wall
+how_to_query,how to jump start a car
+how_to_query,tell me the steps to plant a tree
+how_to_query,how do I reset my phone
+how_to_query,what is the best way to write a resume
+how_to_query,how to make a peanut butter and jelly sandwich
+how_to_query,how do you solve a rubik's cube
+how_to_query,what's the best way to learn a new language
+how_to_query,how to take a good picture
+how_to_query,what are the steps to set up a new tv
+how_to_query,how do I create a pivot table
+how_to_query,tell me the process for making a simple salad
+how_to_query,how to fold a fitted sheet
+how_to_query,what are the steps for meditation
+how_to_query,how to properly wash your hands
+how_to_query,what's the procedure for making a smoothie
+how_to_query,how do I change my profile picture
+how_to_query,what is the process for backing up my computer
+how_to_query,how to save money
+how_to_query,what are the best ways to exercise
+how_to_query,how do you make a cup of tea
+how_to_query,what's the first step
+how_to_query,can you give me step two
+how_to_query,what's the third step
+how_to_query,go to the next step
+how_to_query,what do i do after that
+how_to_query,can you show me the next step in the process
 
-# --- NEW: List Queries ---
+### --- NEW: List Queries ---
 list_query,give me a list of planets
 list_query,name some programming languages
 list_query,list the continents
 list_query,what are some types of dogs
+list_query,can you list the planets for me
+list_query,what are some common programming languages
+list_query,tell me the names of the continents
+list_query,list some dog breeds
+list_query,can you name a few planets
+list_query,give me some examples of programming languages
+list_query,what are the different continents
+list_query,name some famous dog breeds
+list_query,can you list all the planets
+list_query,tell me a list of popular programming languages
+list_query,what are the continents of the world
+list_query,list some of the most popular dog breeds
+list_query,give me a list of countries
+list_query,name some famous authors
+list_query,list the major oceans
+list_query,what are some popular sports
+list_query,can you list some famous mountains
+list_query,tell me a list of major world rivers
+list_query,what are some types of musical instruments
+list_query,list some major cities
+list_query,what are the names of the us states
+list_query,give me a list of human body organs
+list_query,name some major constellations
+list_query,what are some famous historical events
+list_query,can you list the primary colors
+list_query,tell me a list of spices
+list_query,what are some types of birds
+list_query,list some types of trees
+list_query,name a few types of flowers
+list_query,what are some common vegetables
+list_query,list some of the major animal classes
+list_query,give me a list of chemical elements
+list_query,name some famous scientists
+list_query,list the different types of weather
+list_query,what are some common car brands
+list_query,can you list the books in the bible
+list_query,tell me a list of popular movie genres
+list_query,what are some types of clouds
+list_query,list some famous artists
+list_query,what are some types of government
+list_query,give me a list of famous painters
+list_query,name some of the world's tallest buildings
+list_query,list the us presidents
+list_query,what are some famous landmarks
+list_query,can you list some different types of music
+list_query,tell me a list of popular apps
+list_query,what are some types of fish
+list_query,list some major languages
+list_query,what are the planets in order
+list_query,tell me a list of countries in africa
+list_query,list some european capital cities
+list_query,what are the top 10 longest rivers
+list_query,name a few famous actors
+list_query,list the members of the avengers
+list_query,what are some kinds of cheese
+list_query,give me a list of world currencies
+list_query,list the wonders of the world
+list_query,what are some types of rocks

@@ -21,6 +21,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:autoLink="web"
+            android:linksClickable="true"
             android:textColor="?attr/colorOnSurface"
             android:textIsSelectable="true"/>
     </com.google.android.material.card.MaterialCardView>

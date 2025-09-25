@@ -7,7 +7,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- RecyclerView is drawn first, so it's at the "bottom" of the Z-order -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/chat_recycler_view"
         android:layout_width="match_parent"
@@ -18,7 +17,19 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/item_ai_message" />
 
-    <!-- Icons and FABs are drawn after RecyclerView, so they appear on top -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_upload_logs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="80dp"
+        android:contentDescription="Upload chat logs to improve Xavier"
+        app:backgroundTint="?attr/colorPrimary"
+        app:rippleColor="?attr/colorOnPrimaryContainer"
+        app:srcCompat="@drawable/outline_arrow_shape_up_stack_2_24"
+        app:tint="@color/black" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_clear_chat"
         android:layout_width="wrap_content"
@@ -27,29 +38,29 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:contentDescription="@string/clear_ai_history"
-        app:tint="@color/black"
+        android:src="@android:drawable/ic_menu_delete"
         app:backgroundTint="?attr/colorPrimary"
         app:rippleColor="?attr/colorError"
-        android:src="@android:drawable/ic_menu_delete"/>
+        app:tint="@color/black" />
 
     <ImageView
         android:id="@+id/network_status_icon"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_gravity="top|start"
-        android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
-        android:src="@drawable/ic_network_connected"
+        android:layout_marginTop="16dp"
         android:contentDescription="Network status icon"
-        app:tint="?attr/colorOnSurfaceVariant"/> <!-- Removed duplicate android:tint -->
+        android:src="@drawable/ic_network_connected"
+        app:tint="?attr/colorOnSurfaceVariant" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_scroll_to_bottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginEnd="16dp"
         android:layout_marginBottom="72dp"
+        android:layout_marginEnd="16dp"
         android:contentDescription="Scroll to bottom"
         android:src="@drawable/ic_arrow_downward"
         android:visibility="gone"
@@ -57,24 +68,23 @@
         app:fabSize="mini"
         app:rippleColor="?attr/colorPrimaryContainer"
         app:tint="@color/black" />
-    <!-- Input container at the bottom, drawn last among these main elements -->
     <LinearLayout
         android:id="@+id/input_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:orientation="horizontal"
-        android:paddingHorizontal="8dp"
-        android:paddingVertical="8dp"
         android:background="?attr/colorSurfaceContainerHigh"
         android:elevation="6dp"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="8dp">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/message_text_input_layout"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             app:boxBackgroundMode="none"
             app:hintEnabled="false">
 
@@ -82,16 +92,16 @@
                 android:id="@+id/message_input_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/pill_shaped_background"
                 android:hint="Type your message..."
                 android:inputType="textCapSentences|textMultiLine"
                 android:maxLines="5"
                 android:minHeight="50dp"
                 android:paddingHorizontal="18dp"
                 android:paddingVertical="14dp"
-                android:textColor="?attr/colorOnSurface"
-                android:textColorHint="?attr/colorOnSurfaceVariant"
                 android:textAppearance="?attr/textAppearanceBodyLarge"
-                android:background="@drawable/pill_shaped_background" />
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurfaceVariant" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -101,16 +111,16 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="8dp"
+            android:backgroundTint="?attr/colorPrimary"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"
+            app:cornerRadius="25dp"
             app:icon="@drawable/ic_send"
-            app:iconTint="?attr/colorOnPrimary"
             app:iconGravity="textStart"
             app:iconPadding="0dp"
-            android:padding="0dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"
-            android:backgroundTint="?attr/colorPrimary"
-            app:cornerRadius="25dp" />
+            app:iconTint="?attr/colorOnPrimary" />
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

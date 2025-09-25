@@ -1,0 +1,41 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorControlNormal">
+
+    <!-- Top Eliptical Outline -->
+    <!-- Locally from x=0 to x=10. Center y at 4. Height of ellipse = 2 (from y=3 to y=5) -->
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="1.5"
+        android:pathData="M5,5 C7.76,5 10,4.55 10,4 C10,3.45 7.76,3 5,3 C2.24,3 0,3.45 0,4 C0,4.55 2.24,5 5,5Z"
+        android:translateX="7" />
+
+    <!-- Left Vertical Side -->
+    <!-- Locally at x=0, from y=4 (ellipse center) to y=20 (bottom arc center) -->
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="1.5"
+        android:pathData="M0,4 L0,20"
+        android:translateX="7" />
+
+    <!-- Right Vertical Side -->
+    <!-- Locally at x=10 -->
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="1.5"
+        android:pathData="M10,4 L10,20"
+        android:translateX="7" />
+
+    <!-- Bottom Eliptical Outline (front part visible) -->
+    <!-- Locally from x=0 to x=10. Center y at 20. Arc peak at y=21 -->
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="1.5"
+        android:pathData="M0,20 C0,21.1 2.24,21.5 5,21.5 C7.76,21.5 10,21.1 10,20"
+        android:translateX="7"
+        android:fillColor="@android:color/transparent"/>
+
+</vector>

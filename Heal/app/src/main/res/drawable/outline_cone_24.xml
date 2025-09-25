@@ -1,0 +1,35 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorControlNormal">
+
+    <!-- Elliptical Base of the Cone (front part visible) -->
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="1.5"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M4,19 C4,21.21 7.58,23 12,23 C16.42,23 20,21.21 20,19"/>
+
+    <!-- Left side of the Cone -->
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="1.5"
+        android:pathData="M12,2 L4,19"/>
+
+    <!-- Right side of the Cone -->
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="1.5"
+        android:pathData="M12,2 L20,19"/>
+
+    <!-- Optional: Back part of the elliptical base if you want a more "see-through" or complete base effect -->
+    <!-- This can sometimes make it look less solid, depending on the style -->
+    <!-- <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="1"
+        android:strokeAlpha="0.7" // Make it slightly fainter
+        android:pathData="M4,19 C4,16.79 7.58,15 12,15 C16.42,15 20,16.79 20,19"/> -->
+
+</vector>

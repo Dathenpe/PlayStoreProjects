@@ -43,7 +43,7 @@ public final class WolframAlphaClient {
 	private final List<String> appIds;
 	private int currentAppIdIndex = 0;
 	private final OkHttpClient httpClient;
-	private final Context context; // <<<<<< ADD CONTEXT FIELD
+	private final Context context;
 
 	private static final List<String> KNOWLEDGE_QUERY_TRIGGERS;
 	private static final List<String> EXCLUSIONS;
@@ -79,9 +79,8 @@ public final class WolframAlphaClient {
 		EXCLUSIONS = Collections.unmodifiableList(exclusions);
 	}
 
-	// Constructor expecting Context, OkHttpClient, and App IDs
 	public WolframAlphaClient(Context context, OkHttpClient client, String... appIds) {
-		this.context = context; // <<<<<< STORE CONTEXT
+		this.context = context;
 		this.httpClient = client;
 		if (appIds == null || appIds.length == 0) {
 			this.appIds = Collections.emptyList();
@@ -97,21 +96,17 @@ public final class WolframAlphaClient {
 		}
 	}
 
-	// Default constructor that gets OkHttpClient from SharedHttpClient
-	// AND requires Context
 	public WolframAlphaClient(Context context, String... appIds) {
-		this(context, SharedHttpClient.get(), appIds); // <<<<<< PASS CONTEXT AND SHARED CLIENT
+		this(context, SharedHttpClient.get(), appIds);
 	}
 
 
 	public boolean canAnswer(String userInput) {
-		// ... (canAnswer method remains the same)
 		if (userInput == null || userInput.trim().length() < 3) {
 			return false;
 		}
 		String cleanedInput = userInput.trim().toLowerCase();
 
-		// This prevents the client from hijacking simple greetings or commands.
 		if (EXCLUSIONS.stream().anyMatch(cleanedInput::startsWith)) {
 			return false;
 		}
@@ -121,13 +116,11 @@ public final class WolframAlphaClient {
 			return true;
 		}
 
-		// Fallback for mathematical expressions that start with a number.
 		return !cleanedInput.isEmpty() && Character.isDigit(cleanedInput.charAt(0));
 	}
 
 	public Optional<WolframAlphaResult> getFullResult(String query) {
-		// Use the stored context for NetworkStatusChecker
-		if (!NetworkStatusChecker.isOnline(this.context)) { // <<<<<< USE this.context
+		if (!NetworkStatusChecker.isOnline(this.context)) {
 			Log.w(TAG, "WolframAlphaClient: Network is offline. Aborting request.");
 			return Optional.empty();
 		}
@@ -140,7 +133,6 @@ public final class WolframAlphaClient {
 			return Optional.empty();
 		}
 
-		// ... (rest of getFullResult method remains the same) ...
 		for (int i = 0; i < appIds.size(); i++) {
 			String appId = appIds.get(currentAppIdIndex);
 			String currentKeyForLogging = "..." + (appId.length() > 4 ? appId.substring(appId.length() - 4) : appId);
@@ -196,22 +188,36 @@ public final class WolframAlphaClient {
 	}
 
 	private Optional<WolframAlphaResult> parseFullResult(String xml) throws ParserConfigurationException, IOException, SAXException {
-		// ... (parseFullResult method remains the same)
 		if (xml == null || xml.isBlank()) {
 			Log.w(TAG, "XML for parsing is null or blank.");
 			return Optional.empty();
 		}
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+		// --- CRITICAL FIXES FOR PARSING INCONSISTENCIES ---
+
+		// 1. Wrap FEATURE_SECURE_PROCESSING
 		try {
 			// Standard way to prevent DTD and external entity processing for security
 			factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 		} catch (ParserConfigurationException e) {
-			Log.w(TAG, "Could not set FEATURE_SECURE_PROCESSING on DocumentBuilderFactory. This might be a security risk.", e);
-			// Continue without it if it fails, but be aware of the implications.
+			Log.w(TAG, "Could not set FEATURE_SECURE_PROCESSING on DocumentBuilderFactory. Continuing.", e);
 		}
-		// These are often good to keep if supported and don't cause errors:
-		factory.setXIncludeAware(false);
-		factory.setExpandEntityReferences(false);
+
+		// 2. Wrap setXIncludeAware (This is the line that caused the 'UnsupportedOperationException' in the logs)
+		try {
+			factory.setXIncludeAware(false);
+		} catch (UnsupportedOperationException e) {
+			Log.w(TAG, "Parser does not support setXIncludeAware. Continuing without it.", e);
+		}
+
+		// 3. Wrap setExpandEntityReferences
+		try {
+			factory.setExpandEntityReferences(false);
+		} catch (UnsupportedOperationException e) {
+			Log.w(TAG, "Parser does not support setExpandEntityReferences. Continuing without it.", e);
+		}
+		// --- END CRITICAL FIXES ---
 
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		Document doc = builder.parse(new InputSource(new StringReader(xml)));
@@ -249,8 +255,7 @@ public final class WolframAlphaClient {
 	}
 
 	private Optional<String> findPodText(Document doc, String podTitle) {
-		// ... (findPodText method remains the same)
-		NodeList pods = doc.getElementsByTagName("pod");
+		NodeList pods = doc.getDocumentElement().getElementsByTagName("pod");
 		for (int i = 0; i < pods.getLength(); i++) {
 			Element pod = (Element) pods.item(i);
 			if (podTitle.equals(pod.getAttribute("title"))) {
