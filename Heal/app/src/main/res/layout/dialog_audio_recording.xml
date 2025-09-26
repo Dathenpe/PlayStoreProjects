@@ -65,23 +65,49 @@
                 android:orientation="horizontal" />
 
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/recordButton"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:layout_gravity="center_horizontal"
-                android:contentDescription="Record/Stop Button"
-                app:icon="@drawable/ic_mic"
-                app:iconTint="?attr/colorOnPrimary"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                app:iconSize="32dp"
-                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
-                app:backgroundTint="?attr/colorPrimary"
-                android:insetLeft="0dp"
-                android:insetTop="0dp"
-                android:insetRight="0dp"
-                android:insetBottom="0dp" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:minHeight="72dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/recordButton"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:layout_centerInParent="true"
+                    android:contentDescription="Record/Pause/Resume Button"
+                    app:icon="@drawable/ic_mic"
+                    app:iconTint="?attr/colorOnPrimary"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="32dp"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                    app:backgroundTint="?attr/colorPrimary"
+                    android:insetLeft="0dp"
+                    android:insetTop="0dp"
+                    android:insetRight="0dp"
+                    android:insetBottom="0dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/stopButton"
+                    style="?attr/materialIconButtonFilledStyle"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="32dp"
+                    android:contentDescription="Stop Recording"
+                    android:visibility="gone"
+                    app:backgroundTint="?attr/colorError"
+                    app:icon="@drawable/ic_stop"
+                    app:iconSize="28dp"
+                    app:iconTint="?attr/colorOnError"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                    tools:visibility="visible" />
+
+            </RelativeLayout>
+
 
             <LinearLayout
                 android:layout_width="match_parent"
