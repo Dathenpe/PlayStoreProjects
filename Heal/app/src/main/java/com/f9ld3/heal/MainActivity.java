@@ -198,17 +198,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private int currentWelcomeDialogStep = 0;
 
     private final String[] WELCOME_TITLES = {
-            "Welcome to Heal: Your Path to Wellness",
-            "Tracking Your Progress, Celebrating Milestones",
-            "You're In Control: Tools & Support",
-            "Discover Your Strengths: Coping & More"
+            "Welcome to Heal: Your Wellness Partner",
+            "Sobriety, Moods, and Audio Logs",
+            "Immediate Support and Coping Skills",
+            "Recharge, Create, and Stay Consistent"
     };
 
     private final String[] WelcomeMessages = {
-            "Welcome to Heal! We're here to provide a supportive space and tools to help you navigate your journey towards well-being and recovery.",
-            "Let's begin by setting up your progress tracker. It’s a simple way to acknowledge your efforts and celebrate every step forward on your path. Heal also offers tools like Journaling and Mood Check-ins to reflect on your path.",
-            "You're in control. The progress tracker is yours to manage. Alongside it, remember to set up your Emergency Contacts for quick support, and explore personalized Coping Strategies.",
-            "Discover effective Coping Strategies tailored for you. You can prioritize them for easy access. Remember, Heal also offers a space for your Journal Entries, creative expression in the Art Corner, and helpful Reminders."
+            "Start your journey with Heal. Get instant support and chat with Xavier, your personal AI companion, built to help you reflect and navigate tough moments.",
+            "Monitor your progress with key tools: the Sobriety Counter, Mood Check-ins, Journaling, and Audio Logs. Review your Relapse History and celebrate every milestone.", // Updated to include Relapse Counter
+            "Access vital resources instantly. Explore and prioritize helpful Coping Exercises and strategies, and set up your Emergency Contacts for quick help when you need it most.",
+            "Take a break in the Fun Corner with games like Sudoku and Tetris, express yourself in the Art Corner, and set personalized Reminders to maintain your consistency."
     };
 
     private static final String PREFS_RECENTLY_VISITED =  "RecentlyVisitedPrefs";
@@ -1878,7 +1878,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             String myAppLink = "https://play.google.com/store/apps/details?id=com.example.myapp";
             String shareMessage = "Check out this awesome app!";
-            Share(myAppLink, shareMessage);
+            //Toast.makeText(this, "To Be ", Toast.LENGTH_SHORT).show();
+            //Share(myAppLink, shareMessage);
         }
 
         if (shouldLoadFragment && targetFragment != null) {

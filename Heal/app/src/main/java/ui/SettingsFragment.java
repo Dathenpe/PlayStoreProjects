@@ -32,6 +32,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
+import com.f9ld3.heal.BuildConfig;
 import com.f9ld3.heal.MainActivity;
 import com.f9ld3.heal.R;
 import com.google.android.material.chip.Chip;
@@ -272,7 +273,7 @@ public class SettingsFragment extends Fragment {
             feedbackLayout.setOnClickListener(v -> Toast.makeText(getContext(), "Feedback feature is not yet implemented.", Toast.LENGTH_SHORT).show());
         }
         if (aboutUsLayout != null) {
-            aboutUsLayout.setOnClickListener(v -> Toast.makeText(getContext(), "About Us feature is not yet implemented.", Toast.LENGTH_SHORT).show());
+            aboutUsLayout.setOnClickListener(v -> showAboutUsDialog());
         }
     }
 
@@ -558,5 +559,41 @@ public class SettingsFragment extends Fragment {
                         .start();
             }).start();
         }
+    }
+    private void showAboutUsDialog() {
+        String appVersion = BuildConfig.VERSION_NAME;
+        // Define the content for the dialog
+        String title = "About Heal";
+        String message = "Heal is an application designed to support your mental wellness journey. " +
+                "It provides tools for mood tracking, journaling, recording audio logs, " +
+                "and accessing helpful resources and games to practice self-care.\n\n" +
+                "Version: " + appVersion + "\n" +
+                "Developed by: F9LD3";
+        String positiveBtnText = "Got It";
+        String negativeBtnText = null;
+
+        // Create and show the CustomMessageDialogFragment
+        CustomMessageDialogFragment dialog = CustomMessageDialogFragment.newInstance(
+                title,
+                message,
+                positiveBtnText,
+                negativeBtnText
+        );
+
+        // Set a listener (optional, but good practice to handle button clicks)
+        dialog.setListener(new CustomMessageDialogFragment.OnMessageDialogListener() {
+            @Override
+            public void onDialogPositiveClick(DialogFragment dialogFragment) {
+                // Do nothing, just dismisses
+            }
+
+            @Override
+            public void onDialogNegativeClick(DialogFragment dialogFragment) {
+                // Negative button is null, but included for completeness
+            }
+        });
+
+        // Show the dialog
+        dialog.show(getParentFragmentManager(), "AboutUsDialog");
     }
 }
