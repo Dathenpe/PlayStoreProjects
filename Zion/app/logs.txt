@@ -1,0 +1,275 @@
+--------- beginning of main
+--------- beginning of system
+---------------------------- PROCESS STARTED (16484) for package com.f9ld3.Zion ----------------------------
+2025-10-01 14:59:38.515 16484-16484 LoadedApk               com.f9ld3.Zion                       I  No resource references to update in package com.transsion.theme.icon
+2025-10-01 14:59:38.517 16484-16484 NetworkSecurityConfig   com.f9ld3.Zion                       D  No Network Security Config specified, using platform default
+2025-10-01 14:59:38.517 16484-16484 NetworkSecurityConfig   com.f9ld3.Zion                       D  No Network Security Config specified, using platform default
+2025-10-01 14:59:38.519 16484-16484 libc                    com.f9ld3.Zion                       E  Access denied finding property "ro.vendor.pref_scale_resolution"
+2025-10-01 14:59:38.559 16484-16484 FirebaseApp             com.f9ld3.Zion                       I  Device unlocked: initializing all Firebase APIs for app [DEFAULT]
+2025-10-01 14:59:38.583 16484-16484 FirebaseInitProvider    com.f9ld3.Zion                       I  FirebaseApp initialization successful
+2025-10-01 14:59:38.613 16484-16522 libMEOW                 com.f9ld3.Zion                       D  meow reload base cfg path: na
+2025-10-01 14:59:38.613 16484-16522 libMEOW                 com.f9ld3.Zion                       D  meow reload overlay cfg path: na
+2025-10-01 14:59:38.615 16484-16522 libMEOW_gift            com.f9ld3.Zion                       I  open /data/performance/gift/arc.ini
+2025-10-01 14:59:38.615 16484-16522 libMEOW                 com.f9ld3.Zion                       D  applied 1 plugins for [com.f9ld3.Zion]:
+2025-10-01 14:59:38.615 16484-16522 libMEOW                 com.f9ld3.Zion                       D    plugin 1: [libMEOW_gift.so]:
+2025-10-01 14:59:38.640 16484-16484 ActivityThread          com.f9ld3.Zion                       D  ++ activityComponent:com.f9ld3.Zion/com.f9ld3.Zion.MainActivity counts:null
+2025-10-01 14:59:38.643 16484-16517 AppTurboFactory         com.f9ld3.Zion                       D  AppTurboFactory new
+2025-10-01 14:59:38.645 16484-16517 AppTurboService         com.f9ld3.Zion                       D  mTidEnabled false
+2025-10-01 14:59:38.665 16484-16484 AppCompatDelegate       com.f9ld3.Zion                       D  Checking for metadata for AppLocalesMetadataHolderService : Service not found
+2025-10-01 14:59:38.668 16484-16484 AppTurboService         com.f9ld3.Zion                       D  AppTurboService.initializeAppTurboFactory()
+2025-10-01 14:59:38.669 16484-16484 AppTurboPolicyImpl      com.f9ld3.Zion                       D  AppTurboPolicyImpl new
+2025-10-01 14:59:38.772 16484-16484 AppTurboService         com.f9ld3.Zion                       D  initialize
+2025-10-01 14:59:38.773 16484-16484 AppTurboService         com.f9ld3.Zion                       D   mAppTurboTouchSlop = 0 mIsTpTurboApp = false
+2025-10-01 14:59:38.773 16484-16484 AppTurboService         com.f9ld3.Zion                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-10-01 14:59:38.773 16484-16484 AppTurboService         com.f9ld3.Zion                       D  versionName 1.0
+2025-10-01 14:59:38.773 16484-16484 os.SingleLice           com.f9ld3.Zion                       D  instance successfully. com.transsion.scrollshot.v1.ScrollShotImplLice@36bacd from com.transsion.scrollshot.ScrollShotImplLiceFactory
+2025-10-01 14:59:38.773 16484-16484 os.SingleLiceFactory    com.f9ld3.Zion                       D  instance successfully. com.transsion.scrollshot.v1.ScrollShotImplLice@36bacd from android.view.IViewLice
+2025-10-01 14:59:38.773 16484-16484 os.LiceInfo             com.f9ld3.Zion                       D  instance successfully. com.transsion.view.ViewLice@bc62f82 from android.view.IViewLice
+2025-10-01 14:59:38.817 16484-16484 AppCompatViewInflater   com.f9ld3.Zion                       I  app:theme is now deprecated. Please move to using android:theme instead.
+2025-10-01 14:59:39.087 16484-16484 os.SingleLice           com.f9ld3.Zion                       D  instance successfully. com.transsion.freeform.v1.FreeformLice@b6aebb4 from com.transsion.freeform.FreeformLiceFactory
+2025-10-01 14:59:39.087 16484-16484 os.SingleLiceFactory    com.f9ld3.Zion                       D  instance successfully. com.transsion.freeform.v1.FreeformLice@b6aebb4 from com.android.internal.IInternalViewLice
+2025-10-01 14:59:39.087 16484-16484 os.SingleLice           com.f9ld3.Zion                       D  instance successfully. com.transsion.whitenavigation.v1.WhiteNavigationLice@18f63dd from com.transsion.whitenavigation.WhiteNavigationLiceFactory
+2025-10-01 14:59:39.087 16484-16484 os.SingleLiceFactory    com.f9ld3.Zion                       D  instance successfully. com.transsion.whitenavigation.v1.WhiteNavigationLice@18f63dd from com.android.internal.IInternalViewLice
+2025-10-01 14:59:39.087 16484-16484 os.LiceInfo             com.f9ld3.Zion                       D  instance successfully. com.transsion.internal.InternalViewLice@4690b52 from com.android.internal.IInternalViewLice
+2025-10-01 14:59:39.098 16484-16484 com.f9ld3.Zion          com.f9ld3.Zion                       W  Accessing hidden method Landroid/view/ViewGroup;->makeOptionalFitsSystemWindows()V (greylist, reflection, allowed)
+2025-10-01 14:59:39.121 16484-16539 ActivityThreadLice      com.f9ld3.Zion                       D  received OSMessage 110001
+2025-10-01 14:59:39.121 16484-16539 ActivityThreadLice      com.f9ld3.Zion                       D  send OSMessage 110001 to [-1]
+2025-10-01 14:59:39.123 16484-16539 OSServiceManager        com.f9ld3.Zion                       D  update local os service os.activity from null to android.os.BinderProxy@7aa9e4
+2025-10-01 14:59:39.124 16484-16538 System                  com.f9ld3.Zion                       W  Ignoring header X-Firebase-Locale because its value was null.
+2025-10-01 14:59:39.162 16484-16541 TetheringManager        com.f9ld3.Zion                       I  registerTetheringEventCallback:com.f9ld3.Zion
+2025-10-01 14:59:39.170 16484-16542 DynamiteModule          com.f9ld3.Zion                       W  Local module descriptor class for com.google.android.gms.providerinstaller.dynamite not found.
+2025-10-01 14:59:39.187 16484-16542 DynamiteModule          com.f9ld3.Zion                       I  Considering local module com.google.android.gms.providerinstaller.dynamite:0 and remote module com.google.android.gms.providerinstaller.dynamite:0
+2025-10-01 14:59:39.188 16484-16542 ProviderInstaller       com.f9ld3.Zion                       W  Failed to load providerinstaller module: No acceptable module com.google.android.gms.providerinstaller.dynamite found. Local version is 0 and remote version is 0.
+2025-10-01 14:59:39.193 16484-16542 com.f9ld3.Zion          com.f9ld3.Zion                       I  The ClassLoaderContext is a special shared library.
+2025-10-01 14:59:39.205 16484-16542 com.f9ld3.Zion          com.f9ld3.Zion                       I  The ClassLoaderContext is a special shared library.
+2025-10-01 14:59:39.228 16484-16542 ProviderInstaller       com.f9ld3.Zion                       W  Failed to report request stats: com.google.android.gms.common.security.ProviderInstallerImpl.reportRequestStats [class android.content.Context, long, long]
+2025-10-01 14:59:39.235 16484-16484 AppTurboService         com.f9ld3.Zion                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-10-01 14:59:39.241 16484-16565 com.f9ld3.Zion          com.f9ld3.Zion                       W  Accessing hidden method Ldalvik/system/VMStack;->getStackClass2()Ljava/lang/Class; (greylist, reflection, allowed)
+2025-10-01 14:59:39.236 16484-16484 AppTurboService         com.f9ld3.Zion                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-10-01 14:59:39.266 16484-16542 NativeCrypto            com.f9ld3.Zion                       V  Registering com/google/android/gms/org/conscrypt/NativeCrypto's 319 native methods...
+2025-10-01 14:59:39.285 16484-16542 com.f9ld3.Zion          com.f9ld3.Zion                       W  Accessing hidden method Ljava/security/spec/ECParameterSpec;->getCurveName()Ljava/lang/String; (greylist, reflection, allowed)
+2025-10-01 14:59:39.289 16484-16538 LocalRequestInterceptor com.f9ld3.Zion                       W  Error getting App Check token; using placeholder token instead. Error: com.google.firebase.FirebaseException: No AppCheckProvider installed.
+2025-10-01 14:59:39.291 16484-16538 System.out              com.f9ld3.Zion                       I  [okhttp]:check permission begin!
+2025-10-01 14:59:39.294 16484-16484 SurfaceFactory          com.f9ld3.Zion                       I  [static] sSurfaceFactory = com.mediatek.view.impl.SurfaceFactoryImpl@1d0e4bf
+2025-10-01 14:59:39.294 16484-16484 libc                    com.f9ld3.Zion                       E  Access denied finding property "ro.vendor.tgpa_resolution_tuner"
+2025-10-01 14:59:39.295 16484-16538 System                  com.f9ld3.Zion                       W  ClassLoader referenced unknown path: system/framework/mediatek-cta.jar
+2025-10-01 14:59:39.296 16484-16538 System.out              com.f9ld3.Zion                       I  [okhttp] e:java.lang.ClassNotFoundException: com.mediatek.cta.CtaUtils
+2025-10-01 14:59:39.299 16484-16484 libc                    com.f9ld3.Zion                       E  Access denied finding property "ro.vendor.scaler_version"
+2025-10-01 14:59:39.300 16484-16484 libc                    com.f9ld3.Zion                       E  Access denied finding property "ro.vendor.scaler_version"
+2025-10-01 14:59:39.304 16484-16538 System.out              com.f9ld3.Zion                       I  [socket]:check permission begin!
+2025-10-01 14:59:39.306 16484-16484 ViewRootIm...nActivity] com.f9ld3.Zion                       D  hardware acceleration = true , fakeHwAccelerated = false, sRendererDisabled = false, forceHwAccelerated = false, sSystemRendererDisabled = false
+2025-10-01 14:59:39.306 16484-16538 System                  com.f9ld3.Zion                       W  ClassLoader referenced unknown path: system/framework/mediatek-cta.jar
+2025-10-01 14:59:39.307 16484-16538 System.out              com.f9ld3.Zion                       I  [socket] e:java.lang.ClassNotFoundException: com.mediatek.cta.CtaUtils
+2025-10-01 14:59:39.311 16484-16484 libMEOW                 com.f9ld3.Zion                       D  applied 1 plugins for [com.f9ld3.Zion]:
+2025-10-01 14:59:39.311 16484-16484 libMEOW                 com.f9ld3.Zion                       D    plugin 1: [libMEOW_gift.so]:
+2025-10-01 14:59:39.312 16484-16484 InputTransport          com.f9ld3.Zion                       I  Create ARC handle: 0xb40000726a5fc800
+2025-10-01 14:59:39.312 16484-16484 InputTransport          com.f9ld3.Zion                       I  InputConsumer create TRAN_APPTURBO_ENABLE disable
+2025-10-01 14:59:39.314 16484-16484 PhoneWindow             com.f9ld3.Zion                       V  DecorView setVisiblity: visibility = 0, Parent = android.view.ViewRootImpl@86d4b89, this = DecorView@c6e0e9b[MainActivity]
+2025-10-01 14:59:39.316 16484-16484 Choreographer           com.f9ld3.Zion                       I  Skipped 63 frames!  The application may be doing too much work on its main thread.
+2025-10-01 14:59:39.324 16484-16542 ProviderInstaller       com.f9ld3.Zion                       I  Installed default security provider GmsCore_OpenSSL
+2025-10-01 14:59:39.370 16484-16520 libMEOW                 com.f9ld3.Zion                       D  applied 1 plugins for [com.f9ld3.Zion]:
+2025-10-01 14:59:39.370 16484-16520 libMEOW                 com.f9ld3.Zion                       D    plugin 1: [libMEOW_gift.so]:
+2025-10-01 14:59:39.379 16484-16520 GED                     com.f9ld3.Zion                       I  [GT]_get_procNameprocess pid(16484)
+2025-10-01 14:59:39.379 16484-16520 GED                     com.f9ld3.Zion                       I  [GT]_getprocess name(com.f9ld3.Zion)
+2025-10-01 14:59:39.379 16484-16520 com.f9ld3.Zion          com.f9ld3.Zion                       I  [GT] ret(1) gt_status(00000000) aniso_debug_level(0) gt_aniso_max_level(16) ani so mask(00000001) tri mask(00000002)
+2025-10-01 14:59:39.379 16484-16520 libMEOW_gift            com.f9ld3.Zion                       I  ctx:0xb40000739a678dc8, ARC not Enabled.
+2025-10-01 14:59:39.416 16484-16520 ion                     com.f9ld3.Zion                       E  ioctl c0044901 failed with code -1: Invalid argument
+2025-10-01 14:59:39.440 16484-16520 OpenGLRenderer          com.f9ld3.Zion                       I  Davey! duration=830ms; Flags=1, IntendedVsync=77965505116546, Vsync=77966205116539, OldestInputEvent=9223372036854775807, NewestInputEvent=0, HandleInputStart=77966211703108, AnimationStart=77966211708339, PerformTraversalsStart=77966211943108, DrawStart=77966291064954, SyncQueued=77966305445492, SyncStart=77966305858492, IssueDrawCommandsStart=77966306162723, SwapBuffers=77966332986800, FrameCompleted=77966335908339, DequeueBufferDuration=276077, QueueBufferDuration=596539, GpuCompleted=0,
+2025-10-01 14:59:39.444 16484-16601 System.out              com.f9ld3.Zion                       I  [socket]:check permission begin!
+2025-10-01 14:59:39.460 16484-16564 GoogleApiManager        com.f9ld3.Zion                       E  Failed to get service from broker.  (Ask Gemini)
+                                                                                                    java.lang.SecurityException: Unknown calling package name 'com.google.android.gms'.
+                                                                                                    	at android.os.Parcel.createExceptionOrNull(Parcel.java:2374)
+                                                                                                    	at android.os.Parcel.createException(Parcel.java:2358)
+                                                                                                    	at android.os.Parcel.readException(Parcel.java:2341)
+                                                                                                    	at android.os.Parcel.readException(Parcel.java:2283)
+                                                                                                    	at ayoz.a(:com.google.android.gms@253830022@25.38.30 (150400-807569344):36)
+                                                                                                    	at ayne.z(:com.google.android.gms@253830022@25.38.30 (150400-807569344):150)
+                                                                                                    	at axua.run(:com.google.android.gms@253830022@25.38.30 (150400-807569344):42)
+                                                                                                    	at android.os.Handler.handleCallback(Handler.java:938)
+                                                                                                    	at android.os.Handler.dispatchMessage(Handler.java:99)
+                                                                                                    	at cigt.mk(:com.google.android.gms@253830022@25.38.30 (150400-807569344):1)
+                                                                                                    	at cigt.dispatchMessage(:com.google.android.gms@253830022@25.38.30 (150400-807569344):5)
+                                                                                                    	at android.os.Looper.loop(Looper.java:268)
+                                                                                                    	at android.os.HandlerThread.run(HandlerThread.java:67)
+2025-10-01 14:59:39.467 16484-16562 FlagRegistrar           com.f9ld3.Zion                       W  Failed to register com.google.android.gms.providerinstaller#com.f9ld3.Zion (Ask Gemini)
+                                                                                                    eqnj: 17: 17: API: Phenotype.API is not available on this device. Connection failed with: ConnectionResult{statusCode=DEVELOPER_ERROR, resolution=null, message=null, clientMethodKey=null}
+                                                                                                    	at eqnl.a(:com.google.android.gms@253830022@25.38.30 (150400-807569344):13)
+                                                                                                    	at flbg.d(:com.google.android.gms@253830022@25.38.30 (150400-807569344):3)
+                                                                                                    	at flbi.run(:com.google.android.gms@253830022@25.38.30 (150400-807569344):130)
+                                                                                                    	at fldp.execute(:com.google.android.gms@253830022@25.38.30 (150400-807569344):1)
+                                                                                                    	at flbq.f(:com.google.android.gms@253830022@25.38.30 (150400-807569344):1)
+                                                                                                    	at flbq.m(:com.google.android.gms@253830022@25.38.30 (150400-807569344):99)
+                                                                                                    	at flbq.r(:com.google.android.gms@253830022@25.38.30 (150400-807569344):17)
+                                                                                                    	at eiwg.hI(:com.google.android.gms@253830022@25.38.30 (150400-807569344):35)
+                                                                                                    	at dywk.run(:com.google.android.gms@253830022@25.38.30 (150400-807569344):12)
+                                                                                                    	at fldp.execute(:com.google.android.gms@253830022@25.38.30 (150400-807569344):1)
+                                                                                                    	at dywl.b(:com.google.android.gms@253830022@25.38.30 (150400-807569344):18)
+                                                                                                    	at dyxa.b(:com.google.android.gms@253830022@25.38.30 (150400-807569344):36)
+                                                                                                    	at dyxc.d(:com.google.android.gms@253830022@25.38.30 (150400-807569344):25)
+                                                                                                    	at axrj.c(:com.google.android.gms@253830022@25.38.30 (150400-807569344):9)
+                                                                                                    	at axty.q(:com.google.android.gms@253830022@25.38.30 (150400-807569344):48)
+                                                                                                    	at axty.d(:com.google.android.gms@253830022@25.38.30 (150400-807569344):10)
+                                                                                                    	at axty.g(:com.google.android.gms@253830022@25.38.30 (150400-807569344):192)
+                                                                                                    	at axty.onConnectionFailed(:com.google.android.gms@253830022@25.38.30 (150400-807569344):2)
+                                                                                                    	at axua.run(:com.google.android.gms@253830022@25.38.30 (150400-807569344):70)
+                                                                                                    	at android.os.Handler.handleCallback(Handler.java:938)
+                                                                                                    	at android.os.Handler.dispatchMessage(Handler.java:99)
+                                                                                                    	at cigt.mk(:com.google.android.gms@253830022@25.38.30 (150400-807569344):1)
+                                                                                                    	at cigt.dispatchMessage(:com.google.android.gms@253830022@25.38.30 (150400-807569344):5)
+                                                                                                    	at android.os.Looper.loop(Looper.java:268)
+                                                                                                    	at android.os.HandlerThread.run(HandlerThread.java:67)
+                                                                                                    Caused by: axpr: 17: API: Phenotype.API is not available on this device. Connection failed with: ConnectionResult{statusCode=DEVELOPER_ERROR, resolution=null, message=null, clientMethodKey=null}
+                                                                                                    	at aymq.a(:com.google.android.gms@253830022@25.38.30 (150400-807569344):15)
+                                                                                                    	at axrm.a(:com.google.android.gms@253830022@25.38.30 (150400-807569344):1)
+                                                                                                    	at axrj.c(:com.google.android.gms@253830022@25.38.30 (150400-807569344):5)
+                                                                                                    	at axty.q(:com.google.android.gms@253830022@25.38.30 (150400-807569344):48) 
+                                                                                                    	at axty.d(:com.google.android.gms@253830022@25.38.30 (150400-807569344):10) 
+                                                                                                    	at axty.g(:com.google.android.gms@253830022@25.38.30 (150400-807569344):192) 
+                                                                                                    	at axty.onConnectionFailed(:com.google.android.gms@253830022@25.38.30 (150400-807569344):2) 
+                                                                                                    	at axua.run(:com.google.android.gms@253830022@25.38.30 (150400-807569344):70) 
+                                                                                                    	at android.os.Handler.handleCallback(Handler.java:938) 
+                                                                                                    	at android.os.Handler.dispatchMessage(Handler.java:99) 
+                                                                                                    	at cigt.mk(:com.google.android.gms@253830022@25.38.30 (150400-807569344):1) 
+                                                                                                    	at cigt.dispatchMessage(:com.google.android.gms@253830022@25.38.30 (150400-807569344):5) 
+                                                                                                    	at android.os.Looper.loop(Looper.java:268) 
+                                                                                                    	at android.os.HandlerThread.run(HandlerThread.java:67) 
+2025-10-01 14:59:39.663 16484-16601 com.f9ld3.Zion          com.f9ld3.Zion                       W  Accessing hidden field Ljava/net/Socket;->impl:Ljava/net/SocketImpl; (greylist, reflection, allowed)
+2025-10-01 14:59:39.664 16484-16601 com.f9ld3.Zion          com.f9ld3.Zion                       W  Accessing hidden method Ldalvik/system/CloseGuard;->get()Ldalvik/system/CloseGuard; (greylist,core-platform-api, linking, allowed)
+2025-10-01 14:59:39.670 16484-16601 com.f9ld3.Zion          com.f9ld3.Zion                       W  Accessing hidden method Ldalvik/system/CloseGuard;->open(Ljava/lang/String;)V (greylist,core-platform-api, linking, allowed)
+2025-10-01 14:59:39.781 16484-16538 com.f9ld3.Zion          com.f9ld3.Zion                       W  Accessing hidden method Ljava/security/spec/ECParameterSpec;->setCurveName(Ljava/lang/String;)V (greylist, reflection, allowed)
+2025-10-01 14:59:39.798 16484-16538 System.out              com.f9ld3.Zion                       I  [OkHttp] sendRequest<<
+2025-10-01 14:59:39.916 16484-16601 com.f9ld3.Zion          com.f9ld3.Zion                       W  Accessing hidden method Ldalvik/system/BlockGuard;->getThreadPolicy()Ldalvik/system/BlockGuard$Policy; (greylist,core-platform-api, linking, allowed)
+2025-10-01 14:59:39.916 16484-16601 com.f9ld3.Zion          com.f9ld3.Zion                       W  Accessing hidden method Ldalvik/system/BlockGuard$Policy;->onNetwork()V (greylist, linking, allowed)
+2025-10-01 14:59:39.936 16484-16500 System                  com.f9ld3.Zion                       W  A resource failed to call close.
+2025-10-01 14:59:39.936 16484-16500 System                  com.f9ld3.Zion                       W  A resource failed to call close.
+2025-10-01 14:59:40.357 16484-16484 MainActivity            com.f9ld3.Zion                       W  signInAnonymously:failure (Ask Gemini)
+                                                                                                    com.google.firebase.FirebaseException: An internal error has occurred. [ CONFIGURATION_NOT_FOUND ]
+                                                                                                    	at com.google.android.gms.internal.firebase-auth-api.zzaen.zza(com.google.firebase:firebase-auth@@24.0.1:18)
+                                                                                                    	at com.google.android.gms.internal.firebase-auth-api.zzafp.zza(com.google.firebase:firebase-auth@@24.0.1:21)
+                                                                                                    	at com.google.android.gms.internal.firebase-auth-api.zzaff.zza(com.google.firebase:firebase-auth@@24.0.1:32)
+                                                                                                    	at com.google.android.gms.internal.firebase-auth-api.zzafh.zza(com.google.firebase:firebase-auth@@24.0.1:71)
+                                                                                                    	at com.google.android.gms.internal.firebase-auth-api.zzael.zza(com.google.firebase:firebase-auth@@24.0.1:46)
+                                                                                                    	at com.google.android.gms.internal.firebase-auth-api.zzaci.zza(com.google.firebase:firebase-auth@@24.0.1:3)
+                                                                                                    	at com.google.android.gms.internal.firebase-auth-api.zzafu.zza(com.google.firebase:firebase-auth@@24.0.1:15)
+                                                                                                    	at com.google.android.gms.internal.firebase-auth-api.zzafu.zza(com.google.firebase:firebase-auth@@24.0.1:64)
+                                                                                                    	at com.google.android.gms.internal.firebase-auth-api.zzafb.zza(com.google.firebase:firebase-auth@@24.0.1:119)
+                                                                                                    	at com.google.android.gms.internal.firebase-auth-api.zzaar.zze(com.google.firebase:firebase-auth@@24.0.1:173)
+                                                                                                    	at com.google.android.gms.internal.firebase-auth-api.zzaeo.zzd(com.google.firebase:firebase-auth@@24.0.1:160)
+                                                                                                    	at com.google.android.gms.internal.firebase-auth-api.zzadr.zza(com.google.firebase:firebase-auth@@24.0.1:11)
+                                                                                                    	at com.google.android.gms.internal.firebase-auth-api.zzafr.run(com.google.firebase:firebase-auth@@24.0.1:3)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1167)
+                                                                                                    	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:641)
+                                                                                                    	at com.google.firebase.concurrent.CustomThreadFactory.lambda$newThread$0$com-google-firebase-concurrent-CustomThreadFactory(CustomThreadFactory.java:47)
+                                                                                                    	at com.google.firebase.concurrent.CustomThreadFactory$$ExternalSyntheticLambda0.run(D8$$SyntheticClass:0)
+                                                                                                    	at java.lang.Thread.run(Thread.java:923)
+2025-10-01 14:59:41.099 16484-16484 AppTurboService         com.f9ld3.Zion                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-10-01 14:59:41.159 16484-16484 PlayerFragment          com.f9ld3.Zion                       D  New media feed of 1 items submitted.
+2025-10-01 14:59:41.159 16484-16484 PlayerViewModel         com.f9ld3.Zion                       D  Updated interleaved feed: 1 total items.
+--------- beginning of crash
+2025-10-01 14:59:41.176 16484-16484 AndroidRuntime          com.f9ld3.Zion                       D  Shutting down VM
+2025-10-01 14:59:41.180 16484-16484 AndroidRuntime          com.f9ld3.Zion                       E  FATAL EXCEPTION: main (Ask Gemini)
+                                                                                                    Process: com.f9ld3.Zion, PID: 16484
+                                                                                                    android.view.InflateException: Binary XML file line #28 in com.f9ld3.Zion:layout/item_player_video: Binary XML file line #28 in com.f9ld3.Zion:layout/item_player_video: Error inflating class ImageView
+                                                                                                    Caused by: android.view.InflateException: Binary XML file line #28 in com.f9ld3.Zion:layout/item_player_video: Error inflating class ImageView
+                                                                                                    Caused by: java.lang.UnsupportedOperationException: Failed to resolve attribute at index 13: TypedValue{t=0x2/d=0x7f040144 a=-1}
+                                                                                                    	at android.content.res.TypedArray.getDrawableForDensity(TypedArray.java:997)
+                                                                                                    	at android.content.res.TypedArray.getDrawable(TypedArray.java:981)
+                                                                                                    	at android.view.View.<init>(View.java:5548)
+                                                                                                    	at android.widget.ImageView.<init>(ImageView.java:195)
+                                                                                                    	at android.widget.ImageView.<init>(ImageView.java:190)
+                                                                                                    	at androidx.appcompat.widget.AppCompatImageView.<init>(AppCompatImageView.java:78)
+                                                                                                    	at androidx.appcompat.widget.AppCompatImageView.<init>(AppCompatImageView.java:73)
+                                                                                                    	at androidx.appcompat.app.AppCompatViewInflater.createImageView(AppCompatViewInflater.java:233)
+                                                                                                    	at androidx.appcompat.app.AppCompatViewInflater.createView(AppCompatViewInflater.java:152)
+                                                                                                    	at androidx.appcompat.app.AppCompatDelegateImpl.createView(AppCompatDelegateImpl.java:1654)
+                                                                                                    	at androidx.appcompat.app.AppCompatDelegateImpl.onCreateView(AppCompatDelegateImpl.java:1705)
+                                                                                                    	at android.view.LayoutInflater.tryCreateView(LayoutInflater.java:1065)
+                                                                                                    	at android.view.LayoutInflater.createViewFromTag(LayoutInflater.java:995)
+                                                                                                    	at android.view.LayoutInflater.createViewFromTag(LayoutInflater.java:959)
+                                                                                                    	at android.view.LayoutInflater.rInflate(LayoutInflater.java:1138)
+                                                                                                    	at android.view.LayoutInflater.rInflateChildren(LayoutInflater.java:1099)
+                                                                                                    	at android.view.LayoutInflater.rInflate(LayoutInflater.java:1141)
+                                                                                                    	at android.view.LayoutInflater.rInflateChildren(LayoutInflater.java:1099)
+                                                                                                    	at android.view.LayoutInflater.inflate(LayoutInflater.java:680)
+                                                                                                    	at android.view.LayoutInflater.inflate(LayoutInflater.java:532)
+                                                                                                    	at com.f9ld3.Zion.databinding.ItemPlayerVideoBinding.inflate(ItemPlayerVideoBinding.java:79)
+                                                                                                    	at com.f9ld3.Zion.ui.player.PlayerPostAdapter.onCreateViewHolder(PlayerPostAdapter.java:58)
+                                                                                                    	at androidx.recyclerview.widget.RecyclerView$Adapter.createViewHolder(RecyclerView.java:7719)
+                                                                                                    	at androidx.recyclerview.widget.RecyclerView$Recycler.tryGetViewHolderForPositionByDeadline(RecyclerView.java:6804)
+                                                                                                    	at androidx.recyclerview.widget.RecyclerView$Recycler.getViewForPosition(RecyclerView.java:6688)
+                                                                                                    	at androidx.recyclerview.widget.RecyclerView$Recycler.getViewForPosition(RecyclerView.java:6684)
+                                                                                                    	at androidx.recyclerview.widget.LinearLayoutManager$LayoutState.next(LinearLayoutManager.java:2362)
+                                                                                                    	at androidx.recyclerview.widget.LinearLayoutManager.layoutChunk(LinearLayoutManager.java:1662)
+                                                                                                    	at androidx.recyclerview.widget.LinearLayoutManager.fill(LinearLayoutManager.java:1622)
+                                                                                                    	at androidx.recyclerview.widget.LinearLayoutManager.onLayoutChildren(LinearLayoutManager.java:687)
+                                                                                                    	at androidx.recyclerview.widget.RecyclerView.dispatchLayoutStep2(RecyclerView.java:4604)
+                                                                                                    	at androidx.recyclerview.widget.RecyclerView.onMeasure(RecyclerView.java:3981)
+                                                                                                    	at android.view.View.measure(View.java:25661)
+                                                                                                    	at androidx.core.widget.NestedScrollView.measureChildWithMargins(NestedScrollView.java:1941)
+                                                                                                    	at android.widget.FrameLayout.onMeasure(FrameLayout.java:194)
+                                                                                                    	at androidx.core.widget.NestedScrollView.onMeasure(NestedScrollView.java:650)
+                                                                                                    	at android.view.View.measure(View.java:25661)
+                                                                                                    	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7062)
+                                                                                                    	at androidx.coordinatorlayout.widget.CoordinatorLayout.onMeasureChild(CoordinatorLayout.java:760)
+                                                                                                    	at androidx.coordinatorlayout.widget.CoordinatorLayout.onMeasure(CoordinatorLayout.java:833)
+                                                                                                    	at android.view.View.measure(View.java:25661)
+                                                                                                    	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7062)
+                                                                                                    	at android.widget.FrameLayout.onMeasure(FrameLayout.java:194)
+                                                                                                    	at android.view.View.measure(View.java:25661)
+2025-10-01 14:59:41.180 16484-16484 AndroidRuntime          com.f9ld3.Zion                       E  	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7062) (Ask Gemini)
+                                                                                                    	at android.widget.FrameLayout.onMeasure(FrameLayout.java:194)
+                                                                                                    	at android.view.View.measure(View.java:25661)
+                                                                                                    	at androidx.constraintlayout.widget.ConstraintLayout$Measurer.measure(ConstraintLayout.java:861)
+                                                                                                    	at androidx.constraintlayout.core.widgets.ConstraintWidgetContainer.measure(ConstraintWidgetContainer.java:646)
+                                                                                                    	at androidx.constraintlayout.core.widgets.analyzer.Direct.verticalSolvingPass(Direct.java:486)
+                                                                                                    	at androidx.constraintlayout.core.widgets.analyzer.Direct.solveVerticalMatchConstraint(Direct.java:805)
+                                                                                                    	at androidx.constraintlayout.core.widgets.analyzer.Direct.verticalSolvingPass(Direct.java:549)
+                                                                                                    	at androidx.constraintlayout.core.widgets.analyzer.Direct.verticalSolvingPass(Direct.java:592)
+                                                                                                    	at androidx.constraintlayout.core.widgets.analyzer.Direct.solvingPass(Direct.java:230)
+                                                                                                    	at androidx.constraintlayout.core.widgets.ConstraintWidgetContainer.layout(ConstraintWidgetContainer.java:711)
+                                                                                                    	at androidx.constraintlayout.core.widgets.analyzer.BasicMeasure.solveLinearSystem(BasicMeasure.java:170)
+                                                                                                    	at androidx.constraintlayout.core.widgets.analyzer.BasicMeasure.solverMeasure(BasicMeasure.java:298)
+                                                                                                    	at androidx.constraintlayout.core.widgets.ConstraintWidgetContainer.measure(ConstraintWidgetContainer.java:119)
+                                                                                                    	at androidx.constraintlayout.widget.ConstraintLayout.resolveSystem(ConstraintLayout.java:1634)
+                                                                                                    	at androidx.constraintlayout.widget.ConstraintLayout.onMeasure(ConstraintLayout.java:1777)
+                                                                                                    	at android.view.View.measure(View.java:25661)
+                                                                                                    	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7062)
+                                                                                                    	at android.widget.FrameLayout.onMeasure(FrameLayout.java:194)
+                                                                                                    	at androidx.appcompat.widget.ContentFrameLayout.onMeasure(ContentFrameLayout.java:141)
+                                                                                                    	at android.view.View.measure(View.java:25661)
+                                                                                                    	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7062)
+                                                                                                    	at android.widget.LinearLayout.measureChildBeforeLayout(LinearLayout.java:1552)
+                                                                                                    	at android.widget.LinearLayout.measureVertical(LinearLayout.java:842)
+                                                                                                    	at android.widget.LinearLayout.onMeasure(LinearLayout.java:721)
+                                                                                                    	at android.view.View.measure(View.java:25661)
+                                                                                                    	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7062)
+                                                                                                    	at android.widget.FrameLayout.onMeasure(FrameLayout.java:194)
+                                                                                                    	at android.view.View.measure(View.java:25661)
+                                                                                                    	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7062)
+                                                                                                    	at android.widget.LinearLayout.measureChildBeforeLayout(LinearLayout.java:1552)
+                                                                                                    	at android.widget.LinearLayout.measureVertical(LinearLayout.java:842)
+                                                                                                    	at android.widget.LinearLayout.onMeasure(LinearLayout.java:721)
+                                                                                                    	at android.view.View.measure(View.java:25661)
+                                                                                                    	at android.view.ViewGroup.measureChildWithMargins(ViewGroup.java:7062)
+                                                                                                    	at android.widget.FrameLayout.onMeasure(FrameLayout.java:194)
+                                                                                                    	at com.android.internal.policy.DecorView.onMeasure(DecorView.java:747)
+                                                                                                    	at android.view.View.measure(View.java:25661)
+                                                                                                    	at android.view.ViewRootImpl.performMeasure(ViewRootImpl.java:3627)
+                                                                                                    	at android.view.ViewRootImpl.measureHierarchy(ViewRootImpl.java:2417)
+                                                                                                    	at android.view.ViewRootImpl.performTraversals(ViewRootImpl.java:2680)
+                                                                                                    	at android.view.ViewRootImpl.doTraversal(ViewRootImpl.java:2141)
+                                                                                                    	at android.view.ViewRootImpl$TraversalRunnable.run(ViewRootImpl.java:8568)
+                                                                                                    	at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1030)
+                                                                                                    	at android.view.Choreographer.doCallbacks(Choreographer.java:840)
+                                                                                                    	at android.view.Choreographer.doFrame(Choreographer.java:772)
+                                                                                                    	at android.view.Choreographer$FrameDisplayEventReceiver.run(Choreographer.java:1002)
+                                                                                                    	at android.os.Handler.handleCallback(Handler.java:938)
+                                                                                                    	at android.os.Handler.dispatchMessage(Handler.java:99)
+                                                                                                    	at android.os.Looper.loop(Looper.java:268)
+                                                                                                    	at android.app.ActivityThread.main(ActivityThread.java:8019)
+                                                                                                    	at java.lang.reflect.Method.invoke(Native Method)
+                                                                                                    	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:627)
+                                                                                                    	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:997)
+2025-10-01 14:59:41.101 16484-16484 chatty                  com.f9ld3.Zion                       I  uid=10182(com.f9ld3.Zion) identical 2 lines
+2025-10-01 14:59:41.101 16484-16484 AppTurboService         com.f9ld3.Zion                       D   getSettingSupport resullt = false mSettingCloudEnable = true
+2025-10-01 14:59:42.030 16484-16541 Firestore               com.f9ld3.Zion                       W  (26.0.1) [Firestore]: Listen for Query(target=Query(posts where type==blog order by -timestamp, -__name__);limitType=LIMIT_TO_FIRST) failed: Status{code=FAILED_PRECONDITION, description=The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/zion-31e23/firestore/indexes?create_composite=Ckhwcm9qZWN0cy96aW9uLTMxZTIzL2RhdGFiYXNlcy8oZGVmYXVsdCkvY29sbGVjdGlvbkdyb3Vwcy9wb3N0cy9pbmRleGVzL18QARoICgR0eXBlEAEaDQoJdGltZXN0YW1wEAIaDAoIX19uYW1lX18QAg, cause=null}

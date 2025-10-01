@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "375101052925",
+    "project_id": "zion-31e23",
+    "storage_bucket": "zion-31e23.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:375101052925:android:bf3174a62aad61239d2b94",
+        "android_client_info": {
+          "package_name": "com.f9ld3.Zion"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5XPncQ_PbWff4J0wD_CKEHglBdi6AShE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

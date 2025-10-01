@@ -1,5 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
+    // Add the Google Services plugin for Firebase setup
+    alias(libs.plugins.google.services)
+    // Removed: alias(libs.plugins.kotlin.android)
+    // Removed: id("kotlin-kapt")
 }
 
 android {
@@ -26,9 +30,11 @@ android {
         }
     }
     compileOptions {
+        // Set Java 11 compatibility for modern Android development and libraries like Glide 5.x
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    // Removed: kotlinOptions { ... }
     buildFeatures {
         viewBinding = true
     }
@@ -36,6 +42,7 @@ android {
 
 dependencies {
 
+    // Existing dependencies
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
@@ -43,6 +50,33 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+
+    // ----------------------------------------------------------------------
+    // New dependencies for Firebase, ExoPlayer, and Glide
+    // ----------------------------------------------------------------------
+
+    // Firebase BOM (Bill of Materials) for version management
+    implementation(platform(libs.firebase.bom))
+
+    // Firebase Core Services (Auth, Firestore, Storage, Messaging)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
+    implementation(libs.firebase.messaging)
+
+    // ExoPlayer (Jetpack Media3)
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.ui)
+    implementation(libs.circleimageview)
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+    // Glide (Image Loading)
+    implementation(libs.glide)
+    // Use 'annotationProcessor' for Java projects
+    annotationProcessor(libs.glide.compiler)
+
+    // ----------------------------------------------------------------------
+
+    // Test dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

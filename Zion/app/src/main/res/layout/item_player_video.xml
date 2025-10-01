@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginBottom="8dp"
+    app:cardElevation="4dp" app:cardCornerRadius="16dp"
+    app:strokeWidth="0dp"
+    tools:theme="@style/Theme.Material3.DayNight.NoActionBar"> <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="8dp">
+    <ImageView
+    android:id="@+id/video_thumbnail"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:background="?attr/colorSurfaceContainerHighest"
+    android:contentDescription="@string/video_thumbnail_description"
+    android:scaleType="centerCrop"
+    app:layout_constraintDimensionRatio="16:9"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    tools:src="@tools:sample/backgrounds/scenic" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/author_avatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:civ_border_color="?attr/colorOutline" app:civ_border_width="1dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/video_thumbnail"
+        tools:src="@tools:sample/avatars" />
+
+    <ImageView
+        android:id="@+id/more_options_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:padding="12dp"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:contentDescription="@string/more_options_description"
+        android:focusable="true"
+        android:src="@drawable/ic_more_vert_24dp"
+        app:layout_constraintBottom_toBottomOf="@id/author_avatar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/author_avatar"
+        app:tint="?attr/colorOnSurfaceVariant" />
+
+    <TextView
+        android:id="@+id/video_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintEnd_toStartOf="@+id/more_options_button"
+        app:layout_constraintStart_toEndOf="@id/author_avatar"
+        app:layout_constraintTop_toTopOf="@id/author_avatar"
+        tools:text="This is a Much Longer Video Title to Test How It Wraps and Ellipsizes" />
+
+    <TextView
+        android:id="@+id/video_details"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        app:layout_constraintEnd_toEndOf="@id/video_title"
+        app:layout_constraintStart_toStartOf="@id/video_title"
+        app:layout_constraintTop_toBottomOf="@id/video_title"
+        tools:text="Author Name • 12K views • 3 days ago" />
+
+    <View
+        android:id="@+id/separator"
+        android:layout_width="match_parent" android:layout_height="1dp"
+        android:layout_marginTop="30dp"
+
+        android:background="?attr/colorOutlineVariant" app:layout_constraintTop_toBottomOf="@id/author_avatar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/separator">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/like_button"
+            style="@style/Widget.Material3.Button.TextButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp" android:text="Like"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            app:icon="@drawable/ic_like"
+            app:iconTint="?attr/colorOnSurfaceVariant" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/comment_button"
+            style="@style/Widget.Material3.Button.TextButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Comment"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            app:icon="@drawable/ic_comment"
+            app:iconTint="?attr/colorOnSurfaceVariant" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

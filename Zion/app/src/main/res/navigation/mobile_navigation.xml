@@ -3,23 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@+id/navigation_feed">
 
+    <!-- This destination now uses the ID from the bottom navigation menu item (navigation_feed) -->
     <fragment
-        android:id="@+id/navigation_home"
-        android:name="com.f9ld3.Zion.ui.home.HomeFragment"
+        android:id="@+id/navigation_feed"
+        android:name="com.f9ld3.Zion.ui.feed.FeedFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_feed" />
 
+    <!-- This destination now uses the ID from the bottom navigation menu item (navigation_player) -->
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.f9ld3.Zion.ui.dashboard.DashboardFragment"
+        android:id="@+id/navigation_player"
+        android:name="com.f9ld3.Zion.ui.player.PlayerFragment"
         android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_player" />
 
+    <!-- This destination now uses the ID from the bottom navigation menu item (navigation_profile) -->
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.f9ld3.Zion.ui.notifications.NotificationsFragment"
+        android:id="@+id/navigation_profile"
+        android:name="com.f9ld3.Zion.ui.profile.ProfileFragment"
         android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/fragment_profile" />
 </navigation>

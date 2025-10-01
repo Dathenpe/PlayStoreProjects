@@ -3,4 +3,23 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="title_feed">Feed</string>
+    <string name="title_player">Player</string>
+    <string name="title_profile">Profile</string>
+
+    <string name="search_hint">Search sermons, topics, or ministries</string>
+    <string name="fab_new_blog_description">Create new blog or sermon post</string>
+
+    <string name="post_title_placeholder">Sermon Title or Blog Headline</string>
+    <string name="post_description_placeholder">A short, engaging description of the content, introducing the topic or key takeaway.</string>
+    <string name="post_category_placeholder">Category</string>
+    <string name="post_thumbnail_description">Content thumbnail</string>
+
+    <string name="video_thumbnail_description">Video thumbnail</string>
+    <string name="podcast_thumbnail_description">Podcast cover art</string>
+    <string name="more_options_description">More options for the media item</string>
+
+
+    <string name="play_button_description">Play podcast</string>
+
 </resources>

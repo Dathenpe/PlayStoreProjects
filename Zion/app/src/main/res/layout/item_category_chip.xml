@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.chip.Chip
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/category_chip"
+    style="@style/Widget.Material3.Chip.Filter" android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="4dp"
+    android:textAlignment="center"
+    android:textAppearance="?attr/textAppearanceBodyMedium"
+    android:textColor="?attr/colorOnSurface"
+    app:chipBackgroundColor="?attr/colorSurfaceContainerHigh"
+    app:chipCornerRadius="16dp"
+    app:chipStrokeColor="?attr/colorPrimary"
+    app:chipStrokeWidth="1dp"
+    app:checkedIconVisible="false"
+    app:ensureMinTouchTargetSize="true"
+    android:text="Category Name" />
