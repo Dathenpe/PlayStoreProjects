@@ -5,24 +5,22 @@
     android:id="@+id/mobile_navigation"
     app:startDestination="@+id/navigation_feed">
 
-    <!-- This destination now uses the ID from the bottom navigation menu item (navigation_feed) -->
     <fragment
         android:id="@+id/navigation_feed"
         android:name="com.f9ld3.Zion.ui.feed.FeedFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_feed" />
 
-    <!-- This destination now uses the ID from the bottom navigation menu item (navigation_player) -->
     <fragment
         android:id="@+id/navigation_player"
         android:name="com.f9ld3.Zion.ui.player.PlayerFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_player" />
 
-    <!-- This destination now uses the ID from the bottom navigation menu item (navigation_profile) -->
     <fragment
         android:id="@+id/navigation_profile"
         android:name="com.f9ld3.Zion.ui.profile.ProfileFragment"
-        android:label="@string/title_notifications"
+        android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
+
 </navigation>

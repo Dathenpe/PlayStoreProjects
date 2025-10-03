@@ -21,4 +21,6 @@
     <color name="teal_200">@color/secondary_light</color>
     <color name="teal_700">@color/secondary_light</color>
 
+    <color name="transparent">#00000000</color>
+
 </resources>

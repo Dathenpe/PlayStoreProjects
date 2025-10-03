@@ -71,6 +71,7 @@ dependencies {
     implementation("de.hdodenhof:circleimageview:3.1.0")
     // Glide (Image Loading)
     implementation(libs.glide)
+    implementation(libs.activity)
     // Use 'annotationProcessor' for Java projects
     annotationProcessor(libs.glide.compiler)
 

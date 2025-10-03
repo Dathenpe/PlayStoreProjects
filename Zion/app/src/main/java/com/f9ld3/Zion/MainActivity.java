@@ -1,5 +1,6 @@
 package com.f9ld3.Zion;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,6 +12,8 @@ import android.widget.Toast;
 import com.f9ld3.Zion.data.HistoryItem;
 import com.f9ld3.Zion.ui.player.PlayerMedia;
 import com.f9ld3.Zion.ui.player.PlayerFragment;
+import com.f9ld3.Zion.ui.search.SearchActivity; // NEW: Import SearchActivity
+import com.f9ld3.Zion.ui.notifications.NotificationsActivity; // NEW: Import NotificationsActivity
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.FirebaseApp;
@@ -101,17 +104,19 @@ public class MainActivity extends AppCompatActivity implements PlayerFragment.Hi
         // 🔥 Search Button Click Listener
         searchButton.setOnClickListener(v -> {
             Log.d(TAG, "Global Search button clicked. Launching search UI...");
-            Toast.makeText(this, "Launching Global Search UI...", Toast.LENGTH_SHORT).show();
-
-            // TODO: Replace with navigation action
+            // Launch SearchActivity
+            Intent searchIntent = new Intent(MainActivity.this, SearchActivity.class);
+            // Optionally pass a query if there's a search input field in the toolbar
+            // searchIntent.putExtra(SearchActivity.EXTRA_QUERY, "initial search term");
+            startActivity(searchIntent);
         });
 
         // 🔥 Notifications Button Click Listener
         notificationsButton.setOnClickListener(v -> {
             Log.d(TAG, "Notifications button clicked. Launching notifications UI...");
-            Toast.makeText(this, "Launching Notifications UI...", Toast.LENGTH_SHORT).show();
-
-            // TODO: Replace with navigation action
+            // Launch NotificationsActivity
+            Intent notificationsIntent = new Intent(MainActivity.this, NotificationsActivity.class);
+            startActivity(notificationsIntent);
         });
     }
 

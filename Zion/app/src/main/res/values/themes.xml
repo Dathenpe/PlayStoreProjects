@@ -19,8 +19,14 @@
         <item name="colorSurfaceContainerHigh">@color/secondary_light</item>
 
         <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightStatusBar">true</item>
+
 
         <item name="materialCardViewStyle">@style/Widget.Material3.CardView.Elevated</item>
         <item name="chipStyle">@style/Widget.Material3.Chip.Assist</item>
+
+
+        <item name="tabSelectedTextColor">?attr/colorPrimary</item> <!-- Optional: Match indicator color for selected text -->
+        <item name="tabIndicatorColor">?attr/colorPrimary</item> <!-- Ensures indicator uses primary -->
     </style>
 </resources>

@@ -18,6 +18,7 @@ googleServices = "4.4.2" # Plugin version for Firebase setup
 media3 = "1.8.0"
 glide = "5.0.5"
 circleimageview = "3.1.0"
+activity = "1.8.0"
 
 [libraries]
 # Existing libraries
@@ -47,6 +48,7 @@ media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "medi
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
 circleimageview = { group = "de.hdodenhof",  name = "circleimageview", version.ref = "circleimageview" }
+activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }

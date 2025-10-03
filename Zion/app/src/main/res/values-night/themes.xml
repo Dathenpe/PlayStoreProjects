@@ -19,8 +19,13 @@
         <item name="colorSurfaceContainerHigh">@color/secondary_dark</item>
 
         <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightStatusBar">false</item>
 
         <item name="materialCardViewStyle">@style/Widget.Material3.CardView.Elevated</item>
         <item name="chipStyle">@style/Widget.Material3.Chip.Assist</item>
+
+        <!-- Tab indicator will now use the new colorPrimary (purple/blue) -->
+        <item name="tabSelectedTextColor">?attr/colorPrimary</item> <!-- Optional: Match indicator color for selected text -->
+        <item name="tabIndicatorColor">?attr/colorPrimary</item> <!-- Ensures indicator uses primary -->
     </style>
 </resources>

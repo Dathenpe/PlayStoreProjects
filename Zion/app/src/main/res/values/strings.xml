@@ -19,7 +19,48 @@
     <string name="podcast_thumbnail_description">Podcast cover art</string>
     <string name="more_options_description">More options for the media item</string>
 
-
     <string name="play_button_description">Play podcast</string>
+    <string name="tab_my_uploads">Uploads</string>
+    <string name="tab_history">History</string>
+    <string name="tab_downloads">Downloads</string>
+    <string name="tab_history_with_count">History (%d)</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="my_uploads">Your Uploads</string> <!-- Changed for clarity -->
+    <string name="liked_videos">Liked Videos</string>
+    <string name="history">History</string>
+    <string name="downloads">Downloads</string>
+    <string name="following">Following</string> <!-- NEW STRING -->
+    <string name="my_videos">My Videos</string> <!-- NEW STRING for tab -->
+    <string name="my_podcasts">My Podcasts</string> <!-- NEW STRING for tab -->
+    <string name="my_channels">My Channels</string> <!-- NEW STRING for Following tab -->
+    <string name="my_users">My Users</string> <!-- NEW STRING for Following tab -->
+
+    <!-- NEW: Strings for My Blogs section -->
+    <string name="my_blogs">My Blogs</string>
+    <string name="blogs_empty_text">You haven\'t written any blogs yet. Share your thoughts in the Feed!</string>
+
+    <string name="anonymous_user">Anonymous User</string>
+    <string name="login_for_features">Login for full features</string>
+    <string name="not_set">Not Set</string>
+
+    <string name="history_with_count">History (%d)</string>
+
+    <string name="uploads_empty_text">You haven\'t uploaded any content yet. Tap the + button to share your first media!</string>
+    <string name="likes_empty_text">No liked videos found. Like a video to save it here.</string>
+    <string name="history_empty_text">Your watch history is empty. Start watching content to see it here.</string>
+    <string name="downloads_empty_text">No media downloaded. Download videos to watch them offline.</string>
+    <string name="channels_empty_text">You are not following any channels yet.</string>
+    <string name="users_empty_text">You are not following any users yet.</string>
+
+    <!-- FIXED: Added the missing string referenced in activity_following_dynamic_tabbed.xml and FollowingActivity.java -->
+    <string name="following_channels_empty_text">You are not following any channels yet. Follow channels to see their content here.</string>
+
+    <!-- NEW: Settings strings -->
+    <string name="settings">Settings</string>
+    <string name="settings_empty_text">No settings available yet.</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

@@ -4,11 +4,13 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import com.f9ld3.Zion.data.HistoryItem; // 🔥 NEW IMPORT
+import com.f9ld3.Zion.data.HistoryItem;
 import com.f9ld3.Zion.data.UserProfile;
 import com.f9ld3.Zion.ui.player.PlayerMedia;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
@@ -25,84 +27,84 @@ public class ProfileViewModel extends ViewModel {
     private final MutableLiveData<UserProfile> mUserProfile = new MutableLiveData<>();
     public LiveData<UserProfile> getUserProfile() { return mUserProfile; }
 
-    // LiveData for user's uploaded media (My Uploads feature)
     private final MutableLiveData<List<PlayerMedia>> mUserMedia = new MutableLiveData<>();
     public LiveData<List<PlayerMedia>> getUserMedia() { return mUserMedia; }
 
-    // 🔥 NEW LiveData for user's history
     private final MutableLiveData<List<HistoryItem>> mUserHistory = new MutableLiveData<>();
     public LiveData<List<HistoryItem>> getUserHistory() { return mUserHistory; }
 
+    // LiveData for the Downloads section (Placeholder for now)
+    private final MutableLiveData<List<PlayerMedia>> mUserDownloads = new MutableLiveData<>();
+    public LiveData<List<PlayerMedia>> getUserDownloads() { return mUserDownloads; }
+
+    // LiveData for the list of followed CHANNELS (users = channels)
+    private final MutableLiveData<List<UserProfile>> mFollowingChannels = new MutableLiveData<>();
+    public LiveData<List<UserProfile>> getFollowingChannels() { return mFollowingChannels; }
+
+    // NEW: LiveData for user's blog posts
+    private final MutableLiveData<List<com.f9ld3.Zion.ui.feed.Post>> mUserBlogs = new MutableLiveData<>();
+    public LiveData<List<com.f9ld3.Zion.ui.feed.Post>> getUserBlogs() { return mUserBlogs; }
+
+
+    private ListenerRegistration userProfileListener;
     private ListenerRegistration userMediaListener;
-    private ListenerRegistration userHistoryListener; // 🔥 NEW LISTENER
+    private ListenerRegistration userHistoryListener;
+    private ListenerRegistration followingChannelsListener;
+    private ListenerRegistration userBlogsListener; // NEW listener for blogs
 
     public ProfileViewModel() {
-        // Start observing authentication state immediately
+        // Start listening for auth state changes immediately
         mAuth.addAuthStateListener(this::onAuthStateChanged);
     }
 
     private void onAuthStateChanged(FirebaseAuth firebaseAuth) {
         FirebaseUser user = firebaseAuth.getCurrentUser();
-        if (user != null && !user.isAnonymous()) {
-            fetchUserProfile(user);
+        if (user != null) {
+            // User is signed in (may be anonymous)
+            Log.d(TAG, "Auth state changed. User UID: " + user.getUid());
+            fetchUserProfile(user.getUid());
             fetchUserMedia(user.getUid());
-            fetchUserHistory(user.getUid()); // 🔥 NEW: Fetch history when user is logged in
+            fetchUserHistory(user.getUid());
+            fetchFollowingChannels(user.getUid()); // Fetch following channels (users)
+            fetchUserBlogs(user.getUid()); // NEW: Fetch user's blog posts
+            // Placeholder: Initialize Downloads data
+            mUserDownloads.setValue(new ArrayList<>());
         } else {
-            // User signed out or is anonymous, reset state
-            mUserProfile.setValue(new UserProfile(user != null ? user.getUid() : "guest_id", "Guest User", "anonymous", "")); // Provide default guest profile
-            mUserMedia.setValue(new ArrayList<>());
-            mUserHistory.setValue(new ArrayList<>()); // 🔥 Reset history
-
-            if (userMediaListener != null) {
-                userMediaListener.remove();
-                userMediaListener = null;
-            }
-            if (userHistoryListener != null) { // 🔥 Clear history listener
-                userHistoryListener.remove();
-                userHistoryListener = null;
-            }
+            // User is signed out
+            Log.d(TAG, "User signed out or null.");
+            clearData();
         }
     }
 
-    private void fetchUserProfile(FirebaseUser user) {
-        if (user.isAnonymous()) {
-            // Default profile for the guest user is set in onAuthStateChanged
-            return;
-        }
-
-        // Fetch the custom profile from Firestore
-        db.collection("users").document(user.getUid())
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    UserProfile profile = documentSnapshot.toObject(UserProfile.class);
-                    if (profile != null) {
+    private void fetchUserProfile(String uid) {
+        // Fetch public profile data from the 'users' collection
+        userProfileListener = db.collection("users").document(uid)
+                .addSnapshotListener((snapshot, e) -> {
+                    if (e != null) {
+                        Log.w(TAG, "Listen failed for user profile.", e);
+                        mUserProfile.setValue(null);
+                        return;
+                    }
+                    if (snapshot != null && snapshot.exists()) {
+                        UserProfile profile = snapshot.toObject(UserProfile.class);
+                        // Ensure a profile is always available for the fragment to display the UID/Email
+                        if (profile == null) {
+                            profile = new UserProfile(uid, "Anonymous", mAuth.getCurrentUser().getEmail(), null);
+                        }
                         mUserProfile.setValue(profile);
                     } else {
-                        // User signed up with Firebase Auth but no custom profile exists in Firestore.
-                        // Create a default profile.
-                        String username = user.getDisplayName() != null && !user.getDisplayName().isEmpty() ? user.getDisplayName() : "My Profile";
-                        String photoUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "";
-
-                        UserProfile defaultProfile = new UserProfile(user.getUid(), username, user.getEmail(), photoUrl);
-                        mUserProfile.setValue(defaultProfile);
-
-                        // Optionally save the default profile to Firestore
-                        db.collection("users").document(user.getUid()).set(defaultProfile)
-                                .addOnFailureListener(e -> Log.e(TAG, "Failed to save default user profile.", e));
+                        // User exists but no profile document found (e.g., first anonymous login)
+                        mUserProfile.setValue(new UserProfile(uid, "Anonymous", mAuth.getCurrentUser().getEmail(), null));
                     }
-                })
-                .addOnFailureListener(e -> Log.e(TAG, "Failed to fetch user profile from Firestore.", e));
+                });
     }
 
     private void fetchUserMedia(String uid) {
-        // Clear previous listener if it exists
-        if (userMediaListener != null) userMediaListener.remove();
-
-        // Fetch media uploaded by this user, ordered by creation date
+        // Fetch media uploaded by this user, ordered by date
         userMediaListener = db.collection("media")
                 .whereEqualTo("uploaderUid", uid)
                 .orderBy("dateCreated", Query.Direction.DESCENDING)
-                .limit(50)
+                .limit(20) // Limit the number of media items for the profile view
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
                         Log.w(TAG, "Listen failed for user media.", error);
@@ -112,36 +114,35 @@ public class ProfileViewModel extends ViewModel {
 
                     List<PlayerMedia> mediaList = new ArrayList<>();
                     if (value != null) {
-                        for (com.google.firebase.firestore.DocumentSnapshot doc : value.getDocuments()) {
-                            PlayerMedia media = doc.toObject(PlayerMedia.class);
-                            if (media != null) {
-                                mediaList.add(media);
+                        for (DocumentSnapshot doc : value.getDocuments()) {
+                            PlayerMedia item = doc.toObject(PlayerMedia.class);
+                            if (item != null) {
+                                mediaList.add(item);
                             }
                         }
                     }
                     mUserMedia.setValue(mediaList);
+                    Log.d(TAG, "Fetched " + mediaList.size() + " user media items for user " + uid);
                 });
     }
 
-    /**
-     * 🔥 NEW: Fetches the user's recent viewing history from a sub-collection.
-     */
     private void fetchUserHistory(String uid) {
-        if (userHistoryListener != null) userHistoryListener.remove();
-
-        userHistoryListener = db.collection("users").document(uid).collection("history")
-                .orderBy("viewedAt", Query.Direction.DESCENDING) // Order by most recent view
-                .limit(50)
+        // Fetch viewing history, ordered by viewedAt timestamp
+        userHistoryListener = db.collection("users")
+                .document(uid)
+                .collection("history")
+                .orderBy("viewedAt", Query.Direction.DESCENDING)
+                .limit(20) // Limit the number of history items
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
-                        Log.w(TAG, "Listen failed for user history.", error);
+                        Log.w(TAG, "Listen failed for user history.", error); // Fixed: use 'error'
                         mUserHistory.setValue(new ArrayList<>());
                         return;
                     }
 
                     List<HistoryItem> historyList = new ArrayList<>();
                     if (value != null) {
-                        for (com.google.firebase.firestore.DocumentSnapshot doc : value.getDocuments()) {
+                        for (DocumentSnapshot doc : value.getDocuments()) {
                             HistoryItem item = doc.toObject(HistoryItem.class);
                             if (item != null) {
                                 historyList.add(item);
@@ -153,25 +154,116 @@ public class ProfileViewModel extends ViewModel {
                 });
     }
 
+    // Fetch the list of followed CHANNELS (other users, since users = channels)
+    private void fetchFollowingChannels(String uid) {
+        // Subcollection "following" under the user document, where each doc ID is followed user ID,
+        // and doc contains UserProfile of the followed user (channel).
+        followingChannelsListener = db.collection("users")
+                .document(uid)
+                .collection("following")
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.w(TAG, "Listen failed for following channels list.", error);
+                        mFollowingChannels.setValue(new ArrayList<>());
+                        return;
+                    }
 
-    /**
-     * Signs out the current user. MainActivity should handle signing them back in anonymously if needed.
-     */
+                    List<UserProfile> followedChannels = new ArrayList<>();
+                    if (value != null) {
+                        for (DocumentSnapshot doc : value.getDocuments()) {
+                            UserProfile profile = doc.toObject(UserProfile.class);
+                            if (profile != null) {
+                                followedChannels.add(profile);
+                            }
+                        }
+                    }
+                    mFollowingChannels.setValue(followedChannels);
+                    Log.d(TAG, "Fetched " + followedChannels.size() + " followed channels for user " + uid);
+                });
+    }
+
+    // NEW: Fetch user's blog posts
+    private void fetchUserBlogs(String uid) {
+        userBlogsListener = db.collection("posts")
+                .whereEqualTo("authorUid", uid) // Assuming 'authorUid' field exists in Post
+                .whereEqualTo("type", "blog")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(20)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.w(TAG, "Listen failed for user blogs.", error);
+                        mUserBlogs.setValue(new ArrayList<>());
+                        return;
+                    }
+
+                    List<com.f9ld3.Zion.ui.feed.Post> blogList = new ArrayList<>();
+                    if (value != null) {
+                        for (DocumentSnapshot doc : value.getDocuments()) {
+                            com.f9ld3.Zion.ui.feed.Post post = doc.toObject(com.f9ld3.Zion.ui.feed.Post.class);
+                            if (post != null) {
+                                post.id = doc.getId(); // Ensure ID is set
+                                blogList.add(post);
+                            }
+                        }
+                    }
+                    mUserBlogs.setValue(blogList);
+                    Log.d(TAG, "Fetched " + blogList.size() + " user blog posts for user " + uid);
+                });
+    }
+
+
+    // Method to get media for a specific channel (used by FollowedContentFragment)
+    public LiveData<List<PlayerMedia>> getMediaForChannel(String channelId) {
+        MutableLiveData<List<PlayerMedia>> channelMedia = new MutableLiveData<>();
+        db.collection("media")
+                .whereEqualTo("uploaderUid", channelId)
+                .orderBy("dateCreated", Query.Direction.DESCENDING)
+                .limit(20)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.w(TAG, "Listen failed for channel media: " + channelId, error);
+                        channelMedia.setValue(new ArrayList<>());
+                        return;
+                    }
+                    List<PlayerMedia> mediaList = new ArrayList<>();
+                    if (value != null) {
+                        for (DocumentSnapshot doc : value.getDocuments()) {
+                            PlayerMedia item = doc.toObject(PlayerMedia.class);
+                            if (item != null) {
+                                mediaList.add(item);
+                            }
+                        }
+                    }
+                    channelMedia.setValue(mediaList);
+                    Log.d(TAG, "Fetched " + mediaList.size() + " media items for channel " + channelId);
+                });
+        return channelMedia;
+    }
+
+
     public void signOut() {
         mAuth.signOut();
+        clearData();
+    }
+
+    private void clearData() {
+        if (userProfileListener != null) userProfileListener.remove();
+        if (userMediaListener != null) userMediaListener.remove();
+        if (userHistoryListener != null) userHistoryListener.remove();
+        if (followingChannelsListener != null) followingChannelsListener.remove();
+        if (userBlogsListener != null) userBlogsListener.remove(); // NEW: Remove blogs listener
+
+        mUserProfile.setValue(null);
+        mUserMedia.setValue(new ArrayList<>());
+        mUserHistory.setValue(new ArrayList<>());
+        mUserDownloads.setValue(new ArrayList<>());
+        mFollowingChannels.setValue(new ArrayList<>());
+        mUserBlogs.setValue(new ArrayList<>()); // NEW: Clear blogs data
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
-        // Remove listeners to prevent memory leaks
-        if (userMediaListener != null) {
-            userMediaListener.remove();
-        }
-        if (userHistoryListener != null) {
-            userHistoryListener.remove();
-        }
-        // Remove auth state listener to prevent leaks
-        mAuth.removeAuthStateListener(this::onAuthStateChanged);
+        clearData();
     }
 }
