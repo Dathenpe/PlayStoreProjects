@@ -26,8 +26,8 @@
         <item name="colorSurfaceContainerHigh">@color/gray_secondary</item> <!-- Medium gray -->
 
         <!-- Status bar - Light with dark icons -->
-        <item name="android:statusBarColor">?attr/colorSurface</item> <!-- White-ish -->
-        <item name="android:windowLightStatusBar">true</item> <!-- Dark icons on light bar -->
+        <item name="android:statusBarColor">?attr/colorPrimary</item> <!-- White-ish -->
+        <item name="android:windowLightStatusBar">false</item> <!-- Dark icons on light bar -->
 
         <!-- Material Components -->
         <item name="materialCardViewStyle">@style/Widget.Material3.CardView.Elevated</item>

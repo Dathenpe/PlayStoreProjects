@@ -21,7 +21,7 @@
         <item name="colorSurfaceContainer">@color/secondary_dark</item> <!-- Lighter gray -->
         <item name="colorSurfaceContainerHigh">@color/secondary_dark</item> <!-- Lighter gray -->
 
-        <item name="android:statusBarColor">?attr/colorSurface</item> <!-- Near-black -->
+        <item name="android:statusBarColor">?attr/colorPrimary</item> <!-- Near-black -->
         <item name="android:windowLightStatusBar">false</item> <!-- Light icons on dark bar -->
 
         <item name="materialCardViewStyle">@style/Widget.Material3.CardView.Elevated</item>

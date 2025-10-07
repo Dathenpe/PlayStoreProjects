@@ -130,7 +130,7 @@
         android:padding="8dp"
         android:text="@string/dont_have_account_sign_up"
         android:textAppearance="?attr/textAppearanceBodyMedium"
-        android:textColor="?attr/colorPrimary"
+        android:textColor="?attr/colorOnSurfaceVariant"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/buttonLogin" />

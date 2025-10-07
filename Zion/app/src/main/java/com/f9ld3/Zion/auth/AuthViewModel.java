@@ -14,7 +14,7 @@ import com.f9ld3.Zion.data.UserProfile;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser  ;
+import com.google.firebase.auth.FirebaseUser   ;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -28,9 +28,9 @@ public class AuthViewModel extends ViewModel {
     private final FirebaseAuth mAuth;
     private final FirebaseFirestore db;
 
-    private final MutableLiveData<FirebaseUser  > _currentUser   = new MutableLiveData<>();
-    public LiveData<FirebaseUser  > getCurrentUser  () {
-        return _currentUser  ;
+    private final MutableLiveData<FirebaseUser   > _currentUser    = new MutableLiveData<>();
+    public LiveData<FirebaseUser   > getCurrentUser   () {
+        return _currentUser   ;
     }
 
     private final MutableLiveData<Boolean> _isAuthenticated = new MutableLiveData<>();
@@ -63,7 +63,7 @@ public class AuthViewModel extends ViewModel {
 
     // Requires non-anonymous and verified email
     public boolean canPerformAuthenticatedAction() {
-        FirebaseUser   user = mAuth.getCurrentUser  ();
+        FirebaseUser    user = mAuth.getCurrentUser   ();
         return user != null && !user.isAnonymous() && user.isEmailVerified();
     }
 
@@ -71,17 +71,17 @@ public class AuthViewModel extends ViewModel {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         mAuth.addAuthStateListener(firebaseAuth -> {
-            FirebaseUser   user = firebaseAuth.getCurrentUser  ();
+            FirebaseUser    user = firebaseAuth.getCurrentUser   ();
             if (user != null && user.isAnonymous()) {
                 // Force sign out for anonymous users (no anonymous access allowed)
                 Log.w(TAG, "Anonymous user detected. Signing out to force registration.");
                 mAuth.signOut();
-                _currentUser  .setValue(null);
+                _currentUser   .setValue(null);
                 _isAuthenticated.setValue(false);
                 _isEmailVerified.setValue(false);
                 return;
             }
-            _currentUser  .setValue(user);
+            _currentUser   .setValue(user);
             _isAuthenticated.setValue(user != null && !user.isAnonymous()); // Only non-anonymous is authenticated
             if (user != null && !user.isAnonymous()) {
                 Log.d(TAG, "Auth state changed: User " + user.getUid() + " is authenticated");
@@ -150,8 +150,8 @@ public class AuthViewModel extends ViewModel {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                Log.d(TAG, "createUser  WithEmailAndPassword:success");
-                FirebaseUser   user = mAuth.getCurrentUser  ();
+                Log.d(TAG, "createUser   WithEmailAndPassword:success");
+                FirebaseUser    user = mAuth.getCurrentUser   ();
                 if (user != null) {
                     // Send email verification with improved error handling
                     sendEmailVerification(user, () -> {
@@ -161,14 +161,15 @@ public class AuthViewModel extends ViewModel {
                 }
                 // AuthStateListener will handle updating LiveData
             } else {
-                Log.w(TAG, "createUser  WithEmailAndPassword:failure", task.getException());
+                Log.w(TAG, "createUser   WithEmailAndPassword:failure", task.getException());
                 _authError.setValue(task.getException() != null ? task.getException().getMessage() : "Account creation failed.");
             }
         });
     }
 
     // UPDATED: Separated verification send with callback for profile creation
-    private void sendEmailVerification(FirebaseUser   user, Runnable onComplete) {
+    // FIXED: Removed Dynamic Links URL to avoid deprecation - Uses default Firebase flow (browser-based verification)
+    private void sendEmailVerification(FirebaseUser    user, Runnable onComplete) {
         if (user == null) {
             Log.e(TAG, "Cannot send verification: User is null.");
             _authError.setValue("Invalid user state. Please try registering again.");
@@ -177,17 +178,17 @@ public class AuthViewModel extends ViewModel {
         }
 
         try {
-            // Optional: Configure for dynamic links (requires Firebase setup)
-            ActionCodeSettings settings = ActionCodeSettings.newBuilder()  // FIXED: Use static factory method
-                    .setUrl("https://yourapp.page.link/verify") // TODO: Replace with your actual dynamic link domain
-                    .setHandleCodeInApp(true)
+            // Configure for in-app handling without Dynamic Links (default flow: email opens browser for verification)
+            ActionCodeSettings settings = ActionCodeSettings.newBuilder()
+                    // .setUrl("https://yourapp.page.link/verify") // REMOVED: Avoids Dynamic Links deprecation
+                    .setHandleCodeInApp(true) // Attempts in-app handling where possible
                     .setAndroidPackageName("com.f9ld3.Zion", true, null) // Your package
                     .build();
 
             user.sendEmailVerification(settings)
                     .addOnCompleteListener(verificationTask -> {
                         if (verificationTask.isSuccessful()) {
-                            Log.d(TAG, "Verification email sent to: " + user.getEmail());
+                            Log.d(TAG, "Verification email sent to: " + user.getEmail() + " (default flow - check inbox and verify in browser)");
                             _authMessage.setValue("Account created. Please check your email for verification.");
                         } else {
                             Log.e(TAG, "Failed to send verification email.", verificationTask.getException());
@@ -204,8 +205,9 @@ public class AuthViewModel extends ViewModel {
     }
 
     // UPDATED: Method to resend verification email (UI-friendly)
+    // FIXED: Removed Dynamic Links URL to avoid deprecation - Uses default Firebase flow
     public void resendVerificationEmail() {
-        FirebaseUser   user = mAuth.getCurrentUser  ();
+        FirebaseUser    user = mAuth.getCurrentUser   ();
         if (user == null || user.isAnonymous()) {
             _authError.setValue("You must be logged in with an email account to resend verification.");
             return;
@@ -216,16 +218,16 @@ public class AuthViewModel extends ViewModel {
         }
 
         try {
-            ActionCodeSettings settings = ActionCodeSettings.newBuilder()  // FIXED: Use static factory method
-                    .setUrl("https://yourapp.page.link/verify") // TODO: Replace with your actual dynamic link domain
-                    .setHandleCodeInApp(true)
+            ActionCodeSettings settings = ActionCodeSettings.newBuilder()
+                    // .setUrl("https://yourapp.page.link/verify") // REMOVED: Avoids Dynamic Links deprecation
+                    .setHandleCodeInApp(true) // Attempts in-app handling where possible
                     .setAndroidPackageName("com.f9ld3.Zion", true, null)
                     .build();
 
             user.sendEmailVerification(settings)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "Verification email resent.");
+                            Log.d(TAG, "Verification email resent to: " + user.getEmail() + " (default flow - check inbox and verify in browser)");
                             _authMessage.setValue("Verification email resent. Check your inbox.");
                         } else {
                             Log.e(TAG, "Failed to resend verification email.", task.getException());
@@ -240,7 +242,7 @@ public class AuthViewModel extends ViewModel {
 
     // NEW: Method to refresh user and check verification with error handling (for UI calls)
     public void refreshVerificationStatus() {
-        FirebaseUser   user = mAuth.getCurrentUser  ();
+        FirebaseUser    user = mAuth.getCurrentUser   ();
         if (user == null || user.isAnonymous()) {
             _authError.setValue("No registered user logged in.");
             return;
@@ -249,7 +251,7 @@ public class AuthViewModel extends ViewModel {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         _isEmailVerified.setValue(user.isEmailVerified());
-                        Log.d(TAG, "User   refreshed. Verified: " + user.isEmailVerified());
+                        Log.d(TAG, "User    refreshed. Verified: " + user.isEmailVerified());
                     } else {
                         Log.e(TAG, "Failed to refresh user.", task.getException());
                         _authError.setValue("Failed to refresh user data. Please try again.");
@@ -259,11 +261,11 @@ public class AuthViewModel extends ViewModel {
     }
 
     // Proper camelCase method name
-    private void createUserProfile(FirebaseUser   user, String username, String email) {
+    private void createUserProfile(FirebaseUser    user, String username, String email) {
         UserProfile newProfile = new UserProfile(user.getUid(), username, email, null);
         db.collection("users").document(user.getUid()).set(newProfile)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "User   profile created in Firestore: " + username);
+                    Log.d(TAG, "User    profile created in Firestore: " + username);
                     // Add to usernames collection for uniqueness
                     Map<String, Object> usernameDoc = new HashMap<>();
                     usernameDoc.put("username", username);
@@ -277,7 +279,7 @@ public class AuthViewModel extends ViewModel {
                     user.updateProfile(profileUpdates)
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {
-                                    Log.d(TAG, "User   display name updated.");
+                                    Log.d(TAG, "User    display name updated.");
                                 } else {
                                     Log.e(TAG, "Failed to update display name.", task.getException());
                                 }
@@ -290,14 +292,14 @@ public class AuthViewModel extends ViewModel {
     }
 
     // Proper camelCase method name - UPDATED: Skip for anonymous (but anonymous is now forbidden)
-    private void checkAndCreateUserProfile(FirebaseUser   user) {
+    private void checkAndCreateUserProfile(FirebaseUser    user) {
         if (user == null || user.isAnonymous()) return; // No profile for anonymous
         db.collection("users").document(user.getUid()).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (!documentSnapshot.exists()) {
                         String username = user.getDisplayName();
                         if (username == null || username.isEmpty()) {
-                            username = user.getEmail() != null ? user.getEmail().split("@")[0] : "User "; // Fallback for registered users
+                            username = user.getEmail() != null ? user.getEmail().split("@")[0] : "User  "; // Fallback for registered users
                         }
                         String email = user.getEmail();
                         createUserProfile(user, username, email);
