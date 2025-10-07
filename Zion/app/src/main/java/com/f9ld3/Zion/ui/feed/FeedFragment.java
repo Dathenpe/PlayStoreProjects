@@ -1,10 +1,13 @@
+// MultipleFiles/FeedFragment.java
 package com.f9ld3.Zion.ui.feed;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast; // NEW
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -12,7 +15,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.f9ld3.Zion.databinding.FragmentFeedBinding;
-
+import com.f9ld3.Zion.ui.blog.CreateBlogActivity; // NEW: Import CreateBlogActivity
+import com.google.firebase.auth.FirebaseAuth; // NEW: Import FirebaseAuth
+import com.google.firebase.auth.FirebaseUser; // NEW: Import FirebaseUser
 
 
 public class FeedFragment extends Fragment implements PostAdapter.OnPostClickListener {
@@ -45,8 +50,13 @@ public class FeedFragment extends Fragment implements PostAdapter.OnPostClickLis
 
         // --- 3. Handle FAB Click (New Blog) ---
         binding.fabNewBlog.setOnClickListener(v -> {
-            // TODO: Implement navigation to a new screen for creating a blog post
-            Log.i(TAG, "FAB Clicked: Ready to create a new blog post.");
+            // NEW: Check if user is authenticated and not anonymous before allowing blog creation
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null && !user.isAnonymous()) {
+                startActivity(new Intent(requireContext(), CreateBlogActivity.class)); // NEW: Launch CreateBlogActivity
+            } else {
+                Toast.makeText(requireContext(), "Please log in to create a blog post.", Toast.LENGTH_SHORT).show();
+            }
         });
 
         return root;

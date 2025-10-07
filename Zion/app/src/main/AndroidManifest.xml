@@ -2,6 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -41,40 +49,70 @@
             android:name=".ui.profile.DownloadsActivity"
             android:parentActivityName=".MainActivity" />
 
-
         <activity
             android:name=".ui.profile.FollowingActivity"
             android:exported="false"
             android:label="@string/following"
             android:parentActivityName=".MainActivity" />
 
-        <!-- NEW: My Blogs Activity -->
         <activity
             android:name=".ui.profile.MyBlogsActivity"
             android:exported="false"
             android:label="@string/my_blogs"
             android:parentActivityName=".MainActivity" />
 
-        <!-- NEW: Settings Activity -->
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:exported="false"
             android:label="@string/settings"
             android:parentActivityName=".MainActivity" />
 
-        <!-- NEW: Search Activity -->
         <activity
             android:name=".ui.search.SearchActivity"
             android:exported="false"
             android:label="@string/search_hint"
             android:parentActivityName=".MainActivity" />
 
-        <!-- NEW: Notifications Activity -->
         <activity
             android:name=".ui.notifications.NotificationsActivity"
             android:exported="false"
             android:label="@string/title_notifications"
             android:parentActivityName=".MainActivity" />
+
+        <!-- Auth Activities -->
+        <activity
+            android:name=".auth.SignUpActivity"
+            android:exported="false"
+            android:label="@string/sign_up"
+            android:parentActivityName=".auth.LoginActivity" /> <!-- Changed parent to LoginActivity -->
+        <activity
+            android:name=".auth.LoginActivity"
+            android:exported="false"
+            android:label="@string/login"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- NEW: Blog Creation Activity -->
+        <activity
+            android:name=".ui.blog.CreateBlogActivity"
+            android:exported="false"
+            android:label="Create Blog Post"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- NEW: Playlist Activity -->
+        <activity
+            android:name=".ui.profile.PlaylistActivity"
+            android:exported="false"
+            android:label="@string/my_playlists"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- Firebase Messaging Service for push notifications -->
+        <service
+            android:name=".notifications.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
     </application>
 

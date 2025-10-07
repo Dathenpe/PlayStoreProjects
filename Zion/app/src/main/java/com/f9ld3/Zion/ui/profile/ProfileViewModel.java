@@ -1,3 +1,4 @@
+// MultipleFiles/ProfileViewModel.java
 package com.f9ld3.Zion.ui.profile;
 
 import android.util.Log;
@@ -33,15 +34,12 @@ public class ProfileViewModel extends ViewModel {
     private final MutableLiveData<List<HistoryItem>> mUserHistory = new MutableLiveData<>();
     public LiveData<List<HistoryItem>> getUserHistory() { return mUserHistory; }
 
-    // LiveData for the Downloads section (Placeholder for now)
     private final MutableLiveData<List<PlayerMedia>> mUserDownloads = new MutableLiveData<>();
     public LiveData<List<PlayerMedia>> getUserDownloads() { return mUserDownloads; }
 
-    // LiveData for the list of followed CHANNELS (users = channels)
     private final MutableLiveData<List<UserProfile>> mFollowingChannels = new MutableLiveData<>();
     public LiveData<List<UserProfile>> getFollowingChannels() { return mFollowingChannels; }
 
-    // NEW: LiveData for user's blog posts
     private final MutableLiveData<List<com.f9ld3.Zion.ui.feed.Post>> mUserBlogs = new MutableLiveData<>();
     public LiveData<List<com.f9ld3.Zion.ui.feed.Post>> getUserBlogs() { return mUserBlogs; }
 
@@ -50,34 +48,30 @@ public class ProfileViewModel extends ViewModel {
     private ListenerRegistration userMediaListener;
     private ListenerRegistration userHistoryListener;
     private ListenerRegistration followingChannelsListener;
-    private ListenerRegistration userBlogsListener; // NEW listener for blogs
+    private ListenerRegistration userBlogsListener;
 
     public ProfileViewModel() {
-        // Start listening for auth state changes immediately
         mAuth.addAuthStateListener(this::onAuthStateChanged);
     }
 
     private void onAuthStateChanged(FirebaseAuth firebaseAuth) {
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
-            // User is signed in (may be anonymous)
             Log.d(TAG, "Auth state changed. User UID: " + user.getUid());
             fetchUserProfile(user.getUid());
             fetchUserMedia(user.getUid());
             fetchUserHistory(user.getUid());
-            fetchFollowingChannels(user.getUid()); // Fetch following channels (users)
-            fetchUserBlogs(user.getUid()); // NEW: Fetch user's blog posts
-            // Placeholder: Initialize Downloads data
-            mUserDownloads.setValue(new ArrayList<>());
+            fetchFollowingChannels(user.getUid());
+            fetchUserBlogs(user.getUid()); // NEW: Fetch user blogs
+            mUserDownloads.setValue(new ArrayList<>()); // Placeholder
         } else {
-            // User is signed out
             Log.d(TAG, "User signed out or null.");
             clearData();
         }
     }
 
     private void fetchUserProfile(String uid) {
-        // Fetch public profile data from the 'users' collection
+        if (userProfileListener != null) userProfileListener.remove(); // Remove previous listener
         userProfileListener = db.collection("users").document(uid)
                 .addSnapshotListener((snapshot, e) -> {
                     if (e != null) {
@@ -87,24 +81,26 @@ public class ProfileViewModel extends ViewModel {
                     }
                     if (snapshot != null && snapshot.exists()) {
                         UserProfile profile = snapshot.toObject(UserProfile.class);
-                        // Ensure a profile is always available for the fragment to display the UID/Email
                         if (profile == null) {
-                            profile = new UserProfile(uid, "Anonymous", mAuth.getCurrentUser().getEmail(), null);
+                            // Fallback for anonymous or newly created users without full profile data
+                            String email = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getEmail() : "N/A";
+                            profile = new UserProfile(uid, "Anonymous", email, null);
                         }
                         mUserProfile.setValue(profile);
                     } else {
                         // User exists but no profile document found (e.g., first anonymous login)
-                        mUserProfile.setValue(new UserProfile(uid, "Anonymous", mAuth.getCurrentUser().getEmail(), null));
+                        String email = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getEmail() : "N/A";
+                        mUserProfile.setValue(new UserProfile(uid, "Anonymous", email, null));
                     }
                 });
     }
 
     private void fetchUserMedia(String uid) {
-        // Fetch media uploaded by this user, ordered by date
+        if (userMediaListener != null) userMediaListener.remove();
         userMediaListener = db.collection("media")
                 .whereEqualTo("uploaderUid", uid)
                 .orderBy("dateCreated", Query.Direction.DESCENDING)
-                .limit(20) // Limit the number of media items for the profile view
+                .limit(20)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
                         Log.w(TAG, "Listen failed for user media.", error);
@@ -127,15 +123,15 @@ public class ProfileViewModel extends ViewModel {
     }
 
     private void fetchUserHistory(String uid) {
-        // Fetch viewing history, ordered by viewedAt timestamp
+        if (userHistoryListener != null) userHistoryListener.remove();
         userHistoryListener = db.collection("users")
                 .document(uid)
                 .collection("history")
                 .orderBy("viewedAt", Query.Direction.DESCENDING)
-                .limit(20) // Limit the number of history items
+                .limit(20)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
-                        Log.w(TAG, "Listen failed for user history.", error); // Fixed: use 'error'
+                        Log.w(TAG, "Listen failed for user history.", error);
                         mUserHistory.setValue(new ArrayList<>());
                         return;
                     }
@@ -154,10 +150,8 @@ public class ProfileViewModel extends ViewModel {
                 });
     }
 
-    // Fetch the list of followed CHANNELS (other users, since users = channels)
     private void fetchFollowingChannels(String uid) {
-        // Subcollection "following" under the user document, where each doc ID is followed user ID,
-        // and doc contains UserProfile of the followed user (channel).
+        if (followingChannelsListener != null) followingChannelsListener.remove();
         followingChannelsListener = db.collection("users")
                 .document(uid)
                 .collection("following")
@@ -182,10 +176,10 @@ public class ProfileViewModel extends ViewModel {
                 });
     }
 
-    // NEW: Fetch user's blog posts
     private void fetchUserBlogs(String uid) {
+        if (userBlogsListener != null) userBlogsListener.remove();
         userBlogsListener = db.collection("posts")
-                .whereEqualTo("authorUid", uid) // Assuming 'authorUid' field exists in Post
+                .whereEqualTo("authorUid", uid)
                 .whereEqualTo("type", "blog")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(20)
@@ -201,7 +195,7 @@ public class ProfileViewModel extends ViewModel {
                         for (DocumentSnapshot doc : value.getDocuments()) {
                             com.f9ld3.Zion.ui.feed.Post post = doc.toObject(com.f9ld3.Zion.ui.feed.Post.class);
                             if (post != null) {
-                                post.id = doc.getId(); // Ensure ID is set
+                                post.id = doc.getId();
                                 blogList.add(post);
                             }
                         }
@@ -211,8 +205,6 @@ public class ProfileViewModel extends ViewModel {
                 });
     }
 
-
-    // Method to get media for a specific channel (used by FollowedContentFragment)
     public LiveData<List<PlayerMedia>> getMediaForChannel(String channelId) {
         MutableLiveData<List<PlayerMedia>> channelMedia = new MutableLiveData<>();
         db.collection("media")
@@ -240,7 +232,6 @@ public class ProfileViewModel extends ViewModel {
         return channelMedia;
     }
 
-
     public void signOut() {
         mAuth.signOut();
         clearData();
@@ -251,14 +242,14 @@ public class ProfileViewModel extends ViewModel {
         if (userMediaListener != null) userMediaListener.remove();
         if (userHistoryListener != null) userHistoryListener.remove();
         if (followingChannelsListener != null) followingChannelsListener.remove();
-        if (userBlogsListener != null) userBlogsListener.remove(); // NEW: Remove blogs listener
+        if (userBlogsListener != null) userBlogsListener.remove();
 
         mUserProfile.setValue(null);
         mUserMedia.setValue(new ArrayList<>());
         mUserHistory.setValue(new ArrayList<>());
         mUserDownloads.setValue(new ArrayList<>());
         mFollowingChannels.setValue(new ArrayList<>());
-        mUserBlogs.setValue(new ArrayList<>()); // NEW: Clear blogs data
+        mUserBlogs.setValue(new ArrayList<>());
     }
 
     @Override

@@ -1,32 +1,53 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme (light/day mode) -->
     <style name="Theme.Zion" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/surface_light</item>
-        <item name="colorOnPrimary">@color/on_surface_light</item> <item name="colorPrimaryContainer">@color/secondary_light</item> <item name="colorOnPrimaryContainer">@color/white</item>
+        <!-- Primary brand color (focus/outline in light mode) - Dark gray -->
+        <item name="colorPrimary">@color/primary_light</item> <!-- #FF212121 -->
+        <item name="colorOnPrimary">@color/on_primary_light</item> <!-- White -->
+        <item name="colorPrimaryContainer">@color/secondary_light</item> <!-- Medium gray -->
+        <item name="colorOnPrimaryContainer">@color/black</item> <!-- Black -->
 
-        <item name="colorSecondary">@color/secondary_light</item>
-        <item name="colorOnSecondary">@color/white</item>
-        <item name="colorSecondaryContainer">@color/secondary_light</item>
-        <item name="colorOnSecondaryContainer">@color/white</item>
+        <!-- Secondary brand color - Medium gray -->
+        <item name="colorSecondary">@color/secondary_light</item> <!-- #FF757575 -->
+        <item name="colorOnSecondary">@color/on_secondary_light</item> <!-- White -->
+        <item name="colorSecondaryContainer">@color/secondary_light</item> <!-- Medium gray -->
+        <item name="colorOnSecondaryContainer">@color/black</item> <!-- Black -->
 
-        <item name="colorSurface">@color/surface_light</item>
-        <item name="colorOnSurface">@color/on_surface_light</item>
-        <item name="android:colorBackground">@color/surface_light</item>
-        <item name="colorOnBackground">@color/on_surface_light</item>
+        <!-- Surface/Background - White for light mode -->
+        <item name="colorSurface">@color/surface_light</item> <!-- White -->
+        <item name="colorOnSurface">@color/on_surface_light</item> <!-- Black -->
+        <item name="android:colorBackground">@color/surface_light</item> <!-- White -->
+        <item name="colorOnBackground">@color/on_surface_light</item> <!-- Black -->
 
-        <item name="colorSurfaceVariant">@color/secondary_light</item>
-        <item name="colorOnSurfaceVariant">@color/on_surface_light</item>
-        <item name="colorSurfaceContainer">@color/secondary_light</item>
-        <item name="colorSurfaceContainerHigh">@color/secondary_light</item>
+        <!-- Surface Variants - Light grays -->
+        <item name="colorSurfaceVariant">@color/gray_variant</item> <!-- #FFBDBDBD -->
+        <item name="colorOnSurfaceVariant">@color/on_surface_light</item> <!-- Black -->
+        <item name="colorSurfaceContainer">@color/gray_variant</item> <!-- Light gray -->
+        <item name="colorSurfaceContainerHigh">@color/gray_secondary</item> <!-- Medium gray -->
 
-        <item name="android:statusBarColor">?attr/colorSurface</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <!-- Status bar - Light with dark icons -->
+        <item name="android:statusBarColor">?attr/colorSurface</item> <!-- White-ish -->
+        <item name="android:windowLightStatusBar">true</item> <!-- Dark icons on light bar -->
 
-
+        <!-- Material Components -->
         <item name="materialCardViewStyle">@style/Widget.Material3.CardView.Elevated</item>
         <item name="chipStyle">@style/Widget.Material3.Chip.Assist</item>
 
+        <!-- Tab indicator - Uses primary (dark gray) -->
+        <item name="tabSelectedTextColor">?attr/colorPrimary</item> <!-- Dark gray for selected text -->
+        <item name="tabIndicatorColor">?attr/colorPrimary</item> <!-- Dark gray indicator -->
 
-        <item name="tabSelectedTextColor">?attr/colorPrimary</item> <!-- Optional: Match indicator color for selected text -->
-        <item name="tabIndicatorColor">?attr/colorPrimary</item> <!-- Ensures indicator uses primary -->
+        <!-- Customize TextInputLayout for better contrast -->
+        <item name="textInputStyle">@style/Widget.Zion.TextInputLayout.OutlinedBox</item>
+        <item name="colorOutline">@color/gray_outline</item> <!-- #FF9E9E9E - Unfocused outline -->
     </style>
+
+    <!-- FIXED: Custom TextInputLayout style - Uses color state list for stroke -->
+    <style name="Widget.Zion.TextInputLayout.OutlinedBox" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeWidth">2dp</item> <!-- Thicker for visibility -->
+        <item name="boxStrokeWidthFocused">2dp</item> <!-- Same thickness on focus -->
+        <item name="hintTextColor">?attr/colorOnSurfaceVariant</item> <!-- Medium gray hints -->
+        <item name="boxStrokeColor">@color/text_input_stroke</item> <!-- State list for focused/unfocused -->
+    </style>
+
 </resources>

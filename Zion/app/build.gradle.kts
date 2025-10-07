@@ -1,9 +1,7 @@
+// build.gradle.kts (app module)
 plugins {
     alias(libs.plugins.android.application)
-    // Add the Google Services plugin for Firebase setup
     alias(libs.plugins.google.services)
-    // Removed: alias(libs.plugins.kotlin.android)
-    // Removed: id("kotlin-kapt")
 }
 
 android {
@@ -15,7 +13,7 @@ android {
         minSdk = 30
         targetSdk = 36
         versionCode = 1
-        versionName = "1.0"
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -30,18 +28,15 @@ android {
         }
     }
     compileOptions {
-        // Set Java 11 compatibility for modern Android development and libraries like Glide 5.x
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    // Removed: kotlinOptions { ... }
     buildFeatures {
         viewBinding = true
     }
 }
 
 dependencies {
-
     // Existing dependencies
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -52,13 +47,13 @@ dependencies {
     implementation(libs.navigation.ui)
 
     // ----------------------------------------------------------------------
-    // New dependencies for Firebase, ExoPlayer, and Glide
+    // Firebase Dependencies (STANDARD JAVA VERSIONS - NO KTX)
     // ----------------------------------------------------------------------
 
     // Firebase BOM (Bill of Materials) for version management
     implementation(platform(libs.firebase.bom))
 
-    // Firebase Core Services (Auth, Firestore, Storage, Messaging)
+    // Firebase Core Services (Auth, Firestore, Storage, Messaging) - Use standard Java libs
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
@@ -67,13 +62,19 @@ dependencies {
     // ExoPlayer (Jetpack Media3)
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.ui)
-    implementation(libs.circleimageview)
-    implementation("de.hdodenhof:circleimageview:3.1.0")
+
     // Glide (Image Loading)
     implementation(libs.glide)
-    implementation(libs.activity)
-    // Use 'annotationProcessor' for Java projects
     annotationProcessor(libs.glide.compiler)
+
+    // CircleImageView
+    implementation(libs.circleimageview)
+
+    // AndroidX Activity (for registerForActivityResult, etc.)
+    implementation(libs.activity)
+
+    // Preferences for SettingsFragment
+    implementation(libs.preference.ktx)
 
     // ----------------------------------------------------------------------
 

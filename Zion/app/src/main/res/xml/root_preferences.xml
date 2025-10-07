@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:title="General">
+
+        <SwitchPreferenceCompat
+            app:key="notifications_enabled"
+            app:title="Enable Notifications"
+            app:summary="Receive push notifications for new content and updates"
+            app:defaultValue="true" />
+
+        <ListPreference
+            app:key="streaming_quality"
+            app:title="Default Streaming Quality"
+            app:summary="Choose your preferred video streaming quality"
+            app:entries="@array/streaming_quality_entries"
+            app:entryValues="@array/streaming_quality_values"
+            app:defaultValue="auto" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="Content Notifications">
+
+        <SwitchPreferenceCompat
+            app:key="blog_notifications"
+            app:title="New Blog Posts"
+            app:summary="Notify me about new blog posts from followed channels"
+            app:defaultValue="true" />
+
+        <SwitchPreferenceCompat
+            app:key="live_stream_notifications"
+            app:title="Live Streams"
+            app:summary="Notify me when a followed channel goes live"
+            app:defaultValue="true" />
+
+        <SwitchPreferenceCompat
+            app:key="podcast_notifications"
+            app:title="New Podcasts"
+            app:summary="Notify me about new podcast episodes"
+            app:defaultValue="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="Account">
+
+        <Preference
+            app:key="edit_profile_shortcut"
+            app:title="Edit Profile"
+            app:summary="Update your username, profile picture" />
+
+        <Preference
+            app:key="change_password"
+            app:title="Change Password"
+            app:summary="Update your account password" />
+
+        <Preference
+            app:key="sign_out_shortcut"
+            app:title="Sign Out"
+            app:summary="Log out of your account" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="About">
+
+        <Preference
+            app:key="version_info"
+            app:title="App Version"
+            app:summary="2.0"
+            app:selectable="false" />
+
+        <Preference
+            app:key="feedback_key"
+            app:title="Send Feedback"
+            app:summary="Help us improve Zion" />
+
+        <Preference
+            app:key="privacy_policy"
+            app:title="Privacy Policy"
+            app:summary="Read our privacy statement" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -15,9 +15,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.f9ld3.Zion.R;
 import com.f9ld3.Zion.databinding.ItemPlayerPodcastDuoBinding;
-import com.f9ld3.Zion.databinding.ItemPlayerVideoBinding;
+// import com.f9ld3.Zion.databinding.ItemPlayerVideoBinding; // Old binding
+import com.f9ld3.Zion.databinding.ItemVideoM3Binding; // NEW binding for M3 video item
 // The PlayerMedia class is the data model for this adapter
 import com.f9ld3.Zion.ui.player.PlayerMedia;
+import com.google.android.material.button.MaterialButton;
+
+import de.hdodenhof.circleimageview.CircleImageView; // For author avatar
 
 public class PlayerPostAdapter extends ListAdapter<PlayerMedia, RecyclerView.ViewHolder> {
 
@@ -44,18 +48,13 @@ public class PlayerPostAdapter extends ListAdapter<PlayerMedia, RecyclerView.Vie
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        // 🔥 CRITICAL FIX: Use ContextThemeWrapper to apply the application theme,
-        // which prevents the InflateException when using MaterialTextView.
-        // NOTE: Ensure R.style.Theme_Zion is the correct ID for your app's theme.
         final int themeResId = R.style.Theme_Zion;
-
-        // 1. Create a themed Context and LayoutInflater
         ContextThemeWrapper themedContext = new ContextThemeWrapper(parent.getContext(), themeResId);
         LayoutInflater themedInflater = LayoutInflater.from(themedContext);
 
         if (viewType == PlayerMedia.TYPE_VIDEO) {
-            // Inflate the full-width video card layout using the themed inflater
-            ItemPlayerVideoBinding binding = ItemPlayerVideoBinding.inflate(themedInflater, parent, false);
+            // Inflate the NEW M3 video card layout
+            ItemVideoM3Binding binding = ItemVideoM3Binding.inflate(themedInflater, parent, false);
             return new VideoViewHolder(binding);
         } else if (viewType == PlayerMedia.TYPE_PODCAST_DUO_CONTAINER) {
             // Inflate the side-by-side podcast layout using the themed inflater
@@ -101,17 +100,21 @@ public class PlayerPostAdapter extends ListAdapter<PlayerMedia, RecyclerView.Vie
         }
     };
 
-    // --- ViewHolder for Video Item ---
+    // --- ViewHolder for Video Item (UPDATED for item_video_m3.xml) ---
     public static class VideoViewHolder extends RecyclerView.ViewHolder {
         private final TextView titleTextView;
         private final TextView detailsTextView;
         private final ImageView thumbnailImageView;
+        private final CircleImageView authorAvatar; // NEW: Author avatar
+        private final MaterialButton moreOptionsButton; // NEW: More options button
 
-        public VideoViewHolder(ItemPlayerVideoBinding binding) {
+        public VideoViewHolder(ItemVideoM3Binding binding) { // Changed binding type
             super(binding.getRoot());
             titleTextView = binding.videoTitle;
             detailsTextView = binding.videoDetails;
             thumbnailImageView = binding.videoThumbnail;
+            authorAvatar = binding.authorAvatar; // Initialize new views
+            moreOptionsButton = binding.moreOptionsButton; // Initialize new views
         }
 
         public void bind(final PlayerMedia media, final OnMediaClickListener listener) {
@@ -125,11 +128,23 @@ public class PlayerPostAdapter extends ListAdapter<PlayerMedia, RecyclerView.Vie
                     .error(R.drawable.ic_error_24dp) // Assume error drawable exists
                     .into(thumbnailImageView);
 
+            // Load author avatar
+            Glide.with(itemView.getContext())
+                    .load(media.getUploaderAvatarUrl()) // Assuming PlayerMedia has getUploaderAvatarUrl()
+                    .placeholder(R.drawable.ic_profile_placeholder)
+                    .error(R.drawable.ic_profile_placeholder)
+                    .into(authorAvatar);
+
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
                     // Clicks on the video card pass the video item directly
                     listener.onMediaClick(media);
                 }
+            });
+
+            moreOptionsButton.setOnClickListener(v -> {
+                // TODO: Implement more options menu for the video
+                // Toast.makeText(itemView.getContext(), "More options for " + media.getTitle(), Toast.LENGTH_SHORT).show();
             });
         }
     }
@@ -149,13 +164,11 @@ public class PlayerPostAdapter extends ListAdapter<PlayerMedia, RecyclerView.Vie
         public PodcastDuoViewHolder(ItemPlayerPodcastDuoBinding binding) {
             super(binding.getRoot());
             // Item 1
-            // 🔥 FIXED: Changed from binding.podcastCard1 to binding.podcastItem1
             card1 = binding.podcastItem1;
             thumbnail1 = binding.podcastThumbnail1;
             title1 = binding.podcastTitle1;
 
             // Item 2
-            // 🔥 FIXED: Changed from binding.podcastCard2 to binding.podcastItem2
             card2 = binding.podcastItem2;
             thumbnail2 = binding.podcastThumbnail2;
             title2 = binding.podcastTitle2;

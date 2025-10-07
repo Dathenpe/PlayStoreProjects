@@ -1,26 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Core colors: Black, White, Grays -->
     <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="gray_primary">#FF212121</color> <!-- Dark gray for primary -->
+    <color name="gray_secondary">#FF757575</color> <!-- Medium gray -->
+    <color name="gray_variant">#FFBDBDBD</color> <!-- Light gray -->
+    <color name="gray_outline">#FF9E9E9E</color> <!-- Outline gray -->
 
-    <color name="surface_light">#FFFFFFFF</color>
-    <color name="surface_dark">#FF1C1C1C</color>
+    <!-- Light Mode -->
+    <color name="surface_light">#FFFFFFFF</color> <!-- White background -->
+    <color name="on_surface_light">#FF000000</color> <!-- Black text -->
+    <color name="primary_light">#FF212121</color> <!-- Dark gray -->
+    <color name="on_primary_light">#FFFFFFFF</color> <!-- White on primary -->
+    <color name="secondary_light">#FF757575</color> <!-- Medium gray -->
+    <color name="on_secondary_light">#FFFFFFFF</color> <!-- White on secondary -->
 
-    <color name="on_surface_light">#FF1C1C1C</color>
-    <color name="on_surface_dark">#FFFFFFFF</color>
+    <!-- Dark Mode -->
+    <color name="surface_dark">#FF121212</color> <!-- Near-black background -->
+    <color name="on_surface_dark">#FFFFFFFF</color> <!-- White text -->
+    <color name="primary_dark">#FF424242</color> <!-- Darker gray -->
+    <color name="on_primary_dark">#FFFFFFFF</color> <!-- White on primary -->
+    <color name="secondary_dark">#FF9E9E9E</color> <!-- Lighter gray -->
+    <color name="on_secondary_dark">#FF000000</color> <!-- Black on secondary -->
 
-    <color name="primary_light">#FF000000</color>
-    <color name="primary_dark">#FFFFFFFF</color>
-
-    <color name="secondary_light">#FF757575</color>
-    <color name="secondary_dark">#FFAAAAAA</color>
-
-    <color name="purple_200">@color/secondary_dark</color>
-    <color name="purple_500">@color/primary_light</color>
-    <color name="purple_700">@color/black</color>
-    <color name="teal_200">@color/secondary_light</color>
-    <color name="teal_700">@color/secondary_light</color>
-
+    <!-- Other -->
     <color name="transparent">#00000000</color>
-
+    <color name="error">#FFF44336</color> <!-- Red for errors, but minimal use -->
+    <color name="text_input_outline">#FF9E9E9E</color> <!-- Gray outline -->
 </resources>

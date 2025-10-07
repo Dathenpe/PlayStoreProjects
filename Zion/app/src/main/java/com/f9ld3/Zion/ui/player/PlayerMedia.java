@@ -8,6 +8,7 @@ public class PlayerMedia {
     public static final int TYPE_VIDEO = 1;
     public static final int TYPE_PODCAST_SINGLE = 2; // Represents one item in a duo
     public static final int TYPE_PODCAST_DUO_CONTAINER = 3; // The wrapper item for the duo layout
+    public static final int TYPE_PLAYLIST = 4; // NEW: For playlist items (compatibility)
 
     public String id;
     public int type; // Should be one of the TYPE_ constants
@@ -17,9 +18,9 @@ public class PlayerMedia {
     public String thumbnailUrl; // Thumbnail image URL
     public String authorName;
     public long durationSeconds;
-    public Timestamp dateCreated; // 🔥 Added for Firestore ordering and History logging
+    public Timestamp dateCreated; // Added for Firestore ordering and History logging
 
-    // 🔥 Fields for UPLOADER PROFILE INTEGRATION
+    // Fields for UPLOADER PROFILE INTEGRATION
     public String uploaderUid;
     public String uploaderAvatarUrl;
 
@@ -51,11 +52,26 @@ public class PlayerMedia {
         this(id, type, title, description, mediaUrl, thumbnailUrl, authorName, durationSeconds, null, null);
     }
 
-    // 🔥 Constructor for the DUO container (used in ViewModel)
+    // Constructor for the DUO container (used in ViewModel)
     public PlayerMedia(PlayerMedia podcastOne, PlayerMedia podcastTwo) {
         this.type = TYPE_PODCAST_DUO_CONTAINER;
         this.podcastOne = podcastOne;
         this.podcastTwo = podcastTwo;
+    }
+
+    // NEW: Constructor for playlists (uses TYPE_PLAYLIST, no mediaUrl)
+    public PlayerMedia(String id, String title, String description, String thumbnailUrl, String authorName, String uploaderUid, String uploaderAvatarUrl) {
+        this.id = id;
+        this.type = TYPE_PLAYLIST;
+        this.title = title;
+        this.description = description;
+        this.mediaUrl = null; // No direct media URL for playlists
+        this.thumbnailUrl = thumbnailUrl;
+        this.authorName = authorName;
+        this.durationSeconds = 0; // Not applicable
+        this.uploaderUid = uploaderUid;
+        this.uploaderAvatarUrl = uploaderAvatarUrl;
+        this.dateCreated = Timestamp.now();
     }
 
     // Getters (Important for data access and Firestore)
@@ -72,7 +88,7 @@ public class PlayerMedia {
     public long getDurationSeconds() { return durationSeconds; }
     public Timestamp getDateCreated() { return dateCreated; }
 
-    // 🔥 NEW GETTERS
+    // NEW GETTERS
     public String getUploaderUid() { return uploaderUid; }
     public String getUploaderAvatarUrl() { return uploaderAvatarUrl; }
 
