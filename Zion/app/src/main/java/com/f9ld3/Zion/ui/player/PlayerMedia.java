@@ -94,4 +94,5 @@ public class PlayerMedia {
 
     public PlayerMedia getPodcastOne() { return podcastOne; }
     public PlayerMedia getPodcastTwo() { return podcastTwo; }
+
 }

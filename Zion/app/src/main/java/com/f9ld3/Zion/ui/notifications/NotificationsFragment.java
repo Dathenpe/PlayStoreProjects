@@ -28,7 +28,7 @@ public class NotificationsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Customize the empty state for this page
+        // Customize the empty state for this page (using template)
         binding.textPlaceholder.setText("You have no new notifications.");
         binding.textPlaceholder.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_notifications_24dp, 0, 0);
 

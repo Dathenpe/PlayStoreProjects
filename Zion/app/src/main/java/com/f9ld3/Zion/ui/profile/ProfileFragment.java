@@ -2,29 +2,25 @@ package com.f9ld3.Zion.ui.profile;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-
 import com.bumptech.glide.Glide;
 import com.f9ld3.Zion.R;
 import com.f9ld3.Zion.auth.AuthViewModel;
 import com.f9ld3.Zion.data.HistoryItem;
 import com.f9ld3.Zion.data.UserProfile;
 import com.f9ld3.Zion.databinding.FragmentProfileBinding;
+import com.f9ld3.Zion.ui.settings.SettingsActivity;
 import com.google.android.material.card.MaterialCardView;
-import com.google.firebase.auth.FirebaseUser ;
-
+import com.google.firebase.auth.FirebaseUser;
 import java.util.List;
 
 public class ProfileFragment extends Fragment {
@@ -44,39 +40,52 @@ public class ProfileFragment extends Fragment {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        // Observe ProfileViewModel for profile and history
         profileViewModel.getUserProfile().observe(getViewLifecycleOwner(), this::updateUiWithProfile);
         profileViewModel.getUserHistory().observe(getViewLifecycleOwner(), this::updateHistoryButtonText);
 
-        // Observe AuthViewModel for verification status
-        authViewModel.isEmailVerified().observe(getViewLifecycleOwner(), isVerified -> {
-            if (isVerified != null) {
-                updateVerificationUI(isVerified);
+        // Observe the current user to get verification status and refresh token
+        authViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
+            if (user != null) {
+                // If user object changes (e.g., token refresh), update the UI immediately
+                updateVerificationUI(user.isEmailVerified());
             }
         });
 
-        // Observe auth errors/messages
+        // REMOVED: authViewModel.getVerificationStatus() observation. Relying on authViewModel.getAuthMessage().
+
         authViewModel.getAuthError().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
                 Toast.makeText(requireContext(), "Profile Error: " + error, Toast.LENGTH_SHORT).show();
-                authViewModel.clearAuthError();
-            }
-        });
-        authViewModel.getAuthMessage().observe(getViewLifecycleOwner(), message -> {
-            if (message != null) {
-                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                // FIXED: ensure clearMessages() is called
                 authViewModel.clearMessages();
             }
         });
 
-        // Setup resend verification (nested in banner)
-        setupResendVerification();
+        // Observe for generic messages (including successful resend verification)
+        authViewModel.getAuthMessage().observe(getViewLifecycleOwner(), message -> {
+            if (message != null) {
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                authViewModel.clearMessages();
+                // If the message is about verification success, manually refresh the user state
+                if (message.contains("Verification email re-sent")) {
+                    FirebaseUser user = authViewModel.getCurrentUser().getValue();
+                    if (user != null) {
+                        // Crucial step: tells Firebase to fetch the latest status from the server
+                        user.reload().addOnCompleteListener(task -> {
+                            if (task.isSuccessful() && user.isEmailVerified()) {
+                                updateVerificationUI(true);
+                            }
+                        });
+                    }
+                }
+            }
+        });
 
-        // Bind all buttons/cards to launch their respective Activities (disabled if unverified)
+        setupResendVerification();
         setupInteractiveElements();
 
-        // Initial refresh
-        authViewModel.refreshVerificationStatus();
+        // REMOVED: authViewModel.refreshVerificationStatus(); as current user observer handles it
+        // Firebase Auth automatically refreshes user state when needed, but explicit reload() is better after resend.
 
         return root;
     }
@@ -86,49 +95,42 @@ public class ProfileFragment extends Fragment {
             Button resendButton = binding.verificationBanner.findViewById(R.id.resend_button);
             if (resendButton != null) {
                 resendButton.setOnClickListener(v -> {
+                    // Call the public method in AuthViewModel (requires no params if user is logged in)
                     authViewModel.resendVerificationEmail();
-                    authViewModel.refreshVerificationStatus(); // Refresh after resend
                 });
             }
         }
     }
 
     private void setupInteractiveElements() {
-        // Grid cards - Matches XML IDs, using navigation intents
         MaterialCardView cardMyUploads = binding.getRoot().findViewById(R.id.card_my_uploads);
         MaterialCardView cardMyBlogs = binding.getRoot().findViewById(R.id.card_my_blogs);
         MaterialCardView cardLikes = binding.getRoot().findViewById(R.id.card_likes);
         MaterialCardView cardHistory = binding.getRoot().findViewById(R.id.card_history);
         MaterialCardView cardDownloads = binding.getRoot().findViewById(R.id.card_downloads);
         MaterialCardView cardFollowing = binding.getRoot().findViewById(R.id.card_following);
-
-        // Buttons - Matches XML
         com.google.android.material.button.MaterialButton buttonPlaylist = binding.buttonPlaylist;
         com.google.android.material.button.MaterialButton buttonSettings = binding.buttonSettings;
 
-        // Common click handler with navigation intents (from your code)
         View.OnClickListener authenticatedClickListener = v -> {
             int id = v.getId();
-            if (id == R.id.card_my_uploads) {
-                startActivity(new Intent(getActivity(), MyUploadsTabbedActivity.class));
-            } else if (id == R.id.card_my_blogs) {
-                startActivity(new Intent(getActivity(), MyBlogsActivity.class));
-            } else if (id == R.id.card_likes) {
-                startActivity(new Intent(getActivity(), LikesActivity.class));
-            } else if (id == R.id.card_history) {
-                startActivity(new Intent(getActivity(), HistoryActivity.class));
-            } else if (id == R.id.card_downloads) {
-                startActivity(new Intent(getActivity(), DownloadsActivity.class));
-            } else if (id == R.id.card_following) {
-                startActivity(new Intent(getActivity(), FollowingActivity.class));
-            } else if (id == R.id.button_playlist) {
-                startActivity(new Intent(getActivity(), PlaylistActivity.class)); // Assumed; adjust if different
-            } else if (id == R.id.button_settings) {
-                startActivity(new Intent(getActivity(), com.f9ld3.Zion.ui.settings.SettingsActivity.class));
+            // Use local variables to define the target Intent class for clarity
+            Class<?> targetActivity = null;
+
+            if (id == R.id.card_my_uploads) targetActivity = MyUploadsTabbedActivity.class;
+            else if (id == R.id.card_my_blogs) targetActivity = MyBlogsActivity.class;
+            else if (id == R.id.card_likes) targetActivity = LikesActivity.class;
+            else if (id == R.id.card_history) targetActivity = HistoryActivity.class;
+            else if (id == R.id.card_downloads) targetActivity = DownloadsActivity.class;
+            else if (id == R.id.card_following) targetActivity = FollowingActivity.class;
+            else if (id == R.id.button_playlist) targetActivity = PlaylistActivity.class;
+            else if (id == R.id.button_settings) targetActivity = SettingsActivity.class;
+
+            if (targetActivity != null) {
+                startActivity(new Intent(requireActivity(), targetActivity));
             }
         };
 
-        // Set listeners (will be enabled/disabled later based on verification)
         if (cardMyUploads != null) cardMyUploads.setOnClickListener(authenticatedClickListener);
         if (cardMyBlogs != null) cardMyBlogs.setOnClickListener(authenticatedClickListener);
         if (cardLikes != null) cardLikes.setOnClickListener(authenticatedClickListener);
@@ -138,111 +140,54 @@ public class ProfileFragment extends Fragment {
         if (buttonPlaylist != null) buttonPlaylist.setOnClickListener(authenticatedClickListener);
         if (buttonSettings != null) buttonSettings.setOnClickListener(authenticatedClickListener);
 
-        // Hide login prompt since registration is forced
         if (binding.buttonLoginSignupPrompt != null) {
             binding.buttonLoginSignupPrompt.setVisibility(View.GONE);
         }
-
-        // TODO: If adding buttonEditProfile/buttonSignOut to XML, uncomment:
-        // binding.buttonEditProfile.setOnClickListener(v -> startActivity(new Intent(getActivity(), EditProfileActivity.class)));
-        // binding.buttonSignOut.setOnClickListener(v -> profileViewModel.signOut());
     }
 
     private void updateUiWithProfile(UserProfile profile) {
         if (profile != null && getContext() != null && binding != null) {
-            binding.textUsername.setText(profile.getUsername());
-            binding.textEmail.setText(profile.getEmail());
+            // Use DisplayName (username) from Firebase Auth first, then fallback to Firestore data
+            FirebaseUser currentUser = authViewModel.getCurrentUser().getValue();
+            String username = (currentUser != null && currentUser.getDisplayName() != null) ? currentUser.getDisplayName() : profile.getUsername();
+            String email = (currentUser != null) ? currentUser.getEmail() : profile.getEmail(); // Use auth email if available
+
+            binding.textUsername.setText(username);
+            binding.textEmail.setText(email);
             Glide.with(this)
                     .load(profile.getProfileImageUrl())
                     .placeholder(R.drawable.ic_profile_placeholder)
                     .error(R.drawable.ic_profile_placeholder)
                     .into(binding.imageProfile);
-        } else {
-            // No anonymous fallback - Log error and show placeholder (user should be authenticated)
-            Log.w(TAG, "Profile data unavailable - ensure user is authenticated.");
-            if (binding != null) {
-                binding.textUsername.setText("Loading...");
-                binding.textEmail.setText("Loading...");
-                binding.imageProfile.setImageResource(R.drawable.ic_profile_placeholder);
-            }
         }
     }
 
     private void updateHistoryButtonText(List<HistoryItem> history) {
         if (binding == null) return;
         int count = history != null ? history.size() : 0;
-        TextView historyCountText = binding.getRoot().findViewById(R.id.text_history_count); // Matches XML in card_history
+        TextView historyCountText = binding.getRoot().findViewById(R.id.text_history_count);
         if (historyCountText != null) {
-            historyCountText.setText(getString(R.string.history_with_count, count)); // e.g., "History (5)"
+            // Note: R.string.history_with_count must be defined to accept an integer argument
+            historyCountText.setText(getString(R.string.history_with_count, count));
         }
     }
 
     private void updateVerificationUI(boolean isVerified) {
-        if (binding == null) return;
+        if (binding == null || getContext() == null) return;
 
-        // Update status text - Matches XML: text_verification_status
         if (isVerified) {
             binding.textVerificationStatus.setText("Email Verified ✓");
             binding.textVerificationStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark));
-            binding.textVerificationStatus.setVisibility(View.VISIBLE);
             if (binding.verificationBanner != null) {
                 binding.verificationBanner.setVisibility(View.GONE);
             }
         } else {
             binding.textVerificationStatus.setText("Email Not Verified");
             binding.textVerificationStatus.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
-            binding.textVerificationStatus.setVisibility(View.VISIBLE);
             if (binding.verificationBanner != null) {
                 binding.verificationBanner.setVisibility(View.VISIBLE);
             }
-            Toast.makeText(requireContext(), "Please verify your email to unlock full features.", Toast.LENGTH_LONG).show();
         }
-
-        // Enable/disable interactions based on verification
-        setInteractiveElementsEnabled(isVerified);
-    }
-
-    // Enable/disable actual XML elements (cards and buttons)
-    private void setInteractiveElementsEnabled(boolean enabled) {
-        // Grid cards
-        MaterialCardView[] cards = {
-                binding.getRoot().findViewById(R.id.card_my_uploads),
-                binding.getRoot().findViewById(R.id.card_my_blogs),
-                binding.getRoot().findViewById(R.id.card_likes),
-                binding.getRoot().findViewById(R.id.card_history),
-                binding.getRoot().findViewById(R.id.card_downloads),
-                binding.getRoot().findViewById(R.id.card_following)
-        };
-
-        for (MaterialCardView card : cards) {
-            if (card != null) {
-                card.setClickable(enabled);
-                card.setFocusable(enabled);
-                card.setAlpha(enabled ? 1.0f : 0.5f);
-            }
-        }
-
-        // Buttons
-        if (binding.buttonPlaylist != null) {
-            binding.buttonPlaylist.setEnabled(enabled);
-            binding.buttonPlaylist.setAlpha(enabled ? 1.0f : 0.5f);
-        }
-        if (binding.buttonSettings != null) {
-            binding.buttonSettings.setEnabled(enabled);
-            binding.buttonSettings.setAlpha(enabled ? 1.0f : 0.5f);
-        }
-
-        // On disable, add click listener to prompt verification
-        if (!enabled) {
-            View.OnClickListener promptListener = v -> Toast.makeText(requireContext(), "Verify your email to access this feature.", Toast.LENGTH_SHORT).show();
-            for (MaterialCardView card : cards) {
-                if (card != null) card.setOnClickListener(promptListener);
-            }
-            if (binding.buttonPlaylist != null) binding.buttonPlaylist.setOnClickListener(promptListener);
-            if (binding.buttonSettings != null) binding.buttonSettings.setOnClickListener(promptListener);
-        }
-
-        Log.d(TAG, "Profile interactions enabled: " + enabled);
     }
 
     @Override

@@ -19,34 +19,65 @@
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.Zion">
-        <activity
-            android:name=".ui.profile.EditProfileActivity"
-            android:exported="false"
-            android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Auth Activities -->
         <activity
-            android:name=".ui.profile.MyUploadsTabbedActivity"
+            android:name=".auth.LoginActivity"
             android:exported="false"
-            android:label="@string/my_uploads"
+            android:label="@string/login"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".auth.SignUpActivity"
+            android:exported="false"
+            android:label="@string/sign_up"
+            android:parentActivityName=".auth.LoginActivity" />
+
+        <activity
+            android:name=".auth.ChangePasswordActivity"
+            android:exported="false"
+            android:label="@string/change_password_title"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- Profile Activities -->
+        <activity
+            android:name=".ui.profile.EditProfileActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".ui.profile.PlaylistActivity"
+            android:exported="false"
+            android:label="@string/my_playlists"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- ADD THESE MISSING ACTIVITIES -->
+        <activity
+            android:name=".ui.profile.HistoryActivity"
+            android:exported="false"
+            android:label="@string/history"
             android:parentActivityName=".MainActivity" />
 
         <activity
             android:name=".ui.profile.LikesActivity"
+            android:exported="false"
+            android:label="@string/liked_videos"
             android:parentActivityName=".MainActivity" />
-        <activity
-            android:name=".ui.profile.HistoryActivity"
-            android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".ui.profile.DownloadsActivity"
+            android:exported="false"
+            android:label="@string/downloads"
             android:parentActivityName=".MainActivity" />
 
         <activity
@@ -62,11 +93,19 @@
             android:parentActivityName=".MainActivity" />
 
         <activity
-            android:name=".ui.settings.SettingsActivity"
+            android:name=".ui.profile.MyUploadsTabbedActivity"
             android:exported="false"
-            android:label="@string/settings"
+            android:label="@string/my_uploads"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Blog Activity -->
+        <activity
+            android:name=".ui.blog.CreateBlogActivity"
+            android:exported="false"
+            android:label="Create Blog Post"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- Search and Notifications Activities -->
         <activity
             android:name=".ui.search.SearchActivity"
             android:exported="false"
@@ -79,30 +118,11 @@
             android:label="@string/title_notifications"
             android:parentActivityName=".MainActivity" />
 
-        <!-- Auth Activities -->
+        <!-- Settings Activity (if you have one) -->
         <activity
-            android:name=".auth.SignUpActivity"
+            android:name=".ui.settings.SettingsActivity"
             android:exported="false"
-            android:label="@string/sign_up"
-            android:parentActivityName=".auth.LoginActivity" /> <!-- Changed parent to LoginActivity -->
-        <activity
-            android:name=".auth.LoginActivity"
-            android:exported="false"
-            android:label="@string/login"
-            android:parentActivityName=".MainActivity" />
-
-        <!-- NEW: Blog Creation Activity -->
-        <activity
-            android:name=".ui.blog.CreateBlogActivity"
-            android:exported="false"
-            android:label="Create Blog Post"
-            android:parentActivityName=".MainActivity" />
-
-        <!-- NEW: Playlist Activity -->
-        <activity
-            android:name=".ui.profile.PlaylistActivity"
-            android:exported="false"
-            android:label="@string/my_playlists"
+            android:label="@string/settings"
             android:parentActivityName=".MainActivity" />
 
         <!-- Firebase Messaging Service for push notifications -->

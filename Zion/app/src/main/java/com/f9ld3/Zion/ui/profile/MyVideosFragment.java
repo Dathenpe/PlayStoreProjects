@@ -4,25 +4,18 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
 import com.f9ld3.Zion.R;
 import com.f9ld3.Zion.databinding.FragmentFullPageListBinding;
 import com.f9ld3.Zion.ui.player.PlayerMedia;
 import com.f9ld3.Zion.ui.player.PlayerPostAdapter;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
- * Fragment to display the user's uploaded video media items.
+ * Fragment to display the user's uploaded videos.
  */
 public class MyVideosFragment extends Fragment implements PlayerPostAdapter.OnMediaClickListener {
 
@@ -45,31 +38,19 @@ public class MyVideosFragment extends Fragment implements PlayerPostAdapter.OnMe
 
         setupRecyclerView();
 
-        // Customize the empty state for this page
-        binding.textPlaceholder.setText(getString(R.string.uploads_empty_text)); // Direct access
-        binding.iconPlaceholder.setImageResource(R.drawable.ic_live_tv_24dp); // Direct access (video-specific icon)
+        // Customize the empty state for this page (using template)
+        // Note: Removed old references to emptyStateContainer and icon_placeholder
+        binding.textPlaceholder.setText(getString(R.string.videos_empty_text));
+        binding.textPlaceholder.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_videocam_24dp, 0, 0);
 
-        // Observe user media and filter for videos
-        profileViewModel.getUserMedia().observe(getViewLifecycleOwner(), mediaList -> {
-            if (mediaList != null && !mediaList.isEmpty()) {
-                List<PlayerMedia> videos = mediaList.stream()
-                        .filter(media -> media.getType() == PlayerMedia.TYPE_VIDEO)
-                        .collect(Collectors.toList());
-
-                if (videos.isEmpty()) {
-                    // Show empty state
-                    binding.recyclerView.setVisibility(View.GONE);
-                    binding.emptyStateContainer.setVisibility(View.VISIBLE);
-                } else {
-                    // Show list
-                    binding.recyclerView.setVisibility(View.VISIBLE);
-                    binding.emptyStateContainer.setVisibility(View.GONE);
-                    videoAdapter.submitList(videos);
-                }
+        profileViewModel.getUserVideos().observe(getViewLifecycleOwner(), videos -> {
+            if (videos != null && !videos.isEmpty()) {
+                binding.recyclerView.setVisibility(View.VISIBLE);
+                binding.textPlaceholder.setVisibility(View.GONE);
+                videoAdapter.submitList(videos);
             } else {
-                // No media at all: show empty state
                 binding.recyclerView.setVisibility(View.GONE);
-                binding.emptyStateContainer.setVisibility(View.VISIBLE);
+                binding.textPlaceholder.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -81,8 +62,8 @@ public class MyVideosFragment extends Fragment implements PlayerPostAdapter.OnMe
     }
 
     @Override
-    public void onMediaClick(PlayerMedia mediaItem) {
-        // TODO: Implement navigation to play the video
+    public void onMediaClick(PlayerMedia media) {
+        // TODO: Implement navigation to video player.
     }
 
     @Override

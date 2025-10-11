@@ -72,8 +72,8 @@
     <string name="playlists_empty_text">You haven\'t created any playlists yet. Organize your favorite content here!</string> <!-- NEW -->
     <string name="login_sign_up_prompt">Login / Sign Up</string>
 
-    <!-- In res/values/strings.xml -->
 
+    <string name="confirm_password">Confirm Password</string>
     <string name="empty_state_default">Nothing Here Yet</string>
     <string name="empty_state_subtitle_default">Items you interact with will appear here.</string>
 
@@ -88,4 +88,31 @@
     <string name="login_to_zion">Login to Zion</string>
     <string name="create_zion_account">Create a Zion Account</string>
     <string name="username">Username</string>
+
+    <string name="change_password_title">Change Account Password</string>
+    <string name="current_password_hint">Current Password</string>
+    <string name="new_password_hint">New Password</string>
+    <string name="confirm_new_password_hint">Confirm New Password</string>
+    <string name="password_requirements">Must be at least 6 characters long.</string>
+    <string name="change_password_button">Update Password</string>
+
+        <!-- Notifications -->
+        <string name="notifications_empty_text">You have no new notifications.</string>
+
+        <!-- Following (users/channels) -->
+        <string name="following_empty_text">You are not following anyone yet.</string>
+
+        <string name="following_users_empty_text">You are not following any users yet.</string>
+
+        <!-- MyPodcasts -->
+        <string name="podcasts_empty_text">You haven\'t uploaded any podcasts yet.</string>
+
+        <!-- MyVideos -->
+        <string name="videos_empty_text">You haven\'t uploaded any videos yet.</string>
+
+        <!-- FollowedContent -->
+        <string name="followed_content_empty_text">Follow some users or channels to see their content here.</string>
+
+
+        <string name="search_empty_text">No search results found.</string>
 </resources>

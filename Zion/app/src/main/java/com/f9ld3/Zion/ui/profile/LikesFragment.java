@@ -11,9 +11,6 @@ import androidx.lifecycle.ViewModelProvider;
 import com.f9ld3.Zion.R;
 import com.f9ld3.Zion.databinding.FragmentFullPageListBinding;
 
-/**
- * Fragment to display the user's liked media items in a full-page view.
- */
 public class LikesFragment extends Fragment {
 
     private FragmentFullPageListBinding binding;
@@ -31,12 +28,25 @@ public class LikesFragment extends Fragment {
 
         ProfileViewModel profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
-        // Customize the empty state for this page
+        // Customize the empty state for this page (using template)
         binding.textPlaceholder.setText(getString(R.string.likes_empty_text));
         binding.textPlaceholder.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_like, 0, 0);
 
         // TODO: Setup RecyclerView Adapter and observe LiveData for liked media
-        // profileViewModel.getUserLikes().observe(getViewLifecycleOwner(), likes -> { ... });
+        // profileViewModel.getUserLikes().observe(getViewLifecycleOwner(), likes -> {
+        //     if (likes == null || likes.isEmpty()) {
+        //         binding.recyclerView.setVisibility(View.GONE);
+        //         binding.textPlaceholder.setVisibility(View.VISIBLE);
+        //     } else {
+        //         binding.recyclerView.setVisibility(View.VISIBLE);
+        //         binding.textPlaceholder.setVisibility(View.GONE);
+        //         // adapter.submitList(likes);
+        //     }
+        // });
+
+        // Default: Show empty state
+        binding.recyclerView.setVisibility(View.GONE);
+        binding.textPlaceholder.setVisibility(View.VISIBLE);
     }
 
     @Override

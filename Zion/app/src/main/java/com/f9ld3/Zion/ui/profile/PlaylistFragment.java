@@ -4,32 +4,20 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 import com.f9ld3.Zion.R;
 import com.f9ld3.Zion.databinding.FragmentFullPageListBinding;
-import com.f9ld3.Zion.ui.player.PlayerMedia; // Assuming playlists contain media
-import com.f9ld3.Zion.ui.player.PlayerPostAdapter; // Reuse or create PlaylistAdapter if needed
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Fragment to display the user's playlists.
  */
-public class PlaylistFragment extends Fragment implements PlayerPostAdapter.OnMediaClickListener {
+public class PlaylistFragment extends Fragment {
 
     private FragmentFullPageListBinding binding;
     private ProfileViewModel profileViewModel;
-    private PlayerPostAdapter playlistAdapter; // Update to handle playlist items if needed
 
     @Nullable
     @Override
@@ -44,49 +32,25 @@ public class PlaylistFragment extends Fragment implements PlayerPostAdapter.OnMe
 
         profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
-        setupRecyclerView();
+        // Customize the empty state for this page (using template)
+        binding.textPlaceholder.setText("You have no playlists yet.");
+        binding.textPlaceholder.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_playlist_play_24dp, 0, 0);
 
-        // FIXED: Use direct binding accessors
-        // Customize empty state for playlists
-        binding.textPlaceholder.setText(getString(R.string.playlists_empty_text)); // e.g., "No playlists created"
-        binding.iconPlaceholder.setImageResource(R.drawable.ic_playlist_play_24dp); // Playlist-specific icon
-
-        // Observe user playlists (adjust getter if your ViewModel uses getUser Playlists() or similar)
-        profileViewModel.getUserMedia().observe(getViewLifecycleOwner(), mediaList -> { // Or getUser Playlists() if separate
-            if (mediaList != null && !mediaList.isEmpty()) {
-                // Assuming playlists are derived from media; filter or map as needed
-                List<PlayerMedia> playlists = mediaList.stream()
-                        .filter(media -> media.getType() == PlayerMedia.TYPE_PLAYLIST) // Adjust type if exists
-                        .collect(Collectors.toList());
-
-                if (playlists.isEmpty()) {
-                    // FIXED: Use correct container for visibility
-                    binding.recyclerView.setVisibility(View.GONE);
-                    binding.emptyStateContainer.setVisibility(View.VISIBLE);
-                } else {
-                    binding.recyclerView.setVisibility(View.VISIBLE);
-                    binding.emptyStateContainer.setVisibility(View.GONE);
-                    playlistAdapter.submitList(playlists);
-                }
-            } else {
-                // No data: show empty state
+        // TODO: Setup RecyclerView Adapter and observe profileViewModel.getUserPlaylists()
+        profileViewModel.getUserPlaylists().observe(getViewLifecycleOwner(), playlists -> {
+            if (playlists == null || playlists.isEmpty()) {
                 binding.recyclerView.setVisibility(View.GONE);
-                binding.emptyStateContainer.setVisibility(View.VISIBLE);
+                binding.textPlaceholder.setVisibility(View.VISIBLE);
+            } else {
+                binding.recyclerView.setVisibility(View.VISIBLE);
+                binding.textPlaceholder.setVisibility(View.GONE);
+                // adapter.submitList(playlists);
             }
         });
-    }
 
-    private void setupRecyclerView() {
-        playlistAdapter = new PlayerPostAdapter(this); // 'this' for OnMediaClickListener
-        // If playlists need a custom layout (e.g., item_playlist.xml), create a PlaylistAdapter
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.recyclerView.setAdapter(playlistAdapter);
-    }
-
-    @Override
-    public void onMediaClick(PlayerMedia mediaItem) {
-        // TODO: Navigate to playlist details/player
-        // Example: Toast.makeText(getContext(), "Opening playlist: " + mediaItem.getTitle(), Toast.LENGTH_SHORT).show();
+        // Default: Show empty state
+        binding.recyclerView.setVisibility(View.GONE);
+        binding.textPlaceholder.setVisibility(View.VISIBLE);
     }
 
     @Override

@@ -50,17 +50,20 @@
         <Preference
             app:key="edit_profile_shortcut"
             app:title="Edit Profile"
-            app:summary="Update your username, profile picture" />
+            app:summary="Update your username and profile information"
+            app:icon="@drawable/ic_person_24dp" />
 
         <Preference
             app:key="change_password"
             app:title="Change Password"
-            app:summary="Update your account password" />
+            app:summary="Update your account password"
+            app:icon="@drawable/ic_lock_24dp" />
 
         <Preference
             app:key="sign_out_shortcut"
             app:title="Sign Out"
-            app:summary="Log out of your account" />
+            app:summary="Log out of your account"
+            app:icon="@drawable/ic_logout_24dp" />
 
     </PreferenceCategory>
 
@@ -70,18 +73,21 @@
         <Preference
             app:key="version_info"
             app:title="App Version"
-            app:summary="2.0"
-            app:selectable="false" />
+            app:summary="2.0.0"
+            app:selectable="false"
+            app:icon="@drawable/ic_info_24dp" />
 
         <Preference
             app:key="feedback_key"
             app:title="Send Feedback"
-            app:summary="Help us improve Zion" />
+            app:summary="Help us improve Zion"
+            app:icon="@drawable/ic_feedback_24dp" />
 
         <Preference
             app:key="privacy_policy"
             app:title="Privacy Policy"
-            app:summary="Read our privacy statement" />
+            app:summary="Read our privacy statement"
+            app:icon="@drawable/ic_privacy_24dp" />
 
     </PreferenceCategory>
 

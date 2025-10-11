@@ -32,12 +32,26 @@ public class FollowingFragment extends Fragment {
 
         profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
-        // Customize the empty state for this page
-        binding.textPlaceholder.setText("You are not following anyone yet."); // New string resource recommended
-        binding.textPlaceholder.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_person_24dp, 0, 0); // Placeholder icon
+        // Customize the empty state for this page (using template)
+        binding.textPlaceholder.setText("You are not following anyone yet.");
+        binding.textPlaceholder.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_person_24dp, 0, 0);
 
         // TODO: Setup RecyclerView Adapter and observe profileViewModel.getFollowing()
-        // This would require adding LiveData for following in ProfileViewModel and fetching logic.
+        // Example toggle (replace with real data observation):
+        // profileViewModel.getFollowing().observe(getViewLifecycleOwner(), following -> {
+        //     if (following == null || following.isEmpty()) {
+        //         binding.recyclerView.setVisibility(View.GONE);
+        //         binding.textPlaceholder.setVisibility(View.VISIBLE);
+        //     } else {
+        //         binding.recyclerView.setVisibility(View.VISIBLE);
+        //         binding.textPlaceholder.setVisibility(View.GONE);
+        //         // adapter.submitList(following);
+        //     }
+        // });
+
+        // Default: Show empty state
+        binding.recyclerView.setVisibility(View.GONE);
+        binding.textPlaceholder.setVisibility(View.VISIBLE);
     }
 
     @Override

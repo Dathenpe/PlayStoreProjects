@@ -45,7 +45,7 @@ public class MyBlogsFragment extends Fragment implements PostAdapter.OnPostClick
 
         setupRecyclerView();
 
-        // Customize the empty state for this page
+        // Customize the empty state for this page (using template)
         binding.textPlaceholder.setText(getString(R.string.blogs_empty_text));
         binding.textPlaceholder.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_feed_24dp, 0, 0);
 

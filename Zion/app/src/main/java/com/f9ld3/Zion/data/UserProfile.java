@@ -1,15 +1,14 @@
 package com.f9ld3.Zion.data;
 
-/**
- * Data model for a user profile, used for both ProfileFragment and media attribution.
- */
 public class UserProfile {
-    public String userId;
-    public String username;
-    public String email;
-    public String profileImageUrl;
+    private String userId;
+    private String username;
+    private String email;
+    private String profileImageUrl;
+    private long createdAt;
+    private long updatedAt; // ADDED: Fix for Firestore warning
 
-    // Required for Firebase (Firestore/Realtime DB)
+    // Required for Firestore
     public UserProfile() {}
 
     public UserProfile(String userId, String username, String email, String profileImageUrl) {
@@ -17,11 +16,34 @@ public class UserProfile {
         this.username = username;
         this.email = email;
         this.profileImageUrl = profileImageUrl;
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
     }
 
-    // Getters for Firebase and usage
+    // Getters
     public String getUserId() { return userId; }
+    public String getUid() { return userId; } // Alias for compatibility
     public String getUsername() { return username; }
     public String getEmail() { return email; }
     public String getProfileImageUrl() { return profileImageUrl; }
+    public long getCreatedAt() { return createdAt; }
+    public long getUpdatedAt() { return updatedAt; } // ADDED
+
+    // Setters
+    public void setUserId(String userId) { this.userId = userId; }
+    public void setUid(String uid) { this.userId = uid; } // Alias
+    public void setUsername(String username) {
+        this.username = username;
+        this.updatedAt = System.currentTimeMillis();
+    }
+    public void setEmail(String email) {
+        this.email = email;
+        this.updatedAt = System.currentTimeMillis();
+    }
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+        this.updatedAt = System.currentTimeMillis();
+    }
+    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+    public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; } // ADDED
 }

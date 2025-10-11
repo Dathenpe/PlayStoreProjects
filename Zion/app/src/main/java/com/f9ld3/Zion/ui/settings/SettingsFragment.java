@@ -9,73 +9,144 @@ import androidx.preference.Preference;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.f9ld3.Zion.R;
-import com.f9ld3.Zion.auth.AuthViewModel; // Import AuthViewModel
-import com.f9ld3.Zion.ui.profile.EditProfileActivity; // Import EditProfileActivity
-import com.f9ld3.Zion.auth.LoginActivity; // Import LoginActivity for sign out navigation
+import com.f9ld3.Zion.auth.AuthViewModel;
+import com.f9ld3.Zion.auth.LoginActivity;
+import com.f9ld3.Zion.auth.ChangePasswordActivity;
+import com.f9ld3.Zion.ui.profile.EditProfileActivity;
 
 /**
  * Fragment to display application settings using PreferenceFragmentCompat.
  */
 public class SettingsFragment extends PreferenceFragmentCompat {
 
-    private SettingsViewModel settingsViewModel;
-    private AuthViewModel authViewModel; // New: AuthViewModel for sign out
+    private AuthViewModel authViewModel;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
 
-        settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
-        authViewModel = new ViewModelProvider(requireActivity()).get(AuthViewModel.class); // Scoped to activity for consistent auth state
+        // Initialize AuthViewModel scoped to activity for consistent auth state
+        authViewModel = new ViewModelProvider(requireActivity()).get(AuthViewModel.class);
 
-        // Example: Observe a setting and react to changes (optional, as PreferenceFragment handles UI updates)
-        settingsViewModel.getNotificationsEnabled().observe(this, enabled -> {
-            // You could log this or trigger other logic if needed
-            // Log.d("SettingsFragment", "Notifications enabled: " + enabled);
-        });
+        // Set up all preference click listeners
+        setupEditProfilePreference();
+        setupChangePasswordPreference();
+        setupSignOutPreference();
+        setupFeedbackPreference();
+        setupPrivacyPolicyPreference();
+    }
 
-        // Add click listener for "Edit Profile"
+    /**
+     * Set up Edit Profile preference
+     */
+    private void setupEditProfilePreference() {
         Preference editProfilePreference = findPreference("edit_profile_shortcut");
         if (editProfilePreference != null) {
             editProfilePreference.setOnPreferenceClickListener(preference -> {
-                startActivity(new Intent(requireContext(), EditProfileActivity.class));
+                // Launch Edit Profile Activity
+                Intent intent = new Intent(requireActivity(), EditProfileActivity.class);
+                startActivity(intent);
                 return true;
             });
         }
+    }
 
-        // Add click listener for "Change Password"
+    /**
+     * Set up Change Password preference
+     * FIXED: Now uses correct key "change_password" instead of "change_password_shortcut"
+     */
+    private void setupChangePasswordPreference() {
         Preference changePasswordPreference = findPreference("change_password");
         if (changePasswordPreference != null) {
             changePasswordPreference.setOnPreferenceClickListener(preference -> {
-                // TODO: Implement a dialog or new activity for changing password
-                // For now, a simple toast
-                Toast.makeText(getContext(), "Change Password functionality coming soon!", Toast.LENGTH_SHORT).show();
+                // Launch Change Password Activity
+                Intent intent = new Intent(requireActivity(), ChangePasswordActivity.class);
+                startActivity(intent);
                 return true;
             });
         }
+    }
 
-        // Add click listener for "Sign Out"
+    /**
+     * Set up Sign Out preference
+     * FIXED: Now uses correct key "sign_out_shortcut"
+     */
+    private void setupSignOutPreference() {
         Preference signOutPreference = findPreference("sign_out_shortcut");
         if (signOutPreference != null) {
             signOutPreference.setOnPreferenceClickListener(preference -> {
+                // Sign out user
                 authViewModel.signOut();
-                // After signing out, navigate to LoginActivity or MainActivity (which will redirect to login)
+
+                // Navigate to LoginActivity and clear back stack
                 Intent intent = new Intent(requireActivity(), LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear back stack
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
-                requireActivity().finish(); // Finish current activity
+                requireActivity().finish();
                 return true;
             });
         }
+    }
 
-        // Example: Add a click listener to a specific preference
+    /**
+     * Set up Feedback preference
+     */
+    private void setupFeedbackPreference() {
         Preference feedbackPreference = findPreference("feedback_key");
         if (feedbackPreference != null) {
             feedbackPreference.setOnPreferenceClickListener(preference -> {
-                Toast.makeText(getContext(), "Opening feedback form...", Toast.LENGTH_SHORT).show();
-                // TODO: Implement actual feedback mechanism (e.g., open email client, web form)
+                // TODO: Implement actual feedback mechanism
+                // Example: Open email client or feedback form
+                openFeedbackForm();
                 return true;
             });
+        }
+    }
+
+    /**
+     * Set up Privacy Policy preference
+     */
+    private void setupPrivacyPolicyPreference() {
+        Preference privacyPolicyPreference = findPreference("privacy_policy");
+        if (privacyPolicyPreference != null) {
+            privacyPolicyPreference.setOnPreferenceClickListener(preference -> {
+                // TODO: Open privacy policy (web page or in-app viewer)
+                openPrivacyPolicy();
+                return true;
+            });
+        }
+    }
+
+    /**
+     * Open feedback form - implement based on your needs
+     */
+    private void openFeedbackForm() {
+        // Example: Open email client
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        emailIntent.setType("message/rfc822");
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"support@zion.app"});
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Zion App Feedback");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "");
+
+        try {
+            startActivity(Intent.createChooser(emailIntent, "Send feedback via..."));
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(requireContext(), "No email client installed", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Open privacy policy - implement based on your needs
+     */
+    private void openPrivacyPolicy() {
+        // Example: Open web browser
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                android.net.Uri.parse("https://your-website.com/privacy-policy"));
+
+        try {
+            startActivity(browserIntent);
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(requireContext(), "No browser installed", Toast.LENGTH_SHORT).show();
         }
     }
 }

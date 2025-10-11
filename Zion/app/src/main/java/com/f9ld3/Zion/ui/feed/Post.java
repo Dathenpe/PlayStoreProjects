@@ -50,4 +50,6 @@ public class Post {
     public long getTimestamp() { return timestamp; }
     public String getType() { return type; }
     public String getAuthorUid() { return authorUid; } // NEW Getter
+
+    public void setId(String id) { this.id = id; }
 }
