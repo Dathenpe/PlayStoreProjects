@@ -353,7 +353,7 @@
                         <ImageView
                             android:layout_width="48dp"
                             android:layout_height="48dp"
-                            android:src="@drawable/ic_playlist_play_24dp"
+                            android:src="@drawable/ic_download_24dp"
                             app:tint="@color/black"
                             android:contentDescription="@string/downloads" />
                         <TextView

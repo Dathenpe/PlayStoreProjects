@@ -50,4 +50,18 @@
         <item name="boxStrokeColor">@color/text_input_stroke</item> <!-- State list for focused/unfocused -->
     </style>
 
+    <style name="BottomSheetOption" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:drawablePadding">16dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="drawableTint">?attr/colorOnSurfaceVariant</item>
+    </style>
+
 </resources>

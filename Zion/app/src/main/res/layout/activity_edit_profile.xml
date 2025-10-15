@@ -38,15 +38,34 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:src="@tools:sample/avatars" />
 
+
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_edit_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="Edit profile image"
-                app:srcCompat="@drawable/ic_edit_24dp"
                 app:layout_constraintBottom_toBottomOf="@id/image_profile"
                 app:layout_constraintEnd_toEndOf="@id/image_profile"
-                app:tint="?attr/colorOnSecondaryContainer"/>
+                app:srcCompat="@drawable/ic_edit_24dp"
+                app:tint="?attr/colorOnSecondaryContainer" />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonRemoveImage"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Remove Picture"
+                android:textColor="?attr/colorError"
+                android:visibility="gone"
+                app:icon="@drawable/ic_delete_forever_24dp"
+                app:iconTint="?attr/colorError"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/image_profile"
+                tools:visibility="visible" />
+
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/layout_username"
@@ -55,9 +74,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
                 android:hint="Username"
-                app:layout_constraintTop_toBottomOf="@id/image_profile"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                app:layout_constraintTop_toBottomOf="@id/buttonRemoveImage">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/input_username"
@@ -67,7 +86,7 @@
                     android:maxLines="1" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- NEW: Editable Email Input -->
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/layout_email_input"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -75,9 +94,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:hint="Email"
-                app:layout_constraintTop_toBottomOf="@id/layout_username"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                app:layout_constraintTop_toBottomOf="@id/layout_username">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/input_email"
@@ -87,26 +106,34 @@
                     android:maxLines="1" />
             </com.google.android.material.textfield.TextInputLayout>
 
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_save"
+                style="@style/Widget.Material3.Button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
                 android:text="Save Changes"
-                app:layout_constraintTop_toBottomOf="@id/layout_email_input"
+                android:textAppearance="?attr/textAppearanceLabelLarge"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/layout_email_input" />
+
 
             <ProgressBar
                 android:id="@+id/progress_bar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:elevation="8dp"
                 android:visibility="gone"
-                app:layout_constraintTop_toTopOf="@id/button_save"
                 app:layout_constraintBottom_toBottomOf="@id/button_save"
-                app:layout_constraintStart_toStartOf="@id/button_save"
                 app:layout_constraintEnd_toEndOf="@id/button_save"
+                app:layout_constraintStart_toStartOf="@id/button_save"
+                app:layout_constraintTop_toTopOf="@id/button_save"
                 tools:visibility="visible" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

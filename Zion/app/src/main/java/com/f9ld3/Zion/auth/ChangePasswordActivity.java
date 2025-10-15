@@ -3,10 +3,14 @@ package com.f9ld3.Zion.auth;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import com.f9ld3.Zion.databinding.ActivityChangePasswordBinding;
 import com.f9ld3.Zion.ui.dialogs.CustomAlertDialogFragment;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class ChangePasswordActivity extends AppCompatActivity {
 
@@ -81,6 +85,16 @@ public class ChangePasswordActivity extends AppCompatActivity {
         CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance(title, message, positiveBtn, negativeBtn);
         dialog.show(getSupportFragmentManager(), "CustomAlertDialogFragment");
     }
+    private void sendPasswordReset() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null && user.getEmail() != null) {
+            authViewModel.sendPasswordResetEmail(user.getEmail());
+            Toast.makeText(this, "Sending reset link...", Toast.LENGTH_SHORT).show();
+        } else {
+            showDialog("Error", "Could not get your email. Please log in again.", "OK", null);
+        }
+    }
+
 
     private void showSuccessDialog(String message) {
         CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance("Success!", message, "OK", null);

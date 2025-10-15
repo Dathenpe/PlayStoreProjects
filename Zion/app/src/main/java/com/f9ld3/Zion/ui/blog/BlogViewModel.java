@@ -1,4 +1,3 @@
-// MultipleFiles/BlogViewModel.java
 package com.f9ld3.Zion.ui.blog;
 
 import android.net.Uri;
@@ -57,7 +56,8 @@ public class BlogViewModel extends ViewModel {
     }
 
     private void uploadImageAndCreatePost(String postId, FirebaseUser user, String title, String description, Uri imageUri) {
-        StorageReference imageRef = storage.getReference().child("post_images/" + user.getUid() + "/" + UUID.randomUUID().toString());
+        // CORRECTED PATH
+        StorageReference imageRef = storage.getReference().child("blog_images/" + user.getUid() + "/" + postId);
         imageRef.putFile(imageUri)
                 .addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl()
                         .addOnSuccessListener(downloadUri -> {

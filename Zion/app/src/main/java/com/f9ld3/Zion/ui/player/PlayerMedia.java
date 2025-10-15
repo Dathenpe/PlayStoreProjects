@@ -2,8 +2,10 @@ package com.f9ld3.Zion.ui.player;
 
 import com.google.firebase.Timestamp;
 
+import java.io.Serializable;
+
 // Note: Using the name PlayerMedia to avoid confusion with the Feed's Post class.
-public class PlayerMedia {
+public class PlayerMedia implements Serializable {
     // Media types for the adapter to distinguish
     public static final int TYPE_VIDEO = 1;
     public static final int TYPE_PODCAST_SINGLE = 2; // Represents one item in a duo
@@ -18,7 +20,7 @@ public class PlayerMedia {
     public String thumbnailUrl; // Thumbnail image URL
     public String authorName;
     public long durationSeconds;
-    public Timestamp dateCreated; // Added for Firestore ordering and History logging
+    public transient Timestamp dateCreated; // Added for Firestore ordering and History logging
 
     // Fields for UPLOADER PROFILE INTEGRATION
     public String uploaderUid;
@@ -96,3 +98,4 @@ public class PlayerMedia {
     public PlayerMedia getPodcastTwo() { return podcastTwo; }
 
 }
+

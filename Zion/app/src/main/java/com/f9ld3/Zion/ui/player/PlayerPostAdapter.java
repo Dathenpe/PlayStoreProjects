@@ -3,29 +3,22 @@ package com.f9ld3.Zion.ui.player;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 import androidx.annotation.NonNull;
-import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
 import com.f9ld3.Zion.R;
 import com.f9ld3.Zion.databinding.ItemPlayerPodcastDuoBinding;
-// import com.f9ld3.Zion.databinding.ItemPlayerVideoBinding; // Old binding
-import com.f9ld3.Zion.databinding.ItemVideoM3Binding; // NEW binding for M3 video item
-// The PlayerMedia class is the data model for this adapter
-import com.f9ld3.Zion.ui.player.PlayerMedia;
-import com.google.android.material.button.MaterialButton;
+import com.f9ld3.Zion.databinding.ItemVideoM3Binding;
 
-import de.hdodenhof.circleimageview.CircleImageView; // For author avatar
+import java.util.concurrent.TimeUnit;
+
 
 public class PlayerPostAdapter extends ListAdapter<PlayerMedia, RecyclerView.ViewHolder> {
 
-    // Interface to handle click events on media items
     public interface OnMediaClickListener {
         void onMediaClick(PlayerMedia mediaItem);
     }
@@ -37,180 +30,175 @@ public class PlayerPostAdapter extends ListAdapter<PlayerMedia, RecyclerView.Vie
         this.listener = listener;
     }
 
-    // --- View Type Handling ---
+    private String formatDuration(long totalSeconds) {
+        if (totalSeconds <= 0) {
+            return "";
+        }
+        long hours = TimeUnit.SECONDS.toHours(totalSeconds);
+        long minutes = TimeUnit.SECONDS.toMinutes(totalSeconds) % 60;
+        long seconds = totalSeconds % 60;
+
+        if (hours > 0) {
+            return String.format("%d:%02d:%02d", hours, minutes, seconds);
+        } else {
+            return String.format("%d:%02d", minutes, seconds);
+        }
+    }
+
     @Override
     public int getItemViewType(int position) {
-        // Return the type defined in the data model
         return getItem(position).getType();
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
-        final int themeResId = R.style.Theme_Zion;
-        ContextThemeWrapper themedContext = new ContextThemeWrapper(parent.getContext(), themeResId);
-        LayoutInflater themedInflater = LayoutInflater.from(themedContext);
-
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         if (viewType == PlayerMedia.TYPE_VIDEO) {
-            // Inflate the NEW M3 video card layout
-            ItemVideoM3Binding binding = ItemVideoM3Binding.inflate(themedInflater, parent, false);
+            ItemVideoM3Binding binding = ItemVideoM3Binding.inflate(inflater, parent, false);
             return new VideoViewHolder(binding);
         } else if (viewType == PlayerMedia.TYPE_PODCAST_DUO_CONTAINER) {
-            // Inflate the side-by-side podcast layout using the themed inflater
-            ItemPlayerPodcastDuoBinding binding = ItemPlayerPodcastDuoBinding.inflate(themedInflater, parent, false);
+            ItemPlayerPodcastDuoBinding binding = ItemPlayerPodcastDuoBinding.inflate(inflater, parent, false);
             return new PodcastDuoViewHolder(binding);
         }
-        // Fallback or error case (should not happen if data is well-structured)
         throw new IllegalArgumentException("Invalid view type: " + viewType);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         PlayerMedia mediaItem = getItem(position);
-
         if (holder.getItemViewType() == PlayerMedia.TYPE_VIDEO) {
-            ((VideoViewHolder) holder).bind(mediaItem, listener);
+            ((VideoViewHolder) holder).bind(mediaItem, listener, this::formatDuration);
         } else if (holder.getItemViewType() == PlayerMedia.TYPE_PODCAST_DUO_CONTAINER) {
-            ((PodcastDuoViewHolder) holder).bind(mediaItem, listener);
+            ((PodcastDuoViewHolder) holder).bind(mediaItem, listener, this::formatDuration);
         }
     }
 
-    // --- DiffUtil Callback ---
     private static final DiffUtil.ItemCallback<PlayerMedia> DIFF_CALLBACK = new DiffUtil.ItemCallback<PlayerMedia>() {
         @Override
         public boolean areItemsTheSame(@NonNull PlayerMedia oldItem, @NonNull PlayerMedia newItem) {
-            // Use ID for items (if not a duo container), otherwise check container type
-            if (oldItem.getType() == PlayerMedia.TYPE_PODCAST_DUO_CONTAINER && newItem.getType() == PlayerMedia.TYPE_PODCAST_DUO_CONTAINER) {
-                // For duo containers, assume they are the same if the first item ID is the same
-                return oldItem.podcastOne.id.equals(newItem.podcastOne.id);
-            }
-            return oldItem.id != null && oldItem.id.equals(newItem.id);
+            return oldItem.getId().equals(newItem.getId());
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull PlayerMedia oldItem, @NonNull PlayerMedia newItem) {
-            // A simple check if title/URL are the same
-            if (oldItem.getType() == PlayerMedia.TYPE_PODCAST_DUO_CONTAINER && newItem.getType() == PlayerMedia.TYPE_PODCAST_DUO_CONTAINER) {
-                return oldItem.podcastOne.title.equals(newItem.podcastOne.title) &&
-                        oldItem.podcastTwo.title.equals(newItem.podcastTwo.title);
-            }
-            return oldItem.title.equals(newItem.title) &&
-                    oldItem.mediaUrl.equals(newItem.mediaUrl);
+            return oldItem.getTitle().equals(newItem.getTitle()) &&
+                    oldItem.getThumbnailUrl().equals(newItem.getThumbnailUrl()) &&
+                    oldItem.getAuthorName().equals(newItem.getAuthorName());
         }
     };
 
-    // --- ViewHolder for Video Item (UPDATED for item_video_m3.xml) ---
     public static class VideoViewHolder extends RecyclerView.ViewHolder {
-        private final TextView titleTextView;
-        private final TextView detailsTextView;
-        private final ImageView thumbnailImageView;
-        private final CircleImageView authorAvatar; // NEW: Author avatar
-        private final MaterialButton moreOptionsButton; // NEW: More options button
+        private final ItemVideoM3Binding binding;
 
-        public VideoViewHolder(ItemVideoM3Binding binding) { // Changed binding type
+        public VideoViewHolder(ItemVideoM3Binding binding) {
             super(binding.getRoot());
-            titleTextView = binding.videoTitle;
-            detailsTextView = binding.videoDetails;
-            thumbnailImageView = binding.videoThumbnail;
-            authorAvatar = binding.authorAvatar; // Initialize new views
-            moreOptionsButton = binding.moreOptionsButton; // Initialize new views
+            this.binding = binding;
         }
 
-        public void bind(final PlayerMedia media, final OnMediaClickListener listener) {
-            titleTextView.setText(media.title);
-            // Example of formatting details (assuming durationSeconds is available)
-            detailsTextView.setText(String.format("%s • %d min", media.authorName, media.durationSeconds / 60));
+        public void bind(final PlayerMedia media, final OnMediaClickListener listener, DurationFormatter formatter) {
+            binding.videoTitle.setText(media.title);
+            String formattedDuration = formatter.format(media.durationSeconds);
+            binding.videoDetails.setText(String.format("%s • %s", media.authorName, formattedDuration));
 
-            Glide.with(itemView.getContext())
-                    .load(media.thumbnailUrl)
-                    .placeholder(R.drawable.ic_placeholder_24dp) // Assume placeholder exists
-                    .error(R.drawable.ic_error_24dp) // Assume error drawable exists
-                    .into(thumbnailImageView);
+            if (media.durationSeconds > 0) {
+                binding.videoDuration.setText(formattedDuration);
+                binding.videoDuration.setVisibility(View.VISIBLE);
+            } else {
+                binding.videoDuration.setVisibility(View.GONE);
+            }
 
-            // Load author avatar
-            Glide.with(itemView.getContext())
-                    .load(media.getUploaderAvatarUrl()) // Assuming PlayerMedia has getUploaderAvatarUrl()
-                    .placeholder(R.drawable.ic_profile_placeholder)
-                    .error(R.drawable.ic_profile_placeholder)
-                    .into(authorAvatar);
+            Glide.with(itemView.getContext()).load(media.thumbnailUrl).placeholder(R.drawable.ic_placeholder_24dp).into(binding.videoThumbnail);
+            Glide.with(itemView.getContext()).load(media.getUploaderAvatarUrl()).placeholder(R.drawable.ic_profile_placeholder).into(binding.authorAvatar);
 
             itemView.setOnClickListener(v -> {
-                if (listener != null) {
-                    // Clicks on the video card pass the video item directly
-                    listener.onMediaClick(media);
-                }
+                if (listener != null) listener.onMediaClick(media);
             });
 
-            moreOptionsButton.setOnClickListener(v -> {
-                // TODO: Implement more options menu for the video
-                // Toast.makeText(itemView.getContext(), "More options for " + media.getTitle(), Toast.LENGTH_SHORT).show();
+            binding.moreOptionsButton.setOnClickListener(v -> {
+                if (itemView.getContext() instanceof FragmentActivity) {
+                    FragmentManager fm = ((FragmentActivity) itemView.getContext()).getSupportFragmentManager();
+                    MediaOptionsBottomSheet bottomSheet = MediaOptionsBottomSheet.newInstance(media);
+                    bottomSheet.show(fm, MediaOptionsBottomSheet.TAG);
+                }
             });
         }
     }
 
-    // --- ViewHolder for Podcast Duo Item (M3 Expressive) ---
     public static class PodcastDuoViewHolder extends RecyclerView.ViewHolder {
-        // Podcast 1 elements
-        private final ImageView thumbnail1;
-        private final TextView title1;
-        private final View card1;
-
-        // Podcast 2 elements
-        private final ImageView thumbnail2;
-        private final TextView title2;
-        private final View card2;
+        private final ItemPlayerPodcastDuoBinding binding;
 
         public PodcastDuoViewHolder(ItemPlayerPodcastDuoBinding binding) {
             super(binding.getRoot());
-            // Item 1
-            card1 = binding.podcastItem1;
-            thumbnail1 = binding.podcastThumbnail1;
-            title1 = binding.podcastTitle1;
-
-            // Item 2
-            card2 = binding.podcastItem2;
-            thumbnail2 = binding.podcastThumbnail2;
-            title2 = binding.podcastTitle2;
+            this.binding = binding;
         }
 
-        public void bind(final PlayerMedia mediaDuo, final OnMediaClickListener listener) {
+        public void bind(final PlayerMedia mediaDuo, final OnMediaClickListener listener, DurationFormatter formatter) {
             final PlayerMedia p1 = mediaDuo.podcastOne;
             final PlayerMedia p2 = mediaDuo.podcastTwo;
 
-            // Bind Podcast 1
             if (p1 != null) {
-                title1.setText(p1.title);
-                Glide.with(itemView.getContext())
-                        .load(p1.thumbnailUrl)
-                        .placeholder(R.drawable.ic_placeholder_24dp)
-                        .error(R.drawable.ic_error_24dp)
-                        .into(thumbnail1);
+                binding.podcastItem1.setVisibility(View.VISIBLE);
+                binding.podcastTitle1.setText(p1.title);
+                binding.podcastAuthor1.setText(p1.authorName);
+                if (p1.durationSeconds > 0) {
+                    binding.podcastDuration1.setText(formatter.format(p1.durationSeconds));
+                    binding.podcastDuration1.setVisibility(View.VISIBLE);
+                } else {
+                    binding.podcastDuration1.setVisibility(View.GONE);
+                }
+                Glide.with(itemView.getContext()).load(p1.getUploaderAvatarUrl()).placeholder(R.drawable.ic_profile_placeholder).into(binding.authorAvatar1);
 
-                card1.setOnClickListener(v -> {
-                    if (listener != null) {
-                        // Clicks on the first card pass the first podcast item
-                        listener.onMediaClick(p1);
+
+                Glide.with(itemView.getContext()).load(p1.thumbnailUrl).placeholder(R.drawable.ic_placeholder_24dp).into(binding.podcastThumbnail1);
+                binding.podcastItem1.setOnClickListener(v -> {
+                    if (listener != null) listener.onMediaClick(p1);
+                });
+
+                binding.moreOptionsButton1.setOnClickListener(v -> {
+                    if (itemView.getContext() instanceof FragmentActivity) {
+                        FragmentManager fm = ((FragmentActivity) itemView.getContext()).getSupportFragmentManager();
+                        MediaOptionsBottomSheet bottomSheet = MediaOptionsBottomSheet.newInstance(p1);
+                        bottomSheet.show(fm, MediaOptionsBottomSheet.TAG);
                     }
                 });
+
+            } else {
+                binding.podcastItem1.setVisibility(View.INVISIBLE);
             }
 
-            // Bind Podcast 2
             if (p2 != null) {
-                title2.setText(p2.title);
-                Glide.with(itemView.getContext())
-                        .load(p2.thumbnailUrl)
-                        .placeholder(R.drawable.ic_placeholder_24dp)
-                        .error(R.drawable.ic_error_24dp)
-                        .into(thumbnail2);
+                binding.podcastItem2.setVisibility(View.VISIBLE);
+                binding.podcastTitle2.setText(p2.title);
+                binding.podcastAuthor2.setText(p2.authorName);
+                if (p2.durationSeconds > 0) {
+                    binding.podcastDuration2.setText(formatter.format(p2.durationSeconds));
+                    binding.podcastDuration2.setVisibility(View.VISIBLE);
+                } else {
+                    binding.podcastDuration2.setVisibility(View.GONE);
+                }
+                Glide.with(itemView.getContext()).load(p2.getUploaderAvatarUrl()).placeholder(R.drawable.ic_profile_placeholder).into(binding.authorAvatar2);
+                Glide.with(itemView.getContext()).load(p2.thumbnailUrl).placeholder(R.drawable.ic_placeholder_24dp).into(binding.podcastThumbnail2);
+                binding.podcastItem2.setOnClickListener(v -> {
+                    if (listener != null) listener.onMediaClick(p2);
+                });
 
-                card2.setOnClickListener(v -> {
-                    if (listener != null) {
-                        // Clicks on the second card pass the second podcast item
-                        listener.onMediaClick(p2);
+                binding.moreOptionsButton2.setOnClickListener(v -> {
+                    if (itemView.getContext() instanceof FragmentActivity) {
+                        FragmentManager fm = ((FragmentActivity) itemView.getContext()).getSupportFragmentManager();
+                        MediaOptionsBottomSheet bottomSheet = MediaOptionsBottomSheet.newInstance(p2);
+                        bottomSheet.show(fm, MediaOptionsBottomSheet.TAG);
                     }
                 });
+
+            } else {
+                binding.podcastItem2.setVisibility(View.INVISIBLE);
             }
         }
+    }
+
+    @FunctionalInterface
+    interface DurationFormatter {
+        String format(long seconds);
     }
 }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Light Mode Aliases (using dark mode values) -->
+    <color name="black">#FFFFFFFF </color>
+    <color name="white">#FF000000</color>
+    <!-- These are defined to match the light theme names but point to dark theme equivalents. -->
+    <color name="surface_light">#FF121212</color>      <!-- Mapped to surface_dark -->
+    <color name="on_surface_light">#FFFFFFFF</color>   <!-- Mapped to on_surface_dark -->
+    <color name="primary_light">#FF757575</color>      <!-- REVISED: Mapped to a neutral gray -->
+    <color name="on_primary_light">#FFFFFFFF</color>   <!-- Mapped to on_primary_dark -->
+    <color name="secondary_light">#FF9E9E9E</color>    <!-- Mapped to secondary_dark -->
+    <color name="on_secondary_light">#FF000000</color> <!-- Mapped to on_secondary_dark -->
+
+    <!-- Dark Mode -->
+    <color name="surface_dark">#FF121212</color>      <!-- Near-black background -->
+    <color name="on_surface_dark">#FFFFFFFF</color>   <!-- White text -->
+    <color name="primary_dark">#FF757575</color>      <!-- REVISED: A medium gray for primary elements -->
+    <color name="on_primary_dark">#FFFFFFFF</color>   <!-- White text for high contrast on the gray -->
+    <color name="secondary_dark">#FF9E9E9E</color>    <!-- Lighter gray for secondary elements -->
+    <color name="on_secondary_dark">#FF000000</color> <!-- Black text on the lighter gray secondary -->
+
+    <!-- Other (can be overridden if needed) -->
+    <color name="text_input_outline">#FF9E9E9E</color> <!-- Gray outline, suitable for dark mode -->
+
+</resources>

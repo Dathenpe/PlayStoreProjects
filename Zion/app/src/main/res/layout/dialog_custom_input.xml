@@ -15,22 +15,42 @@
         android:padding="24dp">
 
         <TextView
-            android:id="@+id/dialogTitle"
+            android:id="@+id/inputDialogTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:textAppearance="?attr/textAppearanceHeadlineSmall"
-            tools:text="Error" />
+            android:textColor="?attr/colorOnSurface"
+            tools:text="Confirmation Required" />
 
         <TextView
-            android:id="@+id/dialogMessage"
+            android:id="@+id/inputDialogMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
             android:textAlignment="center"
             android:textAppearance="?attr/textAppearanceBodyMedium"
-            tools:text="Something went wrong. Please try again." />
+            android:textColor="?attr/colorOnSurfaceVariant"
+            tools:text="Please enter your password to proceed." />
+
+        <!-- FIXED: Added style for outlined box appearance -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputDialogLayout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:boxStrokeColor="?attr/colorPrimary"
+            app:hintTextColor="?attr/colorPrimary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputDialogInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                tools:hint="Your password" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -40,22 +60,19 @@
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonNegative"
+                android:id="@+id/buttonInputNegative"
                 style="@style/Widget.Material3.Button.TextButton.Dialog"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:visibility="gone"
-                tools:text="Cancel"
-                tools:visibility="visible" />
+                tools:text="Cancel" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonPositive"
+                android:id="@+id/buttonInputPositive"
                 style="@style/Widget.Material3.Button.TextButton.Dialog"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
-                tools:text="OK" />
+                tools:text="Confirm" />
         </LinearLayout>
 
     </LinearLayout>

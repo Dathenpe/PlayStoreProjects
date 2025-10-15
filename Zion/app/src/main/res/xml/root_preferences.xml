@@ -65,6 +65,12 @@
             app:summary="Log out of your account"
             app:icon="@drawable/ic_logout_24dp" />
 
+        <Preference
+            app:key="delete_account"
+            app:title="Delete Account"
+            app:summary="Permanently remove your account and all data"
+            app:icon="@drawable/ic_delete_forever_24dp" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

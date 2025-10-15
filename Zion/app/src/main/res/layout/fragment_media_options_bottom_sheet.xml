@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="?attr/colorSurfaceContainer"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+    <!-- Header with Media Info -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/media_thumbnail"
+            android:layout_width="64dp"
+            android:layout_height="36dp"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
+            tools:src="@tools:sample/backgrounds/scenic" />
+
+        <TextView
+            android:id="@+id/media_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorOnSurface"
+            tools:text="This is a sample video title that could be quite long."/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/colorOutlineVariant" />
+
+    <!-- Action Items -->
+    <TextView
+        android:id="@+id/option_like"
+        style="@style/BottomSheetOption"
+        android:text="Like"
+        app:drawableStartCompat="@drawable/ic_like" />
+
+    <TextView
+        android:id="@+id/option_add_to_playlist"
+        style="@style/BottomSheetOption"
+        android:text="@string/add_to_playlist"
+        app:drawableStartCompat="@drawable/ic_playlist_play_24dp" />
+
+    <TextView
+        android:id="@+id/option_download"
+        style="@style/BottomSheetOption"
+        android:text="Download"
+        app:drawableStartCompat="@drawable/ic_download_24dp" />
+
+    <TextView
+        android:id="@+id/option_share"
+        style="@style/BottomSheetOption"
+        android:text="@string/share"
+        app:drawableStartCompat="@drawable/ic_share_24dp" />
+
+    <TextView
+        android:id="@+id/option_report"
+        style="@style/BottomSheetOption"
+        android:text="@string/report"
+        app:drawableStartCompat="@drawable/ic_flag_24dp" />
+
+</LinearLayout>

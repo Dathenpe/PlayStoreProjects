@@ -2,7 +2,6 @@ package com.f9ld3.Zion.ui.profile;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Log;
 import androidx.lifecycle.LiveData;
@@ -49,7 +48,6 @@ public class EditProfileViewModel extends ViewModel {
     private final MutableLiveData<Integer> _uploadProgress = new MutableLiveData<>();
     public LiveData<Integer> getUploadProgress() { return _uploadProgress; }
 
-    // NEW: For upload-specific errors
     private final MutableLiveData<String> _uploadError = new MutableLiveData<>();
     public LiveData<String> getUploadError() { return _uploadError; }
 
@@ -66,7 +64,6 @@ public class EditProfileViewModel extends ViewModel {
                     if (doc.exists()) {
                         mUserProfile.setValue(doc.toObject(UserProfile.class));
                     } else {
-                        // Create profile from auth data if Firestore doc doesn't exist
                         UserProfile profile = new UserProfile(
                                 user.getUid(),
                                 user.getDisplayName() != null ? user.getDisplayName() : "Anonymous",
@@ -78,7 +75,6 @@ public class EditProfileViewModel extends ViewModel {
                 })
                 .addOnFailureListener(e -> {
                     Log.w(TAG, "Error loading user profile", e);
-                    // Fallback to auth data
                     if (user != null) {
                         UserProfile profile = new UserProfile(
                                 user.getUid(),
@@ -91,14 +87,6 @@ public class EditProfileViewModel extends ViewModel {
                 });
     }
 
-    /**
-     * Save profile with optional image upload
-     * @param newUsername New username
-     * @param newEmail New email (nullable - if null, email won't be changed)
-     * @param newImageUri New profile image URI (nullable - if null, image won't be changed)
-     * @param currentPassword Current password (required only if email is being changed)
-     * @param context Context for image compression (if image is provided)
-     */
     public void saveProfile(String newUsername, String newEmail, Uri newImageUri, String currentPassword, Context context) {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) {
@@ -107,11 +95,8 @@ public class EditProfileViewModel extends ViewModel {
             return;
         }
         mSaveStatus.setValue(SaveStatus.LOADING);
-
-        // Clear previous errors
         _uploadError.postValue(null);
 
-        // Determine what needs to be updated
         String currentUsername = user.getDisplayName() != null ? user.getDisplayName() : "";
         String currentEmail = user.getEmail() != null ? user.getEmail() : "";
 
@@ -119,34 +104,28 @@ public class EditProfileViewModel extends ViewModel {
         boolean emailChanged = newEmail != null && !newEmail.isEmpty() && !currentEmail.equals(newEmail);
         boolean imageChanged = newImageUri != null;
 
-        // If email is changing, require password
         if (emailChanged && (currentPassword == null || currentPassword.isEmpty())) {
             _reauthRequired.setValue("Re-authentication is required to change email. Please provide your current password.");
             mSaveStatus.setValue(SaveStatus.IDLE);
             return;
         }
 
-        // Start the update chain
         if (imageChanged) {
-            // Compress image if needed and upload first, then update profile
             Uri compressedImageUri = compressImage(newImageUri, context);
             uploadProfileImage(compressedImageUri != null ? compressedImageUri : newImageUri, user.getUid(), imageUrl -> {
                 updateUserProfile(user, newUsername, newEmail, imageUrl, currentPassword, usernameChanged, emailChanged);
             });
         } else {
-            // No image to upload, proceed with profile update
             updateUserProfile(user, newUsername, newEmail, null, currentPassword, usernameChanged, emailChanged);
         }
     }
 
-    // NEW: Image compression method (optional performance boost)
     private Uri compressImage(Uri imageUri, Context context) {
         try {
             Bitmap bitmap = android.provider.MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
             int width = bitmap.getWidth();
             int height = bitmap.getHeight();
 
-            // Scale down if larger than 1024x1024
             if (width > 1024 || height > 1024) {
                 float scale = Math.min(1024f / width, 1024f / height);
                 width = Math.round(width * scale);
@@ -154,18 +133,15 @@ public class EditProfileViewModel extends ViewModel {
                 bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
             }
 
-            // Compress to JPEG with 80% quality
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos);
             byte[] data = baos.toByteArray();
 
-            // Create a temp file for upload
             File compressedFile = new File(context.getCacheDir(), "compressed_" + System.currentTimeMillis() + ".jpg");
             FileOutputStream fos = new FileOutputStream(compressedFile);
             fos.write(data);
             fos.close();
 
-            // Clean up bitmap to free memory
             if (!bitmap.isRecycled()) {
                 bitmap.recycle();
             }
@@ -173,7 +149,7 @@ public class EditProfileViewModel extends ViewModel {
             return Uri.fromFile(compressedFile);
         } catch (IOException e) {
             Log.e(TAG, "Image compression failed", e);
-            return null;  // Fall back to original URI
+            return null;
         }
     }
 
@@ -185,7 +161,6 @@ public class EditProfileViewModel extends ViewModel {
             return;
         }
 
-        // Use current user's UID for consistency and security
         String uid = currentUser.getUid();
         if (uid == null || uid.isEmpty()) {
             _uploadError.postValue("Invalid user ID. Please log in again.");
@@ -193,9 +168,11 @@ public class EditProfileViewModel extends ViewModel {
             return;
         }
 
+        // CORRECTED PATH
         StorageReference profileImagesRef = storage.getReference()
                 .child("profile_images")
-                .child(uid + ".jpg");
+                .child(uid)
+                .child("profile.jpg");
 
         Log.d(TAG, "Uploading to path: " + profileImagesRef.getPath());
 
@@ -207,7 +184,6 @@ public class EditProfileViewModel extends ViewModel {
                 })
                 .addOnSuccessListener(taskSnapshot -> {
                     Log.d(TAG, "Image uploaded successfully");
-                    // Get download URL
                     profileImagesRef.getDownloadUrl()
                             .addOnSuccessListener(uri -> {
                                 Log.d(TAG, "Download URL: " + uri.toString());
@@ -224,33 +200,19 @@ public class EditProfileViewModel extends ViewModel {
                 });
     }
 
-    // NEW: Helper method for Storage-specific errors
-    // UPDATED: Helper method for Storage-specific errors (using integer codes for compatibility)
     private void handleStorageError(Exception e, String defaultMessage) {
         String errorMsg = defaultMessage;
         if (e instanceof StorageException) {
             StorageException storageException = (StorageException) e;
             int errorCode = storageException.getErrorCode();
             switch (errorCode) {
-                case 1:  // ERROR_CODE_UNAUTHENTICATED
-                    errorMsg = "Not authenticated. Please log in again.";
-                    break;
-                case 2:  // ERROR_CODE_PERMISSION_DENIED
-                    errorMsg = "Permission denied. Please check your Firebase Storage rules or contact support.";
-                    break;
-                case 5:  // ERROR_CODE_OBJECT_NOT_FOUND (e.g., if trying to access a non-existent file)
+                case -13021: // ERROR_OBJECT_NOT_FOUND
                     errorMsg = "File not found. The upload path may be incorrect.";
                     break;
-                case 6:  // ERROR_CODE_BUCKET_NOT_FOUND (if available; otherwise falls to default)
-                    errorMsg = "Storage bucket not found. Contact support.";
+                case -13010: // ERROR_UNAUTHORIZED
+                    errorMsg = "Permission denied. Please check your Firebase Storage rules or contact support.";
                     break;
-                case 7:  // ERROR_CODE_PROJECT_NOT_FOUND (if available; otherwise falls to default)
-                    errorMsg = "Project not found. Check your Firebase configuration.";
-                    break;
-                case 4:  // ERROR_CODE_NETWORK_ERROR
-                    errorMsg = "Network error. Please check your internet connection and try again.";
-                    break;
-                case -1:  // ERROR_CODE_UNKNOWN
+                case -13000: // ERROR_UNKNOWN
                 default:
                     errorMsg = defaultMessage + " (Error code: " + errorCode + ")";
                     break;
@@ -267,7 +229,6 @@ public class EditProfileViewModel extends ViewModel {
                                    boolean usernameChanged, boolean emailChanged) {
 
         if (emailChanged) {
-            // Re-authenticate first if email is changing
             AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), currentPassword);
             user.reauthenticate(credential)
                     .addOnCompleteListener(reauthTask -> {
@@ -281,7 +242,6 @@ public class EditProfileViewModel extends ViewModel {
                         }
                     });
         } else {
-            // No email change, proceed directly
             proceedWithUpdates(user, newUsername, newEmail, newImageUrl, usernameChanged, false);
         }
     }
@@ -289,7 +249,6 @@ public class EditProfileViewModel extends ViewModel {
     private void proceedWithUpdates(FirebaseUser user, String newUsername, String newEmail,
                                     String newImageUrl, boolean usernameChanged, boolean emailChanged) {
 
-        // Build Firebase Auth profile update
         UserProfileChangeRequest.Builder profileUpdatesBuilder = new UserProfileChangeRequest.Builder();
 
         if (usernameChanged) {
@@ -300,32 +259,26 @@ public class EditProfileViewModel extends ViewModel {
             profileUpdatesBuilder.setPhotoUri(Uri.parse(newImageUrl));
         }
 
-        // Update Firebase Auth profile first
         user.updateProfile(profileUpdatesBuilder.build())
                 .addOnCompleteListener(profileTask -> {
                     if (profileTask.isSuccessful()) {
                         Log.d(TAG, "Firebase Auth profile updated");
 
-                        // If email needs updating, do it now
                         if (emailChanged && newEmail != null) {
-                            user.updateEmail(newEmail)
+                            user.verifyBeforeUpdateEmail(newEmail)
                                     .addOnCompleteListener(emailTask -> {
                                         if (emailTask.isSuccessful()) {
-                                            Log.d(TAG, "Email updated successfully");
-                                            _emailUpdateStatus.postValue("Email updated. Please verify your new email.");
-                                            // Send verification email
-                                            user.sendEmailVerification();
-                                            // Update Firestore
+                                            Log.d(TAG, "Verification email sent to new address.");
+                                            _emailUpdateStatus.postValue("Verification link sent to " + newEmail + ". Please check your inbox to confirm the change.");
                                             updateFirestoreProfile(user.getUid(), newUsername, newEmail, newImageUrl);
                                         } else {
-                                            Log.e(TAG, "Failed to update email", emailTask.getException());
+                                            Log.e(TAG, "Failed to send verification email", emailTask.getException());
                                             _emailUpdateStatus.postValue("Failed to update email: " +
                                                     (emailTask.getException() != null ? emailTask.getException().getMessage() : "Unknown error"));
                                             mSaveStatus.setValue(SaveStatus.FAILED);
                                         }
                                     });
                         } else {
-                            // No email change, just update Firestore
                             updateFirestoreProfile(user.getUid(), newUsername, newEmail, newImageUrl);
                         }
                     } else {
@@ -362,12 +315,10 @@ public class EditProfileViewModel extends ViewModel {
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "Firestore profile updated successfully");
                     mSaveStatus.setValue(SaveStatus.SUCCESS);
-                    // Reload profile to reflect changes
                     loadUserProfile();
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to update Firestore profile", e);
-                    // Try to create the document if it doesn't exist
                     db.collection("users").document(uid).set(updates)
                             .addOnSuccessListener(aVoid2 -> {
                                 Log.d(TAG, "Firestore profile created successfully");
@@ -390,12 +341,10 @@ public class EditProfileViewModel extends ViewModel {
         _emailUpdateStatus.setValue(null);
     }
 
-    // NEW: Clear upload error
     public void clearUploadError() {
         _uploadError.setValue(null);
     }
 
-    // Interface for image upload callback
     private interface OnImageUploadListener {
         void onUploadComplete(String imageUrl);
     }

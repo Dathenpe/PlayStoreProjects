@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -22,56 +21,21 @@
             android:paddingBottom="100dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:nestedScrollingEnabled="false"
-            tools:listitem="@layout/item_player_video" />
+            tools:listitem="@layout/item_video_m3" />
 
     </androidx.core.widget.NestedScrollView>
 
+    <!-- Scrim view to dim the background when the FAB menu is open -->
     <View
         android:id="@+id/fab_menu_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#80000000"
+        android:background="#99000000"
         android:clickable="true"
         android:focusable="true"
-        android:visibility="gone"
-        tools:background="#80000000" />
+        android:visibility="gone" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_go_live"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="216dp"
-        android:visibility="gone"
-        android:contentDescription="Go Live"
-        app:fabSize="mini"
-        app:srcCompat="@drawable/ic_videocam_24dp" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_upload_podcast"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="148dp"
-        android:visibility="gone"
-        android:contentDescription="Upload Podcast"
-        app:fabSize="mini"
-        app:srcCompat="@drawable/ic_mic_24dp" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_upload_video"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="80dp"
-        android:visibility="gone"
-        android:contentDescription="Upload Video"
-        app:fabSize="mini"
-        app:srcCompat="@drawable/ic_live_tv_24dp"  />
-
+    <!-- Main FAB Menu Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_main_menu"
         android:layout_width="wrap_content"
@@ -80,5 +44,119 @@
         android:layout_margin="16dp"
         android:contentDescription="Open/Close Menu"
         app:srcCompat="@drawable/ic_add_24dp" />
+
+    <!-- Container for the expanding FABs and their labels -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp">
+
+        <!-- Upload Video FAB and Label -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_upload_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="Upload Video"
+            android:visibility="gone"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toTopOf="@id/fab_main_menu_placeholder"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_movie_24dp"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/label_upload_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/rounded_background"
+            android:paddingStart="8dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="4dp"
+            android:text="Video"
+            android:textColor="?attr/colorOnSurface"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/fab_upload_video"
+            app:layout_constraintEnd_toStartOf="@id/fab_upload_video"
+            app:layout_constraintTop_toTopOf="@id/fab_upload_video"
+            tools:visibility="visible" />
+
+        <!-- Upload Podcast FAB and Label -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_upload_podcast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="Upload Podcast"
+            android:visibility="gone"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toTopOf="@id/fab_upload_video"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_mic_24dp"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/label_upload_podcast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/rounded_background"
+            android:paddingStart="8dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="4dp"
+            android:text="Podcast"
+            android:textColor="?attr/colorOnSurface"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/fab_upload_podcast"
+            app:layout_constraintEnd_toStartOf="@id/fab_upload_podcast"
+            app:layout_constraintTop_toTopOf="@id/fab_upload_podcast"
+            tools:visibility="visible" />
+
+        <!-- Go Live FAB and Label -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_go_live"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="Go Live"
+            android:visibility="gone"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toTopOf="@id/fab_upload_podcast"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_live_tv_24dp"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/label_go_live"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/rounded_background"
+            android:paddingStart="8dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="4dp"
+            android:text="Go Live"
+            android:textColor="?attr/colorOnSurface"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/fab_go_live"
+            app:layout_constraintEnd_toStartOf="@id/fab_go_live"
+            app:layout_constraintTop_toTopOf="@id/fab_go_live"
+            tools:visibility="visible" />
+
+        <!-- Placeholder view to align constraints with the actual main FAB -->
+        <View
+            android:id="@+id/fab_main_menu_placeholder"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

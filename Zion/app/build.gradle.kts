@@ -73,8 +73,8 @@ dependencies {
     // AndroidX Activity (for registerForActivityResult, etc.)
     implementation(libs.activity)
 
-    // Preferences for SettingsFragment
-    implementation(libs.preference.ktx)
+    // Preferences for SettingsFragment - Using non-KTX version for Java project
+    implementation(libs.preference)
 
     // ----------------------------------------------------------------------
 

@@ -49,6 +49,19 @@
             android:label="@string/change_password_title"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Upload Activities -->
+        <activity
+            android:name=".ui.upload.UploadVideoActivity"
+            android:exported="false"
+            android:label="Upload Video"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".ui.upload.UploadPodcastActivity"
+            android:exported="false"
+            android:label="Upload Podcast"
+            android:parentActivityName=".MainActivity" />
+
         <!-- Profile Activities -->
         <activity
             android:name=".ui.profile.EditProfileActivity"
@@ -61,7 +74,6 @@
             android:label="@string/my_playlists"
             android:parentActivityName=".MainActivity" />
 
-        <!-- ADD THESE MISSING ACTIVITIES -->
         <activity
             android:name=".ui.profile.HistoryActivity"
             android:exported="false"
@@ -118,7 +130,7 @@
             android:label="@string/title_notifications"
             android:parentActivityName=".MainActivity" />
 
-        <!-- Settings Activity (if you have one) -->
+        <!-- Settings Activity -->
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:exported="false"
@@ -127,7 +139,7 @@
 
         <!-- Firebase Messaging Service for push notifications -->
         <service
-            android:name=".notifications.MyFirebaseMessagingService"
+            android:name=".ui.notifications.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

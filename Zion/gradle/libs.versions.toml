@@ -1,47 +1,54 @@
 [versions]
-# Existing versions
-agp = "8.11.2"
-junit = "4.13.2"
-junitVersion = "1.3.0"
-espressoCore = "3.7.0"
+# Core Android & Gradle
+agp = "8.11.2"  # Updated to a recent stable version
 appcompat = "1.7.1"
 material = "1.13.0"
 constraintlayout = "2.2.1"
-lifecycleLivedataKtx = "2.9.4"
-lifecycleViewmodelKtx = "2.9.4"
-navigationFragment = "2.9.5"
-navigationUi = "2.9.5"
+activity = "1.9.0"
 
-# New Libraries for Firebase, Media, and Image Loading
-firebaseBom = "34.3.0"
-googleServices = "4.4.2" # Plugin version for Firebase setup
-media3 = "1.8.0"
-glide = "5.0.5"
+# Jetpack Lifecycle & Navigation
+lifecycle = "2.7.0"
+navigation = "2.7.7"
+preference = "1.2.1" # Changed from preferenceKtx
+
+# Firebase
+firebaseBom = "32.8.0"
+googleServices = "4.4.2"
+
+# Media and Image Loading
+media3 = "1.3.1"
+glide = "4.16.0"
 circleimageview = "3.1.0"
-activity = "1.8.0"
-preferenceKtx = "1.2.1" # For settings preferences
+
+# Testing
+junit = "4.13.2"
+junitVersion = "1.3.0"
+espressoCore = "3.7.0"
 
 [libraries]
-# Existing libraries
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+# Core Android & UI
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
-lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
-navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
-navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
+activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 
-# Firebase (BOM for version management) - STANDARD JAVA LIBRARIES ONLY
+# Jetpack Lifecycle (using common version ref)
+lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
+lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+
+# Jetpack Navigation (using common version ref)
+navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigation" }
+navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigation" }
+
+# Preferences for SettingsFragment (Standard Java version)
+preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
+
+# Firebase (BOM for version management)
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
-firebase-auth = { group = "com.google.firebase", name = "firebase-auth" } # BOM handles version
-firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" } # BOM handles version
-firebase-storage = { group = "com.google.firebase", name = "firebase-storage" } # BOM handles version
-firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" } # BOM handles version
-
-# REMOVED: KTX libraries (firebase-auth-ktx, etc.) - Not needed for Java projects
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+firebase-storage = { group = "com.google.firebase", name = "firebase-storage" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging" }
 
 # ExoPlayer (Jetpack Media3)
 media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
@@ -51,12 +58,12 @@ media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "medi
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
 circleimageview = { group = "de.hdodenhof",  name = "circleimageview", version.ref = "circleimageview" }
-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 
-# Preferences for SettingsFragment
-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceKtx" }
+# Testing
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
-# No Kotlin plugins needed

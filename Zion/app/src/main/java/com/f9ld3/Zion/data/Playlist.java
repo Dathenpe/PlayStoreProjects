@@ -1,5 +1,6 @@
 package com.f9ld3.Zion.data;
 
+import com.google.firebase.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,23 +8,33 @@ public class Playlist {
     private String id;
     private String name;
     private String description;
-    private List<String> mediaIds;
-    private long createdAt;
-    private long updatedAt;
+    private String creatorUid;
+    private String creatorName;
+    private String thumbnailUrl; // First media item thumbnail or custom
+    private boolean isPublic; // true = public, false = private
+    private List<String> mediaIds; // List of media IDs in playlist
+    private int itemCount;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
 
-    // Constructors
+    // Required empty constructor for Firestore
     public Playlist() {
         this.mediaIds = new ArrayList<>();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.isPublic = true; // Default to public
     }
 
-    public Playlist(String name, String description) {
+    public Playlist(String id, String name, String description, String creatorUid,
+                    String creatorName, boolean isPublic) {
+        this.id = id;
         this.name = name;
         this.description = description;
+        this.creatorUid = creatorUid;
+        this.creatorName = creatorName;
+        this.isPublic = isPublic;
         this.mediaIds = new ArrayList<>();
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+        this.itemCount = 0;
+        this.createdAt = Timestamp.now();
+        this.updatedAt = Timestamp.now();
     }
 
     // Getters and Setters
@@ -31,28 +42,37 @@ public class Playlist {
     public void setId(String id) { this.id = id; }
 
     public String getName() { return name; }
-    public void setName(String name) {
-        this.name = name;
-        this.updatedAt = System.currentTimeMillis();
-    }
+    public void setName(String name) { this.name = name; }
 
     public String getDescription() { return description; }
-    public void setDescription(String description) {
-        this.description = description;
-        this.updatedAt = System.currentTimeMillis();
-    }
+    public void setDescription(String description) { this.description = description; }
+
+    public String getCreatorUid() { return creatorUid; }
+    public void setCreatorUid(String creatorUid) { this.creatorUid = creatorUid; }
+
+    public String getCreatorName() { return creatorName; }
+    public void setCreatorName(String creatorName) { this.creatorName = creatorName; }
+
+    public String getThumbnailUrl() { return thumbnailUrl; }
+    public void setThumbnailUrl(String thumbnailUrl) { this.thumbnailUrl = thumbnailUrl; }
+
+    public boolean isPublic() { return isPublic; }
+    public void setPublic(boolean isPublic) { this.isPublic = isPublic; }
 
     public List<String> getMediaIds() { return mediaIds; }
     public void setMediaIds(List<String> mediaIds) {
         this.mediaIds = mediaIds;
-        this.updatedAt = System.currentTimeMillis();
+        this.itemCount = mediaIds != null ? mediaIds.size() : 0;
     }
 
-    public long getCreatedAt() { return createdAt; }
-    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+    public int getItemCount() { return itemCount; }
+    public void setItemCount(int itemCount) { this.itemCount = itemCount; }
 
-    public long getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
+    public Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+
+    public Timestamp getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
 
     // Helper methods
     public void addMedia(String mediaId) {
@@ -61,18 +81,20 @@ public class Playlist {
         }
         if (!mediaIds.contains(mediaId)) {
             mediaIds.add(mediaId);
-            this.updatedAt = System.currentTimeMillis();
+            itemCount = mediaIds.size();
+            updatedAt = Timestamp.now();
         }
     }
 
     public void removeMedia(String mediaId) {
-        if (mediaIds != null) {
+        if (mediaIds != null && mediaIds.contains(mediaId)) {
             mediaIds.remove(mediaId);
-            this.updatedAt = System.currentTimeMillis();
+            itemCount = mediaIds.size();
+            updatedAt = Timestamp.now();
         }
     }
 
-    public int getMediaCount() {
-        return mediaIds != null ? mediaIds.size() : 0;
+    public boolean containsMedia(String mediaId) {
+        return mediaIds != null && mediaIds.contains(mediaId);
     }
 }

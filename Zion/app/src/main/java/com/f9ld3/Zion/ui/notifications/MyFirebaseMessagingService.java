@@ -1,4 +1,4 @@
-package com.f9ld3.Zion.notifications;
+package com.f9ld3.Zion.ui.notifications;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
