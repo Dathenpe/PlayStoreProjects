@@ -26,8 +26,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:contentDescription="Zion Logo Z"
-            android:src="@drawable/logo"
-            app:tint="?attr/colorOnSurface" />
+            android:src="@drawable/logo" />
 
         <TextView
             android:id="@+id/logo_text_ion"

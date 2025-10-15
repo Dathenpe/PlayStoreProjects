@@ -1,0 +1,12 @@
+<!-- res/drawable/logo.xml -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <path
+        android:fillColor="#008080"
+        android:pathData="M20,2H4C2.9,2 2,2.9 2,4v16c0,1.1 0.9,2 2,2h16c1.1,0 2,-0.9 2,-2V4c0,-1.1 -0.9,-2 -2,-2zM8.17,18.5H4.5V15.34c2.5,-3.19 5.43,-6.71 7.83,-9.84H19.5v3.16c-2.5,3.19 -5.43,6.71 -7.83,9.84H8.17z"/>
+
+</vector>
