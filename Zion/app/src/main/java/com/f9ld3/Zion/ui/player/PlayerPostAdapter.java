@@ -54,7 +54,7 @@ public class PlayerPostAdapter extends ListAdapter<PlayerMedia, RecyclerView.Vie
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        if (viewType == PlayerMedia.TYPE_VIDEO) {
+        if (viewType == PlayerMedia.TYPE_VIDEO || viewType == PlayerMedia.TYPE_PODCAST_SINGLE) { // Handle both video and single podcast
             ItemVideoM3Binding binding = ItemVideoM3Binding.inflate(inflater, parent, false);
             return new VideoViewHolder(binding);
         } else if (viewType == PlayerMedia.TYPE_PODCAST_DUO_CONTAINER) {

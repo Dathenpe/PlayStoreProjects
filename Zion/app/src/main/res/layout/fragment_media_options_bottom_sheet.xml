@@ -5,21 +5,26 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="?attr/colorSurfaceContainer"
+    android:background="@drawable/bottom_sheet_background"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-    <!-- Header with Media Info -->
+    <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="16dp"
         android:gravity="center_vertical">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/media_thumbnail"
-            android:layout_width="64dp"
-            android:layout_height="36dp"
+            android:layout_width="96dp"
+            android:layout_height="54dp"
             android:scaleType="centerCrop"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
             tools:src="@tools:sample/backgrounds/scenic" />
@@ -29,10 +34,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="12dp"
+            android:layout_marginStart="16dp"
             android:ellipsize="end"
             android:maxLines="2"
-            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
             android:textColor="?attr/colorOnSurface"
             tools:text="This is a sample video title that could be quite long."/>
     </LinearLayout>
@@ -42,35 +47,70 @@
         android:layout_height="1dp"
         android:background="?attr/colorOutlineVariant" />
 
-    <!-- Action Items -->
-    <TextView
-        android:id="@+id/option_like"
-        style="@style/BottomSheetOption"
-        android:text="Like"
-        app:drawableStartCompat="@drawable/ic_like" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp">
 
-    <TextView
-        android:id="@+id/option_add_to_playlist"
-        style="@style/BottomSheetOption"
-        android:text="@string/add_to_playlist"
-        app:drawableStartCompat="@drawable/ic_playlist_play_24dp" />
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/option_like"
+            style="@style/Widget.App.BottomSheetActionCard">
+            <ImageView
+                android:id="@+id/like_icon"
+                style="@style/Widget.App.BottomSheetActionIcon"
+                android:src="@drawable/ic_like"
+                android:contentDescription="Like"/>
+        </com.google.android.material.card.MaterialCardView>
 
-    <TextView
-        android:id="@+id/option_download"
-        style="@style/BottomSheetOption"
-        android:text="Download"
-        app:drawableStartCompat="@drawable/ic_download_24dp" />
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/option_add_to_playlist"
+            style="@style/Widget.App.BottomSheetActionCard">
+            <ImageView
+                style="@style/Widget.App.BottomSheetActionIcon"
+                android:src="@drawable/ic_playlist_play_24dp"
+                android:contentDescription="Add to Playlist"/>
+        </com.google.android.material.card.MaterialCardView>
 
-    <TextView
-        android:id="@+id/option_share"
-        style="@style/BottomSheetOption"
-        android:text="@string/share"
-        app:drawableStartCompat="@drawable/ic_share_24dp" />
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/option_download"
+            style="@style/Widget.App.BottomSheetActionCard">
+            <ImageView
+                style="@style/Widget.App.BottomSheetActionIcon"
+                android:src="@drawable/ic_download_24dp"
+                android:contentDescription="Download"/>
+        </com.google.android.material.card.MaterialCardView>
 
-    <TextView
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/option_share"
+            style="@style/Widget.App.BottomSheetActionCard">
+            <ImageView
+                style="@style/Widget.App.BottomSheetActionIcon"
+                android:src="@drawable/ic_share_24dp"
+                android:contentDescription="Share"/>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/colorOutlineVariant" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/option_report"
-        style="@style/BottomSheetOption"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="start|center_vertical"
+        android:padding="16dp"
         android:text="@string/report"
-        app:drawableStartCompat="@drawable/ic_flag_24dp" />
+        android:textColor="?attr/colorError"
+        app:icon="@drawable/ic_flag_24dp"
+        app:iconTint="?attr/colorError"
+        app:iconPadding="16dp" />
 
 </LinearLayout>

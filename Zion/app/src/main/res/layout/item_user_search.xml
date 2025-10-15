@@ -16,6 +16,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
         android:padding="16dp">
 
         <de.hdodenhof.circleimageview.CircleImageView
@@ -58,11 +59,12 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_follow"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Material3.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="0dp"
+            android:minWidth="90dp"
             android:text="Follow"
+            app:backgroundTint="?attr/colorSecondary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_margin="16dp"
     app:cardBackgroundColor="?attr/colorSurfaceContainer"
     app:cardCornerRadius="28dp"
     app:cardElevation="8dp">
@@ -12,7 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="24dp"
+        android:minWidth="320dp">
 
         <TextView
             android:id="@+id/inputDialogTitle"
@@ -34,7 +36,6 @@
             android:textColor="?attr/colorOnSurfaceVariant"
             tools:text="Please enter your password to proceed." />
 
-        <!-- FIXED: Added style for outlined box appearance -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/inputDialogLayout"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -74,6 +75,5 @@
                 android:layout_height="wrap_content"
                 tools:text="Confirm" />
         </LinearLayout>
-
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

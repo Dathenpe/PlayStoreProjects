@@ -5,20 +5,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSurface"
-    android:padding="16dp"
-    tools:context=".ui.auth.SignUpActivity">
+    android:padding="24dp"
+    tools:context=".auth.SignUpActivity">
 
-    <!-- Zion Logo -->
+    <!-- Logo Container -->
     <LinearLayout
         android:id="@+id/logo_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="128dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@id/layoutUsername"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed">
 
         <ImageView
             android:id="@+id/logo_image"
@@ -39,47 +40,43 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Username Input: use prefixText instead of startIcon -->
+    <!-- Username Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutUsername"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Zion.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
         android:hint="@string/username"
+        app:layout_constraintBottom_toTopOf="@id/layoutEmail"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/logo_container"
-        app:prefixText=" "
-        app:prefixTextColor="?attr/colorOnSurfaceVariant"
-        app:prefixTextAppearance="@style/TextAppearance.Material3.BodyLarge">
+        app:startIconDrawable="@drawable/ic_person_24dp">
 
-        <!-- Optional: tiny icon inside prefix using a space + compound drawable -->
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextUsername"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
+            android:inputType="textPersonName"
             android:maxLines="1"
-            android:drawableStart="@drawable/ic_person_24dp"
-            android:drawablePadding="8dp"
-            android:tint="?attr/colorOnSurfaceVariant" />
+            android:paddingStart="56dp"
+            tools:ignore="RtlSymmetry" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Email Input: use prefixText instead of startIcon -->
+    <!-- Email Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutEmail"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Zion.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:hint="@string/email"
+        app:layout_constraintBottom_toTopOf="@id/layoutPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layoutUsername"
-        app:prefixText=" "
-        app:prefixTextColor="?attr/colorOnSurfaceVariant"
-        app:prefixTextAppearance="@style/TextAppearance.Material3.BodyLarge">
+        app:startIconDrawable="@drawable/ic_email_24dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextEmail"
@@ -87,59 +84,58 @@
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress"
             android:maxLines="1"
-            android:drawableStart="@drawable/ic_email_24dp"
-            android:drawablePadding="8dp"
-            android:tint="?attr/colorOnSurfaceVariant" />
+            android:paddingStart="56dp"
+            tools:ignore="RtlSymmetry"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Password Input: keep start icon, add insets and explicit icon size -->
+    <!-- Password Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutPassword"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Zion.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:hint="@string/password"
+        app:endIconMode="password_toggle"
+        app:layout_constraintBottom_toTopOf="@id/layoutConfirmPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layoutEmail"
-        app:startIconTint="?attr/colorOnSurfaceVariant"
-        app:startIconMinSize="24dp"
-        app:expandedHintEnabled="true"
-        app:endIconMode="password_toggle"
-        app:endIconTint="?attr/colorOnSurfaceVariant">
+        app:startIconDrawable="@drawable/ic_lock_24dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:paddingStart="56dp"
+            tools:ignore="RtlSymmetry"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Confirm Password Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutConfirmPassword"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.Zion.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:hint="@string/confirm_password"
+        app:endIconMode="password_toggle"
+        app:layout_constraintBottom_toTopOf="@id/buttonSignUp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layoutPassword"
-        app:startIconTint="?attr/colorOnSurfaceVariant"
-        app:startIconMinSize="24dp"
-        app:expandedHintEnabled="true"
-        app:endIconMode="password_toggle"
-        app:endIconTint="?attr/colorOnSurfaceVariant">
+        app:startIconDrawable="@drawable/ic_lock_24dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextConfirmPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:paddingStart="56dp"
+            tools:ignore="RtlSymmetry"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Sign Up Button -->
@@ -149,19 +145,22 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
+        android:paddingTop="12dp"
+        app:backgroundTint="?attr/colorSecondary"
+        android:paddingBottom="12dp"
         android:text="@string/sign_up"
         android:textAppearance="?attr/textAppearanceLabelLarge"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layoutConfirmPassword" />
 
-    <!-- Progress Bar -->
+    <!-- Progress Bar (Overlays Button) -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:elevation="8dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/buttonSignUp"
         app:layout_constraintEnd_toEndOf="@id/buttonSignUp"
@@ -175,13 +174,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
+        android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:foreground="?attr/selectableItemBackgroundBorderless"
         android:padding="8dp"
         android:text="@string/already_have_account_login"
         android:textAppearance="?attr/textAppearanceBodyMedium"
-        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textColor="?attr/colorSecondary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/buttonSignUp" />

@@ -1,6 +1,7 @@
 package com.f9ld3.Zion.ui.player;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
@@ -34,7 +36,6 @@ public class MediaOptionsBottomSheet extends BottomSheetDialogFragment {
     public static MediaOptionsBottomSheet newInstance(PlayerMedia mediaItem) {
         MediaOptionsBottomSheet fragment = new MediaOptionsBottomSheet();
         Bundle args = new Bundle();
-        // PlayerMedia needs to be Serializable to be passed this way
         args.putSerializable(ARG_MEDIA_ITEM, (Serializable) mediaItem);
         fragment.setArguments(args);
         return fragment;
@@ -88,13 +89,11 @@ public class MediaOptionsBottomSheet extends BottomSheetDialogFragment {
 
     private void updateLikeButtonState() {
         if (isLiked) {
-            binding.optionLike.setText("Unlike");
-            binding.optionLike.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_like, 0, 0, 0);
-            binding.optionLike.getCompoundDrawables()[0].setTint(getResources().getColor(R.color.error));
+            // Set the icon tint to the error/red color when liked
+            binding.likeIcon.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.error)));
         } else {
-            binding.optionLike.setText("Like");
-            binding.optionLike.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_like, 0, 0, 0);
-            binding.optionLike.getCompoundDrawables()[0].setTintList(null); // Use default tint
+            // Set the icon tint back to the default theme color (teal)
+            binding.likeIcon.setImageTintList(null); // Passing null removes any custom tint
         }
     }
 
@@ -109,7 +108,6 @@ public class MediaOptionsBottomSheet extends BottomSheetDialogFragment {
 
         binding.optionAddToPlaylist.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Add to Playlist coming soon!", Toast.LENGTH_SHORT).show();
-            // TODO: Implement add to playlist logic
         });
 
         binding.optionDownload.setOnClickListener(v -> {
@@ -128,7 +126,6 @@ public class MediaOptionsBottomSheet extends BottomSheetDialogFragment {
 
         binding.optionReport.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Report functionality coming soon!", Toast.LENGTH_SHORT).show();
-            // TODO: Implement report logic
             dismiss();
         });
     }

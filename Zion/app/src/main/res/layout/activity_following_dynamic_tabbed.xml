@@ -4,11 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
     tools:context=".ui.profile.FollowingActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
@@ -20,12 +22,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:tabMode="scrollable"
-        app:tabGravity="center"
-        app:tabTextColor="?attr/colorOnSurfaceVariant"
-        app:tabSelectedTextColor="?attr/colorOnSurface"
-        app:tabIndicatorColor="?attr/colorOnSurface"
-        app:tabIndicatorHeight="3dp"
-        app:tabIndicatorFullWidth="false" />
+            app:tabGravity="center"
+            app:tabTextColor="?attr/colorOnSurfaceVariant"
+            app:tabSelectedTextColor="?attr/colorOnSurface"
+            app:tabIndicatorColor="?attr/colorOnSurface"
+            app:tabIndicatorHeight="3dp"
+            app:tabIndicatorFullWidth="false" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -35,7 +37,6 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <!-- 🔥 UPDATED: Empty state for when no channels are followed -->
     <TextView
         android:id="@+id/empty_state_text_view"
         android:layout_width="wrap_content"
@@ -47,9 +48,9 @@
         android:textColor="?attr/colorOnSurfaceVariant"
         android:textAppearance="?attr/textAppearanceBodyLarge"
         app:drawableTopCompat="@drawable/ic_live_tv_24dp"
-    app:drawableTint="?attr/colorOnSurfaceVariant"
-    android:drawablePadding="16dp"
-    android:visibility="gone"
-    tools:visibility="visible" />
+        app:drawableTint="?attr/colorOnSurfaceVariant"
+        android:drawablePadding="16dp"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

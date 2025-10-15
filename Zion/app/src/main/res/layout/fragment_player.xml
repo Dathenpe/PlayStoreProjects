@@ -25,7 +25,6 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Scrim view to dim the background when the FAB menu is open -->
     <View
         android:id="@+id/fab_menu_overlay"
         android:layout_width="match_parent"
@@ -35,7 +34,6 @@
         android:focusable="true"
         android:visibility="gone" />
 
-    <!-- Main FAB Menu Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_main_menu"
         android:layout_width="wrap_content"
@@ -43,9 +41,9 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:contentDescription="Open/Close Menu"
+        app:backgroundTint="?attr/colorSecondary"
         app:srcCompat="@drawable/ic_add_24dp" />
 
-    <!-- Container for the expanding FABs and their labels -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -53,7 +51,6 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp">
 
-        <!-- Upload Video FAB and Label -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_upload_video"
             android:layout_width="wrap_content"
@@ -61,6 +58,7 @@
             android:layout_marginBottom="16dp"
             android:contentDescription="Upload Video"
             android:visibility="gone"
+            app:backgroundTint="?attr/colorSecondary"
             app:fabSize="mini"
             app:layout_constraintBottom_toTopOf="@id/fab_main_menu_placeholder"
             app:layout_constraintEnd_toEndOf="parent"
@@ -85,13 +83,13 @@
             app:layout_constraintTop_toTopOf="@id/fab_upload_video"
             tools:visibility="visible" />
 
-        <!-- Upload Podcast FAB and Label -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_upload_podcast"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:contentDescription="Upload Podcast"
+            app:backgroundTint="?attr/colorSecondary"
             android:visibility="gone"
             app:fabSize="mini"
             app:layout_constraintBottom_toTopOf="@id/fab_upload_video"
@@ -117,13 +115,13 @@
             app:layout_constraintTop_toTopOf="@id/fab_upload_podcast"
             tools:visibility="visible" />
 
-        <!-- Go Live FAB and Label -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_go_live"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:contentDescription="Go Live"
+            app:backgroundTint="?attr/colorSecondary"
             android:visibility="gone"
             app:fabSize="mini"
             app:layout_constraintBottom_toTopOf="@id/fab_upload_podcast"
@@ -149,7 +147,6 @@
             app:layout_constraintTop_toTopOf="@id/fab_go_live"
             tools:visibility="visible" />
 
-        <!-- Placeholder view to align constraints with the actual main FAB -->
         <View
             android:id="@+id/fab_main_menu_placeholder"
             android:layout_width="56dp"

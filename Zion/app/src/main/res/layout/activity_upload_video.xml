@@ -65,6 +65,8 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="16dp"
                         android:contentDescription="Select thumbnail"
+                        app:backgroundTint="?attr/colorSecondary"
+                        app:tint="?attr/colorOnSecondary"
                         app:fabSize="mini"
                         app:srcCompat="@drawable/ic_add_photo_alternate_24dp"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -123,7 +125,7 @@
                             android:layout_height="24dp"
                             android:contentDescription="Video selected"
                             android:src="@drawable/ic_check_circle_24dp"
-                            app:tint="?attr/colorPrimary" />
+                            app:tint="?attr/colorSecondary" />
 
                         <TextView
                             android:id="@+id/text_video_file_name"
@@ -230,6 +232,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:paddingVertical="12dp"
+                app:backgroundTint="?attr/colorSecondary"
                 android:text="Upload Video"
                 android:textAppearance="?attr/textAppearanceLabelLarge"
                 app:layout_constraintEnd_toEndOf="parent"

@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Focused state: Use primary color (dark gray in light, lighter in dark) -->
     <item android:color="?attr/colorPrimary" android:state_focused="true" />
     <item android:color="?attr/colorPrimary" android:state_hovered="true" />
 
-    <!-- Default/Unfocused: Light gray outline -->
-    <item android:color="@color/gray_outline" /> <!-- #FF9E9E9E -->
-</selector>
+    <item android:color="@color/gray_outline" /> </selector>

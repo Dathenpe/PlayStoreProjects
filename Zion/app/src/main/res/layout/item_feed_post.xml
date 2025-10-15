@@ -10,7 +10,7 @@
     android:layout_marginBottom="8dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp"
-    app:strokeColor="?attr/colorSecondaryContainer"
+    app:strokeColor="?attr/colorSurfaceVariant"
     app:strokeWidth="1dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -18,7 +18,6 @@
         android:layout_height="wrap_content"
         android:paddingBottom="16dp">
 
-        <!-- Post Thumbnail / Cover Image -->
         <ImageView
             android:id="@+id/post_thumbnail"
             android:layout_width="0dp"
@@ -30,7 +29,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:src="@tools:sample/backgrounds/scenic" />
 
-        <!-- Category Chip (e.g., Sermon, Podcast, Blog) -->
         <com.google.android.material.chip.Chip
             android:id="@+id/post_category_chip"
             android:layout_width="wrap_content"
@@ -38,13 +36,12 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:textStyle="bold"
-            android:textColor="?attr/colorPrimary"
-            app:chipBackgroundColor="?attr/colorPrimaryContainer"
+            android:textColor="?attr/colorOnSecondaryContainer"
+            app:chipBackgroundColor="?attr/colorSecondaryContainer"
             app:layout_constraintTop_toBottomOf="@id/post_thumbnail"
             app:layout_constraintStart_toStartOf="parent"
             tools:text="@string/post_category_placeholder" />
 
-        <!-- Post Title -->
         <TextView
             android:id="@+id/post_title"
             android:layout_width="0dp"
@@ -62,7 +59,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="@string/post_title_placeholder" />
 
-        <!-- Post Description/Summary -->
         <TextView
             android:id="@+id/post_description"
             android:layout_width="0dp"
@@ -78,6 +74,5 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:text="@string/post_description_placeholder" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

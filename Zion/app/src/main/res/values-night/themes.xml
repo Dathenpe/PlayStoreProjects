@@ -1,47 +1,98 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Dark mode overrides -->
     <style name="Theme.Zion" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/primary_dark</item> <!-- #FF424242 - Darker gray -->
-        <item name="colorOnPrimary">@color/on_primary_dark</item> <!-- White -->
-        <item name="colorPrimaryContainer">@color/secondary_dark</item> <!-- Lighter gray -->
-        <item name="colorOnPrimaryContainer">@color/black</item> <!-- Black (for contrast if needed) -->
+        <item name="colorPrimary">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/on_primary_dark</item>
+        <item name="colorPrimaryContainer">@color/gray_primary</item>
+        <item name="colorOnPrimaryContainer">@color/white</item>
 
-        <item name="colorSecondary">@color/secondary_dark</item> <!-- #FF9E9E9E - Lighter gray -->
-        <item name="colorOnSecondary">@color/on_secondary_dark</item> <!-- White (fixed for contrast) -->
-        <item name="colorSecondaryContainer">@color/secondary_dark</item> <!-- Lighter gray -->
-        <item name="colorOnSecondaryContainer">@color/on_secondary_dark</item> <!-- White -->
+        <item name="colorSecondary">@color/secondary_dark</item>
+        <item name="colorOnSecondary">@color/on_secondary_dark</item>
+        <item name="colorSecondaryContainer">@color/teal</item>
+        <item name="colorOnSecondaryContainer">@color/black</item>
 
-        <item name="colorSurface">@color/surface_dark</item> <!-- #FF121212 - Near-black -->
-        <item name="colorOnSurface">@color/on_surface_dark</item> <!-- White -->
-        <item name="android:colorBackground">@color/surface_dark</item> <!-- Near-black -->
-        <item name="colorOnBackground">@color/on_surface_dark</item> <!-- White -->
+        <item name="colorSurface">@color/surface_dark</item>
+        <item name="colorOnSurface">@color/on_surface_dark</item>
+        <item name="android:colorBackground">@color/surface_dark</item>
+        <item name="colorOnBackground">@color/on_surface_dark</item>
 
-        <item name="colorSurfaceVariant">@color/secondary_dark</item> <!-- Lighter gray -->
-        <item name="colorOnSurfaceVariant">@color/on_surface_dark</item> <!-- White -->
-        <item name="colorSurfaceContainer">@color/secondary_dark</item> <!-- Lighter gray -->
-        <item name="colorSurfaceContainerHigh">@color/secondary_dark</item> <!-- Lighter gray -->
+        <item name="colorSurfaceVariant">@color/gray_secondary</item>
+        <item name="colorOnSurfaceVariant">@color/gray_variant</item>
+        <item name="colorSurfaceContainer">@color/gray_primary</item>
+        <item name="colorSurfaceContainerHigh">@color/gray_secondary</item>
 
-        <item name="android:statusBarColor">?attr/colorPrimary</item> <!-- Near-black -->
-        <item name="android:windowLightStatusBar">false</item> <!-- Light icons on dark bar -->
+        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightStatusBar">false</item>
 
         <item name="materialCardViewStyle">@style/Widget.Material3.CardView.Elevated</item>
         <item name="chipStyle">@style/Widget.Material3.Chip.Assist</item>
 
-        <!-- Tab indicator - Uses primary (darker gray) -->
-        <item name="tabSelectedTextColor">?attr/colorPrimary</item> <!-- Darker gray for selected text -->
-        <item name="tabIndicatorColor">?attr/colorPrimary</item> <!-- Darker gray indicator -->
+        <item name="tabSelectedTextColor">?attr/colorPrimary</item>
+        <item name="tabIndicatorColor">?attr/colorPrimary</item>
 
-        <!-- Customize TextInputLayout for dark mode contrast -->
         <item name="textInputStyle">@style/Widget.Zion.TextInputLayout.OutlinedBox</item>
-        <item name="colorOutline">@color/gray_outline</item> <!-- #FF9E9E9E - High-contrast gray outline -->
+        <item name="colorOutline">@color/gray_outline</item>
     </style>
 
-    <!-- FIXED: Custom TextInputLayout style - Uses color state list for stroke (dark mode) -->
     <style name="Widget.Zion.TextInputLayout.OutlinedBox" parent="Widget.Material3.TextInputLayout.OutlinedBox">
-        <item name="boxStrokeWidth">2dp</item> <!-- Thicker for visibility -->
-        <item name="boxStrokeWidthFocused">2dp</item> <!-- Same thickness on focus -->
-        <item name="hintTextColor">?attr/colorOnSurfaceVariant</item> <!-- White hints in dark -->
-        <item name="boxStrokeColor">@color/text_input_stroke</item> <!-- State list for focused/unfocused -->
+        <item name="boxStrokeWidth">2dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+        <item name="hintTextColor">?attr/colorOnSurfaceVariant</item>
+        <item name="boxStrokeColor">@color/text_input_stroke</item>
     </style>
 
+    <style name="Widget.App.ProfileCard" parent="Widget.Material3.CardView.Elevated">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">120dp</item>
+        <item name="android:layout_columnWeight">1</item>
+        <item name="android:layout_rowWeight">1</item>
+        <item name="android:layout_margin">8dp</item>
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardElevation">4dp</item>
+        <item name="strokeColor">?attr/colorOutlineVariant</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:foreground">?attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="Widget.App.ProfileCardContent" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">8dp</item>
+    </style>
+
+    <style name="Widget.App.ProfileCardIcon" parent="">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="tint">?attr/colorSecondary</item>
+    </style>
+
+    <style name="Widget.App.ProfileCardText" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceTitleSmall</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Widget.App.BottomSheetActionCard" parent="Widget.Material3.CardView.Outlined">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">64dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_margin">4dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardBackgroundColor">?attr/colorSurface</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:foreground">?attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="Widget.App.BottomSheetActionIcon" parent="">
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:tint">?attr/colorSecondary</item>
+    </style>
 </resources>

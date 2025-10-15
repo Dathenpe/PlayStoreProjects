@@ -32,6 +32,7 @@
                     android:layout_marginEnd="16dp"
                     app:hintEnabled="false"
                     app:startIconDrawable="@drawable/ic_search_24dp"
+                    app:startIconTint="?attr/colorOnSurfaceVariant"
                     app:boxCornerRadiusTopStart="28dp"
                     app:boxCornerRadiusTopEnd="28dp"
                     app:boxCornerRadiusBottomStart="28dp"
@@ -59,6 +60,7 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Clear search"
                     android:src="@android:drawable/ic_menu_close_clear_cancel"
+                    app:tint="?attr/colorOnSurfaceVariant"
                     android:visibility="gone"
                     tools:visibility="visible" />
             </FrameLayout>
@@ -92,6 +94,7 @@
         android:textColor="?attr/colorOnSurfaceVariant"
         android:visibility="gone"
         app:drawableTopCompat="@drawable/ic_search_off_24dp"
+        app:drawableTint="?attr/colorOnSurfaceVariant"
         tools:visibility="visible" />
 
     <ProgressBar

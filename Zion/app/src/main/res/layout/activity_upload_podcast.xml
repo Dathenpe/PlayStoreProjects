@@ -8,14 +8,16 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back_24dp"
-            app:title="Upload Podcast" />
+            app:title="Upload Podcast"
+            app:titleTextColor="?attr/colorOnSurface"/>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -56,6 +58,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom|end"
                     android:layout_margin="8dp"
+                    app:backgroundTint="?attr/colorSecondary"
                     android:contentDescription="Select thumbnail"
                     app:fabSize="mini"
                     app:srcCompat="@drawable/ic_edit_24dp" />
@@ -110,7 +113,7 @@
                             android:layout_height="24dp"
                             android:contentDescription="Audio selected"
                             android:src="@drawable/ic_check_circle_24dp"
-                            app:tint="?attr/colorPrimary" />
+                            app:tint="?attr/colorSecondary" />
 
                         <TextView
                             android:id="@+id/text_audio_file_name"
@@ -134,7 +137,6 @@
                             android:visibility="gone"
                             tools:text="45:15"
                             tools:visibility="visible" />
-
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -217,6 +219,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:paddingVertical="12dp"
+                app:backgroundTint="?attr/colorSecondary"
                 android:text="Upload Podcast"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

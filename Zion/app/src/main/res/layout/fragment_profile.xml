@@ -22,7 +22,7 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_marginTop="32dp"
-                app:civ_border_color="?attr/colorPrimary"
+                app:civ_border_color="?attr/colorSecondary"
                 app:civ_border_width="2dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -52,21 +52,20 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:text="john.smith@example.com" />
 
-            <!-- NEW: Verification Status Indicator (shows "Email verified ✓" when verified) -->
             <TextView
                 android:id="@+id/text_verification_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:textAppearance="?attr/textAppearanceBodySmall"
-                android:textColor="@android:color/holo_green_dark"
+                android:textColor="?attr/colorSecondary"
                 android:visibility="gone"
                 app:layout_constraintTop_toBottomOf="@id/text_email"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                tools:text="Email verified ✓" />
+                tools:text="Email verified ✓"
+                tools:visibility="visible"/>
 
-            <!-- NEW: Persistent Verification Banner (shows when unverified) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/verification_banner"
                 android:layout_width="0dp"
@@ -90,14 +89,12 @@
                     android:gravity="center_vertical"
                     android:padding="12dp">
 
-                    <!-- Warning Icon -->
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@android:drawable/ic_dialog_alert"
                         app:tint="?attr/colorError" />
 
-                    <!-- Message -->
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -107,14 +104,13 @@
                         android:textAppearance="?attr/textAppearanceBodyMedium"
                         android:textColor="?attr/colorOnSurface" />
 
-                    <!-- Resend Button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/resend_button"
                         style="@style/Widget.Material3.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/resend_verification"
-                        android:textColor="?attr/colorPrimary"
+                        android:textColor="?attr/colorSecondary"
                         android:minWidth="0dp"
                         android:minHeight="0dp"
                         android:padding="4dp" />
@@ -122,7 +118,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Login/Sign Up Prompt Button (visibility controlled in code) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_login_signup_prompt"
                 style="@style/Widget.Material3.Button.OutlinedButton"
@@ -139,7 +134,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-            <!-- Playlist Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_playlist"
                 style="@style/Widget.Material3.Button.OutlinedButton"
@@ -148,7 +142,7 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/my_playlists"
                 app:icon="@drawable/ic_playlist_play_24dp"
-                app:iconTint="?attr/colorOnSurfaceVariant"
+                app:iconTint="?attr/colorSecondary"
                 app:iconGravity="textStart"
                 android:textColor="?attr/colorOnSurface"
                 app:layout_constraintTop_toBottomOf="@id/button_login_signup_prompt"
@@ -165,7 +159,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
 
-            <!-- GridLayout for cube-like buttons -->
             <GridLayout
                 android:id="@+id/grid_menu"
                 android:layout_width="match_parent"
@@ -180,232 +173,61 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
-                <!-- My Uploads -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_my_uploads"
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_columnWeight="1"
-                    android:layout_rowWeight="1"
-                    android:layout_margin="8dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="4dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:strokeWidth="1dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackgroundBorderless">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="8dp">
-                        <ImageView
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:src="@drawable/ic_upload_24dp"
-                            app:tint="@color/black"
-                            android:contentDescription="@string/my_uploads" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/my_uploads"
-                            android:textAppearance="?attr/textAppearanceTitleSmall"
-                            android:textColor="?attr/colorOnSurface" />
+                    style="@style/Widget.App.ProfileCard">
+                    <LinearLayout style="@style/Widget.App.ProfileCardContent">
+                        <ImageView style="@style/Widget.App.ProfileCardIcon" android:src="@drawable/ic_upload_24dp" android:contentDescription="@string/my_uploads"/>
+                        <TextView style="@style/Widget.App.ProfileCardText" android:text="@string/my_uploads"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- My Blogs -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_my_blogs"
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_columnWeight="1"
-                    android:layout_rowWeight="1"
-                    android:layout_margin="8dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="4dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:strokeWidth="1dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackgroundBorderless">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="8dp">
-                        <ImageView
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:src="@drawable/ic_feed_24dp"
-                            app:tint="@color/black"
-                            android:contentDescription="@string/my_blogs" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/my_blogs"
-                            android:textAppearance="?attr/textAppearanceTitleSmall"
-                            android:textColor="?attr/colorOnSurface" />
+                    style="@style/Widget.App.ProfileCard">
+                    <LinearLayout style="@style/Widget.App.ProfileCardContent">
+                        <ImageView style="@style/Widget.App.ProfileCardIcon" android:src="@drawable/ic_feed_24dp" android:contentDescription="@string/my_blogs"/>
+                        <TextView style="@style/Widget.App.ProfileCardText" android:text="@string/my_blogs"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Likes -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_likes"
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_columnWeight="1"
-                    android:layout_rowWeight="1"
-                    android:layout_margin="8dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="4dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:strokeWidth="1dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackgroundBorderless">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="8dp">
-                        <ImageView
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:src="@drawable/ic_like"
-                            app:tint="@color/black"
-                            android:contentDescription="@string/liked_videos" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/liked_videos"
-                            android:textAppearance="?attr/textAppearanceTitleSmall"
-                            android:textColor="?attr/colorOnSurface" />
+                    style="@style/Widget.App.ProfileCard">
+                    <LinearLayout style="@style/Widget.App.ProfileCardContent">
+                        <ImageView style="@style/Widget.App.ProfileCardIcon" android:src="@drawable/ic_like" android:contentDescription="@string/liked_videos"/>
+                        <TextView style="@style/Widget.App.ProfileCardText" android:text="@string/liked_videos"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- History -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_history"
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_columnWeight="1"
-                    android:layout_rowWeight="1"
-                    android:layout_margin="8dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="4dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:strokeWidth="1dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackgroundBorderless">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="8dp">
-                        <ImageView
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:src="@drawable/ic_history_24dp"
-                            app:tint="@color/black"
-                            android:contentDescription="@string/history" />
-                        <TextView
-                            android:id="@+id/text_history_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/history"
-                            android:textAppearance="?attr/textAppearanceTitleSmall"
-                            android:textColor="?attr/colorOnSurface" />
+                    style="@style/Widget.App.ProfileCard">
+                    <LinearLayout style="@style/Widget.App.ProfileCardContent">
+                        <ImageView style="@style/Widget.App.ProfileCardIcon" android:src="@drawable/ic_history_24dp" android:contentDescription="@string/history"/>
+                        <TextView style="@style/Widget.App.ProfileCardText" android:id="@+id/text_history_count" android:text="@string/history"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Downloads -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_downloads"
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_columnWeight="1"
-                    android:layout_rowWeight="1"
-                    android:layout_margin="8dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="4dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:strokeWidth="1dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackgroundBorderless">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="8dp">
-                        <ImageView
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:src="@drawable/ic_download_24dp"
-                            app:tint="@color/black"
-                            android:contentDescription="@string/downloads" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/downloads"
-                            android:textAppearance="?attr/textAppearanceTitleSmall"
-                            android:textColor="?attr/colorOnSurface" />
+                    style="@style/Widget.App.ProfileCard">
+                    <LinearLayout style="@style/Widget.App.ProfileCardContent">
+                        <ImageView style="@style/Widget.App.ProfileCardIcon" android:src="@drawable/ic_download_24dp" android:contentDescription="@string/downloads"/>
+                        <TextView style="@style/Widget.App.ProfileCardText" android:text="@string/downloads"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Following -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/card_following"
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_columnWeight="1"
-                    android:layout_rowWeight="1"
-                    android:layout_margin="8dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="4dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:strokeWidth="1dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackgroundBorderless">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="8dp">
-                        <ImageView
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:src="@drawable/ic_person_24dp"
-                            app:tint="@color/black"
-                            android:contentDescription="@string/following" />
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/following"
-                            android:textAppearance="?attr/textAppearanceTitleSmall"
-                            android:textColor="?attr/colorOnSurface" />
+                    style="@style/Widget.App.ProfileCard">
+                    <LinearLayout style="@style/Widget.App.ProfileCardContent">
+                        <ImageView style="@style/Widget.App.ProfileCardIcon" android:src="@drawable/ic_person_24dp" android:contentDescription="@string/following"/>
+                        <TextView style="@style/Widget.App.ProfileCardText" android:text="@string/following"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
-
             </GridLayout>
 
-            <!-- Settings Button (moved to bottom, still a full-width button) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_settings"
                 style="@style/Widget.Material3.Button.TextButton"
@@ -419,13 +241,12 @@
                 android:gravity="start|center_vertical"
                 android:text="@string/settings"
                 app:icon="@drawable/ic_dashboard_black_24dp"
-                app:iconTint="?attr/colorOnSurfaceVariant"
+                app:iconTint="?attr/colorSecondary"
                 android:textColor="?attr/colorOnSurface"
                 app:iconGravity="textStart"
                 app:layout_constraintTop_toBottomOf="@id/grid_menu"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
