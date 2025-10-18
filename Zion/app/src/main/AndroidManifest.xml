@@ -30,7 +30,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Auth Activities -->
         <activity
             android:name=".auth.LoginActivity"
             android:exported="false"
@@ -49,7 +48,6 @@
             android:label="@string/change_password_title"
             android:parentActivityName=".MainActivity" />
 
-        <!-- Upload Activities -->
         <activity
             android:name=".ui.upload.UploadVideoActivity"
             android:exported="false"
@@ -62,7 +60,12 @@
             android:label="Upload Podcast"
             android:parentActivityName=".MainActivity" />
 
-        <!-- Profile Activities -->
+        <activity
+            android:name=".ui.blog.CreatePostActivity"
+            android:exported="false"
+            android:label="Create Post"
+            android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".ui.profile.EditProfileActivity"
             android:exported="false"
@@ -93,32 +96,6 @@
             android:parentActivityName=".MainActivity" />
 
         <activity
-            android:name=".ui.profile.FollowingActivity"
-            android:exported="false"
-            android:label="@string/following"
-            android:parentActivityName=".MainActivity" />
-
-        <activity
-            android:name=".ui.profile.MyBlogsActivity"
-            android:exported="false"
-            android:label="@string/my_blogs"
-            android:parentActivityName=".MainActivity" />
-
-        <activity
-            android:name=".ui.profile.MyUploadsTabbedActivity"
-            android:exported="false"
-            android:label="@string/my_uploads"
-            android:parentActivityName=".MainActivity" />
-
-        <!-- Blog Activity -->
-        <activity
-            android:name=".ui.blog.CreateBlogActivity"
-            android:exported="false"
-            android:label="Create Blog Post"
-            android:parentActivityName=".MainActivity" />
-
-        <!-- Search and Notifications Activities -->
-        <activity
             android:name=".ui.search.SearchActivity"
             android:exported="false"
             android:label="@string/search_hint"
@@ -130,14 +107,12 @@
             android:label="@string/title_notifications"
             android:parentActivityName=".MainActivity" />
 
-        <!-- Settings Activity -->
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:exported="false"
             android:label="@string/settings"
             android:parentActivityName=".MainActivity" />
 
-        <!-- Firebase Messaging Service for push notifications -->
         <service
             android:name=".ui.notifications.MyFirebaseMessagingService"
             android:exported="false">

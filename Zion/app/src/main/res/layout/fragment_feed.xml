@@ -8,6 +8,18 @@
     tools:context=".ui.feed.FeedFragment">
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/skeleton_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="88dp"
+        android:visibility="gone"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_feed_post_skeleton"
+        tools:visibility="visible"/>
+
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/feed_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -15,6 +27,7 @@
         android:paddingTop="8dp"
         android:paddingBottom="88dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:visibility="gone"
         tools:listitem="@layout/item_feed_post" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

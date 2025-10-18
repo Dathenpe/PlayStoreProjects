@@ -6,7 +6,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import com.f9ld3.Zion.R;
 import com.f9ld3.Zion.databinding.ActivityFragmentHostBinding; // Reusing generic host layout
@@ -22,30 +21,23 @@ public class SearchActivity extends AppCompatActivity {
         binding = ActivityFragmentHostBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        Toolbar toolbar = binding.toolbar;
-        setSupportActionBar(toolbar);
+        // The toolbar from activity_fragment_host.xml is gone, so we don't set it here.
+        // The SearchFragment will be responsible for its own toolbar.
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.search_hint); // Set toolbar title to search hint
-        }
-
-        String query = getIntent().getStringExtra(EXTRA_QUERY);
-        if (query != null && !query.isEmpty()) {
-            Toast.makeText(this, "Searching for: " + query, Toast.LENGTH_SHORT).show();
-            // TODO: Pass query to a SearchFragment or directly perform search
-        } else {
-            Toast.makeText(this, "Search activity opened. Enter a query.", Toast.LENGTH_SHORT).show();
-        }
-
-        // Replace the fragment_container with a SearchFragment
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, new SearchFragment()) // Assuming you create a SearchFragment
                     .commit();
         }
+
+        // You can still handle the incoming search query
+        String query = getIntent().getStringExtra(EXTRA_QUERY);
+        if (query != null && !query.isEmpty()) {
+            Toast.makeText(this, "Searching for: " + query, Toast.LENGTH_SHORT).show();
+        }
     }
 
+    // This will handle the back arrow from the fragment's toolbar if it's set up correctly.
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {

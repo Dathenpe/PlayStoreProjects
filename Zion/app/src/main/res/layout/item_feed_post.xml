@@ -16,63 +16,98 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="16dp">
+        android:padding="16dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/author_avatar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/author_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
+            app:layout_constraintStart_toEndOf="@id/author_avatar"
+            app:layout_constraintTop_toTopOf="@id/author_avatar"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Author Name" />
+
+        <TextView
+            android:id="@+id/post_content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="?attr/colorOnSurface"
+            app:layout_constraintTop_toBottomOf="@id/author_avatar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="This is the main content of the post, which can include #hashtags and mentions." />
 
         <ImageView
-            android:id="@+id/post_thumbnail"
+            android:id="@+id/post_media_preview"
             android:layout_width="0dp"
             android:layout_height="200dp"
+            android:layout_marginTop="12dp"
             android:scaleType="centerCrop"
-            android:contentDescription="@string/post_thumbnail_description"
-            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/post_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:src="@tools:sample/backgrounds/scenic" />
+            tools:src="@tools:sample/backgrounds/scenic"
+            tools:visibility="visible" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/post_category_chip"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/actions_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:orientation="horizontal"
             android:layout_marginTop="16dp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnSecondaryContainer"
-            app:chipBackgroundColor="?attr/colorSecondaryContainer"
-            app:layout_constraintTop_toBottomOf="@id/post_thumbnail"
+            android:gravity="start"
+            app:layout_constraintTop_toBottomOf="@id/post_media_preview"
             app:layout_constraintStart_toStartOf="parent"
-            tools:text="@string/post_category_placeholder" />
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <TextView
-            android:id="@+id/post_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="8dp"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:maxLines="2"
-            android:ellipsize="end"
-            android:textColor="?attr/colorOnSurface"
-            app:layout_constraintTop_toBottomOf="@id/post_category_chip"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="@string/post_title_placeholder" />
+            <ImageButton
+                android:id="@+id/like_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_like"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Like" />
 
-        <TextView
-            android:id="@+id/post_description"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="4dp"
-            android:textSize="14sp"
-            android:maxLines="3"
-            android:ellipsize="end"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            app:layout_constraintTop_toBottomOf="@id/post_title"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="@string/post_description_placeholder" />
+            <TextView
+                android:id="@+id/like_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="4dp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                tools:text="12" />
+
+            <ImageButton
+                android:id="@+id/comment_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_comment"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Comment"
+                android:layout_marginStart="24dp" />
+
+            <TextView
+                android:id="@+id/comment_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="4dp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                tools:text="5" />
+        </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

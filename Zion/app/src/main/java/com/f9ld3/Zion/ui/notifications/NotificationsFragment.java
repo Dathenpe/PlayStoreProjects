@@ -8,19 +8,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.f9ld3.Zion.R;
-import com.f9ld3.Zion.databinding.FragmentFullPageListBinding; // Reusing generic list layout
+import com.f9ld3.Zion.databinding.FragmentListNoToolbarBinding; // IMPORTANT: Use the new binding
 
-/**
- * Fragment to display user notifications.
- */
 public class NotificationsFragment extends Fragment {
 
-    private FragmentFullPageListBinding binding;
+    private FragmentListNoToolbarBinding binding; // IMPORTANT: Use the new binding
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentFullPageListBinding.inflate(inflater, container, false);
+        binding = FragmentListNoToolbarBinding.inflate(inflater, container, false); // IMPORTANT: Use the new binding
         return binding.getRoot();
     }
 
@@ -28,11 +25,10 @@ public class NotificationsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Customize the empty state for this page (using template)
-        binding.textPlaceholder.setText("You have no new notifications.");
+        binding.textPlaceholder.setText(R.string.notifications_empty_text);
         binding.textPlaceholder.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_notifications_24dp, 0, 0);
 
-        // In a real app, you would populate a RecyclerView with notifications.
+        // For now, always show the empty state.
         binding.recyclerView.setVisibility(View.GONE);
         binding.textPlaceholder.setVisibility(View.VISIBLE);
     }

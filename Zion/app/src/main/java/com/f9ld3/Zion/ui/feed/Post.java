@@ -1,55 +1,81 @@
-// MultipleFiles/Post.java
 package com.f9ld3.Zion.ui.feed;
 
-/**
- * Data model for a single blog post or feed item.
- */
-public class Post {
-    public String id;
-    public String title;
-    public String description;
-    public String imageUrl;
-    public String authorName;
-    public long timestamp;
-    public String type; // e.g., "blog", "sermon", "podcast"
-    public String authorUid; // NEW: Add author UID for filtering
+import com.google.firebase.Timestamp;
 
-    // Required for Firestore automatic object mapping
+import java.io.Serializable;
+import java.util.List;
+import java.util.ArrayList;
+
+public class Post implements Serializable {
+    public static final int MEDIA_TYPE_TEXT = 1;
+    public static final int MEDIA_TYPE_IMAGE = 2;
+    public static final int MEDIA_TYPE_VIDEO = 3;
+
+    public String id;
+    public String authorUid;
+    public String authorName;
+    public String authorAvatarUrl;
+    public long timestamp;
+    public String textContent;
+    public List<MediaItem> mediaItems = new ArrayList<>();
+    public int likeCount = 0; // NEW
+    public int commentCount = 0; // NEW
+
     public Post() {}
 
-    // Original constructor
-    public Post(String id, String title, String description, String imageUrl, String authorName, long timestamp, String type) {
+    public Post(String id, String authorUid, String authorName, String authorAvatarUrl, String textContent, List<MediaItem> mediaItems) {
         this.id = id;
-        this.title = title;
-        this.description = description;
-        this.imageUrl = imageUrl;
-        this.authorName = authorName;
-        this.timestamp = timestamp;
-        this.type = type;
-        // authorUid will be set separately or in a more complete constructor
-    }
-
-    // NEW: Constructor that includes authorUid
-    public Post(String id, String title, String description, String imageUrl, String authorName, long timestamp, String type, String authorUid) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.imageUrl = imageUrl;
-        this.authorName = authorName;
-        this.timestamp = timestamp;
-        this.type = type;
         this.authorUid = authorUid;
+        this.authorName = authorName;
+        this.authorAvatarUrl = authorAvatarUrl;
+        this.timestamp = Timestamp.now().getSeconds();
+        this.textContent = textContent;
+        this.mediaItems = mediaItems;
     }
 
-    // Getters for LiveData observation and binding (important for data access)
+    // --- GETTERS ---
     public String getId() { return id; }
-    public String getTitle() { return title; }
-    public String getDescription() { return description; }
-    public String getImageUrl() { return imageUrl; }
+    public String getAuthorUid() { return authorUid; }
     public String getAuthorName() { return authorName; }
+    public String getAuthorAvatarUrl() { return authorAvatarUrl; }
     public long getTimestamp() { return timestamp; }
-    public String getType() { return type; }
-    public String getAuthorUid() { return authorUid; } // NEW Getter
+    public String getTextContent() { return textContent; }
+    public List<MediaItem> getMediaItems() { return mediaItems; }
+    public int getLikeCount() { return likeCount; } // NEW
+    public int getCommentCount() { return commentCount; } // NEW
+
 
     public void setId(String id) { this.id = id; }
+
+    public int getMediaType() {
+        if (mediaItems == null || mediaItems.isEmpty()) {
+            return MEDIA_TYPE_TEXT;
+        }
+        MediaItem firstItem = mediaItems.get(0);
+        if ("video".equals(firstItem.getMediaType())) {
+            return MEDIA_TYPE_VIDEO;
+        }
+        if ("image".equals(firstItem.getMediaType())) {
+            return MEDIA_TYPE_IMAGE;
+        }
+        return MEDIA_TYPE_TEXT;
+    }
+
+    public String getMediaUrl() {
+        if (mediaItems != null && !mediaItems.isEmpty()) {
+            return mediaItems.get(0).getUrl();
+        }
+        return null;
+    }
+
+    public String getThumbnailUrl() {
+        if (mediaItems != null && !mediaItems.isEmpty()) {
+            MediaItem firstItem = mediaItems.get(0);
+            if ("video".equals(firstItem.getMediaType()) && firstItem.getThumbnailUrl() != null) {
+                return firstItem.getThumbnailUrl();
+            }
+            return firstItem.getUrl();
+        }
+        return null;
+    }
 }

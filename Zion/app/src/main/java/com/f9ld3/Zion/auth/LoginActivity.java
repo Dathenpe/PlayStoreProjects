@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
@@ -23,14 +25,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Check if we're being recreated after navigation
         if (savedInstanceState != null) {
             hasNavigated = savedInstanceState.getBoolean("hasNavigated", false);
-            if (hasNavigated) {
-                Log.d(TAG, "Activity recreated after navigation, finishing immediately");
-                finish();
-                return;
-            }
         }
 
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
@@ -38,36 +34,17 @@ public class LoginActivity extends AppCompatActivity {
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
-        // Check if already authenticated on startup
-        Boolean isAuth = authViewModel.isAuthenticated().getValue();
-        if (Boolean.TRUE.equals(isAuth) && !hasNavigated) {
-            Log.d(TAG, "Already authenticated on create, navigating immediately");
-            navigateToMainActivity();
-            return;
-        }
-
         setupObservers();
         setupClickListeners();
     }
 
     private void setupObservers() {
-        // CRITICAL: Observe authentication state changes
         authViewModel.isAuthenticated().observe(this, isAuth -> {
-            Log.d(TAG, "isAuthenticated: " + isAuth + ", hasNavigated: " + hasNavigated + ", isFinishing: " + isFinishing());
-
-            if (!getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
-                Log.d(TAG, "Activity not in valid state, skipping navigation");
-                return;
-            }
-
-
             if (Boolean.TRUE.equals(isAuth) && !hasNavigated && !isFinishing()) {
-                Log.d(TAG, "Navigating to MainActivity");
                 navigateToMainActivity();
             }
         });
 
-        // Error observer
         authViewModel.getAuthError().observe(this, error -> {
             if (error != null && !isFinishing()) {
                 binding.progressBar.setVisibility(View.GONE);
@@ -81,7 +58,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        // Message observer
         authViewModel.getAuthMessage().observe(this, message -> {
             if (message != null && !isFinishing()) {
                 showDialog("Success", message, "OK", null);
@@ -89,7 +65,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        // Password reset observer
         authViewModel.getPasswordResetSent().observe(this, sent -> {
             if (Boolean.TRUE.equals(sent) && !isFinishing()) {
                 showDialog("Password Reset", "A reset link has been sent to your inbox.", "OK", null);
@@ -99,7 +74,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        // Login button
         binding.buttonLogin.setOnClickListener(v -> {
             String email = binding.editTextEmail.getText().toString().trim();
             String password = binding.editTextPassword.getText().toString();
@@ -113,7 +87,6 @@ public class LoginActivity extends AppCompatActivity {
             authViewModel.signIn(email, password);
         });
 
-        // Forgot password
         binding.textViewForgotPassword.setOnClickListener(v -> {
             String email = binding.editTextEmail.getText().toString().trim();
             if (TextUtils.isEmpty(email)) {
@@ -123,11 +96,8 @@ public class LoginActivity extends AppCompatActivity {
             authViewModel.sendPasswordResetEmail(email);
         });
 
-        // Sign up navigation
         binding.textViewSignUp.setOnClickListener(v -> {
-            if (!hasNavigated) {
-                startActivity(new Intent(this, SignUpActivity.class));
-            }
+            startActivity(new Intent(this, SignUpActivity.class));
         });
     }
 
@@ -156,18 +126,16 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onNegativeClick() { }
         });
-        dialog.show(getSupportFragmentManager(), "VerificationDialog");
+        if (!isFinishing()) {
+            dialog.show(getSupportFragmentManager(), "VerificationDialog");
+        }
     }
 
     private void navigateToMainActivity() {
         if (hasNavigated || isFinishing()) {
-            Log.d(TAG, "Navigation blocked - hasNavigated: " + hasNavigated + ", isFinishing: " + isFinishing());
             return;
         }
-
         hasNavigated = true;
-        Log.d(TAG, "navigateToMainActivity executing");
-
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
@@ -175,7 +143,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean("hasNavigated", hasNavigated);
     }
@@ -183,25 +151,6 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy called");
         binding = null;
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d(TAG, "onStop called, hasNavigated: " + hasNavigated);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "onPause called");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume called, hasNavigated: " + hasNavigated);
     }
 }

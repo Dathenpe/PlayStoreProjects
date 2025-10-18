@@ -20,6 +20,9 @@ public class PlayerViewModel extends ViewModel {
     private final MutableLiveData<List<PlayerMedia>> mMediaFeed = new MutableLiveData<>();
     public LiveData<List<PlayerMedia>> getMediaFeed() { return mMediaFeed; }
 
+    private final MutableLiveData<Boolean> mIsLoading = new MutableLiveData<>();
+    public LiveData<Boolean> isLoading() { return mIsLoading; }
+
     // Firestore members
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ListenerRegistration mediaFeedListener;
@@ -29,6 +32,7 @@ public class PlayerViewModel extends ViewModel {
     }
 
     private void fetchMediaFeed() {
+        mIsLoading.setValue(true); // Start loading
         // Fetch a large number of items to ensure enough videos and podcasts for interleaving
         // A limit of 100 should be sufficient for 30 podcasts (15 duos) + 45 videos.
         Query query = db.collection("media")
@@ -39,6 +43,7 @@ public class PlayerViewModel extends ViewModel {
             if (error != null) {
                 Log.w(TAG, "Listen failed for media feed. (Ensure Firestore database is created)", error);
                 mMediaFeed.setValue(new ArrayList<>());
+                mIsLoading.setValue(false); // Stop loading on error
                 return;
             }
 
@@ -102,6 +107,7 @@ public class PlayerViewModel extends ViewModel {
                 Log.d(TAG, "Current media feed data is empty or null.");
                 mMediaFeed.setValue(new ArrayList<>());
             }
+            mIsLoading.setValue(false); // Stop loading when data is received
         });
     }
 

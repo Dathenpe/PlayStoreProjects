@@ -8,6 +8,7 @@
     tools:context=".ui.player.PlayerFragment">
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/content_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true">
@@ -21,7 +22,29 @@
             android:paddingBottom="100dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:nestedScrollingEnabled="false"
+            android:visibility="gone"
             tools:listitem="@layout/item_video_m3" />
+
+    </androidx.core.widget.NestedScrollView>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/skeleton_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/skeleton_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:paddingTop="8dp"
+            android:paddingBottom="100dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:nestedScrollingEnabled="false"
+            tools:listitem="@layout/item_video_m3_skeleton" />
 
     </androidx.core.widget.NestedScrollView>
 

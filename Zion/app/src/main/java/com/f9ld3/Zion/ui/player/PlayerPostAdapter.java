@@ -67,7 +67,7 @@ public class PlayerPostAdapter extends ListAdapter<PlayerMedia, RecyclerView.Vie
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         PlayerMedia mediaItem = getItem(position);
-        if (holder.getItemViewType() == PlayerMedia.TYPE_VIDEO) {
+        if (holder.getItemViewType() == PlayerMedia.TYPE_VIDEO || holder.getItemViewType() == PlayerMedia.TYPE_PODCAST_SINGLE) {
             ((VideoViewHolder) holder).bind(mediaItem, listener, this::formatDuration);
         } else if (holder.getItemViewType() == PlayerMedia.TYPE_PODCAST_DUO_CONTAINER) {
             ((PodcastDuoViewHolder) holder).bind(mediaItem, listener, this::formatDuration);
@@ -198,7 +198,7 @@ public class PlayerPostAdapter extends ListAdapter<PlayerMedia, RecyclerView.Vie
     }
 
     @FunctionalInterface
-    interface DurationFormatter {
+    public interface DurationFormatter {
         String format(long seconds);
     }
 }

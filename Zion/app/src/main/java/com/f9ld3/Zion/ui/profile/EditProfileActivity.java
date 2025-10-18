@@ -24,7 +24,9 @@ public class EditProfileActivity extends AppCompatActivity {
     private ActivityEditProfileBinding binding;
     private EditProfileViewModel editProfileViewModel;
     private Uri selectedImageUri = null;
+    private Uri selectedBannerUri = null;
     private boolean imageRemoved = false;
+    private boolean bannerRemoved = false;
 
     private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -34,6 +36,18 @@ public class EditProfileActivity extends AppCompatActivity {
                     imageRemoved = false;
                     Glide.with(this).load(selectedImageUri).placeholder(R.drawable.ic_profile_placeholder).into(binding.imageProfile);
                     binding.buttonRemoveImage.setVisibility(View.VISIBLE);
+                }
+            }
+    );
+
+    private final ActivityResultLauncher<Intent> bannerPickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    selectedBannerUri = result.getData().getData();
+                    bannerRemoved = false;
+                    Glide.with(this).load(selectedBannerUri).placeholder(R.drawable.ic_banner_placeholder).into(binding.imageBanner);
+                    binding.buttonRemoveBanner.setVisibility(View.VISIBLE);
                 }
             }
     );
@@ -67,7 +81,7 @@ public class EditProfileActivity extends AppCompatActivity {
             }
         });
         editProfileViewModel.getReauthRequired().observe(this, message -> {
-            if (message != null) {
+            if (message != null && !isFinishing()) {
                 showReauthDialog(message);
                 editProfileViewModel.clearReauthRequired();
             }
@@ -87,14 +101,25 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        binding.fabEditImage.setOnClickListener(v -> openImagePicker());
+        // CHANGED: Listen on the image itself, not the old FAB
+        binding.imageProfile.setOnClickListener(v -> openImagePicker());
+        // CHANGED: Listen on the image itself, not the old FAB
+        binding.imageBanner.setOnClickListener(v -> openBannerPicker());
+
+        // These are still correct
         binding.buttonRemoveImage.setOnClickListener(v -> showRemoveImageConfirmation());
+        binding.buttonRemoveBanner.setOnClickListener(v -> showRemoveBannerConfirmation());
         binding.buttonSave.setOnClickListener(v -> attemptSaveProfile());
     }
 
     private void openImagePicker() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         imagePickerLauncher.launch(intent);
+    }
+
+    private void openBannerPicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        bannerPickerLauncher.launch(intent);
     }
 
     private void showRemoveImageConfirmation() {
@@ -115,6 +140,24 @@ public class EditProfileActivity extends AppCompatActivity {
         dialog.show(getSupportFragmentManager(), "RemoveImageDialog");
     }
 
+    private void showRemoveBannerConfirmation() {
+        CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance(
+                "Remove Banner Image?",
+                "Are you sure you want to remove your banner image?",
+                "Remove",
+                "Cancel"
+        );
+        dialog.setDialogListener(new CustomAlertDialogFragment.DialogListener() {
+            @Override
+            public void onPositiveClick() {
+                removeBannerImage();
+            }
+            @Override
+            public void onNegativeClick() {}
+        });
+        dialog.show(getSupportFragmentManager(), "RemoveBannerDialog");
+    }
+
     private void removeProfileImage() {
         selectedImageUri = null;
         imageRemoved = true;
@@ -122,24 +165,37 @@ public class EditProfileActivity extends AppCompatActivity {
         binding.buttonRemoveImage.setVisibility(View.GONE);
     }
 
+    private void removeBannerImage() {
+        selectedBannerUri = null;
+        bannerRemoved = true;
+        binding.imageBanner.setImageResource(R.drawable.ic_banner_placeholder);
+        binding.buttonRemoveBanner.setVisibility(View.GONE);
+    }
+
+
     private void attemptSaveProfile() {
+        String newAccountName = binding.inputAccountName.getText().toString().trim();
         String newUsername = binding.inputUsername.getText().toString().trim();
+        String newBio = binding.inputBio.getText().toString().trim();
         String newEmail = binding.inputEmail.getText().toString().trim();
 
-        if (newUsername.isEmpty()) {
-            binding.layoutUsername.setError("Username cannot be empty");
+        if (newAccountName.isEmpty()) {
+            binding.layoutAccountName.setError("Account Name cannot be empty");
             return;
         }
-        binding.layoutUsername.setError(null);
+        binding.layoutAccountName.setError(null);
 
-        editProfileViewModel.saveProfile(newUsername, newEmail,
+        editProfileViewModel.saveProfile(newAccountName, newUsername, newEmail, newBio,
                 imageRemoved ? Uri.parse("REMOVE_IMAGE") : selectedImageUri,
+                bannerRemoved ? Uri.parse("REMOVE_BANNER") : selectedBannerUri,
                 null, this);
     }
 
     private void populateUi(UserProfile profile) {
         if (profile != null) {
+            binding.inputAccountName.setText(profile.getAccountName());
             binding.inputUsername.setText(profile.getUsername());
+            binding.inputBio.setText(profile.getBio());
             binding.inputEmail.setText(profile.getEmail());
             if (profile.getProfileImageUrl() != null && !profile.getProfileImageUrl().isEmpty()) {
                 Glide.with(this).load(profile.getProfileImageUrl()).placeholder(R.drawable.ic_profile_placeholder).into(binding.imageProfile);
@@ -148,18 +204,29 @@ public class EditProfileActivity extends AppCompatActivity {
                 binding.imageProfile.setImageResource(R.drawable.ic_profile_placeholder);
                 binding.buttonRemoveImage.setVisibility(View.GONE);
             }
+            if (profile.getBannerImageUrl() != null && !profile.getBannerImageUrl().isEmpty()) {
+                Glide.with(this).load(profile.getBannerImageUrl()).placeholder(R.drawable.ic_banner_placeholder).into(binding.imageBanner);
+                binding.buttonRemoveBanner.setVisibility(View.VISIBLE);
+            } else {
+                binding.imageBanner.setImageResource(R.drawable.ic_banner_placeholder);
+                binding.buttonRemoveBanner.setVisibility(View.GONE);
+            }
         }
     }
 
     private void showReauthDialog(String message) {
+        if (isFinishing()) return;
         CustomInputDialogFragment dialog = CustomInputDialogFragment.newInstance(
                 "Re-authentication Required", message, "Current Password", "Confirm", "Cancel", true);
 
         dialog.setInputListener(currentPassword -> {
+            String newAccountName = binding.inputAccountName.getText().toString().trim();
             String newUsername = binding.inputUsername.getText().toString().trim();
+            String newBio = binding.inputBio.getText().toString().trim();
             String newEmail = binding.inputEmail.getText().toString().trim();
-            editProfileViewModel.saveProfile(newUsername, newEmail,
+            editProfileViewModel.saveProfile(newAccountName, newUsername, newEmail, newBio,
                     imageRemoved ? Uri.parse("REMOVE_IMAGE") : selectedImageUri,
+                    bannerRemoved ? Uri.parse("REMOVE_BANNER") : selectedBannerUri,
                     currentPassword, this);
         });
 

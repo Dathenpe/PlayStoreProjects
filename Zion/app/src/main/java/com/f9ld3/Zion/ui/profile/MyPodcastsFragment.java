@@ -4,34 +4,28 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
 import com.f9ld3.Zion.R;
-import com.f9ld3.Zion.databinding.FragmentFullPageListBinding; // Reusing this layout
+import com.f9ld3.Zion.databinding.FragmentListNoToolbarBinding;
 import com.f9ld3.Zion.ui.player.PlayerMedia;
 import com.f9ld3.Zion.ui.player.PlayerPostAdapter;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Fragment to display the user's uploaded podcast media items.
- */
 public class MyPodcastsFragment extends Fragment implements PlayerPostAdapter.OnMediaClickListener {
 
-    private FragmentFullPageListBinding binding;
+    private FragmentListNoToolbarBinding binding;
     private ProfileViewModel profileViewModel;
     private PlayerPostAdapter podcastAdapter;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentFullPageListBinding.inflate(inflater, container, false);
+        binding = FragmentListNoToolbarBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
@@ -41,9 +35,14 @@ public class MyPodcastsFragment extends Fragment implements PlayerPostAdapter.On
 
         profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
+        // Explicitly fetch podcasts for the current user
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            profileViewModel.fetchUserPodcasts(currentUser.getUid());
+        }
+
         setupRecyclerView();
 
-        // Customize the empty state for this page (using template)
         binding.textPlaceholder.setText(getString(R.string.podcasts_empty_text));
         binding.textPlaceholder.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_mic_24dp, 0, 0);
 
@@ -60,14 +59,14 @@ public class MyPodcastsFragment extends Fragment implements PlayerPostAdapter.On
     }
 
     private void setupRecyclerView() {
-        podcastAdapter = new PlayerPostAdapter(this); // 'this' refers to OnMediaClickListener
+        podcastAdapter = new PlayerPostAdapter(this);
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerView.setAdapter(podcastAdapter);
     }
 
     @Override
     public void onMediaClick(PlayerMedia media) {
-        // TODO: Implement navigation to player or details for the podcast.
+        // TODO: Implement navigation for the podcast.
     }
 
     @Override

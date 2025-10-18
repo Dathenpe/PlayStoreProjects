@@ -8,7 +8,6 @@
     android:padding="24dp"
     tools:context=".auth.SignUpActivity">
 
-    <!-- Logo Container -->
     <LinearLayout
         android:id="@+id/logo_container"
         android:layout_width="wrap_content"
@@ -39,14 +38,13 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Username Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutUsername"
         style="@style/Widget.Zion.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
-        android:hint="@string/username"
+        android:hint="Account Name"
         app:layout_constraintBottom_toTopOf="@id/layoutEmail"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -63,7 +61,6 @@
             tools:ignore="RtlSymmetry" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Email Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutEmail"
         style="@style/Widget.Zion.TextInputLayout.OutlinedBox"
@@ -87,7 +84,6 @@
             tools:ignore="RtlSymmetry"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Password Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutPassword"
         style="@style/Widget.Zion.TextInputLayout.OutlinedBox"
@@ -112,7 +108,6 @@
             tools:ignore="RtlSymmetry"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Confirm Password Input -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutConfirmPassword"
         style="@style/Widget.Zion.TextInputLayout.OutlinedBox"
@@ -137,7 +132,6 @@
             tools:ignore="RtlSymmetry"/>
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Sign Up Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/buttonSignUp"
         style="@style/Widget.Material3.Button"
@@ -154,7 +148,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layoutConfirmPassword" />
 
-    <!-- Progress Bar (Overlays Button) -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
@@ -167,7 +160,6 @@
         app:layout_constraintTop_toTopOf="@id/buttonSignUp"
         tools:visibility="visible" />
 
-    <!-- Link to Login -->
     <TextView
         android:id="@+id/textViewLogin"
         android:layout_width="wrap_content"

@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="Zion">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-03T09:35:22.985304600Z">
+        <DropdownSelection timestamp="2025-10-18T12:43:28.951011900Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=067642513N100574" />

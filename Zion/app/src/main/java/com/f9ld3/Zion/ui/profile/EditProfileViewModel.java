@@ -87,7 +87,8 @@ public class EditProfileViewModel extends ViewModel {
                 });
     }
 
-    public void saveProfile(String newUsername, String newEmail, Uri newImageUri, String currentPassword, Context context) {
+    public void saveProfile(String newAccountName, String newUsername, String newEmail, String newBio,
+                            Uri newImageUri, Uri newBannerUri, String currentPassword, Context context) {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) {
             mSaveStatus.setValue(SaveStatus.FAILED);
@@ -97,12 +98,20 @@ public class EditProfileViewModel extends ViewModel {
         mSaveStatus.setValue(SaveStatus.LOADING);
         _uploadError.postValue(null);
 
-        String currentUsername = user.getDisplayName() != null ? user.getDisplayName() : "";
+        String currentAccountName = user.getDisplayName() != null ? user.getDisplayName() : "";
         String currentEmail = user.getEmail() != null ? user.getEmail() : "";
+        UserProfile currentUserProfile = mUserProfile.getValue();
+        String currentUsername = currentUserProfile != null ? currentUserProfile.getUsername() : "";
 
-        boolean usernameChanged = !currentUsername.equals(newUsername);
+        boolean accountNameChanged = !currentAccountName.equals(newAccountName);
+        boolean usernameChanged = newUsername != null && !newUsername.equals(currentUsername);
         boolean emailChanged = newEmail != null && !newEmail.isEmpty() && !currentEmail.equals(newEmail);
-        boolean imageChanged = newImageUri != null;
+
+        boolean imageRemoved = "REMOVE_IMAGE".equals(newImageUri != null ? newImageUri.toString() : "");
+        boolean bannerRemoved = "REMOVE_BANNER".equals(newBannerUri != null ? newBannerUri.toString() : "");
+        boolean imageChanged = newImageUri != null && !imageRemoved;
+        boolean bannerChanged = newBannerUri != null && !bannerRemoved;
+
 
         if (emailChanged && (currentPassword == null || currentPassword.isEmpty())) {
             _reauthRequired.setValue("Re-authentication is required to change email. Please provide your current password.");
@@ -110,14 +119,15 @@ public class EditProfileViewModel extends ViewModel {
             return;
         }
 
-        if (imageChanged) {
-            Uri compressedImageUri = compressImage(newImageUri, context);
-            uploadProfileImage(compressedImageUri != null ? compressedImageUri : newImageUri, user.getUid(), imageUrl -> {
-                updateUserProfile(user, newUsername, newEmail, imageUrl, currentPassword, usernameChanged, emailChanged);
+        // Image Upload/Removal Logic
+        uploadProfileImage(imageChanged ? newImageUri : null, imageRemoved, user.getUid(), context, imageUrl -> {
+            // Banner Upload/Removal Logic
+            uploadBannerImage(bannerChanged ? newBannerUri : null, bannerRemoved, user.getUid(), context, bannerUrl -> {
+                // Once both images are handled, update the profile
+                updateUserProfile(user, newAccountName, newUsername, newEmail, newBio, imageUrl, bannerUrl,
+                        currentPassword, accountNameChanged, usernameChanged, emailChanged, imageRemoved, bannerRemoved);
             });
-        } else {
-            updateUserProfile(user, newUsername, newEmail, null, currentPassword, usernameChanged, emailChanged);
-        }
+        });
     }
 
     private Uri compressImage(Uri imageUri, Context context) {
@@ -153,52 +163,64 @@ public class EditProfileViewModel extends ViewModel {
         }
     }
 
-    private void uploadProfileImage(Uri imageUri, String userId, OnImageUploadListener listener) {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser == null) {
-            _uploadError.postValue("User not authenticated. Please log in again.");
-            mSaveStatus.setValue(SaveStatus.FAILED);
+    private void uploadProfileImage(Uri imageUri, boolean removeImage, String userId, Context context, OnImageUploadListener listener) {
+        if (removeImage) {
+            listener.onUploadComplete(""); // Pass empty string to signify removal
+            return;
+        }
+        if (imageUri == null) {
+            listener.onUploadComplete(null); // No change
+            return;
+        }
+        Uri compressedUri = compressImage(imageUri, context);
+        if (compressedUri == null) {
+            handleStorageError(new IOException("Compression failed"), "Could not prepare image for upload.");
             return;
         }
 
-        String uid = currentUser.getUid();
-        if (uid == null || uid.isEmpty()) {
-            _uploadError.postValue("Invalid user ID. Please log in again.");
-            mSaveStatus.setValue(SaveStatus.FAILED);
-            return;
-        }
 
-        // CORRECTED PATH
-        StorageReference profileImagesRef = storage.getReference()
-                .child("profile_images")
-                .child(uid)
-                .child("profile.jpg");
+        StorageReference profileImagesRef = storage.getReference().child("profile_images/" + userId + "/profile.jpg");
 
-        Log.d(TAG, "Uploading to path: " + profileImagesRef.getPath());
-
-        profileImagesRef.putFile(imageUri)
+        profileImagesRef.putFile(compressedUri)
                 .addOnProgressListener(taskSnapshot -> {
                     double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
                     _uploadProgress.postValue((int) progress);
-                    Log.d(TAG, "Upload progress: " + progress + "%");
                 })
-                .addOnSuccessListener(taskSnapshot -> {
-                    Log.d(TAG, "Image uploaded successfully");
-                    profileImagesRef.getDownloadUrl()
-                            .addOnSuccessListener(uri -> {
-                                Log.d(TAG, "Download URL: " + uri.toString());
-                                listener.onUploadComplete(uri.toString());
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e(TAG, "Failed to get download URL", e);
-                                handleStorageError(e, "Failed to retrieve image URL after upload.");
-                            });
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Image upload failed", e);
-                    handleStorageError(e, "Failed to upload image. Check your permissions and internet connection.");
-                });
+                .addOnSuccessListener(taskSnapshot -> profileImagesRef.getDownloadUrl()
+                        .addOnSuccessListener(uri -> listener.onUploadComplete(uri.toString()))
+                        .addOnFailureListener(e -> handleStorageError(e, "Failed to retrieve image URL.")))
+                .addOnFailureListener(e -> handleStorageError(e, "Image upload failed."));
     }
+
+    private void uploadBannerImage(Uri imageUri, boolean removeBanner, String userId, Context context, OnImageUploadListener listener) {
+        if (removeBanner) {
+            listener.onUploadComplete(""); // Pass empty string for removal
+            return;
+        }
+        if (imageUri == null) {
+            listener.onUploadComplete(null); // No change
+            return;
+        }
+
+        Uri compressedUri = compressImage(imageUri, context);
+        if (compressedUri == null) {
+            handleStorageError(new IOException("Compression failed"), "Could not prepare banner for upload.");
+            return;
+        }
+
+        StorageReference bannerImagesRef = storage.getReference().child("banner_images/" + userId + "/banner.jpg");
+
+        bannerImagesRef.putFile(compressedUri)
+                .addOnProgressListener(taskSnapshot -> {
+                    double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                    _uploadProgress.postValue((int) progress);
+                })
+                .addOnSuccessListener(taskSnapshot -> bannerImagesRef.getDownloadUrl()
+                        .addOnSuccessListener(uri -> listener.onUploadComplete(uri.toString()))
+                        .addOnFailureListener(e -> handleStorageError(e, "Failed to retrieve banner URL.")))
+                .addOnFailureListener(e -> handleStorageError(e, "Banner upload failed."));
+    }
+
 
     private void handleStorageError(Exception e, String defaultMessage) {
         String errorMsg = defaultMessage;
@@ -206,16 +228,9 @@ public class EditProfileViewModel extends ViewModel {
             StorageException storageException = (StorageException) e;
             int errorCode = storageException.getErrorCode();
             switch (errorCode) {
-                case -13021: // ERROR_OBJECT_NOT_FOUND
-                    errorMsg = "File not found. The upload path may be incorrect.";
-                    break;
-                case -13010: // ERROR_UNAUTHORIZED
-                    errorMsg = "Permission denied. Please check your Firebase Storage rules or contact support.";
-                    break;
-                case -13000: // ERROR_UNKNOWN
-                default:
-                    errorMsg = defaultMessage + " (Error code: " + errorCode + ")";
-                    break;
+                case -13021: errorMsg = "File not found."; break;
+                case -13010: errorMsg = "Permission denied. Check storage rules."; break;
+                default: errorMsg = defaultMessage + " (Error code: " + errorCode + ")"; break;
             }
         } else {
             errorMsg = defaultMessage + ": " + (e != null ? e.getMessage() : "Unknown error");
@@ -224,39 +239,39 @@ public class EditProfileViewModel extends ViewModel {
         mSaveStatus.setValue(SaveStatus.FAILED);
     }
 
-    private void updateUserProfile(FirebaseUser user, String newUsername, String newEmail,
-                                   String newImageUrl, String currentPassword,
-                                   boolean usernameChanged, boolean emailChanged) {
+    private void updateUserProfile(FirebaseUser user, String newAccountName, String newUsername, String newEmail, String newBio,
+                                   String newImageUrl, String newBannerUrl, String currentPassword,
+                                   boolean accountNameChanged, boolean usernameChanged, boolean emailChanged,
+                                   boolean imageRemoved, boolean bannerRemoved) {
 
         if (emailChanged) {
             AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), currentPassword);
             user.reauthenticate(credential)
                     .addOnCompleteListener(reauthTask -> {
                         if (reauthTask.isSuccessful()) {
-                            Log.d(TAG, "Re-authentication successful");
-                            proceedWithUpdates(user, newUsername, newEmail, newImageUrl, usernameChanged, true);
+                            proceedWithUpdates(user, newAccountName, newUsername, newEmail, newBio, newImageUrl, newBannerUrl, accountNameChanged, usernameChanged, true, imageRemoved, bannerRemoved);
                         } else {
-                            Log.e(TAG, "Re-authentication failed", reauthTask.getException());
                             _reauthRequired.postValue("Re-authentication failed. Incorrect password.");
                             mSaveStatus.setValue(SaveStatus.FAILED);
                         }
                     });
         } else {
-            proceedWithUpdates(user, newUsername, newEmail, newImageUrl, usernameChanged, false);
+            proceedWithUpdates(user, newAccountName, newUsername, newEmail, newBio, newImageUrl, newBannerUrl, accountNameChanged, usernameChanged, false, imageRemoved, bannerRemoved);
         }
     }
 
-    private void proceedWithUpdates(FirebaseUser user, String newUsername, String newEmail,
-                                    String newImageUrl, boolean usernameChanged, boolean emailChanged) {
+    private void proceedWithUpdates(FirebaseUser user, String newAccountName, String newUsername, String newEmail, String newBio,
+                                    String newImageUrl, String newBannerUrl, boolean accountNameChanged, boolean usernameChanged, boolean emailChanged,
+                                    boolean imageRemoved, boolean bannerRemoved) {
 
         UserProfileChangeRequest.Builder profileUpdatesBuilder = new UserProfileChangeRequest.Builder();
 
-        if (usernameChanged) {
-            profileUpdatesBuilder.setDisplayName(newUsername);
+        if (accountNameChanged) {
+            profileUpdatesBuilder.setDisplayName(newAccountName);
         }
 
-        if (newImageUrl != null) {
-            profileUpdatesBuilder.setPhotoUri(Uri.parse(newImageUrl));
+        if (newImageUrl != null || imageRemoved) {
+            profileUpdatesBuilder.setPhotoUri(newImageUrl != null && !newImageUrl.isEmpty() ? Uri.parse(newImageUrl) : null);
         }
 
         user.updateProfile(profileUpdatesBuilder.build())
@@ -268,18 +283,16 @@ public class EditProfileViewModel extends ViewModel {
                             user.verifyBeforeUpdateEmail(newEmail)
                                     .addOnCompleteListener(emailTask -> {
                                         if (emailTask.isSuccessful()) {
-                                            Log.d(TAG, "Verification email sent to new address.");
-                                            _emailUpdateStatus.postValue("Verification link sent to " + newEmail + ". Please check your inbox to confirm the change.");
-                                            updateFirestoreProfile(user.getUid(), newUsername, newEmail, newImageUrl);
+                                            _emailUpdateStatus.postValue("Verification link sent to " + newEmail + ".");
+                                            updateFirestoreProfile(user.getUid(), newAccountName, newUsername, newEmail, newBio, newImageUrl, newBannerUrl, imageRemoved, bannerRemoved);
                                         } else {
-                                            Log.e(TAG, "Failed to send verification email", emailTask.getException());
                                             _emailUpdateStatus.postValue("Failed to update email: " +
                                                     (emailTask.getException() != null ? emailTask.getException().getMessage() : "Unknown error"));
                                             mSaveStatus.setValue(SaveStatus.FAILED);
                                         }
                                     });
                         } else {
-                            updateFirestoreProfile(user.getUid(), newUsername, newEmail, newImageUrl);
+                            updateFirestoreProfile(user.getUid(), newAccountName, newUsername, newEmail, newBio, newImageUrl, newBannerUrl, imageRemoved, bannerRemoved);
                         }
                     } else {
                         Log.e(TAG, "Failed to update Firebase Auth profile", profileTask.getException());
@@ -289,24 +302,19 @@ public class EditProfileViewModel extends ViewModel {
                 });
     }
 
-    private void updateFirestoreProfile(String uid, String username, String email, String imageUrl) {
+    private void updateFirestoreProfile(String uid, String accountName, String username, String email, String bio, String imageUrl, String bannerUrl, boolean imageRemoved, boolean bannerRemoved) {
         Map<String, Object> updates = new HashMap<>();
 
-        if (username != null && !username.isEmpty()) {
-            updates.put("username", username);
-        }
-
-        if (email != null && !email.isEmpty()) {
-            updates.put("email", email);
-        }
-
-        if (imageUrl != null && !imageUrl.isEmpty()) {
-            updates.put("profileImageUrl", imageUrl);
-        }
-
+        if (accountName != null && !accountName.isEmpty()) updates.put("accountName", accountName);
+        updates.put("username", username);
+        if (email != null && !email.isEmpty()) updates.put("email", email);
+        updates.put("bio", bio);
+        if (imageUrl != null || imageRemoved) updates.put("profileImageUrl", imageUrl);
+        if (bannerUrl != null || bannerRemoved) updates.put("bannerImageUrl", bannerUrl);
         updates.put("updatedAt", System.currentTimeMillis());
 
-        if (updates.isEmpty() || updates.size() == 1) { // Only updatedAt
+
+        if (updates.size() <= 1) { // Only updatedAt
             mSaveStatus.setValue(SaveStatus.SUCCESS);
             return;
         }
@@ -319,19 +327,11 @@ public class EditProfileViewModel extends ViewModel {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to update Firestore profile", e);
-                    db.collection("users").document(uid).set(updates)
-                            .addOnSuccessListener(aVoid2 -> {
-                                Log.d(TAG, "Firestore profile created successfully");
-                                mSaveStatus.setValue(SaveStatus.SUCCESS);
-                                loadUserProfile();
-                            })
-                            .addOnFailureListener(e2 -> {
-                                Log.e(TAG, "Failed to create Firestore profile", e2);
-                                mSaveStatus.setValue(SaveStatus.FAILED);
-                                _uploadError.postValue("Failed to save profile to database: " + (e2 != null ? e2.getMessage() : "Unknown error"));
-                            });
+                    mSaveStatus.setValue(SaveStatus.FAILED);
+                    _uploadError.postValue("Failed to save profile to database: " + e.getMessage());
                 });
     }
+
 
     public void clearReauthRequired() {
         _reauthRequired.setValue(null);

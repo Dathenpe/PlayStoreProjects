@@ -24,19 +24,18 @@ public class SignUpActivity extends AppCompatActivity {
 
         authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
-        // Check for immediate navigation if already authenticated and verified
-        if (authViewModel.getCurrentUser().getValue() != null && authViewModel.getCurrentUser().getValue().isEmailVerified()) {
-            navigateToMainActivity();
-            return;
-        }
+        authViewModel.isAuthenticated().observe(this, authenticated -> {
+            if (Boolean.TRUE.equals(authenticated)) {
+                navigateToMainActivity();
+            }
+        });
 
         authViewModel.getAuthError().observe(this, error -> {
             if (error != null) {
                 binding.progressBar.setVisibility(View.GONE);
                 binding.buttonSignUp.setEnabled(true);
-                // UPDATED: Use custom dialog for errors
                 showDialog("Registration Failed", error, "OK", null);
-                authViewModel.clearMessages(); // Clear immediately
+                authViewModel.clearMessages();
             }
         });
 
@@ -44,26 +43,22 @@ public class SignUpActivity extends AppCompatActivity {
             if (message != null) {
                 binding.progressBar.setVisibility(View.GONE);
                 binding.buttonSignUp.setEnabled(true);
-                // Show success dialog and offer to navigate to login
                 showSuccessDialog(message);
                 authViewModel.clearMessages();
             }
         });
 
-        // Sign Up Button Click
         binding.buttonSignUp.setOnClickListener(v -> attemptSignUp());
-
-        // Navigate to Login
         binding.textViewLogin.setOnClickListener(v -> navigateToLogin());
     }
 
     private void attemptSignUp() {
-        String username = binding.editTextUsername.getText().toString().trim();
+        String accountName = binding.editTextUsername.getText().toString().trim();
         String email = binding.editTextEmail.getText().toString().trim();
         String password = binding.editTextPassword.getText().toString();
         String confirmPassword = binding.editTextConfirmPassword.getText().toString();
 
-        if (TextUtils.isEmpty(username) || TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(confirmPassword)) {
+        if (TextUtils.isEmpty(accountName) || TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(confirmPassword)) {
             showDialog("Input Error", "All fields are required.", "OK", null);
             return;
         }
@@ -73,8 +68,8 @@ public class SignUpActivity extends AppCompatActivity {
             return;
         }
 
-        if (!authViewModel.isUsernameValid(username)) {
-            showDialog("Input Error", "Username must be 3-20 characters long and contain only letters, numbers, '.', '_', or '-'.", "OK", null);
+        if (!authViewModel.isUsernameValid(accountName)) {
+            showDialog("Input Error", "Account Name must be 3-20 characters long and contain only letters, numbers, '.', '_', or '-'.", "OK", null);
             return;
         }
 
@@ -91,15 +86,17 @@ public class SignUpActivity extends AppCompatActivity {
         binding.progressBar.setVisibility(View.VISIBLE);
         binding.buttonSignUp.setEnabled(false);
 
-        authViewModel.signUp(email, password, username);
+        authViewModel.signUp(email, password, accountName);
     }
 
     private void showDialog(String title, String message, String positiveBtn, String negativeBtn) {
+        if (isFinishing()) return;
         CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance(title, message, positiveBtn, negativeBtn);
         dialog.show(getSupportFragmentManager(), "CustomAlertDialogFragment");
     }
 
     private void showSuccessDialog(String message) {
+        if (isFinishing()) return;
         CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance("Success!", message, "Go to Login", null);
         dialog.setDialogListener(new CustomAlertDialogFragment.DialogListener() {
             @Override
@@ -113,7 +110,6 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void navigateToLogin() {
-        // Ensure to clear the task stack
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
@@ -121,7 +117,6 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void navigateToMainActivity() {
-        // Helper to navigate to Main if authenticated (e.g., if user returns while authenticated)
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

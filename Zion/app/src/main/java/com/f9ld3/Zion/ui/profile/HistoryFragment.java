@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment; // Add this import
 import com.f9ld3.Zion.R;
 import com.f9ld3.Zion.databinding.FragmentFullPageListBinding;
 
@@ -26,25 +27,15 @@ public class HistoryFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Setup Toolbar with title and working back button
+        binding.toolbar.setTitle(R.string.history);
+        binding.toolbar.setNavigationOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
+
         ProfileViewModel profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
-        // Customize the empty state for this page (using template)
         binding.textPlaceholder.setText(getString(R.string.history_empty_text));
         binding.textPlaceholder.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_history_24dp, 0, 0);
 
-        // TODO: Setup RecyclerView Adapter and observe profileViewModel.getUserHistory()
-        // profileViewModel.getUserHistory().observe(getViewLifecycleOwner(), history -> {
-        //     if (history == null || history.isEmpty()) {
-        //         binding.recyclerView.setVisibility(View.GONE);
-        //         binding.textPlaceholder.setVisibility(View.VISIBLE);
-        //     } else {
-        //         binding.recyclerView.setVisibility(View.VISIBLE);
-        //         binding.textPlaceholder.setVisibility(View.GONE);
-        //         // adapter.submitList(history);
-        //     }
-        // });
-
-        // Default: Show empty state
         binding.recyclerView.setVisibility(View.GONE);
         binding.textPlaceholder.setVisibility(View.VISIBLE);
     }

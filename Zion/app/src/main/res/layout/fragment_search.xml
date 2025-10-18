@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:background="?attr/colorSurface"
     tools:context=".ui.search.SearchFragment">
 
@@ -18,27 +19,42 @@
             android:id="@+id/toolbar_search"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            app:contentInsetStart="0dp"
             app:layout_scrollFlags="scroll|enterAlways|snap">
 
-            <FrameLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageButton
+                    android:id="@+id/button_close"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Back"
+                    android:src="@drawable/ic_arrow_back_24dp"
+                    app:tint="?attr/colorOnSurfaceVariant" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/search_input_layout"
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_marginEnd="16dp"
                     app:hintEnabled="false"
                     app:startIconDrawable="@drawable/ic_search_24dp"
                     app:startIconTint="?attr/colorOnSurfaceVariant"
+                    app:endIconMode="clear_text"
                     app:boxCornerRadiusTopStart="28dp"
                     app:boxCornerRadiusTopEnd="28dp"
                     app:boxCornerRadiusBottomStart="28dp"
                     app:boxCornerRadiusBottomEnd="28dp"
                     app:boxStrokeWidth="0dp"
-                    app:boxStrokeWidthFocused="0dp">
+                    app:boxStrokeWidthFocused="0dp"
+                    app:boxBackgroundColor="?attr/colorSurfaceContainer">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/search_input_edit_text"
@@ -51,19 +67,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <ImageButton
-                    android:id="@+id/button_clear_search"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_gravity="end|center_vertical"
-                    android:layout_marginEnd="24dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Clear search"
-                    android:src="@android:drawable/ic_menu_close_clear_cancel"
-                    app:tint="?attr/colorOnSurfaceVariant"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
-            </FrameLayout>
+            </LinearLayout>
 
         </com.google.android.material.appbar.MaterialToolbar>
 

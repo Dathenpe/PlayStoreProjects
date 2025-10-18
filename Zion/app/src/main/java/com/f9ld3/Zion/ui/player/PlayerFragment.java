@@ -15,12 +15,15 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.f9ld3.Zion.R;
 import com.f9ld3.Zion.databinding.FragmentPlayerBinding;
+import com.f9ld3.Zion.ui.live.LiveChooserBottomSheet;
 import com.f9ld3.Zion.ui.player.PlayerPostAdapter.OnMediaClickListener;
 import com.f9ld3.Zion.ui.upload.UploadPodcastActivity;
 import com.f9ld3.Zion.ui.upload.UploadVideoActivity;
+import com.f9ld3.Zion.ui.common.SkeletonAdapter; // Added
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -29,6 +32,8 @@ public class PlayerFragment extends Fragment implements OnMediaClickListener {
     private static final String TAG = "PlayerFragment";
     private FragmentPlayerBinding binding;
     private PlayerPostAdapter playerAdapter;
+    private SkeletonAdapter skeletonAdapter;
+    private PlayerViewModel playerViewModel; // Make ViewModel a member variable
 
     private boolean isFabMenuOpen = false;
     private Animation fabOpen, fabClose, rotateForward, rotateBackward;
@@ -45,7 +50,9 @@ public class PlayerFragment extends Fragment implements OnMediaClickListener {
         if (context instanceof HistoryLogger) {
             historyLogger = (HistoryLogger) context;
         } else {
-            throw new RuntimeException(context.toString() + " must implement PlayerFragment.HistoryLogger");
+            // Optional: Don't throw exception if history logging isn't strictly required
+            Log.w(TAG, context.toString() + " does not implement PlayerFragment.HistoryLogger");
+            // throw new RuntimeException(context.toString() + " must implement PlayerFragment.HistoryLogger");
         }
     }
 
@@ -53,8 +60,7 @@ public class PlayerFragment extends Fragment implements OnMediaClickListener {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        PlayerViewModel playerViewModel =
-                new ViewModelProvider(this).get(PlayerViewModel.class);
+        playerViewModel = new ViewModelProvider(this).get(PlayerViewModel.class); // Initialize here
 
         binding = FragmentPlayerBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -62,7 +68,20 @@ public class PlayerFragment extends Fragment implements OnMediaClickListener {
         setupAnimations();
         setupFabListeners();
         setupRecyclerView();
+        setupSkeletonView();
 
+        // Observe loading state FIRST
+        playerViewModel.isLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            Log.d(TAG, "isLoading changed: " + isLoading);
+            if (isLoading != null && isLoading) { // Null check added
+                binding.skeletonScrollView.setVisibility(View.VISIBLE);
+                binding.contentScrollView.setVisibility(View.GONE);
+            } else {
+                binding.skeletonScrollView.setVisibility(View.GONE);
+                binding.contentScrollView.setVisibility(View.VISIBLE);
+            }
+        });
+        // Observe media feed data
         playerViewModel.getMediaFeed().observe(getViewLifecycleOwner(), mediaList -> {
             if (mediaList != null) {
                 playerAdapter.submitList(mediaList);
@@ -74,6 +93,7 @@ public class PlayerFragment extends Fragment implements OnMediaClickListener {
     }
 
     private void setupAnimations() {
+        if(getContext() == null) return;
         fabOpen = AnimationUtils.loadAnimation(getContext(), R.anim.fab_open);
         fabClose = AnimationUtils.loadAnimation(getContext(), R.anim.fab_close);
         rotateForward = AnimationUtils.loadAnimation(getContext(), R.anim.rotate_forward);
@@ -99,7 +119,7 @@ public class PlayerFragment extends Fragment implements OnMediaClickListener {
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null && !user.isAnonymous()) {
-            // Use a short delay to allow the close animation to start
+            // Delay starting the activity slightly to allow FAB animation to finish
             binding.getRoot().postDelayed(() -> startUpload(type), 200);
         } else {
             Toast.makeText(getContext(), "You must be logged in to upload content.", Toast.LENGTH_LONG).show();
@@ -117,7 +137,8 @@ public class PlayerFragment extends Fragment implements OnMediaClickListener {
                 startActivity(new Intent(requireContext(), UploadPodcastActivity.class));
                 break;
             case "live":
-                Toast.makeText(getContext(), "Live streaming is coming soon!", Toast.LENGTH_SHORT).show();
+                LiveChooserBottomSheet bottomSheet = new LiveChooserBottomSheet();
+                bottomSheet.show(getParentFragmentManager(), LiveChooserBottomSheet.TAG);
                 break;
         }
     }
@@ -129,7 +150,15 @@ public class PlayerFragment extends Fragment implements OnMediaClickListener {
         binding.playerRecyclerView.setAdapter(playerAdapter);
     }
 
+    private void setupSkeletonView() {
+        skeletonAdapter = new SkeletonAdapter(R.layout.item_video_m3_skeleton, 5); // Show 5 skeleton items
+        binding.skeletonRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.skeletonRecyclerView.setAdapter(skeletonAdapter);
+    }
+
     private void animateFab() {
+        if (fabOpen == null) setupAnimations(); // Ensure animations are loaded
+
         if (isFabMenuOpen) {
             // Close menu
             binding.fabMainMenu.startAnimation(rotateBackward);
@@ -173,15 +202,32 @@ public class PlayerFragment extends Fragment implements OnMediaClickListener {
         }
     }
 
+    // --- Updated onMediaClick ---
     @Override
     public void onMediaClick(PlayerMedia mediaItem) {
-        Log.i(TAG, "Media item clicked: " + mediaItem.getTitle());
+        Log.i(TAG, "Media item clicked: " + mediaItem.getTitle() + " Type: " + mediaItem.getType());
         if (historyLogger != null) {
             historyLogger.logMediaView(mediaItem);
         }
-        // TODO: Navigate to a dedicated player screen
-        Toast.makeText(getContext(), "Playing: " + mediaItem.getTitle(), Toast.LENGTH_SHORT).show();
+
+        Intent intent = null;
+        if (mediaItem.getType() == PlayerMedia.TYPE_VIDEO) {
+            // Create VideoPlayerActivity (using ExoPlayer recommended)
+            intent = new Intent(requireContext(), VideoPlayerActivity.class);
+            intent.putExtra(VideoPlayerActivity.EXTRA_MEDIA_ITEM, mediaItem); // Pass the whole object
+        } else if (mediaItem.getType() == PlayerMedia.TYPE_PODCAST_SINGLE) {
+            // Create PodcastPlayerActivity (using ExoPlayer or MediaPlayer)
+            intent = new Intent(requireContext(), PodcastPlayerActivity.class);
+            intent.putExtra(PodcastPlayerActivity.EXTRA_MEDIA_ITEM, mediaItem); // Pass the whole object
+        }
+
+        if (intent != null) {
+            startActivity(intent);
+        } else {
+            Toast.makeText(getContext(), "Cannot play this media type yet.", Toast.LENGTH_SHORT).show();
+        }
     }
+    // --- End Update ---
 
     @Override
     public void onDestroyView() {

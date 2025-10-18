@@ -23,4 +23,65 @@
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
 
+    <fragment
+        android:id="@+id/navigation_search"
+        android:name="com.f9ld3.Zion.ui.search.SearchFragment"
+        android:label="Search"
+        tools:layout="@layout/fragment_search" />
+
+    <fragment
+        android:id="@+id/navigation_likes"
+        android:name="com.f9ld3.Zion.ui.profile.LikesFragment"
+        android:label="@string/liked_videos"
+        tools:layout="@layout/fragment_full_page_list" />
+
+    <fragment
+        android:id="@+id/navigation_history"
+        android:name="com.f9ld3.Zion.ui.profile.HistoryFragment"
+        android:label="@string/history"
+        tools:layout="@layout/fragment_full_page_list" />
+
+    <fragment
+        android:id="@+id/navigation_downloads"
+        android:name="com.f9ld3.Zion.ui.profile.DownloadsFragment"
+        android:label="@string/downloads"
+        tools:layout="@layout/fragment_downloads" />
+
+    <fragment
+        android:id="@+id/navigation_my_uploads"
+        android:name="com.f9ld3.Zion.ui.profile.MyUploadsFragment"
+        android:label="@string/my_uploads"
+        tools:layout="@layout/fragment_my_uploads" />
+
+    <fragment
+        android:id="@+id/navigation_my_posts"
+        android:name="com.f9ld3.Zion.ui.profile.MyPostsFragment"
+        android:label="@string/my_posts"
+        tools:layout="@layout/fragment_full_page_list" />
+
+    <fragment
+        android:id="@+id/navigation_following"
+        android:name="com.f9ld3.Zion.ui.profile.FollowingFragment"
+        android:label="@string/following"
+        tools:layout="@layout/fragment_full_page_list" />
+
+    <fragment
+        android:id="@+id/navigation_playlist"
+        android:name="com.f9ld3.Zion.ui.profile.PlaylistFragment"
+        android:label="@string/my_playlists"
+        tools:layout="@layout/fragment_full_page_list" />
+
+    <fragment
+        android:id="@+id/navigation_channel"
+        android:name="com.f9ld3.Zion.ui.profile.ChannelFragment"
+        android:label="{channelName}"
+        tools:layout="@layout/fragment_channel">
+        <argument
+            android:name="channelId"
+            app:argType="string" />
+        <argument
+            android:name="channelName"
+            app:argType="string" />
+    </fragment>
+
 </navigation>

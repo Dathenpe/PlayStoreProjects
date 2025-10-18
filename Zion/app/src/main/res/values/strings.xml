@@ -36,9 +36,9 @@
     <string name="my_podcasts">My Podcasts</string>
     <string name="my_channels">My Channels</string>
     <string name="my_users">My Users</string>
+    <string name="my_posts">My Posts</string>
 
-    <string name="my_blogs">My Blogs</string>
-    <string name="blogs_empty_text">You haven\'t written any blogs yet. Share your thoughts in the Feed!</string>
+    <string name="blogs_empty_text">You haven\'t shared any content yet. Share your thoughts in the Feed!</string>
 
     <string name="anonymous_user">Anonymous User</string>
     <string name="login_for_features">Login for full features</string>
@@ -119,5 +119,6 @@
         <string name="report">Report</string>
         <string name="no_results_found">No Results Found</string>
     <string name="audio_file">Audio File</string>
+    <string name="followers">Followers</string>
 
 </resources>

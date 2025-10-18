@@ -6,19 +6,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import com.f9ld3.Zion.R;
-import com.f9ld3.Zion.databinding.ActivityFragmentHostBinding; // Reusing generic host layout
+import com.f9ld3.Zion.databinding.ActivityFragmentHostBinding;
+import com.f9ld3.Zion.databinding.ActivityFragmentHostWithToolbarBinding;
 
 public class NotificationsActivity extends AppCompatActivity {
-
-    private ActivityFragmentHostBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityFragmentHostBinding.inflate(getLayoutInflater());
+        ActivityFragmentHostWithToolbarBinding binding = ActivityFragmentHostWithToolbarBinding.inflate(getLayoutInflater()); // Inflate the new layout
         setContentView(binding.getRoot());
 
-        Toolbar toolbar = binding.toolbar;
+        Toolbar toolbar = binding.toolbar; // Use the binding to find the toolbar
         setSupportActionBar(toolbar);
 
         if (getSupportActionBar() != null) {
@@ -26,10 +25,9 @@ public class NotificationsActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(R.string.title_notifications);
         }
 
-        // Replace the fragment_container with a NotificationsFragment
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new NotificationsFragment()) // Assuming you create a NotificationsFragment
+                    .replace(R.id.fragment_container, new NotificationsFragment())
                     .commit();
         }
     }

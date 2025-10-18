@@ -13,9 +13,12 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 public class AuthViewModel extends ViewModel {
@@ -45,50 +48,14 @@ public class AuthViewModel extends ViewModel {
     private final MutableLiveData<Boolean> _accountDeleted = new MutableLiveData<>();
     public LiveData<Boolean> getAccountDeleted() { return _accountDeleted; }
 
-    private String previousUserId = null;
-    private boolean previousVerificationStatus = false;
-    private Boolean previousAuthState = null;
-    private boolean isInitialized = false;
-
     public AuthViewModel() {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        initializeAuthStateListener();
-    }
-
-    private void initializeAuthStateListener() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateAuthState(currentUser);
-        isInitialized = true;
-
         mAuth.addAuthStateListener(firebaseAuth -> {
-            if (!isInitialized) return;
-            updateAuthState(firebaseAuth.getCurrentUser());
-        });
-    }
-
-    private void updateAuthState(FirebaseUser user) {
-        String currentUserId = user != null ? user.getUid() : null;
-        boolean isVerified = user != null && user.isEmailVerified();
-        boolean isFullyAuthenticated = user != null && !user.isAnonymous() && isVerified;
-
-        if (!isEqual(previousUserId, currentUserId)) {
+            FirebaseUser user = firebaseAuth.getCurrentUser();
             _currentUser.postValue(user);
-        }
-
-        if (previousAuthState == null || previousAuthState != isFullyAuthenticated) {
-            _isAuthenticated.postValue(isFullyAuthenticated);
-        }
-
-        previousUserId = currentUserId;
-        previousVerificationStatus = isVerified;
-        previousAuthState = isFullyAuthenticated;
-    }
-
-    private boolean isEqual(String a, String b) {
-        if (a == null && b == null) return true;
-        if (a == null || b == null) return false;
-        return a.equals(b);
+            _isAuthenticated.postValue(user != null && user.isEmailVerified());
+        });
     }
 
     public void deleteAccount(String password) {
@@ -100,19 +67,33 @@ public class AuthViewModel extends ViewModel {
 
         String uid = user.getUid();
         String username = user.getDisplayName();
+        String email = user.getEmail();
 
         AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), password);
 
         user.reauthenticate(credential).addOnCompleteListener(reauthTask -> {
             if (reauthTask.isSuccessful()) {
-                // Chain Firestore and Storage deletions before deleting the auth user
-                Task<Void> deleteFirestoreUserDoc = db.collection("users").document(uid).delete();
-                Task<Void> deleteFirestoreUsernameDoc = (username != null && !username.isEmpty())
-                        ? db.collection("usernames").document(username).delete()
-                        : Tasks.forResult(null);
+                // Start a batch to delete all user-related data
+                WriteBatch batch = db.batch();
 
-                Tasks.whenAll(deleteFirestoreUserDoc, deleteFirestoreUsernameDoc).addOnCompleteListener(dataDeletionTask -> {
-                    if (dataDeletionTask.isSuccessful()) {
+                // 1. Delete user document
+                batch.delete(db.collection("users").document(uid));
+
+                // 2. Delete username document
+                if (username != null && !username.isEmpty()) {
+                    batch.delete(db.collection("usernames").document(username));
+                }
+
+                // 3. Delete email document
+                if (email != null && !email.isEmpty()) {
+                    batch.delete(db.collection("emails").document(email));
+                }
+
+
+                // Commit the batch
+                batch.commit().addOnCompleteListener(batchTask -> {
+                    if(batchTask.isSuccessful()){
+                        // Finally delete the auth user
                         user.delete().addOnCompleteListener(deleteTask -> {
                             if (deleteTask.isSuccessful()) {
                                 Log.d(TAG, "User account and all data deleted.");
@@ -125,6 +106,7 @@ public class AuthViewModel extends ViewModel {
                         _authError.postValue("Failed to delete user data from Firestore.");
                     }
                 });
+
             } else {
                 handleAuthException(reauthTask.getException(), "Authentication failed. Could not delete account.");
             }
@@ -159,28 +141,39 @@ public class AuthViewModel extends ViewModel {
         });
     }
 
-    public void signUp(String email, String password, String username) {
-        if (!isUsernameValid(username)) {
-            _authError.postValue("Invalid username format.");
+    public void signUp(String email, String password, String accountName) {
+        if (!isUsernameValid(accountName)) {
+            _authError.postValue("Invalid Account Name format.");
             return;
         }
-        db.collection("usernames").document(username).get().addOnSuccessListener(doc -> {
-            if (doc.exists()) {
-                _authError.postValue("This username is already taken.");
-            } else {
-                mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && mAuth.getCurrentUser() != null) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        sendVerificationEmail(user);
-                        updateUserProfile(user, username, email);
-                        _authMessage.postValue("Registration successful! A verification email has been sent.");
-                    } else {
-                        handleAuthException(task.getException(), "Registration failed.");
-                    }
-                });
+
+        // Check for unique email first
+        db.collection("emails").document(email).get().addOnSuccessListener(emailDoc -> {
+            if (emailDoc.exists()) {
+                _authError.postValue("This email is already in use.");
+                return;
             }
-        }).addOnFailureListener(e -> _authError.postValue("Network error. Please try again."));
+
+            // Then check for unique username
+            db.collection("usernames").document(accountName).get().addOnSuccessListener(doc -> {
+                if (doc.exists()) {
+                    _authError.postValue("This account name is already taken.");
+                } else {
+                    mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && mAuth.getCurrentUser() != null) {
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            sendVerificationEmail(user);
+                            updateUserProfile(user, accountName, email);
+                            _authMessage.postValue("Registration successful! A verification email has been sent.");
+                        } else {
+                            handleAuthException(task.getException(), "Registration failed.");
+                        }
+                    });
+                }
+            }).addOnFailureListener(e -> _authError.postValue("Network error. Please try again."));
+        }).addOnFailureListener(e -> _authError.postValue("Network error checking email. Please try again."));
     }
+
 
     private void sendVerificationEmail(FirebaseUser user) {
         user.sendEmailVerification().addOnFailureListener(e -> _authError.postValue("Failed to send verification email."));
@@ -299,35 +292,36 @@ public class AuthViewModel extends ViewModel {
         void onError(String error);
     }
 
-    private void updateUserProfile(FirebaseUser user, String username, String email) {
-        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
+    private void updateUserProfile(FirebaseUser user, String accountName, String email) {
+        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder().setDisplayName(accountName).build();
         user.updateProfile(profileUpdates);
 
         Map<String, Object> userProfile = new HashMap<>();
         userProfile.put("uid", user.getUid());
-        userProfile.put("username", username);
+        userProfile.put("accountName", accountName);
         userProfile.put("email", email);
         userProfile.put("createdAt", System.currentTimeMillis());
         db.collection("users").document(user.getUid()).set(userProfile);
 
         Map<String, Object> usernameDoc = new HashMap<>();
         usernameDoc.put("uid", user.getUid());
-        db.collection("usernames").document(username).set(usernameDoc);
+        db.collection("usernames").document(accountName).set(usernameDoc);
+
+        Map<String, Object> emailDoc = new HashMap<>();
+        emailDoc.put("uid", user.getUid());
+        db.collection("emails").document(email).set(emailDoc);
     }
 
     private void handleAuthException(Exception exception, String defaultMessage) {
         String errorMsg = defaultMessage;
         if (exception instanceof FirebaseAuthException) {
-            errorMsg = ((FirebaseAuthException) exception).getMessage();
+            errorMsg = ((FirebaseAuthException) exception).getLocalizedMessage();
         }
         _authError.postValue(errorMsg);
     }
 
     public void signOut() {
         mAuth.signOut();
-        previousUserId = null;
-        previousVerificationStatus = false;
-        previousAuthState = null;
     }
 
     public void clearMessages() {
@@ -337,4 +331,3 @@ public class AuthViewModel extends ViewModel {
         _accountDeleted.postValue(null);
     }
 }
-

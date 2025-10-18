@@ -39,8 +39,6 @@ public class MainActivity extends AppCompatActivity implements com.f9ld3.Zion.ui
 
         authViewModel.isAuthenticated().observe(this, authenticated -> {
             if (Boolean.TRUE.equals(authenticated)) {
-                // User is authenticated, so we can set up the main UI.
-                // Check if the binding is null to prevent re-inflation on configuration changes.
                 if (binding == null) {
                     binding = ActivityMainBinding.inflate(getLayoutInflater());
                     setContentView(binding.getRoot());
@@ -50,9 +48,11 @@ public class MainActivity extends AppCompatActivity implements com.f9ld3.Zion.ui
                         getSupportActionBar().setDisplayShowTitleEnabled(false);
                     }
 
+                    // *** MODIFIED: Navigate to SearchFragment instead of starting SearchActivity ***
                     binding.buttonSearchToolbar.setOnClickListener(v -> {
-                        Intent searchIntent = new Intent(this, SearchActivity.class);
-                        startActivity(searchIntent);
+                        if (navController != null) {
+                            navController.navigate(R.id.navigation_search);
+                        }
                     });
 
                     binding.buttonNotificationsToolbar.setOnClickListener(v -> {
@@ -74,10 +74,8 @@ public class MainActivity extends AppCompatActivity implements com.f9ld3.Zion.ui
                     setupNavigation();
                 }
             } else if (Boolean.FALSE.equals(authenticated)) {
-                // User is not authenticated, redirect to login.
                 redirectToLogin();
             }
-            // If authenticated is null, we do nothing and wait for the auth state to be determined.
         });
     }
 
@@ -87,12 +85,26 @@ public class MainActivity extends AppCompatActivity implements com.f9ld3.Zion.ui
                     .findFragmentById(R.id.nav_host_fragment_activity_main);
 
             if (navHostFragment == null) {
-                Log.e(TAG, "NavHostFragment not found! Check your activity_main.xml");
+                Log.e(TAG, "NavHostFragment not found!");
                 return;
             }
 
             navController = navHostFragment.getNavController();
             NavigationUI.setupWithNavController(binding.navView, navController);
+
+            navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+                int destinationId = destination.getId();
+                // Show/hide UI elements based on the current screen
+                if (destinationId == R.id.navigation_feed ||
+                        destinationId == R.id.navigation_player ||
+                        destinationId == R.id.navigation_profile) {
+                    binding.appBarLayout.setVisibility(View.VISIBLE);
+                    binding.navView.setVisibility(View.VISIBLE);
+                } else {
+                    binding.appBarLayout.setVisibility(View.GONE);
+                    binding.navView.setVisibility(View.GONE);
+                }
+            });
 
         } catch (Exception e) {
             Log.e(TAG, "Error setting up navigation", e);
@@ -110,11 +122,6 @@ public class MainActivity extends AppCompatActivity implements com.f9ld3.Zion.ui
     }
 
     @Override
-    public boolean onSupportNavigateUp() {
-        return navController != null && navController.navigateUp() || super.onSupportNavigateUp();
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         binding = null;
@@ -122,7 +129,6 @@ public class MainActivity extends AppCompatActivity implements com.f9ld3.Zion.ui
 
     @Override
     public void logMediaView(PlayerMedia mediaItem) {
-        Log.d(TAG, "Logging media view: " + mediaItem.getTitle() + " (ID: " + mediaItem.getId() + ")");
-        // TODO: Implement actual history logging to Firestore
+        // TODO: Implement history logging
     }
 }

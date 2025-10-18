@@ -10,23 +10,22 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.f9ld3.Zion.R;
-import com.f9ld3.Zion.databinding.FragmentFullPageListBinding;
+import com.f9ld3.Zion.databinding.FragmentListNoToolbarBinding;
 import com.f9ld3.Zion.ui.player.PlayerMedia;
 import com.f9ld3.Zion.ui.player.PlayerPostAdapter;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
-/**
- * Fragment to display the user's uploaded videos.
- */
 public class MyVideosFragment extends Fragment implements PlayerPostAdapter.OnMediaClickListener {
 
-    private FragmentFullPageListBinding binding;
+    private FragmentListNoToolbarBinding binding;
     private ProfileViewModel profileViewModel;
     private PlayerPostAdapter videoAdapter;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentFullPageListBinding.inflate(inflater, container, false);
+        binding = FragmentListNoToolbarBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
@@ -36,10 +35,14 @@ public class MyVideosFragment extends Fragment implements PlayerPostAdapter.OnMe
 
         profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
+        // Explicitly fetch videos for the current user
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            profileViewModel.fetchUserVideos(currentUser.getUid());
+        }
+
         setupRecyclerView();
 
-        // Customize the empty state for this page (using template)
-        // Note: Removed old references to emptyStateContainer and icon_placeholder
         binding.textPlaceholder.setText(getString(R.string.videos_empty_text));
         binding.textPlaceholder.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_videocam_24dp, 0, 0);
 
