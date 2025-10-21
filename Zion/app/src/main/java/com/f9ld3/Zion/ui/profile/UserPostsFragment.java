@@ -12,9 +12,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import com.f9ld3.Zion.R;
+
 import com.f9ld3.Zion.databinding.FragmentUserPostsBinding;
-import com.f9ld3.Zion.ui.feed.CommentsActivity; // Import CommentsActivity
+import com.f9ld3.Zion.ui.feed.CommentsBottomSheet; // Import CommentsBottomSheet
 import com.f9ld3.Zion.ui.feed.Post;
 import com.f9ld3.Zion.ui.feed.PostAdapter;
 import com.f9ld3.Zion.ui.feed.PostDetailActivity; // Import PostDetailActivity
@@ -81,12 +81,11 @@ public class UserPostsFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        // *** FIX: Pass LifecycleOwner and Activity, Implement correct methods ***
+        // Pass LifecycleOwner and Activity, Implement ALL required methods
         postAdapter = new PostAdapter(new PostAdapter.OnPostClickListener() {
             @Override
-            public void onPostItemClick(Post post) { // Renamed from onPostClick
+            public void onPostItemClick(Post post) {
                 Log.i(TAG, "Post clicked: " + post.getId());
-                // Navigate to PostDetailActivity
                 Intent intent = new Intent(requireContext(), PostDetailActivity.class);
                 intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getId());
                 intent.putExtra(PostDetailActivity.EXTRA_POST_DATA, (Serializable) post);
@@ -98,7 +97,6 @@ public class UserPostsFragment extends Fragment {
                 Log.i(TAG, "Like clicked on post: " + post.getId());
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 if (user != null && !user.isAnonymous()) {
-                    // Use the PostLikeViewModel
                     postLikeViewModel.toggleLike(post.getId(), post);
                 } else if (getContext() != null) {
                     Toast.makeText(getContext(), "Login to like posts", Toast.LENGTH_SHORT).show();
@@ -108,12 +106,35 @@ public class UserPostsFragment extends Fragment {
             @Override
             public void onCommentClick(Post post) {
                 Log.i(TAG, "Comment clicked on post: " + post.getId());
-                // Navigate to CommentsActivity
-                Intent intent = new Intent(requireContext(), CommentsActivity.class);
-                intent.putExtra(CommentsActivity.EXTRA_POST_ID, post.getId());
-                intent.putExtra(CommentsActivity.EXTRA_POST_DATA, (Serializable) post);
-                startActivity(intent);
+                // Navigate to CommentsBottomSheet
+                // FIX: Use BottomSheetDialogFragment's show method
+                CommentsBottomSheet commentsSheet = CommentsBottomSheet.newInstance(post.getId(), post);
+                commentsSheet.show(getParentFragmentManager(), CommentsBottomSheet.TAG);
+                // Intent intent = new Intent(requireContext(), CommentsBottomSheet.class); // This is incorrect for BottomSheetDialogFragment
+                // intent.putExtra(CommentsBottomSheet.EXTRA_POST_ID, post.getId());
+                // intent.putExtra(CommentsBottomSheet.EXTRA_POST_DATA, (Serializable) post);
+                // startActivity(intent); // Do not start as activity
             }
+
+            // *** ADDED missing onOptionClick method ***
+            @Override
+            public void onOptionClick(Post post, View anchorView) {
+                Log.i(TAG, "Options clicked for post (in UserPosts): " + post.getId());
+                // You can implement the options menu logic here if needed,
+                // similar to FeedFragment or MyPostsFragment,
+                // potentially reusing a helper method. For now, just logging.
+                Toast.makeText(getContext(), "Options clicked", Toast.LENGTH_SHORT).show();
+            }
+
+            // *** ADDED missing onAuthorClick method ***
+            @Override
+            public void onAuthorClick(Post post) {
+                // In a list of *another* user's posts, you might want to navigate
+                // back to their profile, or do nothing.
+                Log.i(TAG, "Author clicked (in UserPosts): " + post.getAuthorName());
+                // Optional: Navigation logic if needed
+            }
+
         }, getViewLifecycleOwner(), requireActivity()); // Pass LifecycleOwner and Activity
 
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

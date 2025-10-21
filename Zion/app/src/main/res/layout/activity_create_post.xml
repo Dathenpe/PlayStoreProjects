@@ -8,6 +8,7 @@
     android:background="?attr/colorSurface">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorSurface">
@@ -17,15 +18,15 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back_24dp">
-
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_publish"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginEnd="16dp"
                 android:text="Post"
-                app:backgroundTint="?attr/colorSecondary" />
+                android:textColor="?attr/colorSecondary" />
         </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -40,27 +41,167 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/toggle_post_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="16dp"
+                app:selectionRequired="true"
+                app:singleSelection="true"
+                app:checkedButton="@id/button_type_media">
+
+                <Button
+                    android:id="@+id/button_type_media"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Media"
+                    app:icon="@drawable/ic_add_photo_alternate_24dp"
+                    app:iconTint="?attr/colorOnSurfaceVariant"/>
+                <Button
+                    android:id="@+id/button_type_poll"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Poll"
+                    app:icon="@drawable/ic_poll_24dp"
+                    app:iconTint="?attr/colorOnSurfaceVariant"/>
+                <Button
+                    android:id="@+id/button_type_quiz"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Quiz"
+                    app:icon="@drawable/ic_quiz_24dp"
+                    app:iconTint="?attr/colorOnSurfaceVariant"/>
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
             <EditText
                 android:id="@+id/edit_text_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@null"
                 android:gravity="top"
-                android:hint="What's happening?"
+                android:hint="What's on your mind?"
                 android:inputType="textMultiLine|textCapSentences"
-                android:minLines="5"
-                android:textAppearance="?attr/textAppearanceBodyLarge" />
+                android:minLines="3"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:textColor="?attr/colorOnSurface"
+                android:textColorHint="?attr/colorOnSurfaceVariant"
+                android:lineSpacingMultiplier="1.1"/>
 
+            <LinearLayout
+                android:id="@+id/poll_creation_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/poll_quiz_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    tools:text="Create Poll"/>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_poll_option1"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    app:endIconMode="clear_text"
+                    app:hintEnabled="true"
+                    tools:hint="Option 1 (Required)">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/input_poll_option1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapSentences"
+                        android:maxLength="100"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_poll_option2"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    app:endIconMode="clear_text"
+                    app:hintEnabled="true"
+                    tools:hint="Option 2 (Required)">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/input_poll_option2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapSentences"
+                        android:maxLength="100"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:id="@+id/additional_options_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_add_option"
+                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:text="Add option"
+                    app:icon="@drawable/ic_add_24dp"/>
+
+                <TextView
+                    android:id="@+id/quiz_answer_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="4dp"
+                    android:text="Select the correct answer:"
+                    android:textAppearance="?attr/textAppearanceTitleSmall"
+                    android:visibility="gone"
+                    tools:visibility="visible"/>
+                <RadioGroup
+                    android:id="@+id/quiz_correct_answer_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    tools:visibility="visible"/>
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"/>
+
+            </LinearLayout>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/media_preview_recycler"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:clipToPadding="false"
+                android:paddingBottom="8dp"
                 android:visibility="gone"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                app:spanCount="3"
+                tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                tools:spanCount="3"
+                tools:itemCount="5"
                 tools:listitem="@layout/item_media_preview"
-                 />
+                tools:visibility="visible"/>
+
+            <ImageButton
+                android:id="@+id/button_attach_media"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:contentDescription="Attach Media"
+                android:src="@drawable/ic_add_photo_alternate_24dp"
+                app:tint="?attr/colorSecondary"/>
 
             <ProgressBar
                 android:id="@+id/progress_bar"
@@ -68,23 +209,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
+                android:indeterminate="true"
                 android:visibility="gone"
                 tools:visibility="visible" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
-
-                <ImageButton
-                    android:id="@+id/button_attach_media"
-                    style="@style/Widget.Material3.Button.IconButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_add_photo_alternate_24dp"
-                    app:tint="?attr/colorSecondary" />
-            </LinearLayout>
         </LinearLayout>
+
     </androidx.core.widget.NestedScrollView>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

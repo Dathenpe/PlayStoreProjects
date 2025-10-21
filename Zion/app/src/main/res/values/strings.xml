@@ -120,5 +120,11 @@
         <string name="no_results_found">No Results Found</string>
     <string name="audio_file">Audio File</string>
     <string name="followers">Followers</string>
+    <plurals name="view_replies_count">
+        <!-- Case for exactly one reply -->
+        <item quantity="one">View %d reply</item>
+        <!-- Case for zero or multiple replies -->
+        <item quantity="other">View %d replies</item>
+    </plurals>
 
 </resources>

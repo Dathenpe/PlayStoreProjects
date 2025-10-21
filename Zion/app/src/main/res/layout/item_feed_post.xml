@@ -9,8 +9,8 @@
     android:layout_marginTop="8dp"
     android:layout_marginBottom="8dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
-    app:strokeColor="?attr/colorSurfaceVariant"
+    app:cardElevation="2dp"
+    app:strokeColor="?attr/colorOutlineVariant"
     app:strokeWidth="1dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -20,8 +20,8 @@
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/author_avatar"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@tools:sample/avatars" />
@@ -30,37 +30,95 @@
             android:id="@+id/author_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="?attr/textAppearanceTitleSmall"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface"
             app:layout_constraintStart_toEndOf="@id/author_avatar"
             app:layout_constraintTop_toTopOf="@id/author_avatar"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/post_options_button"
             tools:text="Author Name" />
+
+        <TextView
+            android:id="@+id/post_timestamp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            app:layout_constraintStart_toStartOf="@id/author_name"
+            app:layout_constraintTop_toBottomOf="@id/author_name"
+            app:layout_constraintEnd_toEndOf="@id/author_name"
+            tools:text="2 hours ago" />
+
+        <ImageButton
+            android:id="@+id/post_options_button"
+            style="@style/Widget.Material3.Button.IconButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Post options"
+            app:icon="@drawable/ic_more_vert_24dp"
+            app:iconTint="?attr/colorOnSurfaceVariant"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/author_name"
+            app:layout_constraintBottom_toBottomOf="@id/post_timestamp"/>
+
 
         <TextView
             android:id="@+id/post_content"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
             android:textColor="?attr/colorOnSurface"
+            android:lineSpacingMultiplier="1.1"
             app:layout_constraintTop_toBottomOf="@id/author_avatar"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:text="This is the main content of the post, which can include #hashtags and mentions." />
+            tools:text="This is the main content of the post, which can include #hashtags and mentions spanning multiple lines for testing purposes." />
 
-        <ImageView
-            android:id="@+id/post_media_preview"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/post_media_grid"
             android:layout_width="0dp"
-            android:layout_height="200dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:scaleType="centerCrop"
             android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@id/post_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:src="@tools:sample/backgrounds/scenic"
-            tools:visibility="visible" />
+            tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            tools:spanCount="2"
+            tools:itemCount="4"
+            tools:listitem="@layout/item_media_grid_preview"
+            tools:visibility="visible"/>
+
+        <LinearLayout
+            android:id="@+id/poll_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/post_media_grid"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:visibility="visible">
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/poll_details_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textAppearance="?attr/textAppearanceBodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/poll_container"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="15 votes • Final results"
+            tools:visibility="visible"/>
 
         <LinearLayout
             android:id="@+id/actions_layout"
@@ -68,45 +126,53 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="16dp"
-            android:gravity="start"
-            app:layout_constraintTop_toBottomOf="@id/post_media_preview"
+            android:gravity="start|center_vertical"
+            app:layout_constraintTop_toBottomOf="@id/poll_details_text"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
             <ImageButton
                 android:id="@+id/like_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
                 android:src="@drawable/ic_like"
                 android:background="?attr/selectableItemBackgroundBorderless"
+                android:tint="?attr/colorSecondary"
                 android:contentDescription="Like" />
 
             <TextView
                 android:id="@+id/like_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
                 android:layout_marginStart="4dp"
+                android:textAppearance="?attr/textAppearanceLabelMedium"
                 android:textColor="?attr/colorOnSurfaceVariant"
-                tools:text="12" />
+                android:visibility="gone"
+                tools:text="12"
+                tools:visibility="visible"/>
 
             <ImageButton
                 android:id="@+id/comment_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:layout_marginStart="16dp"
                 android:src="@drawable/ic_comment"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Comment"
-                android:layout_marginStart="24dp" />
-
+                app:tint="?attr/colorSecondary" />
             <TextView
                 android:id="@+id/comment_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
                 android:layout_marginStart="4dp"
+                android:textAppearance="?attr/textAppearanceLabelMedium"
                 android:textColor="?attr/colorOnSurfaceVariant"
-                tools:text="5" />
+                android:visibility="gone"
+                tools:text="5"
+                tools:visibility="visible"/>
+
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

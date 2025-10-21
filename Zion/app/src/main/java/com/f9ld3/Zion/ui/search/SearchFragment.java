@@ -7,10 +7,12 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log; // Import Log
 import android.view.LayoutInflater;
+import android.view.MenuItem; // Import MenuItem for options menu handling
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.PopupMenu; // Import PopupMenu
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,7 +25,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.f9ld3.Zion.R;
 import com.f9ld3.Zion.data.UserProfile;
-import com.f9ld3.Zion.ui.feed.CommentsActivity; // Import CommentsActivity
+import com.f9ld3.Zion.ui.dialogs.CustomAlertDialogFragment; // Import for delete confirmation
+import com.f9ld3.Zion.ui.feed.CommentsBottomSheet; // Import CommentsBottomSheet
 import com.f9ld3.Zion.ui.feed.Post;
 import com.f9ld3.Zion.ui.feed.PostAdapter;
 import com.f9ld3.Zion.ui.feed.PostDetailActivity; // Import PostDetailActivity
@@ -138,20 +141,20 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
         // Pass 'this' as the listener for both media and post clicks
         videoAdapter = new PlayerPostAdapter(this);
         podcastAdapter = new PlayerPostAdapter(this);
-        // *** FIX: Pass the PostLikeViewModel and LifecycleOwner ***
+        // *** Pass the PostLikeViewModel, LifecycleOwner, and Activity ***
         postAdapter = new PostAdapter(this, getViewLifecycleOwner(), requireActivity());
-        // *** FIX: Pass the PostLikeViewModel and LifecycleOwner ***
-        allAdapter = new SearchAllAdapter(this, this, postLikeViewModel, getViewLifecycleOwner());
+        // *** Pass the PostLikeViewModel, LifecycleOwner, and Activity ***
+        allAdapter = new SearchAllAdapter(this, this, postLikeViewModel, getViewLifecycleOwner(), requireActivity());
         recyclerView.setAdapter(allAdapter); // Start with the 'All' adapter
     }
 
     private void setupObservers() {
         searchViewModel.isLoading().observe(getViewLifecycleOwner(), isLoading -> {
-            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+            progressBar.setVisibility(isLoading != null && isLoading ? View.VISIBLE : View.GONE);
             // Hide empty state while loading, unless it's the initial prompt
-            if (isLoading && !textPlaceholder.getText().equals("Start typing to search")) {
+            if (isLoading != null && isLoading && textPlaceholder != null && !textPlaceholder.getText().equals("Start typing to search")) {
                 textPlaceholder.setVisibility(View.GONE);
-                recyclerView.setVisibility(View.GONE);
+                if (recyclerView != null) recyclerView.setVisibility(View.GONE);
             }
         });
 
@@ -164,7 +167,7 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
 
         // Observe results for the currently selected tab
         searchViewModel.getAllResults().observe(getViewLifecycleOwner(), results -> {
-            if (tabLayout.getSelectedTabPosition() == TAB_ALL) {
+            if (tabLayout != null && tabLayout.getSelectedTabPosition() == TAB_ALL && allAdapter != null) {
                 Log.d(TAG, "Updating ALL results. Count: " + (results != null ? results.size() : "null"));
                 allAdapter.submitList(results);
                 updateEmptyState(results == null || results.isEmpty());
@@ -172,7 +175,7 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
         });
 
         searchViewModel.getPostResults().observe(getViewLifecycleOwner(), posts -> {
-            if (tabLayout.getSelectedTabPosition() == TAB_POSTS) {
+            if (tabLayout != null && tabLayout.getSelectedTabPosition() == TAB_POSTS && postAdapter != null) {
                 Log.d(TAG, "Updating POSTS results. Count: " + (posts != null ? posts.size() : "null"));
                 postAdapter.submitList(posts);
                 updateEmptyState(posts == null || posts.isEmpty());
@@ -181,29 +184,30 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
 
 
         searchViewModel.getVideoResults().observe(getViewLifecycleOwner(), videos -> {
-            if (tabLayout.getSelectedTabPosition() == TAB_VIDEOS) {
+            if (tabLayout != null && tabLayout.getSelectedTabPosition() == TAB_VIDEOS && videoAdapter != null) {
                 videoAdapter.submitList(videos);
                 updateEmptyState(videos == null || videos.isEmpty());
             }
         });
 
         searchViewModel.getPodcastResults().observe(getViewLifecycleOwner(), podcasts -> {
-            if (tabLayout.getSelectedTabPosition() == TAB_PODCASTS) {
+            if (tabLayout != null && tabLayout.getSelectedTabPosition() == TAB_PODCASTS && podcastAdapter != null) {
                 podcastAdapter.submitList(podcasts);
                 updateEmptyState(podcasts == null || podcasts.isEmpty());
             }
         });
 
         searchViewModel.getUserResults().observe(getViewLifecycleOwner(), users -> {
-            if (tabLayout.getSelectedTabPosition() == TAB_USERS) {
+            if (tabLayout != null && tabLayout.getSelectedTabPosition() == TAB_USERS && allAdapter != null) {
                 // The 'allAdapter' can handle UserProfile type, convert List<UserProfile> to List<Object>
-                allAdapter.submitList(new ArrayList<>(users));
+                allAdapter.submitList(users != null ? new ArrayList<>(users) : null);
                 updateEmptyState(users == null || users.isEmpty());
             }
         });
     }
 
     private void switchTab(int position) {
+        if (recyclerView == null) return; // Add null check for safety
         Log.d(TAG, "Switching to tab: " + position);
         RecyclerView.Adapter<?> currentAdapter = null;
         List<?> currentData = null;
@@ -213,51 +217,50 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
                 currentAdapter = allAdapter;
                 currentData = searchViewModel.getAllResults().getValue();
                 recyclerView.setAdapter(allAdapter);
-                allAdapter.submitList(searchViewModel.getAllResults().getValue()); // Submit data explicitly
+                allAdapter.submitList(currentData != null ? (List<Object>) currentData : null);
                 break;
             case TAB_POSTS:
                 currentAdapter = postAdapter;
                 currentData = searchViewModel.getPostResults().getValue();
                 recyclerView.setAdapter(postAdapter);
-                postAdapter.submitList(searchViewModel.getPostResults().getValue()); // Submit data explicitly
+                postAdapter.submitList(currentData != null ? (List<Post>) currentData : null);
                 break;
             case TAB_VIDEOS:
                 currentAdapter = videoAdapter;
                 currentData = searchViewModel.getVideoResults().getValue();
                 recyclerView.setAdapter(videoAdapter);
-                videoAdapter.submitList(searchViewModel.getVideoResults().getValue()); // Submit data explicitly
+                videoAdapter.submitList(currentData != null ? (List<PlayerMedia>) currentData : null);
                 break;
             case TAB_PODCASTS:
                 currentAdapter = podcastAdapter;
                 currentData = searchViewModel.getPodcastResults().getValue();
                 recyclerView.setAdapter(podcastAdapter);
-                podcastAdapter.submitList(searchViewModel.getPodcastResults().getValue()); // Submit data explicitly
+                podcastAdapter.submitList(currentData != null ? (List<PlayerMedia>) currentData : null);
                 break;
             case TAB_USERS:
                 currentAdapter = allAdapter;
                 List<UserProfile> users = searchViewModel.getUserResults().getValue();
                 currentData = users != null ? new ArrayList<>(users) : new ArrayList<>();
                 recyclerView.setAdapter(allAdapter);
-                // Submit the List<Object>
-                allAdapter.submitList(new ArrayList<>(searchViewModel.getUserResults().getValue() != null ? searchViewModel.getUserResults().getValue() : new ArrayList<>()));
+                allAdapter.submitList((List<Object>) currentData);
                 break;
         }
-        // Update empty state based on the data for the selected tab
         updateEmptyState(currentData == null || currentData.isEmpty());
     }
 
     private void updateEmptyState(boolean isEmpty) {
+        if (textPlaceholder == null || recyclerView == null || progressBar == null || searchEditText == null) return; // Add null checks
+
         String currentQuery = searchEditText.getText().toString().trim();
         if (progressBar.getVisibility() == View.VISIBLE) {
-            // If loading, hide both recycler and placeholder
             textPlaceholder.setVisibility(View.GONE);
             recyclerView.setVisibility(View.GONE);
         } else if (currentQuery.isEmpty()) {
-            textPlaceholder.setText("Start typing to search"); // Initial prompt
+            textPlaceholder.setText("Start typing to search");
             textPlaceholder.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         } else if (isEmpty) {
-            textPlaceholder.setText(R.string.no_results_found); // No results message
+            textPlaceholder.setText(R.string.no_results_found);
             textPlaceholder.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         } else {
@@ -292,12 +295,12 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
 
     // --- Post Click Listeners ---
     @Override
-    public void onPostItemClick(Post post) { // Renamed from onPostClick to match interface
+    public void onPostItemClick(Post post) {
         Log.i(TAG, "Post item clicked in Search: " + post.getId());
         if (getContext() == null) return;
         Intent intent = new Intent(requireContext(), PostDetailActivity.class);
         intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getId());
-        intent.putExtra(PostDetailActivity.EXTRA_POST_DATA, (Serializable) post); // Pass Post data
+        intent.putExtra(PostDetailActivity.EXTRA_POST_DATA, (Serializable) post);
         startActivity(intent);
     }
 
@@ -307,9 +310,9 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
         Log.i(TAG, "Like clicked for post in Search: " + post.getId());
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null && !user.isAnonymous()) {
-            postLikeViewModel.toggleLike(post.getId(), post); // Use the ViewModel
+            postLikeViewModel.toggleLike(post.getId(), post);
         } else if (getContext() != null) {
-            Toast.makeText(getContext(), "Login to like posts", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.login_for_features, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -317,10 +320,97 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
     public void onCommentClick(Post post) {
         Log.i(TAG, "Comment clicked for post in Search: " + post.getId());
         if (getContext() == null) return;
-        Intent intent = new Intent(requireContext(), CommentsActivity.class);
-        intent.putExtra(CommentsActivity.EXTRA_POST_ID, post.getId());
-        intent.putExtra(CommentsActivity.EXTRA_POST_DATA, (Serializable) post); // Pass Post data
-        startActivity(intent);
+        CommentsBottomSheet commentsSheet = CommentsBottomSheet.newInstance(post.getId(), post);
+        commentsSheet.show(getParentFragmentManager(), CommentsBottomSheet.TAG);
+    }
+
+    // *** ADDED: Implementation for onOptionClick ***
+    @Override
+    public void onOptionClick(Post post, View anchorView) {
+        Log.i(TAG, "Options clicked for post in Search: " + post.getId());
+        showPostOptionsMenu(anchorView, post); // Reuse logic similar to FeedFragment
+    }
+
+    // *** ADDED: Implementation for onAuthorClick ***
+    @Override
+    public void onAuthorClick(Post post) {
+        Log.i(TAG, "Author clicked in Search: " + post.getAuthorName() + " (ID: " + post.getAuthorUid() + ")");
+        if (post.getAuthorUid() != null) {
+            Bundle args = new Bundle();
+            args.putString("channelId", post.getAuthorUid());
+            args.putString("channelName", post.getAuthorName());
+            try {
+                NavHostFragment.findNavController(SearchFragment.this)
+                        .navigate(R.id.navigation_channel, args);
+            } catch (Exception e) {
+                Log.e(TAG, "Navigation to channel failed", e);
+            }
+        }
+    }
+
+
+    // --- Helper for Post Options Menu (Similar to FeedFragment) ---
+    private void showPostOptionsMenu(View anchorView, Post post) {
+        if (getContext() == null) return;
+        PopupMenu popup = new PopupMenu(getContext(), anchorView);
+        popup.getMenu().add("Share");
+        popup.getMenu().add("Report");
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null && currentUser.getUid().equals(post.getAuthorUid())) {
+            popup.getMenu().add("Delete");
+        }
+
+        popup.setOnMenuItemClickListener(item -> {
+            String title = item.getTitle().toString();
+            if ("Share".equals(title)) {
+                sharePost(post);
+            } else if ("Report".equals(title)) {
+                reportPost(post);
+            } else if ("Delete".equals(title)) {
+                deletePost(post);
+            } else {
+                return false;
+            }
+            return true;
+        });
+        popup.show();
+    }
+
+    private void sharePost(Post post) {
+        if (getContext() == null) return;
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        String shareText = post.getTextContent() != null ? post.getTextContent() : "Check out this post!";
+        sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+        sendIntent.setType("text/plain");
+        startActivity(Intent.createChooser(sendIntent, null));
+    }
+
+    private void reportPost(Post post) {
+        Toast.makeText(getContext(), "Report functionality TBD", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Reporting post ID: " + post.getId());
+    }
+
+    private void deletePost(Post post) {
+        if (getContext() == null) return;
+        CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance(
+                "Delete Post?",
+                "Are you sure you want to permanently delete this post?",
+                "Delete",
+                "Cancel"
+        );
+        dialog.setDialogListener(new CustomAlertDialogFragment.DialogListener() {
+            @Override
+            public void onPositiveClick() {
+                // Call ViewModel method to delete
+                Log.d(TAG, "Deleting post ID: " + post.getId());
+                Toast.makeText(getContext(), "Delete functionality TBD", Toast.LENGTH_SHORT).show();
+            }
+            @Override
+            public void onNegativeClick() {}
+        });
+        dialog.show(getParentFragmentManager(), "DeletePostDialog");
     }
 
 
@@ -331,7 +421,9 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
         tabLayout = null;
         searchEditText = null;
         buttonClose = null;
-        recyclerView.setAdapter(null); // Detach adapter
+        if (recyclerView != null) {
+            recyclerView.setAdapter(null); // Detach adapter
+        }
         recyclerView = null;
         progressBar = null;
         textPlaceholder = null;

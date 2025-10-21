@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu; // <-- Import PopupMenu
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,15 +18,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.f9ld3.Zion.R;
 import com.f9ld3.Zion.databinding.FragmentFullPageListBinding;
-import com.f9ld3.Zion.ui.feed.CommentsActivity; // Import CommentsActivity
+import com.f9ld3.Zion.ui.dialogs.CustomAlertDialogFragment; // <-- Import CustomAlertDialogFragment
+import com.f9ld3.Zion.ui.feed.CommentsBottomSheet; // Import CommentsBottomSheet
 import com.f9ld3.Zion.ui.feed.Post;
 import com.f9ld3.Zion.ui.feed.PostAdapter;
 import com.f9ld3.Zion.ui.feed.PostDetailActivity; // Import PostDetailActivity
 import com.f9ld3.Zion.ui.feed.PostLikeViewModel; // Import PostLikeViewModel
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.FirebaseAuth; // Import FirebaseAuth
+import com.google.firebase.auth.FirebaseUser; // Import FirebaseUser
 
 import java.io.Serializable; // Import Serializable
+import java.util.List;
 
 public class MyPostsFragment extends Fragment implements PostAdapter.OnPostClickListener {
 
@@ -93,17 +96,17 @@ public class MyPostsFragment extends Fragment implements PostAdapter.OnPostClick
     }
 
     private void setupRecyclerView() {
-        // *** FIX: Pass LifecycleOwner (getViewLifecycleOwner()) and Activity (requireActivity()) ***
-        postAdapter = new PostAdapter(this, getViewLifecycleOwner(), requireActivity()); //
+        // Pass LifecycleOwner and Activity
+        postAdapter = new PostAdapter(this, getViewLifecycleOwner(), requireActivity());
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerView.setAdapter(postAdapter);
     }
 
-    // *** FIX: Renamed method to match the interface ***
+    // --- Interface Method Implementations ---
+
     @Override
-    public void onPostItemClick(Post post) { //
+    public void onPostItemClick(Post post) {
         Log.i(TAG, "Post clicked from MyPosts: " + (post.getTextContent() != null ? post.getTextContent() : "No Text") + " (ID: " + post.getId() + ")");
-        // Navigate to PostDetailActivity
         Intent intent = new Intent(requireContext(), PostDetailActivity.class);
         intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getId());
         intent.putExtra(PostDetailActivity.EXTRA_POST_DATA, (Serializable) post);
@@ -115,10 +118,7 @@ public class MyPostsFragment extends Fragment implements PostAdapter.OnPostClick
         Log.i(TAG, "Like clicked on post: " + post.getId());
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null && !user.isAnonymous()) {
-            // Use the PostLikeViewModel to handle the like action
-            postLikeViewModel.toggleLike(post.getId(), post); //
-            // Toast is now less necessary as the UI should update via observer
-            // Toast.makeText(getContext(), "Toggled like!", Toast.LENGTH_SHORT).show();
+            postLikeViewModel.toggleLike(post.getId(), post);
         } else if (getContext() != null) {
             Toast.makeText(getContext(), "Login to like posts", Toast.LENGTH_SHORT).show();
         }
@@ -127,17 +127,92 @@ public class MyPostsFragment extends Fragment implements PostAdapter.OnPostClick
     @Override
     public void onCommentClick(Post post) {
         Log.i(TAG, "Comment clicked on post: " + post.getId());
-        // Navigate to CommentsActivity
-        Intent intent = new Intent(requireContext(), CommentsActivity.class);
-        intent.putExtra(CommentsActivity.EXTRA_POST_ID, post.getId());
-        intent.putExtra(CommentsActivity.EXTRA_POST_DATA, (Serializable) post);
-        startActivity(intent);
+        CommentsBottomSheet commentsSheet = CommentsBottomSheet.newInstance(post.getId(), post);
+        commentsSheet.show(getParentFragmentManager(), CommentsBottomSheet.TAG);
+    }
+
+    // *** ADDED: Implementation for onOptionClick ***
+    @Override
+    public void onOptionClick(Post post, View anchorView) {
+        Log.i(TAG, "Options clicked for post: " + post.getId());
+        showPostOptionsMenu(anchorView, post);
+    }
+
+    // *** ADDED: Implementation for onAuthorClick (Can be empty if not needed here) ***
+    @Override
+    public void onAuthorClick(Post post) {
+        // In "My Posts", clicking the author might not be needed,
+        // but the method must be implemented.
+        Log.i(TAG, "Author clicked (in MyPosts): " + post.getAuthorName());
+        // Optional: Navigate to own profile? Or do nothing.
+    }
+
+
+    // --- Helper for Post Options Menu (Similar to FeedFragment) ---
+    private void showPostOptionsMenu(View anchorView, Post post) {
+        if (getContext() == null) return;
+        PopupMenu popup = new PopupMenu(getContext(), anchorView);
+        popup.getMenu().add("Share");
+        // No "Report" option for own posts
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        // Should always be true in "My Posts" fragment, but check anyway
+        if (currentUser != null && currentUser.getUid().equals(post.getAuthorUid())) {
+            popup.getMenu().add("Delete"); // Option to delete own post
+        }
+
+        popup.setOnMenuItemClickListener(item -> {
+            String title = item.getTitle().toString();
+            if ("Share".equals(title)) {
+                sharePost(post);
+            } else if ("Delete".equals(title)) {
+                deletePost(post);
+            } else {
+                return false;
+            }
+            return true;
+        });
+        popup.show();
+    }
+
+    private void sharePost(Post post) {
+        if (getContext() == null) return;
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        String shareText = post.getTextContent() != null ? post.getTextContent() : "Check out my post!";
+        sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+        sendIntent.setType("text/plain");
+        startActivity(Intent.createChooser(sendIntent, null));
+    }
+
+    private void deletePost(Post post) {
+        if (getContext() == null) return;
+        CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance(
+                "Delete Post?",
+                "Are you sure you want to permanently delete this post?",
+                "Delete",
+                "Cancel"
+        );
+        dialog.setDialogListener(new CustomAlertDialogFragment.DialogListener() {
+            @Override
+            public void onPositiveClick() {
+                // Call ViewModel method to delete the post from Firestore
+                // Example: profileViewModel.deleteUserPost(post.getId()); // Needs implementation
+                Log.d(TAG, "Deleting post ID: " + post.getId());
+                Toast.makeText(getContext(), "Delete functionality TBD", Toast.LENGTH_SHORT).show();
+            }
+            @Override
+            public void onNegativeClick() {}
+        });
+        dialog.show(getParentFragmentManager(), "DeletePostDialog");
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding.recyclerView.setAdapter(null); // Detach adapter
+        if (binding != null && binding.recyclerView != null) { // Add null check for recyclerView
+            binding.recyclerView.setAdapter(null); // Detach adapter
+        }
         binding = null;
     }
 }

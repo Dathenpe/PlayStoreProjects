@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/poll_option_input_layout"
+    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    app:endIconMode="custom"
+    app:endIconDrawable="@drawable/ic_remove_circle_outline_24dp"
+    app:endIconContentDescription="Remove Option"
+    app:endIconCheckable="false"
+    app:endIconTint="?attr/colorError"
+    tools:hint="Option 3">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/input_poll_option"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textCapSentences"
+        android:maxLength="100"/>
+
+</com.google.android.material.textfield.TextInputLayout>

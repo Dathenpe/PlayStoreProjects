@@ -1,9 +1,10 @@
+// main/java/com/f9ld3/Zion/ui/blog/PostViewModel.java
 package com.f9ld3.Zion.ui.blog;
 
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
-import androidx.annotation.NonNull; // Added
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -17,7 +18,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask; // Added
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,192 +35,202 @@ public class PostViewModel extends ViewModel {
     private final MutableLiveData<String> _errorMessage = new MutableLiveData<>();
     public LiveData<String> getErrorMessage() { return _errorMessage; }
 
-    public void createPostWithMultipleMedia(String textContent, List<Uri> mediaUris, Context context) {
+    /**
+     * Creates a new post of any type (media, poll, or quiz).
+     * @param post The Post object pre-filled with type, text, and poll options.
+     * @param mediaUris A list of media URIs to upload (for media posts only).
+     * @param context The application context.
+     */
+    public void createPost(Post post, List<Uri> mediaUris, Context context) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
             _errorMessage.setValue("User not authenticated.");
-            _uploadStatus.setValue(UploadStatus.FAILED); // Set status to failed
+            _uploadStatus.setValue(UploadStatus.FAILED);
             return;
         }
-        // Prevent creating empty posts if both text and media are empty
-        if (textContent.isEmpty() && mediaUris.isEmpty()) {
-            _errorMessage.setValue("Cannot create an empty post.");
-            // Don't change status from IDLE
-            return;
-        }
-
 
         _uploadStatus.setValue(UploadStatus.UPLOADING);
         String postId = FirebaseFirestore.getInstance().collection("posts").document().getId();
 
-        if (mediaUris != null && !mediaUris.isEmpty()) { // Add null check for mediaUris
+        post.setId(postId);
+        post.setAuthorUid(user.getUid());
+        post.setAuthorName(user.getDisplayName() != null ? user.getDisplayName() : "Anonymous");
+        post.setAuthorAvatarUrl(user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : null);
+        // Timestamp will be set manually in savePost()
+
+        if (mediaUris != null && !mediaUris.isEmpty() && post.getPostType().equals(Post.TYPE_TEXT_MEDIA)) {
             uploadMultipleMedia(user, postId, mediaUris, context, mediaItems -> {
-                // Check if mediaItems is null (which indicates an upload failure)
                 if (mediaItems != null) {
-                    savePost(user, postId, textContent, mediaItems);
+                    post.setMediaItems(mediaItems);
+                    savePost(post);
                 } else {
-                    // Error already handled in uploadMultipleMedia, just ensure status is FAILED
+                    // Error message is set within uploadMultipleMedia
                     if (_uploadStatus.getValue() != UploadStatus.FAILED) {
                         _uploadStatus.setValue(UploadStatus.FAILED);
                     }
                 }
             });
         } else {
-            savePost(user, postId, textContent, new ArrayList<>()); // Pass empty list if no media
+            savePost(post);
         }
-
     }
 
-
-    private void uploadMultipleMedia(FirebaseUser user, String postId, @NonNull List<Uri> mediaUris, Context context, OnAllUploadsCompleteListener listener) {
-        List<Task<Uri>> uploadTasks = new ArrayList<>();
-        // Create a list of MediaItem placeholders, size matching mediaUris
-        List<MediaItem> mediaItemsPlaceholders = new ArrayList<>(mediaUris.size());
-        for (int i = 0; i < mediaUris.size(); i++) {
-            mediaItemsPlaceholders.add(new MediaItem()); // Add empty placeholders
+    private void savePost(Post post) {
+        // --- FIX: Set timestamp as Long (milliseconds) ---
+        if (post.getTimestamp() == null) {
+            Log.w(TAG, "Timestamp not set, using client time.");
+            post.setTimestamp(System.currentTimeMillis()); // <-- SET AS LONG
         }
+        // --- END FIX ---
 
-
-        for (int i = 0; i < mediaUris.size(); i++) {
-            Uri uri = mediaUris.get(i);
-            final int index = i; // final index for use in lambda
-
-            String mimeType = context.getContentResolver().getType(uri);
-            String mediaType = "unknown";
-            String fileExtension = "";
-
-            // Add null check for mimeType
-            if (mimeType != null) {
-                if (mimeType.startsWith("image")) {
-                    mediaType = "image";
-                    fileExtension = ".jpg"; // Or determine more accurately if needed
-                } else if (mimeType.startsWith("video")) {
-                    mediaType = "video";
-                    fileExtension = ".mp4"; // Or determine more accurately
-                }
-            } else {
-                // Handle cases where MIME type cannot be determined (e.g., from file path)
-                String path = uri.getPath();
-                if (path != null) {
-                    if (path.toLowerCase().endsWith(".jpg") || path.toLowerCase().endsWith(".jpeg") || path.toLowerCase().endsWith(".png")) {
-                        mediaType = "image";
-                        fileExtension = ".jpg";
-                    } else if (path.toLowerCase().endsWith(".mp4") || path.toLowerCase().endsWith(".mov") || path.toLowerCase().endsWith(".avi")) {
-                        mediaType = "video";
-                        fileExtension = ".mp4";
-                    }
-                }
-                // If still unknown, maybe skip or log a warning
-                if (mediaType.equals("unknown")) {
-                    Log.w(TAG, "Could not determine media type for URI: " + uri);
-                    // Decide how to handle: skip? Default to something? Error out?
-                    // For now, let's skip adding the task, but the placeholder remains.
-                    continue;
-                }
-
-            }
-
-            StorageReference fileRef = FirebaseStorage.getInstance().getReference()
-                    .child("posts/" + user.getUid() + "/" + postId + "/" + UUID.randomUUID().toString() + fileExtension);
-
-            // Store media type in the placeholder *before* starting upload
-            mediaItemsPlaceholders.get(index).mediaType = mediaType;
-
-
-            // Use putFile and chain tasks
-            UploadTask uploadTask = fileRef.putFile(uri);
-
-            Task<Uri> urlTask = uploadTask.continueWithTask(task -> {
-                if (!task.isSuccessful()) {
-                    throw task.getException();
-                }
-                // Continue with getting the download URL
-                return fileRef.getDownloadUrl();
-            }).addOnSuccessListener(downloadUrl -> {
-                // Populate the placeholder with the URL
-                mediaItemsPlaceholders.get(index).url = downloadUrl.toString();
-                // Simplistic thumbnail = URL for now, could be improved with Cloud Functions
-                if ("video".equals(mediaItemsPlaceholders.get(index).mediaType)) {
-                    mediaItemsPlaceholders.get(index).thumbnailUrl = downloadUrl.toString();
-                }
-                Log.d(TAG, "Upload success for index " + index + ": " + downloadUrl.toString());
-            }).addOnFailureListener(e -> {
-                // Log failure for this specific file
-                Log.e(TAG, "Upload failed for index " + index + ", URI: " + uri, e);
-                // The overall failure will be caught by Tasks.whenAllSuccess(...).addOnFailureListener
-            });
-
-            uploadTasks.add(urlTask); // Add the task to get the URL
-        }
-
-        // Wait for all URL retrieval tasks to complete successfully
-        Tasks.whenAllSuccess(uploadTasks).addOnSuccessListener(urls -> { // urls is List<Object>, needs casting
-            Log.d(TAG, "All uploads finished successfully.");
-            // Filter out any placeholders that failed (where URL is still null)
-            List<MediaItem> successfulMediaItems = new ArrayList<>();
-            for(MediaItem item : mediaItemsPlaceholders) {
-                if (item.url != null) {
-                    successfulMediaItems.add(item);
-                }
-            }
-            listener.onComplete(successfulMediaItems); // Pass the list of successfully uploaded items
-        }).addOnFailureListener(e -> {
-            // This catches failure if *any* of the tasks in uploadTasks failed
-            Log.e(TAG, "One or more media uploads failed.", e);
-            _errorMessage.setValue("Media upload failed: " + e.getMessage());
-            _uploadStatus.setValue(UploadStatus.FAILED);
-            listener.onComplete(null); // Indicate failure with null
-        });
-
-    }
-
-
-    private void savePost(FirebaseUser user, String postId, String textContent, List<MediaItem> mediaItems) {
-        // Ensure user details are not null before creating Post
-        String displayName = user.getDisplayName() != null ? user.getDisplayName() : "Anonymous"; // Provide default
-        String photoUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : null;
-
-        Post newPost = new Post(
-                postId,
-                user.getUid(),
-                displayName,
-                photoUrl,
-                textContent,
-                mediaItems
-        );
-
-        FirebaseFirestore.getInstance().collection("posts").document(postId).set(newPost)
+        FirebaseFirestore.getInstance().collection("posts").document(post.getId()).set(post)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Post saved successfully: " + postId);
+                    Log.d(TAG, "Post saved successfully: " + post.getId());
                     _uploadStatus.setValue(UploadStatus.SUCCESS);
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to save post: " + postId, e);
+                    Log.e(TAG, "Failed to save post: " + post.getId(), e);
                     _errorMessage.setValue("Failed to save post: " + e.getMessage());
                     _uploadStatus.setValue(UploadStatus.FAILED);
                 });
     }
 
-    public void clearMessages() {
-        _errorMessage.setValue(null);
-        // Reset status only if needed, e.g., when dialog is dismissed
-        // if (_uploadStatus.getValue() == UploadStatus.FAILED || _uploadStatus.getValue() == UploadStatus.SUCCESS) {
-        //     _uploadStatus.setValue(UploadStatus.IDLE);
-        // }
+
+    private void uploadMultipleMedia(FirebaseUser user, String postId, @NonNull List<Uri> mediaUris, Context context, OnAllUploadsCompleteListener listener) {
+        List<Task<Uri>> uploadTasks = new ArrayList<>();
+        // Create placeholders with correct size immediately
+        List<MediaItem> mediaItemsPlaceholders = new ArrayList<>(mediaUris.size());
+        for (int i = 0; i < mediaUris.size(); i++) {
+            mediaItemsPlaceholders.add(new MediaItem()); // Add empty MediaItem
+        }
+
+        for (int i = 0; i < mediaUris.size(); i++) {
+            Uri uri = mediaUris.get(i);
+            final int index = i; // Final index for use in lambdas
+
+            String mimeType = context.getContentResolver().getType(uri);
+            String mediaType = "unknown";
+            String fileExtension = "";
+
+            // --- Robust Media Type Determination ---
+            if (mimeType != null) {
+                if (mimeType.startsWith("image")) {
+                    mediaType = "image";
+                    fileExtension = ".jpg"; // Assume jpg for simplicity or determine actual type
+                } else if (mimeType.startsWith("video")) {
+                    mediaType = "video";
+                    fileExtension = ".mp4"; // Assume mp4 for simplicity
+                }
+            } else {
+                // Fallback: Check file extension from URI path if MIME type is null
+                String path = uri.getPath();
+                if (path != null) {
+                    if (path.toLowerCase().endsWith(".jpg") || path.toLowerCase().endsWith(".jpeg") || path.toLowerCase().endsWith(".png")) {
+                        mediaType = "image";
+                        fileExtension = ".jpg";
+                    } else if (path.toLowerCase().endsWith(".mp4") || path.toLowerCase().endsWith(".mov") || path.toLowerCase().endsWith(".avi") || path.toLowerCase().endsWith(".mkv")) {
+                        mediaType = "video";
+                        fileExtension = ".mp4";
+                    }
+                }
+            }
+
+            if (mediaType.equals("unknown")) {
+                Log.w(TAG, "Could not determine media type for URI: " + uri + ". Skipping file.");
+                // Set placeholder to null to indicate failure for this specific item
+                mediaItemsPlaceholders.set(index, null);
+                continue; // Skip this file
+            }
+            // --- End Media Type Determination ---
+
+            mediaItemsPlaceholders.get(index).mediaType = mediaType; // Set media type on placeholder
+            StorageReference fileRef = FirebaseStorage.getInstance().getReference()
+                    .child("posts/" + user.getUid() + "/" + postId + "/" + UUID.randomUUID().toString() + fileExtension);
+
+            UploadTask uploadTask = fileRef.putFile(uri);
+
+            // Chain tasks to get download URL
+            Task<Uri> urlTask = uploadTask.continueWithTask(task -> {
+                if (!task.isSuccessful()) {
+                    Log.e(TAG, "Upload failed for index " + index, task.getException());
+                    // Set placeholder to null on failure
+                    mediaItemsPlaceholders.set(index, null);
+                    throw task.getException(); // Propagate exception
+                }
+                // File uploaded successfully, now get download URL
+                return fileRef.getDownloadUrl();
+            }).addOnSuccessListener(downloadUrl -> {
+                // Update the correct placeholder with the URL and potentially thumbnail
+                MediaItem currentItem = mediaItemsPlaceholders.get(index);
+                if (currentItem != null) { // Check if it wasn't already marked as failed
+                    currentItem.url = downloadUrl.toString();
+                    if ("video".equals(currentItem.mediaType)) {
+                        // Ideally, generate a real thumbnail using Cloud Functions.
+                        // For now, using the video URL itself or a placeholder.
+                        currentItem.thumbnailUrl = downloadUrl.toString(); // Placeholder thumbnail
+                    }
+                    Log.d(TAG, "Upload success for index " + index + ": " + downloadUrl.toString());
+                }
+            }).addOnFailureListener(e -> {
+                // Already logged in continueWithTask, just ensure placeholder is null
+                mediaItemsPlaceholders.set(index, null);
+                Log.e(TAG, "Failed to get download URL for index " + index, e);
+            });
+
+            uploadTasks.add(urlTask);
+        }
+
+        // Wait for all URL retrieval tasks (including potential failures)
+        Tasks.whenAllComplete(uploadTasks).addOnCompleteListener(allTasks -> {
+            List<MediaItem> successfulMediaItems = new ArrayList<>();
+            boolean anyFailed = false;
+            for (MediaItem item : mediaItemsPlaceholders) {
+                if (item != null && item.url != null) { // Check if item exists and has a URL
+                    successfulMediaItems.add(item);
+                } else {
+                    anyFailed = true; // Mark if any item is null or lacks a URL
+                }
+            }
+
+            if (anyFailed) {
+                Log.e(TAG, "One or more media uploads failed during processing.");
+                // Only set error if not already set by a specific upload failure
+                if (_errorMessage.getValue() == null) {
+                    _errorMessage.setValue("Some media files failed to upload.");
+                }
+                _uploadStatus.setValue(UploadStatus.FAILED);
+                listener.onComplete(null); // Indicate overall failure
+            } else if (successfulMediaItems.isEmpty() && !mediaUris.isEmpty()) {
+                // Case where all uploads failed or were skipped
+                Log.e(TAG, "All media uploads failed or were skipped.");
+                if (_errorMessage.getValue() == null) {
+                    _errorMessage.setValue("All media files failed to upload.");
+                }
+                _uploadStatus.setValue(UploadStatus.FAILED);
+                listener.onComplete(null);
+            } else {
+                Log.d(TAG, "All uploads finished. Successful items: " + successfulMediaItems.size());
+                listener.onComplete(successfulMediaItems); // Pass the list of successfully uploaded items
+            }
+        });
     }
 
+    public void clearMessages() {
+        _errorMessage.setValue(null);
+    }
 
-    // Consider resetting status to IDLE after success/failure messages are shown
     public void resetStatus() {
         if (_uploadStatus.getValue() == UploadStatus.SUCCESS || _uploadStatus.getValue() == UploadStatus.FAILED) {
             _uploadStatus.setValue(UploadStatus.IDLE);
         }
     }
 
-
+    // Interface for callback after all uploads are attempted
     interface OnAllUploadsCompleteListener {
-        // Pass null to indicate failure
+        /**
+         * Called when all media upload attempts are complete.
+         * @param mediaItems List of successfully uploaded MediaItems, or null if any critical error occurred.
+         */
         void onComplete(@Nullable List<MediaItem> mediaItems);
     }
-
 }

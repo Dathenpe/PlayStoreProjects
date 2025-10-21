@@ -22,7 +22,9 @@
             android:paddingBottom="100dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:nestedScrollingEnabled="false"
-            android:visibility="gone"
+
+            android:visibility="visible"
+
             tools:listitem="@layout/item_video_m3" />
 
     </androidx.core.widget.NestedScrollView>

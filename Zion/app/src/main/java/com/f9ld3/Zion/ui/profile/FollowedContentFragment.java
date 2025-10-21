@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem; // Added for Menu
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu; // Added for PopupMenu
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,7 +20,8 @@ import androidx.navigation.fragment.NavHostFragment; // <-- Import NavHostFragme
 
 import com.f9ld3.Zion.R;
 import com.f9ld3.Zion.databinding.FragmentFullPageListBinding;
-import com.f9ld3.Zion.ui.feed.CommentsActivity; // <-- Import CommentsActivity
+import com.f9ld3.Zion.ui.dialogs.CustomAlertDialogFragment; // Added for Delete confirmation
+import com.f9ld3.Zion.ui.feed.CommentsBottomSheet; // <-- Import CommentsBottomSheet
 import com.f9ld3.Zion.ui.feed.Post;
 import com.f9ld3.Zion.ui.feed.PostAdapter;
 import com.f9ld3.Zion.ui.feed.PostDetailActivity; // <-- Import PostDetailActivity
@@ -32,6 +35,8 @@ import com.google.firebase.auth.FirebaseAuth; // <-- Import FirebaseAuth
 import com.google.firebase.auth.FirebaseUser; // <-- Import FirebaseUser
 
 import java.io.Serializable; // <-- Import Serializable
+import java.util.ArrayList;
+import java.util.List;
 
 public class FollowedContentFragment extends Fragment implements PostAdapter.OnPostClickListener, PlayerPostAdapter.OnMediaClickListener {
 
@@ -62,7 +67,7 @@ public class FollowedContentFragment extends Fragment implements PostAdapter.OnP
         super.onViewCreated(view, savedInstanceState);
 
         profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
-        // *** FIX: Initialize PostLikeViewModel ***
+        // Initialize PostLikeViewModel
         postLikeViewModel = new ViewModelProvider(requireActivity()).get(PostLikeViewModel.class);
 
         setupRecyclerView(); // Call setupRecyclerView before observing LiveData
@@ -98,12 +103,18 @@ public class FollowedContentFragment extends Fragment implements PostAdapter.OnP
 
         // Trigger loading the followed content
         // Make sure this method actually triggers the fetch in your ProfileViewModel
-        profileViewModel.refreshProfile();
+        // You might need a specific method like profileViewModel.fetchFollowedContent()
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            // Assuming ProfileViewModel fetches followed content when following list is loaded
+            profileViewModel.fetchFollowingChannels(currentUser.getUid()); // Or a dedicated fetch method
+            profileViewModel.fetchFollowingUsers(currentUser.getUid());
+        }
     }
 
     private void setupRecyclerView() {
-        // *** FIX: Pass PostLikeViewModel and LifecycleOwner to constructor ***
-        contentAdapter = new SearchAllAdapter(this, this, postLikeViewModel, getViewLifecycleOwner());
+        // Pass PostLikeViewModel and LifecycleOwner to constructor
+        contentAdapter = new SearchAllAdapter(this, this, postLikeViewModel, getViewLifecycleOwner(), requireActivity());
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.recyclerView.setAdapter(contentAdapter);
     }
@@ -111,7 +122,7 @@ public class FollowedContentFragment extends Fragment implements PostAdapter.OnP
     // --- Listener Implementations ---
 
     @Override
-    public void onPostItemClick(Post post) { // Renamed from onPostClick
+    public void onPostItemClick(Post post) {
         Log.i(TAG, "Post item clicked: " + post.getId());
         if (getContext() == null) return;
         Intent intent = new Intent(requireContext(), PostDetailActivity.class);
@@ -129,7 +140,7 @@ public class FollowedContentFragment extends Fragment implements PostAdapter.OnP
             // Use the initialized ViewModel
             postLikeViewModel.toggleLike(post.getId(), post);
         } else if (getContext() != null){
-            Toast.makeText(getContext(), "Login to like posts", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), R.string.login_for_features, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -137,11 +148,35 @@ public class FollowedContentFragment extends Fragment implements PostAdapter.OnP
     public void onCommentClick(Post post) {
         Log.i(TAG, "Comment clicked on post: " + post.getId());
         if (getContext() == null) return;
-        Intent intent = new Intent(requireContext(), CommentsActivity.class);
-        intent.putExtra(CommentsActivity.EXTRA_POST_ID, post.getId());
-        intent.putExtra(CommentsActivity.EXTRA_POST_DATA, (Serializable) post);
-        startActivity(intent);
+        // Show Comments Bottom Sheet instead of starting Activity
+        CommentsBottomSheet commentsSheet = CommentsBottomSheet.newInstance(post.getId(), post);
+        commentsSheet.show(getParentFragmentManager(), CommentsBottomSheet.TAG);
     }
+
+    // *** ADDED Missing Method Implementation ***
+    @Override
+    public void onOptionClick(Post post, View anchorView) {
+        Log.i(TAG, "Options clicked for post: " + post.getId());
+        showPostOptionsMenu(anchorView, post); // Reuse logic similar to FeedFragment
+    }
+
+    // *** ADDED Missing Method Implementation ***
+    @Override
+    public void onAuthorClick(Post post) {
+        Log.i(TAG, "Author clicked: " + post.getAuthorName() + " (ID: " + post.getAuthorUid() + ")");
+        if (post.getAuthorUid() != null) {
+            Bundle args = new Bundle();
+            args.putString("channelId", post.getAuthorUid());
+            args.putString("channelName", post.getAuthorName()); // Pass name for title
+            try {
+                NavHostFragment.findNavController(FollowedContentFragment.this)
+                        .navigate(R.id.navigation_channel, args);
+            } catch (Exception e) {
+                Log.e(TAG, "Navigation to channel failed", e);
+            }
+        }
+    }
+
 
     @Override
     public void onMediaClick(PlayerMedia mediaItem) {
@@ -167,9 +202,78 @@ public class FollowedContentFragment extends Fragment implements PostAdapter.OnP
         }
     }
 
+    // --- Helper for Post Options Menu (Similar to FeedFragment) ---
+    private void showPostOptionsMenu(View anchorView, Post post) {
+        if (getContext() == null) return;
+        PopupMenu popup = new PopupMenu(getContext(), anchorView);
+        popup.getMenu().add("Share");
+        popup.getMenu().add("Report");
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null && currentUser.getUid().equals(post.getAuthorUid())) {
+            popup.getMenu().add("Delete"); // Option to delete own post
+        }
+
+        popup.setOnMenuItemClickListener(item -> {
+            String title = item.getTitle().toString();
+            if ("Share".equals(title)) {
+                sharePost(post);
+            } else if ("Report".equals(title)) {
+                reportPost(post);
+            } else if ("Delete".equals(title)) {
+                deletePost(post);
+            } else {
+                return false;
+            }
+            return true;
+        });
+        popup.show();
+    }
+
+    private void sharePost(Post post) {
+        if (getContext() == null) return;
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        String shareText = post.getTextContent() != null ? post.getTextContent() : "Check out this post!";
+        sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+        sendIntent.setType("text/plain");
+        startActivity(Intent.createChooser(sendIntent, null));
+    }
+
+    private void reportPost(Post post) {
+        Toast.makeText(getContext(), "Report functionality TBD", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Reporting post ID: " + post.getId());
+    }
+
+    private void deletePost(Post post) {
+        if (getContext() == null) return;
+        CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance(
+                "Delete Post?",
+                "Are you sure you want to permanently delete this post?",
+                "Delete",
+                "Cancel"
+        );
+        dialog.setDialogListener(new CustomAlertDialogFragment.DialogListener() {
+            @Override
+            public void onPositiveClick() {
+                // Call ViewModel method to delete the post from Firestore
+                // Example: feedViewModel.deletePost(post.getId()); // Needs implementation
+                Log.d(TAG, "Deleting post ID: " + post.getId());
+                Toast.makeText(getContext(), "Delete functionality TBD", Toast.LENGTH_SHORT).show();
+            }
+            @Override
+            public void onNegativeClick() {}
+        });
+        dialog.show(getParentFragmentManager(), "DeletePostDialog");
+    }
+
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (binding != null && binding.recyclerView != null) {
+            binding.recyclerView.setAdapter(null); // Detach adapter
+        }
         binding = null; // Important for fragments
     }
 }

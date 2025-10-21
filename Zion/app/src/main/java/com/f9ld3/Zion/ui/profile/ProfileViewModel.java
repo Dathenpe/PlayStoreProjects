@@ -1,3 +1,4 @@
+// main/java/com/f9ld3/Zion/ui/profile/ProfileViewModel.java
 package com.f9ld3.Zion.ui.profile;
 
 import android.util.Log;
@@ -160,7 +161,7 @@ public class ProfileViewModel extends ViewModel {
                 });
     }
 
-    private void fetchFollowingChannels(String uid) {
+    void fetchFollowingChannels(String uid) {
         if (followingChannelsListener != null) followingChannelsListener.remove();
         followingChannelsListener = db.collection("users").document(uid).collection("following")
                 .whereEqualTo("type", "channel")
@@ -177,7 +178,7 @@ public class ProfileViewModel extends ViewModel {
                 });
     }
 
-    private void fetchFollowingUsers(String uid) {
+    void fetchFollowingUsers(String uid) {
         if (followingUsersListener != null) followingUsersListener.remove();
         followingUsersListener = db.collection("users").document(uid).collection("following")
                 .whereEqualTo("type", "user")
@@ -216,17 +217,31 @@ public class ProfileViewModel extends ViewModel {
         userPostsListener = db.collection("posts").whereEqualTo("authorUid", uid)
                 .orderBy("timestamp", Query.Direction.DESCENDING).limit(50)
                 .addSnapshotListener((value, error) -> {
+                    // --- FIX: Add error handling and try-catch ---
+                    if (error != null) {
+                        Log.e(TAG, "Error fetching user posts", error);
+                        mUserPosts.setValue(new ArrayList<>());
+                        return;
+                    }
+
                     List<Post> posts = new ArrayList<>();
                     if (value != null) {
                         for (DocumentSnapshot doc : value.getDocuments()) {
-                            Post post = doc.toObject(Post.class);
-                            if (post != null) {
-                                post.setId(doc.getId());
-                                posts.add(post);
+                            try {
+                                Post post = doc.toObject(Post.class);
+                                if (post != null) {
+                                    post.setId(doc.getId());
+                                    posts.add(post);
+                                }
+                            } catch (Exception e) {
+                                // This try-catch prevents the Profile fragment from crashing
+                                Log.e(TAG, "Error parsing post: " + doc.getId(), e);
                             }
                         }
                     }
                     mUserPosts.setValue(posts);
+                    Log.d(TAG, "Successfully processed " + posts.size() + " user posts.");
+                    // --- END FIX ---
                 });
     }
 
@@ -290,11 +305,17 @@ public class ProfileViewModel extends ViewModel {
             List<Object> content = new ArrayList<>();
             if (value != null) {
                 for (DocumentSnapshot doc : value.getDocuments()) {
-                    Post post = doc.toObject(Post.class);
-                    if (post != null) {
-                        post.setId(doc.getId());
-                        content.add(post);
+                    // --- FIX: Add try-catch here as well ---
+                    try {
+                        Post post = doc.toObject(Post.class);
+                        if (post != null) {
+                            post.setId(doc.getId());
+                            content.add(post);
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parsing followed content post: " + doc.getId(), e);
                     }
+                    // --- END FIX ---
                 }
             }
             mFollowedContent.setValue(content);
