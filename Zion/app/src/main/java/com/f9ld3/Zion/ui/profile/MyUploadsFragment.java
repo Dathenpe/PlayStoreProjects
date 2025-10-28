@@ -54,7 +54,7 @@ public class MyUploadsFragment extends Fragment {
     }
 
     // Adapter for the ViewPager
-    static class ViewPagerAdapter extends FragmentStateAdapter {
+    public static class ViewPagerAdapter extends FragmentStateAdapter {
         private final List<Fragment> fragmentList = new ArrayList<>();
         private final List<String> fragmentTitleList = new ArrayList<>();
 

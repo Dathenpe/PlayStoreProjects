@@ -35,166 +35,15 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/post_header_layout"
+            <include layout="@layout/post_detail_content"
+                android:id="@+id/post_content_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="16dp"
-                android:paddingTop="16dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="8dp">
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/author_avatar"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:src="@tools:sample/avatars" />
-
-                <TextView
-                    android:id="@+id/author_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_marginEnd="8dp"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:textAppearance="?attr/textAppearanceTitleSmall"
-                    android:textStyle="bold"
-                    android:textColor="?attr/colorOnSurface"
-                    app:layout_constraintStart_toEndOf="@id/author_avatar"
-                    app:layout_constraintTop_toTopOf="@id/author_avatar"
-                    app:layout_constraintEnd_toStartOf="@+id/post_options_button_detail"
-                    tools:text="Author Name" />
-
-                <TextView
-                    android:id="@+id/post_timestamp_detail"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?attr/textAppearanceBodySmall"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    app:layout_constraintStart_toStartOf="@id/author_name"
-                    app:layout_constraintTop_toBottomOf="@id/author_name"
-                    app:layout_constraintEnd_toEndOf="@id/author_name"
-                    tools:text="2 hours ago" />
-
-                <ImageButton
-                    android:id="@+id/post_options_button_detail"
-                    style="@style/Widget.Material3.Button.IconButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="Post options"
-                    app:icon="@drawable/ic_more_vert_24dp"
-                    app:iconTint="?attr/colorOnSurfaceVariant"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/author_name"
-                    app:layout_constraintBottom_toBottomOf="@id/post_timestamp_detail"/>
-
-
-                <TextView
-                    android:id="@+id/post_content"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:textAppearance="?attr/textAppearanceBodyMedium"
-                    android:textColor="?attr/colorOnSurface"
-                    android:lineSpacingMultiplier="1.1"
-                    android:textColorLink="?attr/colorSecondary"
-                    app:layout_constraintTop_toBottomOf="@id/author_avatar"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    tools:text="This is the main content of the post..." />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/media_pager"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:minHeight="200dp"
-                android:visibility="gone"
-                tools:layout_height="250dp"
-                tools:visibility="visible"/>
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tab_indicator"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="-16dp"
-                android:background="@android:color/transparent"
-                app:tabBackground="@drawable/tab_selector"
-                app:tabGravity="center"
-                app:tabIndicatorHeight="0dp"
-                app:tabPaddingStart="8dp"
-                app:tabPaddingEnd="8dp"
-                android:visibility="gone"
-                tools:visibility="visible"/>
-
-
-            <LinearLayout
-                android:id="@+id/actions_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingStart="8dp"
-                android:paddingEnd="16dp"
-                android:paddingTop="16dp"
-                android:gravity="start|center_vertical">
-
-                <ImageButton
-                    android:id="@+id/like_button"
-                    style="@style/Widget.Material3.Button.IconButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="Like"
-                    app:icon="@drawable/ic_like"
-                    app:iconTint="?attr/colorOnSurfaceVariant" />
-
-                <TextView
-                    android:id="@+id/like_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="-4dp"
-                    android:textAppearance="?attr/textAppearanceLabelMedium"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:visibility="gone"
-                    tools:text="12"
-                    tools:visibility="visible"/>
-
-                <ImageButton
-                    android:id="@+id/comment_action_button"
-                    style="@style/Widget.Material3.Button.IconButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:contentDescription="Scroll to Comments"
-                    app:icon="@drawable/ic_comment"
-                    app:iconTint="?attr/colorOnSurfaceVariant" />
-
-                <TextView
-                    android:id="@+id/comment_action_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="-4dp"
-                    android:textAppearance="?attr/textAppearanceLabelMedium"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:visibility="gone"
-                    tools:text="5"
-                    tools:visibility="visible"/>
-
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
-            </LinearLayout>
-
+                />
             <com.google.android.material.divider.MaterialDivider
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginTop="0dp" android:layout_marginBottom="8dp"/>
 
             <TextView
                 android:id="@+id/comments_header"
@@ -240,7 +89,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="?attr/colorSurfaceContainerHigh"
+        android:background="@color/white"
         android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingTop="8dp"

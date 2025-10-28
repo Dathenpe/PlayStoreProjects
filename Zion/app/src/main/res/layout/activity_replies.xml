@@ -31,20 +31,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <include layout="@layout/item_feed_post"
-                android:id="@+id/post_layout_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"/>
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="?attr/colorOutlineVariant"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"/>
-
-
             <FrameLayout
                 android:id="@+id/parent_comment_container"
                 android:layout_width="match_parent"
@@ -93,33 +79,39 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="?attr/colorSurfaceContainerHigh"
+        android:background="@color/white"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="8dp"
+        android:gravity="center_vertical">
 
         <EditText
             android:id="@+id/edit_text_comment"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@drawable/rounded_background"
+            android:backgroundTint="?attr/colorSurfaceContainer"
             android:hint="Reply..."
             android:inputType="textCapSentences|textMultiLine"
             android:maxLines="4"
-            android:background="@drawable/rounded_background"
-            android:backgroundTint="?attr/colorSurfaceContainer"
-            android:padding="12dp"
+            android:minHeight="48dp"
+            android:paddingStart="16dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="12dp"
             android:textColor="?attr/colorOnSurface"
             android:textColorHint="?attr/colorOnSurfaceVariant"/>
 
         <ImageButton
             android:id="@+id/button_post_comment"
+            style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
             android:layout_marginStart="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Post comment"
-            android:padding="8dp"
             android:src="@android:drawable/ic_menu_send"
             app:tint="?attr/colorSecondary" />
     </LinearLayout>

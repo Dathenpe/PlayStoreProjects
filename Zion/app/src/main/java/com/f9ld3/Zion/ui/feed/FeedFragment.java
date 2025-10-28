@@ -52,11 +52,14 @@ public class FeedFragment extends Fragment {
         });
 
         feedViewModel.getPosts().observe(getViewLifecycleOwner(), posts -> {
+            if (binding == null) return; // Add null check for binding
             if (posts != null) {
                 postAdapter.submitList(posts);
                 Log.d(TAG, "New list of " + posts.size() + " posts submitted to adapter.");
                 // Only hide skeleton if it's currently visible AND loading is finished
-                if (binding.skeletonRecyclerView.getVisibility() == View.VISIBLE && (feedViewModel.isLoading().getValue() == null || !feedViewModel.isLoading().getValue())) {
+                // Check if feedViewModel and isLoading() value are not null before accessing
+                Boolean loadingValue = feedViewModel.isLoading().getValue();
+                if (binding.skeletonRecyclerView.getVisibility() == View.VISIBLE && (loadingValue == null || !loadingValue)) {
                     binding.skeletonRecyclerView.setVisibility(View.GONE);
                     binding.feedRecyclerView.setVisibility(View.VISIBLE);
                 }
@@ -68,6 +71,7 @@ public class FeedFragment extends Fragment {
                 binding.feedRecyclerView.setVisibility(View.VISIBLE);
             }
         });
+
 
         binding.fabNewBlog.setOnClickListener(v -> {
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -101,11 +105,31 @@ public class FeedFragment extends Fragment {
                 }
             }
 
+            // <<< --- ADDED onDislikeClick --- >>>
+            @Override
+            public void onDislikeClick(Post post) {
+                Log.i(TAG, "Dislike clicked for post: " + post.getId());
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null && !user.isAnonymous()) {
+                    postLikeViewModel.toggleDislike(post.getId(), post); // Call ViewModel method
+                } else {
+                    Toast.makeText(getContext(), R.string.login_for_features, Toast.LENGTH_SHORT).show();
+                }
+            }
+            // <<< --- END of ADDED onDislikeClick --- >>>
+
+
             @Override
             public void onCommentClick(Post post) {
                 Log.i(TAG, "Comment clicked for post: " + post.getId() + " - showing bottom sheet.");
-                CommentsBottomSheet commentsSheet = CommentsBottomSheet.newInstance(post.getId(), post);
-                commentsSheet.show(getParentFragmentManager(), CommentsBottomSheet.TAG);
+                if (isAdded() && getActivity() != null) { // Check if fragment is attached
+                    CommentsBottomSheet commentsSheet = CommentsBottomSheet.newInstance(post.getId(), post);
+                    // Use getChildFragmentManager() if showing from within another fragment
+                    // Use getParentFragmentManager() if showing from an Activity or top-level fragment
+                    commentsSheet.show(getParentFragmentManager(), CommentsBottomSheet.TAG);
+                } else {
+                    Log.e(TAG, "Fragment not attached, cannot show CommentsBottomSheet.");
+                }
             }
 
             @Override
@@ -120,6 +144,9 @@ public class FeedFragment extends Fragment {
                                 .navigate(R.id.navigation_channel, args);
                     } catch (Exception e) {
                         Log.e(TAG, "Navigation to channel failed", e);
+                        if (isAdded() && getContext() != null) { // Check context before showing toast
+                            Toast.makeText(getContext(), "Could not navigate to profile.", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
             }
@@ -127,7 +154,9 @@ public class FeedFragment extends Fragment {
             @Override
             public void onOptionClick(Post post, View anchorView) {
                 Log.i(TAG, "Options clicked for post: " + post.getId());
-                showPostOptionsMenu(anchorView, post);
+                if (isAdded() && getContext() != null) { // Check context
+                    showPostOptionsMenu(anchorView, post);
+                }
             }
 
         }, getViewLifecycleOwner(), requireActivity());
@@ -144,17 +173,19 @@ public class FeedFragment extends Fragment {
     }
 
     private void navigateToPostDetail(Post post) {
-        Intent intent = new Intent(requireContext(), PostDetailActivity.class);
-        intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getId());
-        intent.putExtra(PostDetailActivity.EXTRA_POST_DATA, (Serializable) post);
-        // Optionally focus comment input directly
-        // intent.putExtra(PostDetailActivity.EXTRA_FOCUS_COMMENT_INPUT, true);
-        startActivity(intent);
+        if (isAdded() && getActivity() != null) { // Check attachment
+            Intent intent = new Intent(requireContext(), PostDetailActivity.class);
+            intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getId());
+            intent.putExtra(PostDetailActivity.EXTRA_POST_DATA, (Serializable) post);
+            // Optionally focus comment input directly
+            // intent.putExtra(PostDetailActivity.EXTRA_FOCUS_COMMENT_INPUT, true);
+            startActivity(intent);
+        }
     }
 
 
     private void showPostOptionsMenu(View anchorView, Post post) {
-        if (getContext() == null) return;
+        if (getContext() == null || !isAdded()) return; // Check context and attachment
         PopupMenu popup = new PopupMenu(getContext(), anchorView);
         // Inflate a menu resource or add items dynamically
         popup.getMenu().add("Share");
@@ -184,7 +215,7 @@ public class FeedFragment extends Fragment {
     // --- Action Handlers for Options Menu ---
 
     private void sharePost(Post post) {
-        if (getContext() == null) return;
+        if (getContext() == null || !isAdded()) return; // Check context and attachment
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         // Add content to share (e.g., text and a link)
@@ -199,6 +230,7 @@ public class FeedFragment extends Fragment {
     }
 
     private void reportPost(Post post) {
+        if (getContext() == null || !isAdded()) return; // Check context and attachment
         // Implement reporting logic (e.g., show dialog, send report to backend)
         Toast.makeText(getContext(), "Report functionality TBD", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "Reporting post ID: " + post.getId());
@@ -207,7 +239,7 @@ public class FeedFragment extends Fragment {
 
     private void deletePost(Post post) {
         // Show confirmation dialog before deleting
-        if (getContext() == null) return;
+        if (getContext() == null || !isAdded()) return; // Check context and attachment
         CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance(
                 "Delete Post?",
                 "Are you sure you want to permanently delete this post?",
@@ -220,11 +252,14 @@ public class FeedFragment extends Fragment {
                 // Call ViewModel method to delete the post from Firestore
                 // feedViewModel.deletePost(post.getId()); // Needs implementation in ViewModel
                 Log.d(TAG, "Deleting post ID: " + post.getId());
-                Toast.makeText(getContext(), "Delete functionality TBD", Toast.LENGTH_SHORT).show();
+                if (isAdded() && getContext() != null) { // Check context before toast
+                    Toast.makeText(getContext(), "Delete functionality TBD", Toast.LENGTH_SHORT).show();
+                }
             }
             @Override
             public void onNegativeClick() {}
         });
+        // Use getChildFragmentManager() or getParentFragmentManager() depending on context
         dialog.show(getParentFragmentManager(), "DeletePostDialog");
     }
 
@@ -232,8 +267,15 @@ public class FeedFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding.feedRecyclerView.setAdapter(null); // Detach adapter
-        binding.skeletonRecyclerView.setAdapter(null); // Detach skeleton adapter
-        binding = null;
+        // Add null checks before detaching adapters
+        if (binding != null) {
+            if (binding.feedRecyclerView != null) {
+                binding.feedRecyclerView.setAdapter(null); // Detach adapter
+            }
+            if (binding.skeletonRecyclerView != null) {
+                binding.skeletonRecyclerView.setAdapter(null); // Detach skeleton adapter
+            }
+        }
+        binding = null; // Nullify binding
     }
 }

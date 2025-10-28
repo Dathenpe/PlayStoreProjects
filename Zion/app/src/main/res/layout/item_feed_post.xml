@@ -65,7 +65,6 @@
             app:layout_constraintTop_toTopOf="@+id/author_name"
             app:layout_constraintBottom_toBottomOf="@id/post_timestamp"/>
 
-
         <TextView
             android:id="@+id/post_content"
             android:layout_width="0dp"
@@ -77,10 +76,10 @@
             app:layout_constraintTop_toBottomOf="@id/author_avatar"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:text="This is the main content of the post, which can include #hashtags and mentions spanning multiple lines for testing purposes." />
+            tools:text="This is the main content of the post..." />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/post_media_grid"
+        <FrameLayout
+            android:id="@+id/media_pager_container"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -88,11 +87,33 @@
             app:layout_constraintTop_toBottomOf="@id/post_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-            tools:spanCount="2"
-            tools:itemCount="4"
-            tools:listitem="@layout/item_media_grid_preview"
-            tools:visibility="visible"/>
+            tools:visibility="visible">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/media_pager_feed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:minHeight="200dp" />
+
+            <TextView
+                android:id="@+id/media_indicator_feed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:layout_margin="8dp"
+                android:background="@drawable/rounded_background"
+                android:backgroundTint="#99000000"
+                android:paddingStart="8dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="4dp"
+                android:textColor="@android:color/white"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:visibility="gone"
+                tools:text="1 / 5"
+                tools:visibility="visible"/>
+
+        </FrameLayout>
+
 
         <LinearLayout
             android:id="@+id/poll_container"
@@ -101,8 +122,7 @@
             android:layout_marginTop="12dp"
             android:orientation="vertical"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/post_media_grid"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/media_pager_container" app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             tools:visibility="visible">
         </LinearLayout>
@@ -115,8 +135,7 @@
             android:textAppearance="?attr/textAppearanceBodySmall"
             android:textColor="?attr/colorOnSurfaceVariant"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/poll_container"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/poll_container" app:layout_constraintStart_toStartOf="parent"
             tools:text="15 votes • Final results"
             tools:visibility="visible"/>
 
@@ -127,8 +146,7 @@
             android:orientation="horizontal"
             android:layout_marginTop="16dp"
             android:gravity="start|center_vertical"
-            app:layout_constraintTop_toBottomOf="@id/poll_details_text"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/poll_details_text" app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
             <ImageButton
@@ -136,10 +154,10 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:padding="8dp"
-                android:src="@drawable/ic_like"
+                android:src="@drawable/ic_thumb_up_outline_24dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:tint="?attr/colorSecondary"
-                android:contentDescription="Like" />
+                android:contentDescription="Like Post"
+                app:tint="?attr/colorOnSurfaceVariant" />
 
             <TextView
                 android:id="@+id/like_count"
@@ -149,8 +167,19 @@
                 android:textAppearance="?attr/textAppearanceLabelMedium"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:visibility="gone"
-                tools:text="12"
+                tools:text="1.2K"
                 tools:visibility="visible"/>
+
+            <ImageButton
+                android:id="@+id/dislike_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:layout_marginStart="12dp"
+                android:src="@drawable/ic_thumb_down_outline_24dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Dislike Post"
+                app:tint="?attr/colorOnSurfaceVariant" />
 
             <ImageButton
                 android:id="@+id/comment_button"
@@ -162,6 +191,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Comment"
                 app:tint="?attr/colorSecondary" />
+
             <TextView
                 android:id="@+id/comment_count"
                 android:layout_width="wrap_content"

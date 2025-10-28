@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="Zion">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-18T12:43:28.951011900Z">
+        <DropdownSelection timestamp="2025-10-26T16:45:01.749742700Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=067642513N100574" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Music_Minister\.android\avd\Pixel_XL.avd" />
             </handle>
           </Target>
         </DropdownSelection>

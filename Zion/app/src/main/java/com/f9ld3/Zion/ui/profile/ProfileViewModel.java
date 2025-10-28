@@ -88,7 +88,7 @@ public class ProfileViewModel extends ViewModel {
         }
     }
 
-    void fetchUserProfile(String uid) {
+    public void fetchUserProfile(String uid) {
         if (userProfileListener != null) userProfileListener.remove();
         userProfileListener = db.collection("users").document(uid)
                 .addSnapshotListener((snapshot, e) -> {

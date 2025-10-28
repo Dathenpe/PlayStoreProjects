@@ -83,11 +83,11 @@ public class CommentAdapter extends ListAdapter<Comment, CommentAdapter.CommentV
         private final ImageButton likeCommentButton;
         private final TextView likeCommentCount;
         private final ImageButton dislikeCommentButton;
-        private final TextView dislikeCommentCount;
+        private final TextView dislikeCommentCount; // Although likely hidden
 
         private final CommentInteractionListener listener;
         private final String postAuthorUid;
-        private Comment currentComment;
+        // Removed: private Comment currentComment; // No longer strictly needed if listeners use the 'comment' param directly
         private final CommentLikeViewModel likeViewModel;
         private final LifecycleOwner lifecycleOwner;
 
@@ -112,12 +112,16 @@ public class CommentAdapter extends ListAdapter<Comment, CommentAdapter.CommentV
             likeCommentButton = itemView.findViewById(R.id.button_like_comment);
             likeCommentCount = itemView.findViewById(R.id.like_comment_count);
             dislikeCommentButton = itemView.findViewById(R.id.button_dislike_comment);
-            dislikeCommentCount = itemView.findViewById(R.id.dislike_comment_count);
+            dislikeCommentCount = itemView.findViewById(R.id.dislike_comment_count); // Find the dislike count view
         }
 
-        void bind(Comment comment) {
-            if (comment == null) return;
-            currentComment = comment;
+        void bind(final Comment comment) { // Make comment final
+            if (comment == null) {
+                Log.w(TAG, "Attempting to bind a null comment at position: " + getAbsoluteAdapterPosition());
+                // Optionally clear views or show a placeholder state
+                return;
+            }
+            // currentComment = comment; // Can still keep if needed elsewhere
             Context context = itemView.getContext();
             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -129,36 +133,46 @@ public class CommentAdapter extends ListAdapter<Comment, CommentAdapter.CommentV
             authorAvatar.setAlpha(isDeleted ? 0.6f : 1.0f);
             commentActionsLayout.setVisibility(isDeleted ? View.GONE : View.VISIBLE);
             optionsButton.setVisibility(isDeleted ? View.GONE : View.VISIBLE);
-            viewRepliesText.setVisibility(isDeleted ? View.GONE : viewRepliesText.getVisibility()); // Hide if deleted
+            // Hide "View Replies" if the parent comment is deleted
+            viewRepliesText.setVisibility(isDeleted ? View.GONE : (comment.getReplyCount() > 0 ? View.VISIBLE : View.GONE));
+
 
             // Bind Data (if not deleted)
             if (!isDeleted) {
                 authorName.setText(comment.getAuthorName());
                 if (comment.getTimestamp() != null) {
-                    long timeMillis = comment.getTimestamp().toDate().getTime();
-                    timestampText.setText(" • " + DateUtils.getRelativeTimeSpanString(timeMillis, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
-                    timestampText.setVisibility(View.VISIBLE);
+                    try {
+                        long timeMillis = comment.getTimestamp().toDate().getTime();
+                        timestampText.setText(" • " + DateUtils.getRelativeTimeSpanString(timeMillis, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
+                        timestampText.setVisibility(View.VISIBLE);
+                    } catch (NullPointerException e) {
+                        Log.e(TAG, "Timestamp was null when trying to format for comment: " + comment.getId());
+                        timestampText.setVisibility(View.GONE);
+                    }
                 } else {
                     timestampText.setVisibility(View.GONE);
                 }
 
-                Glide.with(context).load(comment.getAuthorAvatarUrl())
-                        .placeholder(R.drawable.ic_profile_placeholder).into(authorAvatar);
 
-                // --- Click Listeners ---
+                Glide.with(context).load(comment.getAuthorAvatarUrl())
+                        .placeholder(R.drawable.ic_profile_placeholder).error(R.drawable.ic_profile_placeholder).into(authorAvatar);
+
+                // --- Click Listeners (Using 'comment' passed to bind) ---
                 replyButton.setOnClickListener(v -> listener.onReplyClicked(comment));
                 optionsButton.setOnClickListener(v -> showOptionsMenu(v, context, currentUser, comment));
                 likeCommentButton.setOnClickListener(v -> handleLikeClick(currentUser, comment, context));
                 dislikeCommentButton.setOnClickListener(v -> handleDislikeClick(currentUser, comment, context));
+                // --- End Click Listener Update ---
+
 
                 // --- Handle "View Replies" ---
                 if (comment.getReplyCount() > 0) {
                     viewRepliesText.setVisibility(View.VISIBLE);
                     int replyCount = comment.getReplyCount();
                     String repliesText = context.getResources().getQuantityString(
-                            R.plurals.view_replies_count, // Correct: Use R.plurals
-                            replyCount,                  // The count to determine "one" or "other"
-                            replyCount                   // The value for the %d placeholder
+                            R.plurals.view_replies_count, // Use R.plurals
+                            replyCount,                  // Count for quantity selection
+                            replyCount                   // Value for %d placeholder
                     );
                     viewRepliesText.setText(repliesText);
 
@@ -178,104 +192,139 @@ public class CommentAdapter extends ListAdapter<Comment, CommentAdapter.CommentV
                 dislikeCommentButton.setOnClickListener(null);
                 viewRepliesText.setOnClickListener(null);
                 timestampText.setVisibility(View.GONE); // Hide timestamp if deleted
+                authorName.setText("User"); // Generic name if deleted
+                authorAvatar.setImageResource(R.drawable.ic_profile_placeholder); // Placeholder avatar
             }
 
             // --- Show/Hide Thread Line (Based on whether it's a reply) ---
             replyThreadLine.setVisibility(comment.isReply() ? View.VISIBLE : View.GONE);
         }
 
-        private void handleLikeClick(FirebaseUser currentUser, Comment comment, Context context) {
-            if (currentUser != null) {
+        // --- UPDATED: Pass the specific comment object ---
+        private void handleLikeClick(FirebaseUser currentUser, final Comment commentToLike, Context context) {
+            if (currentUser != null && !currentUser.isAnonymous()) {
                 // Fetch post text snippet (needed for notification)
                 // This ideally should be available without fetching again. Pass from activity/fragment if possible.
                 String postTextSnippet = ""; // Placeholder - Pass this properly
-                String commentTextSnippet = comment.getTextContent();
-                likeViewModel.toggleLike(comment.getPostId(), comment.getId(), comment.getAuthorUid(), commentTextSnippet, postTextSnippet);
+                String commentTextSnippet = commentToLike.getTextContent(); // Use current comment text
+                likeViewModel.toggleLike(commentToLike.getPostId(), commentToLike.getId(), commentToLike.getAuthorUid(), commentTextSnippet, postTextSnippet);
             } else {
-
+                Toast.makeText(context, R.string.login_for_features, Toast.LENGTH_SHORT).show();
             }
         }
 
-        private void handleDislikeClick(FirebaseUser currentUser, Comment comment, Context context) {
-            if (currentUser != null) {
-                likeViewModel.toggleDislike(comment.getPostId(), comment.getId());
+        // --- UPDATED: Pass the specific comment object ---
+        private void handleDislikeClick(FirebaseUser currentUser, final Comment commentToDislike, Context context) {
+            if (currentUser != null && !currentUser.isAnonymous()) {
+                likeViewModel.toggleDislike(commentToDislike.getPostId(), commentToDislike.getId());
             } else {
-
+                Toast.makeText(context, R.string.login_for_features, Toast.LENGTH_SHORT).show();
             }
         }
+        // --- End Update ---
+
 
         private void observeLikeStatus(Comment comment, Context context) {
-            ColorStateList likedTint = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.teal)); // Theme color
-            ColorStateList dislikedTint = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.error)); // Error color
-            ColorStateList defaultTint = ColorStateList.valueOf(MaterialColors.getColor(likeCommentButton, com.google.android.material.R.attr.colorOnSurfaceVariant));
+            // Ensure comment and its IDs are valid before observing
+            if (comment == null || comment.getPostId() == null || comment.getId() == null) {
+                Log.w(TAG, "Cannot observe like status for invalid comment/IDs.");
+                // Reset UI to default state
+                if (likeCommentButton != null) {
+                    likeCommentButton.setImageResource(R.drawable.ic_thumb_up_outline_24dp);
+                    likeCommentButton.setImageTintList(null);
+                }
+                if (dislikeCommentButton != null) {
+                    dislikeCommentButton.setImageResource(R.drawable.ic_thumb_down_outline_24dp);
+                    dislikeCommentButton.setImageTintList(null);
+                }
+                if (likeCommentCount != null) likeCommentCount.setVisibility(View.GONE);
+                if (dislikeCommentCount != null) dislikeCommentCount.setVisibility(View.GONE);
+                return;
+            }
 
             // Observe Liked Status
             likeViewModel.isLiked(comment.getPostId(), comment.getId()).observe(lifecycleOwner, isLiked -> {
                 if (likeCommentButton != null) { // Check view validity
-                    likeCommentButton.setImageTintList(Boolean.TRUE.equals(isLiked) ? likedTint : defaultTint);
+                    likeCommentButton.setImageResource(Boolean.TRUE.equals(isLiked)
+                            ? R.drawable.ic_thumb_up_filled_24dp // Use filled icon
+                            : R.drawable.ic_thumb_up_outline_24dp); // Use outline icon
+                    likeCommentButton.setImageTintList(null); // Remove programmatic tint
                 }
             });
 
             // Observe Disliked Status
             likeViewModel.isDisliked(comment.getPostId(), comment.getId()).observe(lifecycleOwner, isDisliked -> {
                 if (dislikeCommentButton != null) { // Check view validity
-                    dislikeCommentButton.setImageTintList(Boolean.TRUE.equals(isDisliked) ? dislikedTint : defaultTint);
+                    dislikeCommentButton.setImageResource(Boolean.TRUE.equals(isDisliked)
+                            ? R.drawable.ic_thumb_down_filled_24dp // Use filled icon
+                            : R.drawable.ic_thumb_down_outline_24dp); // Use outline icon
+                    dislikeCommentButton.setImageTintList(null); // Remove programmatic tint
                 }
             });
 
-            // Observe Like Count
+            // --- Observe Like Count (Update UI solely based on observer) ---
             likeViewModel.getLikeCount(comment.getPostId(), comment.getId()).observe(lifecycleOwner, count -> {
                 if (likeCommentCount != null) { // Check view validity
                     int currentCount = count != null ? count : 0;
-                    likeCommentCount.setText(String.valueOf(currentCount));
-                    likeCommentCount.setVisibility(currentCount > 0 ? View.VISIBLE : View.GONE);
+                    likeCommentCount.setText(String.valueOf(currentCount)); // Update text based on LiveData
+                    likeCommentCount.setVisibility(currentCount > 0 ? View.VISIBLE : View.GONE); // Update visibility based on LiveData
                 }
             });
 
-            // Observe Dislike Count
+            // --- Observe Dislike Count (Update UI solely based on observer) ---
             likeViewModel.getDislikeCount(comment.getPostId(), comment.getId()).observe(lifecycleOwner, count -> {
                 if (dislikeCommentCount != null) { // Check view validity
                     int currentCount = count != null ? count : 0;
-                    dislikeCommentCount.setText(String.valueOf(currentCount));
-                    dislikeCommentCount.setVisibility(currentCount > 0 ? View.VISIBLE : View.GONE);
+                    dislikeCommentCount.setText(String.valueOf(currentCount)); // Update text based on LiveData
+                    // YouTube generally hides dislike count, keep visibility GONE
+                    dislikeCommentCount.setVisibility(View.GONE); // Update visibility based on LiveData
+                    // Or show if > 0:
+                    // dislikeCommentCount.setVisibility(currentCount > 0 ? View.VISIBLE : View.GONE);
                 }
             });
 
-            // Set initial state from comment data (for faster initial render)
-            likeCommentCount.setText(String.valueOf(comment.getLikeCount()));
-            likeCommentCount.setVisibility(comment.getLikeCount() > 0 ? View.VISIBLE : View.GONE);
-            dislikeCommentCount.setText(String.valueOf(comment.getDislikeCount()));
-            dislikeCommentCount.setVisibility(comment.getDislikeCount() > 0 ? View.VISIBLE : View.GONE);
+            // --- REMOVE Initial Count Setting from Comment Object ---
+            // (Lines removed)
+            // --- END REMOVE ---
         }
 
 
         // --- Options Menu Logic ---
         private void showOptionsMenu(View anchor, Context context, FirebaseUser currentUser, Comment comment) {
             PopupMenu popup = new PopupMenu(context, anchor);
-            popup.inflate(R.menu.menu_comment_options); // Use your menu resource
 
-            // Determine if the current user can delete the comment
-            boolean canDelete = currentUser != null &&
-                    (currentUser.getUid().equals(comment.getAuthorUid()) ||
-                            currentUser.getUid().equals(postAuthorUid));
+            // Inflate menu resource only if it exists
+            try {
+                popup.inflate(R.menu.menu_comment_options);
 
-            popup.getMenu().findItem(R.id.action_delete_comment).setVisible(canDelete);
-            // Report option is always visible for logged-in users (except for own comment?)
-            popup.getMenu().findItem(R.id.action_report_comment).setVisible(currentUser != null && !currentUser.getUid().equals(comment.getAuthorUid()));
+                // Determine if the current user can delete the comment
+                boolean canDelete = currentUser != null &&
+                        (currentUser.getUid().equals(comment.getAuthorUid()) ||
+                                (postAuthorUid != null && currentUser.getUid().equals(postAuthorUid))); // Check postAuthorUid
 
-            popup.setOnMenuItemClickListener(item -> {
-                int itemId = item.getItemId();
-                if (itemId == R.id.action_delete_comment) {
-                    listener.onDeleteClicked(comment);
-                    return true;
-                } else if (itemId == R.id.action_report_comment) {
-                    listener.onReportClicked(comment);
-                    return true;
-                } else {
-                    return false;
-                }
-            });
-            popup.show();
+                popup.getMenu().findItem(R.id.action_delete_comment).setVisible(canDelete);
+                // Report option is always visible for logged-in users (except for own comment?)
+                popup.getMenu().findItem(R.id.action_report_comment).setVisible(currentUser != null && !currentUser.getUid().equals(comment.getAuthorUid()));
+
+                popup.setOnMenuItemClickListener(item -> {
+                    int itemId = item.getItemId();
+                    if (itemId == R.id.action_delete_comment) {
+                        listener.onDeleteClicked(comment);
+                        return true;
+                    } else if (itemId == R.id.action_report_comment) {
+                        listener.onReportClicked(comment);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+                popup.show();
+
+            } catch (Exception e) {
+                Log.e(TAG, "Error inflating or showing comment options menu", e);
+                // Fallback or show simple toast if menu inflation fails
+                Toast.makeText(context, "Options unavailable", Toast.LENGTH_SHORT).show();
+            }
         }
 
         // Public getter if needed by listener
@@ -289,6 +338,7 @@ public class CommentAdapter extends ListAdapter<Comment, CommentAdapter.CommentV
     private static final DiffUtil.ItemCallback<Comment> DIFF_CALLBACK = new DiffUtil.ItemCallback<Comment>() {
         @Override
         public boolean areItemsTheSame(@NonNull Comment oldItem, @NonNull Comment newItem) {
+            // Check if IDs are non-null before comparing
             return oldItem.getId() != null && oldItem.getId().equals(newItem.getId());
         }
         @Override

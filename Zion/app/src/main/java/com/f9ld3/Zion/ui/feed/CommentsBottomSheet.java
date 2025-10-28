@@ -17,7 +17,8 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.f9ld3.Zion.R;
-import com.f9ld3.Zion.databinding.ActivityCommentsBinding; // Keep using this binding for now
+// *** CHANGE BINDING TYPE ***
+import com.f9ld3.Zion.databinding.BottomSheetCommentsBinding; // Import the new binding
 import com.f9ld3.Zion.ui.dialogs.CustomAlertDialogFragment;
 import com.f9ld3.Zion.ui.dialogs.CustomInputDialogFragment;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -30,7 +31,8 @@ public class CommentsBottomSheet extends BottomSheetDialogFragment implements Co
     public static final String EXTRA_POST_DATA = "extra_post_data";
     public static final String TAG = "CommentsBottomSheet"; // Renamed TAG
 
-    private ActivityCommentsBinding binding;
+    // *** CHANGE BINDING TYPE ***
+    private BottomSheetCommentsBinding binding; // Use the new binding type
     private CommentsViewModel viewModel;
     private CommentAdapter adapter;
     private String postId;
@@ -68,11 +70,8 @@ public class CommentsBottomSheet extends BottomSheetDialogFragment implements Co
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = ActivityCommentsBinding.inflate(inflater, container, false);
-        // Hide or remove toolbar from layout if it exists
-        if (binding.toolbar != null) {
-            binding.toolbar.setVisibility(View.GONE);
-        }
+        // *** INFLATE NEW LAYOUT ***
+        binding = BottomSheetCommentsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
@@ -86,13 +85,13 @@ public class CommentsBottomSheet extends BottomSheetDialogFragment implements Co
             return;
         }
 
-        setupRecyclerView();
+        setupRecyclerView(); // IDs should match the new layout
 
         viewModel.getComments().observe(getViewLifecycleOwner(), comments -> {
             if (binding == null) return;
             boolean isEmpty = comments == null || comments.isEmpty();
             binding.commentsRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
-            binding.emptyStateText.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+            binding.emptyStateText.setVisibility(isEmpty ? View.VISIBLE : View.GONE); // Use new ID
 
             if (!isEmpty) {
                 adapter.submitList(comments);
@@ -117,7 +116,7 @@ public class CommentsBottomSheet extends BottomSheetDialogFragment implements Co
         });
 
         viewModel.loadComments(postId);
-        binding.buttonPostComment.setOnClickListener(v -> postNewCommentOrReply());
+        binding.buttonPostComment.setOnClickListener(v -> postNewCommentOrReply()); // IDs should match
     }
 
     @NonNull @Override
@@ -136,12 +135,12 @@ public class CommentsBottomSheet extends BottomSheetDialogFragment implements Co
 
     private void setupRecyclerView() {
         adapter = new CommentAdapter(this, currentPostData.getAuthorUid(), getViewLifecycleOwner(), requireActivity());
-        binding.commentsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.commentsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext())); // Use new ID
         binding.commentsRecyclerView.setAdapter(adapter);
     }
 
     private void postNewCommentOrReply() {
-        String text = binding.editTextComment.getText().toString().trim();
+        String text = binding.editTextComment.getText().toString().trim(); // Use new ID
         if (!text.isEmpty()) {
             viewModel.postCommentOrReply(
                     postId,
@@ -150,7 +149,7 @@ public class CommentsBottomSheet extends BottomSheetDialogFragment implements Co
                     currentPostData.getAuthorUid(),
                     currentPostData.getTextContent()
             );
-            binding.editTextComment.setText("");
+            binding.editTextComment.setText(""); // Use new ID
             hideKeyboard();
         } else if (getContext() != null) {
             Toast.makeText(getContext(), "Cannot post empty comment", Toast.LENGTH_SHORT).show();
@@ -160,7 +159,7 @@ public class CommentsBottomSheet extends BottomSheetDialogFragment implements Co
     private void hideKeyboard() {
         View view = getDialog() != null ? getDialog().getCurrentFocus() : null;
         if (view == null && binding != null) {
-            view = binding.editTextComment;
+            view = binding.editTextComment; // Use new ID
         }
         if (view != null && getContext() != null) {
             InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);

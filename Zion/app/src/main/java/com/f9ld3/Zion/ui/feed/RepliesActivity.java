@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import com.f9ld3.Zion.R;
 import com.f9ld3.Zion.databinding.ActivityRepliesBinding;
+import com.f9ld3.Zion.databinding.ItemFeedPostBinding; // Import the included post binding
 import com.f9ld3.Zion.ui.dialogs.CustomAlertDialogFragment;
 import com.f9ld3.Zion.ui.dialogs.CustomInputDialogFragment;
 import com.google.android.material.color.MaterialColors;
@@ -33,6 +34,7 @@ public class RepliesActivity extends AppCompatActivity implements CommentAdapter
     private static final String TAG = "RepliesActivity";
 
     private ActivityRepliesBinding binding;
+    private ItemFeedPostBinding postBinding; // Binding for the included post layout
     private CommentsViewModel commentsViewModel;
     private PostLikeViewModel postLikeViewModel;
     private CommentAdapter commentAdapter;
@@ -49,6 +51,8 @@ public class RepliesActivity extends AppCompatActivity implements CommentAdapter
         super.onCreate(savedInstanceState);
         binding = ActivityRepliesBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+
 
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
@@ -77,7 +81,7 @@ public class RepliesActivity extends AppCompatActivity implements CommentAdapter
         setupRecyclerView();
         setupObservers();
         setupClickListeners();
-        updatePostUi(currentPostData);
+        // Initial load of the parent comment and its replies
         commentsViewModel.loadCommentThread(postId, parentCommentId);
 
         if (shouldFocusReply) {
@@ -86,71 +90,37 @@ public class RepliesActivity extends AppCompatActivity implements CommentAdapter
     }
 
     private void updatePostUi(Post post) {
-        if (post == null || binding == null) return;
+        if (post == null || postBinding == null) return;
 
-        View postView = binding.postLayoutContainer.getRoot(); // Get the root view of the included layout
-
-        // FIX 1: Call the constructor with all required arguments.
-        // Get ViewModels needed for the constructor. Note: PollViewModel is needed too.
+        // Use the PostViewHolder to bind the post inside the included layout
         PollViewModel pollViewModel = new ViewModelProvider(this).get(PollViewModel.class);
-        // Pass 'null' for the listener as we handle clicks directly below or disable them.
-        // Pass 'this' as the LifecycleOwner.
         PostAdapter.PostViewHolder holder = new PostAdapter.PostViewHolder(
-                postView,
+                postBinding.getRoot(),
                 null, // Pass null for OnPostClickListener
                 postLikeViewModel,
-                pollViewModel, // Pass the PollViewModel
-                this // Pass the LifecycleOwner (the Activity)
+                pollViewModel,
+                this
         );
 
-        // FIX 2: Call the correct bind method signature.
-        holder.bind(post); // Pass only the Post object
+        holder.bind(post);
 
-        // --- Keep the rest of your logic to customize/disable parts ---
+        // --- Customizations for RepliesActivity ---
 
-        // Re-apply essential listeners or disable elements as needed for this context
-        binding.postLayoutContainer.likeButton.setOnClickListener(v -> {
-            postLikeViewModel.toggleLike(post.getId(), post);
-        });
-        // Scroll to replies list instead of opening bottom sheet
-        binding.postLayoutContainer.commentButton.setOnClickListener(v -> {
-            if(binding.commentsRecyclerView.getAdapter() != null && binding.commentsRecyclerView.getAdapter().getItemCount() > 0) {
-                binding.commentsRecyclerView.smoothScrollToPosition(0);
-            } else {
-                focusReplyInput(null); // Focus input if no replies yet
-            }
-        });
-        binding.postLayoutContainer.authorAvatar.setOnClickListener(null); // Disable author click
-        binding.postLayoutContainer.authorName.setOnClickListener(null);   // Disable author click
-        binding.postLayoutContainer.postOptionsButton.setVisibility(View.GONE); // Hide options button
+        // Disable navigation and options on the contextual post view
+        postBinding.getRoot().setOnClickListener(null);
+        postBinding.authorAvatar.setOnClickListener(null);
+        postBinding.authorName.setOnClickListener(null);
+        postBinding.postOptionsButton.setVisibility(View.GONE);
+        postBinding.commentButton.setOnClickListener(null); // Disable comment button on post itself
+        postBinding.commentCount.setVisibility(View.GONE); // Hide post comment count
 
-        // Remove the general item click listener for the post card in replies view
-        binding.postLayoutContainer.getRoot().setOnClickListener(null);
-
-        // Observe like state and update UI (optional if you want to show if liked)
+        // Manually re-observe like state and update UI (as the ViewHolder's observer might not survive Activity lifecycle)
         postLikeViewModel.isLiked(post.getId()).observe(this, isLiked -> {
-            if (binding == null) return; // Check binding again inside observer
+            if (postBinding == null) return;
             ColorStateList likedTint = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.teal));
-            ColorStateList defaultTint = ColorStateList.valueOf(MaterialColors.getColor(binding.postLayoutContainer.likeButton, com.google.android.material.R.attr.colorOnSurfaceVariant));
-            binding.postLayoutContainer.likeButton.setImageTintList(Boolean.TRUE.equals(isLiked) ? likedTint : defaultTint);
+            ColorStateList defaultTint = ColorStateList.valueOf(MaterialColors.getColor(postBinding.likeButton, com.google.android.material.R.attr.colorOnSurfaceVariant));
+            postBinding.likeButton.setImageTintList(Boolean.TRUE.equals(isLiked) ? likedTint : defaultTint);
         });
-        // Update counts (optional, could be relevant)
-        binding.postLayoutContainer.likeCount.setText(String.valueOf(post.getLikeCount())); // Use simple count here
-        binding.postLayoutContainer.likeCount.setVisibility(post.getLikeCount() > 0 ? View.VISIBLE : View.GONE);
-        binding.postLayoutContainer.commentCount.setText(String.valueOf(post.getCommentCount()));// Use simple count here
-        binding.postLayoutContainer.commentCount.setVisibility(post.getCommentCount() > 0 ? View.VISIBLE : View.GONE);
-
-        // Hide poll container specific details if they exist in the included layout
-        if (binding.postLayoutContainer.pollContainer != null) {
-            binding.postLayoutContainer.pollContainer.setVisibility(View.GONE);
-        }
-        if (binding.postLayoutContainer.pollDetailsText != null) {
-            binding.postLayoutContainer.pollDetailsText.setVisibility(View.GONE);
-        }
-        // Hide media grid specific details
-        if(binding.postLayoutContainer.postMediaGrid != null){
-            binding.postLayoutContainer.postMediaGrid.setVisibility(View.GONE);
-        }
     }
 
     private void setupRecyclerView() {
@@ -162,8 +132,14 @@ public class RepliesActivity extends AppCompatActivity implements CommentAdapter
     private void setupObservers() {
         commentsViewModel.getParentComment().observe(this, comment -> {
             if (binding == null) return;
+            this.parentComment = comment;
+
+            // --- FIX: Check if parent comment is a reply and hide original post if true ---
+            // The logic: if the parent comment itself has a parent ID, it's a deep thread, so hide the original post.
+            boolean isReplyToReply = comment != null && comment.isReply();
+
+
             if (comment != null) {
-                this.parentComment = comment;
                 View parentCommentView = getLayoutInflater().inflate(R.layout.item_comment, binding.parentCommentContainer, false);
                 CommentAdapter.CommentViewHolder holder = new CommentAdapter.CommentViewHolder(parentCommentView, this, postAuthorUid,
                         new ViewModelProvider(this).get(CommentLikeViewModel.class), this);
@@ -331,5 +307,6 @@ public class RepliesActivity extends AppCompatActivity implements CommentAdapter
     protected void onDestroy() {
         super.onDestroy();
         binding = null;
+        postBinding = null;
     }
 }

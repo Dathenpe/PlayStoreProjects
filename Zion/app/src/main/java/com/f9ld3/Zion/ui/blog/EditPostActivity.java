@@ -1,5 +1,7 @@
-// main/java/com/f9ld3/Zion/ui/blog/CreatePostActivity.java
+// main/java/com/f9ld3/Zion/ui/blog/EditPostActivity.java
 package com.f9ld3.Zion.ui.blog;
+
+import static com.f9ld3.Zion.ui.feed.CommentsBottomSheet.TAG; // Reusing TAG, consider a specific one
 
 import android.content.Intent;
 import android.net.Uri;
@@ -25,33 +27,39 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import com.f9ld3.Zion.R;
-import com.f9ld3.Zion.databinding.ActivityCreatePostBinding;
+import com.f9ld3.Zion.databinding.ActivityEditPostBinding; // Use correct binding
 import com.f9ld3.Zion.ui.dialogs.CustomAlertDialogFragment;
 import com.f9ld3.Zion.ui.feed.MediaItem;
 import com.f9ld3.Zion.ui.feed.PollOption;
 import com.f9ld3.Zion.ui.feed.Post;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CreatePostActivity extends AppCompatActivity implements MediaPreviewAdapter.OnMediaItemClickListener {
+public class EditPostActivity extends AppCompatActivity implements MediaPreviewAdapter.OnMediaItemClickListener {
 
-    private static final String TAG = "CreatePostActivity"; // Use specific TAG
+    public static final String EXTRA_POST_TO_EDIT = "extra_post_to_edit";
+    // Consider a more specific TAG like "EditPostActivityTAG"
+    // private static final String TAG = "EditPostActivity";
 
-    private ActivityCreatePostBinding binding;
-    private PostViewModel postViewModel;
+    private ActivityEditPostBinding binding;
+    private EditPostViewModel editPostViewModel;
     private MediaPreviewAdapter adapter;
-    private final List<MediaItem> mediaItems = new ArrayList<>();
-    private String currentPostType = Post.TYPE_TEXT_MEDIA;
+    private final List<MediaItem> mediaItems = new ArrayList<>(); // Stores media for the adapter
+    private String currentPostType = Post.TYPE_TEXT_MEDIA; // Holds the currently selected type
+    private Post postToEdit; // Holds the original post data
 
     // --- Poll Option Management Logic ---
     private final List<TextInputLayout> pollOptionLayouts = new ArrayList<>();
     private final List<TextInputEditText> pollOptionEditTexts = new ArrayList<>();
     private final int MAX_POLL_OPTIONS = 5;
     private final int MIN_POLL_OPTIONS = 2;
+    // --- End Poll Option Management ---
 
 
+    // Media Picker Launcher (remains the same)
     private final ActivityResultLauncher<Intent> pickMediaLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -89,32 +97,50 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
                     if (addedCount > 0) {
                         adapter.notifyDataSetChanged();
                         binding.mediaPreviewRecycler.setVisibility(View.VISIBLE);
+                        editPostViewModel.setMediaChanged(true); // Mark media as potentially changed
                     }
                 }
             });
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityCreatePostBinding.inflate(getLayoutInflater());
+        binding = ActivityEditPostBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        postViewModel = new ViewModelProvider(this).get(PostViewModel.class);
+        // Retrieve the post to edit
+        if (getIntent().hasExtra(EXTRA_POST_TO_EDIT)) {
+            try {
+                postToEdit = (Post) getIntent().getSerializableExtra(EXTRA_POST_TO_EDIT);
+            } catch (ClassCastException e) {
+                Log.e(TAG, "Failed to cast Post from intent extra", e);
+                postToEdit = null;
+            }
+        }
+
+        if (postToEdit == null) {
+            Log.e(TAG, "EditPostActivity started without valid Post data. Finishing.");
+            Toast.makeText(this, "Error: Could not load post to edit.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        editPostViewModel = new ViewModelProvider(this).get(EditPostViewModel.class);
 
         setupToolbar();
         setupRecyclerView();
         setupPollOptionManagement(); // <-- CALL NEW SETUP METHOD HERE
         setupClickListeners();
         observeViewModel();
-        updateUiForPostType(); // Set initial UI state
+        populateUiWithPostData(); // Populate AFTER setting up initial poll views
     }
 
-    // ... (setupToolbar, setupRecyclerView, createMediaItemFromUri, onMediaItemClick, showRemoveMediaConfirmation remain the same) ...
     private void setupToolbar() {
         setSupportActionBar(binding.toolbar);
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Create Post"); // Set a title
+            getSupportActionBar().setTitle("Edit Post"); // Set title
         }
     }
 
@@ -124,17 +150,104 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
         binding.mediaPreviewRecycler.setAdapter(adapter);
     }
 
+    // --- UPDATED populateUiWithPostData ---
+    private void populateUiWithPostData() {
+        if (postToEdit == null) return;
+
+        binding.editTextContent.setText(postToEdit.getTextContent());
+        currentPostType = postToEdit.getPostType(); // Set initial post type
+
+        // --- Auto-select Post Type Toggle ---
+        int buttonIdToCheck;
+        switch (currentPostType) {
+            case Post.TYPE_POLL:
+                buttonIdToCheck = R.id.button_type_poll;
+                break;
+            case Post.TYPE_QUIZ:
+                buttonIdToCheck = R.id.button_type_quiz;
+                break;
+            case Post.TYPE_TEXT_MEDIA:
+            default:
+                buttonIdToCheck = R.id.button_type_media;
+                break;
+        }
+        binding.togglePostType.check(buttonIdToCheck);
+        // --- End Auto-select ---
+
+        // --- Media items population ---
+        mediaItems.clear(); // Clear existing adapter items
+        if (postToEdit.getMediaItems() != null && currentPostType.equals(Post.TYPE_TEXT_MEDIA)) {
+            mediaItems.addAll(postToEdit.getMediaItems()); // Add items from the post
+        }
+        adapter.notifyDataSetChanged();
+        binding.mediaPreviewRecycler.setVisibility(mediaItems.isEmpty() ? View.GONE : View.VISIBLE);
+        // --- End Media items population ---
+
+
+        // --- Revamped Poll/Quiz Population ---
+        clearPollOptions(); // Start fresh (clears duration too)
+
+        if (Post.TYPE_POLL.equals(currentPostType) || Post.TYPE_QUIZ.equals(currentPostType)) {
+            List<PollOption> options = postToEdit.getPollOptions();
+            if (options != null) {
+                // Populate the initial MIN_POLL_OPTIONS views first
+                for (int i = 0; i < MIN_POLL_OPTIONS; i++) {
+                    if (i < pollOptionEditTexts.size() && pollOptionEditTexts.get(i) != null) {
+                        if (i < options.size()) {
+                            pollOptionEditTexts.get(i).setText(options.get(i).getOptionText());
+                        } else {
+                            pollOptionEditTexts.get(i).setText("");
+                        }
+                    } else {
+                        Log.e(TAG, "Missing EditText for initial poll option index: " + i);
+                    }
+                }
+                // Add and populate the remaining options dynamically
+                for (int i = MIN_POLL_OPTIONS; i < options.size(); i++) {
+                    addPollOptionInputView(options.get(i).getOptionText());
+                }
+
+                // *** Set Poll Duration Radio Button ***
+                Integer duration = postToEdit.getPollDurationHours();
+                int durationButtonId = R.id.duration_none; // Default
+                if (duration != null) {
+                    if (duration == 24) {
+                        durationButtonId = R.id.duration_24h;
+                    } else if (duration == 72) {
+                        durationButtonId = R.id.duration_3d;
+                    }
+                }
+                binding.pollDurationGroup.check(durationButtonId);
+                // *** End Set Duration ***
+
+
+                if (Post.TYPE_QUIZ.equals(currentPostType)) {
+                    updateQuizRadioButtons(); // Ensure radio buttons reflect populated text
+                    int correctIndex = postToEdit.getQuizCorrectOptionIndex();
+                    if (correctIndex >= 0 && correctIndex < pollOptionEditTexts.size()) {
+                        binding.quizCorrectAnswerGroup.check(correctIndex);
+                    }
+                }
+            }
+        }
+        // --- End Revamped Population ---
+
+        updateUiForPostType(); // Update general UI visibility based on the final type
+    }
+    // --- END UPDATE ---
+
+
     private MediaItem createMediaItemFromUri(Uri uri) {
+        // --- (Implementation is identical to CreatePostActivity, keep it here) ---
         if (uri == null) return null;
         String mimeType = getContentResolver().getType(uri);
         String mediaType = "unknown";
-        String thumbnailUrl = uri.toString(); // Default thumbnail is the URI itself
+        String thumbnailUrl = uri.toString();
 
         if (mimeType != null) {
             if (mimeType.startsWith("image")) mediaType = "image";
             else if (mimeType.startsWith("video")) mediaType = "video";
         } else {
-            // Fallback check based on extension if MIME type is null
             String path = uri.getPath();
             if (path != null) {
                 String lowerPath = path.toLowerCase();
@@ -142,17 +255,13 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
                 else if (lowerPath.endsWith(".mp4") || lowerPath.endsWith(".mov") || lowerPath.endsWith(".avi") || lowerPath.endsWith(".mkv") || lowerPath.endsWith(".webm")) mediaType = "video";
             }
         }
-        // Only return if type is known (image or video)
         if ("unknown".equals(mediaType)) {
             Log.w(TAG, "Could not determine media type for URI: " + uri + ". Skipping file.");
             Toast.makeText(this, "Unsupported file type selected", Toast.LENGTH_SHORT).show();
             return null;
         }
-        // For video, thumbnail might be the same initially, or generated later
-        // If it's an image, thumbnail and URL are the same
         return new MediaItem(mediaType, uri.toString(), thumbnailUrl);
     }
-
 
     @Override
     public void onMediaItemClick(int position) {
@@ -169,22 +278,19 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
                 "Cancel"
         );
         dialog.setDialogListener(new CustomAlertDialogFragment.DialogListener() {
-            @Override
-            public void onPositiveClick() {
-                if (position >= 0 && position < mediaItems.size()) {
-                    mediaItems.remove(position);
-                    adapter.notifyItemRemoved(position);
-                    adapter.notifyItemRangeChanged(position, mediaItems.size());
-                    if (mediaItems.isEmpty()) {
-                        binding.mediaPreviewRecycler.setVisibility(View.GONE);
-                    }
-                }
-            }
-            @Override
-            public void onNegativeClick() {}
+            @Override public void onPositiveClick() { removeMediaItem(position); }
+            @Override public void onNegativeClick() {}
         });
-        if (!isFinishing()) {
-            dialog.show(getSupportFragmentManager(), "RemoveMediaDialog");
+        if (!isFinishing()) dialog.show(getSupportFragmentManager(), "RemoveMediaDialog");
+    }
+
+    private void removeMediaItem(int position) {
+        if (position >= 0 && position < mediaItems.size()) {
+            mediaItems.remove(position);
+            adapter.notifyItemRemoved(position);
+            adapter.notifyItemRangeChanged(position, mediaItems.size()); // Important for correct indexing
+            if (mediaItems.isEmpty()) binding.mediaPreviewRecycler.setVisibility(View.GONE);
+            editPostViewModel.setMediaChanged(true); // Mark that media list was modified
         }
     }
 
@@ -278,6 +384,7 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
         }
     }
 
+    // --- UPDATED clearPollOptions ---
     private void clearPollOptions() {
         while (pollOptionLayouts.size() > MIN_POLL_OPTIONS) {
             removePollOptionInputView(pollOptionLayouts.get(pollOptionLayouts.size() - 1));
@@ -286,28 +393,33 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
             if (editText != null) editText.setText("");
         }
         binding.quizCorrectAnswerGroup.clearCheck();
-        binding.pollDurationGroup.check(R.id.duration_none); // Reset duration selection
+        binding.pollDurationGroup.check(R.id.duration_none); // *** Reset duration ***
         updatePollOptionHintsAndRemoveButtons();
         updateQuizRadioButtons();
         binding.buttonAddOption.setEnabled(true);
     }
+    // --- END UPDATE ---
 
-    // --- Click Listeners ---
+
     private void setupClickListeners() {
-        binding.buttonPublish.setOnClickListener(v -> publishPost());
+        binding.buttonSavePost.setOnClickListener(v -> savePostChanges());
         binding.buttonAttachMedia.setOnClickListener(v -> openMediaPicker());
         binding.buttonAddOption.setOnClickListener(v -> addPollOptionInputView(null)); // Use new method
 
         binding.togglePostType.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-            if (!isChecked) return;
+            if (!isChecked) return; // Only act on the checked button
 
             String previousType = currentPostType;
-            if (checkedId == R.id.button_type_media) currentPostType = Post.TYPE_TEXT_MEDIA;
-            else if (checkedId == R.id.button_type_poll) currentPostType = Post.TYPE_POLL;
-            else if (checkedId == R.id.button_type_quiz) currentPostType = Post.TYPE_QUIZ;
+            String newlySelectedType = Post.TYPE_TEXT_MEDIA; // Default
 
-            // Check if switching away from poll/quiz AND if there's data entered
-            if (!currentPostType.equals(previousType) && (previousType.equals(Post.TYPE_POLL) || previousType.equals(Post.TYPE_QUIZ))) {
+            if (checkedId == R.id.button_type_poll) newlySelectedType = Post.TYPE_POLL;
+            else if (checkedId == R.id.button_type_quiz) newlySelectedType = Post.TYPE_QUIZ;
+
+            // Only show confirmation if switching *away* from Poll/Quiz *to* Media
+            if (!newlySelectedType.equals(previousType) &&
+                    (previousType.equals(Post.TYPE_POLL) || previousType.equals(Post.TYPE_QUIZ)) &&
+                    newlySelectedType.equals(Post.TYPE_TEXT_MEDIA)) {
+
                 boolean hasPollData = false;
                 for (TextInputEditText editText : pollOptionEditTexts) {
                     if (editText != null && editText.getText().length() > 0) {
@@ -315,18 +427,26 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
                         break;
                     }
                 }
-                if (hasPollData) showSwitchConfirmationDialog(previousType);
-                else updateUiForPostType(); // Switch UI directly if no data
-            } else {
-                updateUiForPostType(); // Update UI for the selected type
+
+                if (hasPollData) {
+                    showSwitchConfirmationDialog(previousType, newlySelectedType);
+                } else {
+                    currentPostType = newlySelectedType; // Update state directly
+                    updateUiForPostType(); // Update UI
+                }
+            } else if (!newlySelectedType.equals(previousType)) {
+                // If switching between Poll/Quiz or to Poll/Quiz from Media, just update
+                currentPostType = newlySelectedType;
+                updateUiForPostType();
             }
+            // If the same button is clicked, do nothing
         });
     }
 
-    // ... (showSwitchConfirmationDialog, observeViewModel remain the same) ...
-    private void showSwitchConfirmationDialog(String previousType) {
+    // Updated confirmation dialog to handle the new type
+    private void showSwitchConfirmationDialog(String previousType, String newType) {
         CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance(
-                "Discard " + previousType + "?",
+                "Discard " + previousType + " data?",
                 "Switching post type will discard the options you've entered.",
                 "Switch Anyway",
                 "Cancel"
@@ -334,44 +454,46 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
         dialog.setDialogListener(new CustomAlertDialogFragment.DialogListener() {
             @Override
             public void onPositiveClick() {
-                clearPollOptions(); // Clear data
-                updateUiForPostType(); // Update UI to new type
+                clearPollOptions();
+                currentPostType = newType; // Update state
+                updateUiForPostType(); // Update UI
             }
             @Override
             public void onNegativeClick() {
-                // Revert toggle button selection
-                int buttonIdToReselect = R.id.button_type_media;
-                if (previousType.equals(Post.TYPE_POLL)) buttonIdToReselect = R.id.button_type_poll;
-                else if (previousType.equals(Post.TYPE_QUIZ)) buttonIdToReselect = R.id.button_type_quiz;
+                // Revert toggle button selection back to the previous type
+                int buttonIdToReselect;
+                switch(previousType) {
+                    case Post.TYPE_POLL: buttonIdToReselect = R.id.button_type_poll; break;
+                    case Post.TYPE_QUIZ: buttonIdToReselect = R.id.button_type_quiz; break;
+                    default: buttonIdToReselect = R.id.button_type_media; break; // Should not happen here
+                }
                 binding.togglePostType.check(buttonIdToReselect);
-                currentPostType = previousType; // Revert type state variable
-                // No UI update needed as selection is reverted
+                // No need to set currentPostType here, as the check() call might trigger the listener again
+                // (Though addOnButtonCheckedListener should ideally handle isChecked correctly)
             }
         });
         dialog.show(getSupportFragmentManager(), "SwitchTypeConfirmation");
     }
 
-
+    // --- UPDATED observeViewModel ---
     private void observeViewModel() {
-        postViewModel.getUploadStatus().observe(this, status -> {
+        editPostViewModel.getUpdateStatus().observe(this, status -> {
             if (status == null) return;
-            boolean isLoading = status == PostViewModel.UploadStatus.UPLOADING;
+            boolean isLoading = status == EditPostViewModel.UpdateStatus.UPDATING;
             binding.progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-            binding.progressBar.setIndeterminate(isLoading);
-            binding.buttonPublish.setEnabled(!isLoading);
+            binding.buttonSavePost.setEnabled(!isLoading);
             binding.editTextContent.setEnabled(!isLoading);
             binding.buttonAttachMedia.setEnabled(!isLoading);
-            binding.buttonAddOption.setEnabled(!isLoading && pollOptionLayouts.size() < MAX_POLL_OPTIONS); // Also check max options
+            binding.buttonAddOption.setEnabled(!isLoading && pollOptionLayouts.size() < MAX_POLL_OPTIONS);
             binding.togglePostType.setEnabled(!isLoading);
 
-            // Disable poll inputs and remove buttons
+            // Disable poll inputs and remove buttons while loading
             for (int i = 0; i < pollOptionLayouts.size(); i++) {
                 if(pollOptionEditTexts.get(i) != null) {
                     pollOptionEditTexts.get(i).setEnabled(!isLoading);
                 }
                 if (pollOptionLayouts.get(i) != null) {
-                    // Disable layout to prevent remove icon click
-                    if (i >= MIN_POLL_OPTIONS) {
+                    if (i >= MIN_POLL_OPTIONS) { // Only disable remove for dynamic ones
                         pollOptionLayouts.get(i).setEnabled(!isLoading);
                     }
                 }
@@ -383,25 +505,23 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
             // *** End Disable ***
 
 
-            if (status == PostViewModel.UploadStatus.SUCCESS) {
-                Toast.makeText(this, "Post published!", Toast.LENGTH_SHORT).show();
-                finish();
-            } else if (status == PostViewModel.UploadStatus.FAILED) {
-                // Error message shown via observer
+            if (status == EditPostViewModel.UpdateStatus.SUCCESS) {
+                Toast.makeText(this, "Post updated!", Toast.LENGTH_SHORT).show();
+                finish(); // Close activity on success
+            } else if (status == EditPostViewModel.UpdateStatus.FAILED) {
+                // Error shown via errorMessage LiveData
             }
         });
 
-        postViewModel.getErrorMessage().observe(this, error -> {
-            if (error != null) {
-                // Ensure dialog is shown only if activity is not finishing
-                if (!isFinishing()) {
-                    CustomAlertDialogFragment.newInstance("Upload Failed", error, "OK", null)
-                            .show(getSupportFragmentManager(), "UploadErrorDialog");
-                }
-                postViewModel.clearMessages(); // Clear message after showing
+        editPostViewModel.getErrorMessage().observe(this, error -> {
+            if (error != null && !isFinishing()) { // Check isFinishing
+                CustomAlertDialogFragment.newInstance("Update Failed", error, "OK", null)
+                        .show(getSupportFragmentManager(), "UpdateErrorDialog");
+                editPostViewModel.clearMessages();
             }
         });
     }
+    // --- END UPDATE ---
 
     // --- UPDATED updateUiForPostType ---
     private void updateUiForPostType() {
@@ -415,22 +535,22 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
                 currentPostType.equals(Post.TYPE_TEXT_MEDIA) ? View.VISIBLE : View.GONE
         );
 
-        // Manage Poll/Quiz specific UI
+        // Manage Poll/Quiz specific UI elements
         binding.pollDurationLabel.setVisibility(isPollOrQuiz ? View.VISIBLE : View.GONE); // *** Show/Hide Duration Label ***
         binding.pollDurationGroup.setVisibility(isPollOrQuiz ? View.VISIBLE : View.GONE); // *** Show/Hide Duration Group ***
         binding.quizAnswerLabel.setVisibility(currentPostType.equals(Post.TYPE_QUIZ) ? View.VISIBLE : View.GONE);
         binding.quizCorrectAnswerGroup.setVisibility(currentPostType.equals(Post.TYPE_QUIZ) ? View.VISIBLE : View.GONE);
 
         if (isPollOrQuiz) {
-            binding.pollQuizLabel.setText(currentPostType.equals(Post.TYPE_POLL) ? "Create Poll" : "Create Quiz");
+            binding.pollQuizLabel.setText(currentPostType.equals(Post.TYPE_POLL) ? "Edit Poll" : "Edit Quiz");
             if (currentPostType.equals(Post.TYPE_QUIZ)) {
-                updateQuizRadioButtons(); // Update radio buttons when switching TO quiz
+                updateQuizRadioButtons(); // Ensure radio buttons are updated when type changes to Quiz
             }
         }
     }
     // --- END UPDATE ---
 
-    // ... (openMediaPicker remains the same) ...
+
     private void openMediaPicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
@@ -439,34 +559,42 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
         pickMediaLauncher.launch(Intent.createChooser(intent, "Select Media (Max 15)"));
     }
 
-    // --- UPDATED publishPost ---
-    private void publishPost() {
+    // --- UPDATED savePostChanges ---
+    private void savePostChanges() {
         String content = binding.editTextContent.getText().toString().trim();
 
-        Post post = new Post();
-        post.setPostType(currentPostType);
-        if (!content.isEmpty()) {
-            post.setTextContent(content);
+        // Start with the original post data and modify it
+        Post updatedPost = postToEdit; // Assume postToEdit is correctly loaded and non-null
+        if (updatedPost == null) {
+            Toast.makeText(this, "Error: Cannot save, original post data missing.", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        List<PollOption> pollOptions = new ArrayList<>();
+        updatedPost.setPostType(currentPostType);
+        updatedPost.setTextContent(content.isEmpty() ? null : content);
+
+        List<PollOption> newPollOptions = new ArrayList<>();
         int quizCorrectIndex = -1;
         Integer pollDuration = null; // *** NEW: Duration variable ***
+
 
         if (currentPostType.equals(Post.TYPE_POLL) || currentPostType.equals(Post.TYPE_QUIZ)) {
             // Iterate through the managed EditTexts
             for (int i = 0; i < pollOptionEditTexts.size(); i++) {
                 TextInputEditText editText = pollOptionEditTexts.get(i);
-                TextInputLayout layout = pollOptionLayouts.get(i); // Get corresponding layout for error
+                TextInputLayout layout = pollOptionLayouts.get(i);
                 if (editText == null || layout == null) continue;
 
                 String optionText = editText.getText().toString().trim();
                 if (!optionText.isEmpty()) {
-                    pollOptions.add(new PollOption(optionText));
-                    layout.setError(null); // Clear error if any
+                    // Try to find the original option by text to preserve its vote count
+                    PollOption existingOption = findExistingPollOption(postToEdit.getPollOptions(), optionText);
+                    // Create new PollOption, preserving vote count if found, otherwise default to 0
+                    newPollOptions.add(new PollOption(optionText, existingOption != null ? existingOption.getVoteCount() : 0));
+                    layout.setError(null); // Clear potential previous error
                 } else if (i < MIN_POLL_OPTIONS) {
                     layout.setError("Option " + (i + 1) + " cannot be empty."); // Show error on layout
-                    return; // Stop processing
+                    return; // Stop processing if required option is empty
                 } else {
                     layout.setError(null); // Clear error for optional fields
                 }
@@ -476,11 +604,11 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
             if (pollOptionLayouts.size() > 1 && pollOptionLayouts.get(1) != null) pollOptionLayouts.get(1).setError(null);
 
 
-            if (pollOptions.size() < MIN_POLL_OPTIONS) {
-                Toast.makeText(this, "A poll or quiz requires at least " + MIN_POLL_OPTIONS + " non-empty options.", Toast.LENGTH_SHORT).show();
+            if (newPollOptions.size() < MIN_POLL_OPTIONS) {
+                Toast.makeText(this, "A poll/quiz requires at least " + MIN_POLL_OPTIONS + " non-empty options.", Toast.LENGTH_SHORT).show();
                 return;
             }
-            post.setPollOptions(pollOptions);
+            updatedPost.setPollOptions(newPollOptions); // Set the updated list
 
             // *** Get selected poll duration ***
             int selectedDurationId = binding.pollDurationGroup.getCheckedRadioButtonId();
@@ -489,38 +617,54 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
             } else if (selectedDurationId == R.id.duration_3d) {
                 pollDuration = 72; // 3 days * 24 hours
             } // else it remains null (Permanent)
-            post.setPollDurationHours(pollDuration);
+            updatedPost.setPollDurationHours(pollDuration);
             // *** End get duration ***
 
             if (currentPostType.equals(Post.TYPE_QUIZ)) {
                 quizCorrectIndex = binding.quizCorrectAnswerGroup.getCheckedRadioButtonId(); // ID is the index
-                // Check if a valid answer is selected and corresponds to a non-empty option
-                if (quizCorrectIndex == -1 || quizCorrectIndex >= pollOptions.size()) {
-                    Toast.makeText(this, "Please select a valid correct answer for the quiz.", Toast.LENGTH_SHORT).show();
+                // Validate quizCorrectIndex against the *new* options list size
+                if (quizCorrectIndex == -1 || quizCorrectIndex >= newPollOptions.size()) {
+                    Toast.makeText(this, "Please select a valid correct answer.", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                post.setQuizCorrectOptionIndex(quizCorrectIndex);
+                updatedPost.setQuizCorrectOptionIndex(quizCorrectIndex);
+            } else {
+                updatedPost.setQuizCorrectOptionIndex(-1); // Reset index if it's now just a poll
             }
+            // Recalculate total votes based on potentially preserved counts
+            updatedPost.setTotalVotes(newPollOptions.stream().mapToInt(PollOption::getVoteCount).sum());
+
+        } else {
+            // Clear poll/quiz data if switching back to a media/text post
+            updatedPost.setPollOptions(new ArrayList<>());
+            updatedPost.setQuizCorrectOptionIndex(-1);
+            updatedPost.setTotalVotes(0);
+            updatedPost.setPollDurationHours(null); // *** Clear duration ***
         }
 
-        // Final validation: Ensure post is not completely empty
-        if (content.isEmpty() && mediaItems.isEmpty() && pollOptions.isEmpty()) {
-            Toast.makeText(this, "Cannot publish an empty post.", Toast.LENGTH_SHORT).show();
+        // Final content validation
+        if (content.isEmpty() && mediaItems.isEmpty() && newPollOptions.isEmpty()) {
+            Toast.makeText(this, "Cannot save an empty post.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // If it's not a media post, ensure mediaItems list is empty before saving
-        if (!currentPostType.equals(Post.TYPE_TEXT_MEDIA)) {
-            mediaItems.clear(); // Clear any potentially selected media
-            post.setMediaItems(new ArrayList<>());
-        }
-
-        // Call ViewModel to handle creation/upload
-        postViewModel.createPost(post, mediaItems, this);
+        // Pass the current state of mediaItems (mix of URIs and URLs) to the ViewModel
+        editPostViewModel.updatePost(updatedPost, mediaItems, this);
     }
     // --- END UPDATE ---
 
-    // ... (onOptionsItemSelected, onDestroy remain the same) ...
+    // Helper to find original poll option by text to preserve votes
+    private PollOption findExistingPollOption(List<PollOption> existingOptions, String newText) {
+        if (existingOptions == null || newText == null) return null;
+        for (PollOption option : existingOptions) {
+            // Use equalsIgnoreCase for more flexible matching if desired
+            if (option.getOptionText() != null && option.getOptionText().equals(newText)) {
+                return option;
+            }
+        }
+        return null; // Not found
+    }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {

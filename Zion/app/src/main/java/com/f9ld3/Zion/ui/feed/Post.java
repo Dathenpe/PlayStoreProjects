@@ -26,14 +26,12 @@ public class Post implements Serializable {
     private String authorUid;
     private String authorName;
     private String authorAvatarUrl;
-
-    // --- FIX 1: Field is now Long ---
-    // @ServerTimestamp // <-- REMOVED
-    private Long timestamp; // <-- CHANGED FROM Timestamp
+    private Long timestamp; // Timestamp stored as milliseconds since epoch
 
     private String textContent;
     private List<MediaItem> mediaItems = new ArrayList<>();
     private int likeCount = 0;
+    private int dislikeCount = 0;
     private int commentCount = 0;
 
     // New fields for Poll/Quiz posts
@@ -41,12 +39,11 @@ public class Post implements Serializable {
     private List<PollOption> pollOptions = new ArrayList<>();
     private int quizCorrectOptionIndex = -1; // -1 indicates not a quiz or no correct answer set
     private int totalVotes = 0; // Total votes for a poll/quiz
+    private Integer pollDurationHours = null; // *** NEW: Poll duration in hours (null = permanent) ***
 
-    // --- FIX 2: Add legacy fields for compatibility ---
+    // Legacy fields for compatibility
     private int mediaType = 0;
     private String mediaUrl;
-    // --- End Fix 2 ---
-
 
     // --- Constructor ---
     public Post() {} // Required empty constructor for Firestore
@@ -56,52 +53,42 @@ public class Post implements Serializable {
     public String getAuthorUid() { return authorUid; }
     public String getAuthorName() { return authorName; }
     public String getAuthorAvatarUrl() { return authorAvatarUrl; }
-
-    // --- FIX 3: Getter returns Long ---
-    public Long getTimestamp() { return timestamp; } // <-- CHANGED FROM Timestamp
-
+    public Long getTimestamp() { return timestamp; }
     public String getTextContent() { return textContent; }
     public List<MediaItem> getMediaItems() { return mediaItems; }
     public int getLikeCount() { return likeCount; }
+    public int getDislikeCount() { return dislikeCount; }
     public int getCommentCount() { return commentCount; }
     public String getPostType() { return postType; }
     public List<PollOption> getPollOptions() { return pollOptions; }
     public int getQuizCorrectOptionIndex() { return quizCorrectOptionIndex; }
     public int getTotalVotes() { return totalVotes; }
+    public Integer getPollDurationHours() { return pollDurationHours; } // *** NEW GETTER ***
 
     // --- SETTERS ---
     public void setId(String id) { this.id = id; }
     public void setAuthorUid(String authorUid) { this.authorUid = authorUid; }
     public void setAuthorName(String authorName) { this.authorName = authorName; }
     public void setAuthorAvatarUrl(String authorAvatarUrl) { this.authorAvatarUrl = authorAvatarUrl; }
-
-    // --- FIX 4: ONLY ONE setter for Long ---
-    public void setTimestamp(Long timestamp) { // <-- This is now the only setter
-        this.timestamp = timestamp;
-    }
-
+    public void setTimestamp(Long timestamp) { this.timestamp = timestamp; }
     public void setTextContent(String textContent) { this.textContent = textContent; }
     public void setMediaItems(List<MediaItem> mediaItems) { this.mediaItems = mediaItems; }
     public void setLikeCount(int likeCount) { this.likeCount = likeCount; }
+    public void setDislikeCount(int dislikeCount) { this.dislikeCount = dislikeCount; }
     public void setCommentCount(int commentCount) { this.commentCount = commentCount; }
     public void setPostType(String postType) { this.postType = postType; }
     public void setPollOptions(List<PollOption> pollOptions) { this.pollOptions = pollOptions; }
     public void setQuizCorrectOptionIndex(int quizCorrectOptionIndex) { this.quizCorrectOptionIndex = quizCorrectOptionIndex; }
     public void setTotalVotes(int totalVotes) { this.totalVotes = totalVotes; }
+    public void setPollDurationHours(Integer pollDurationHours) { this.pollDurationHours = pollDurationHours; } // *** NEW SETTER ***
 
-    // --- FIX 5: Add legacy setters to prevent other parsing errors ---
-    public void setMediaType(int mediaType) {
-        this.mediaType = mediaType;
-    }
-    public void setMediaUrl(String mediaUrl) {
-        this.mediaUrl = mediaUrl;
-    }
-    // --- End Fix 5 ---
-
+    // Legacy setters
+    public void setMediaType(int mediaType) { this.mediaType = mediaType; }
+    public void setMediaUrl(String mediaUrl) { this.mediaUrl = mediaUrl; }
 
     // --- Excluded Helper Methods ---
-    @Exclude // Exclude from Firestore serialization
-    public int getMediaType() {
+    @Exclude
+    public int getLegacyMediaType() { // Renamed to avoid confusion with postType
         if (mediaItems == null || mediaItems.isEmpty()) {
             return MEDIA_TYPE_TEXT;
         }
@@ -115,40 +102,34 @@ public class Post implements Serializable {
         return MEDIA_TYPE_TEXT;
     }
 
-    @Exclude // Exclude from Firestore serialization
-    public String getMediaUrl() {
+    @Exclude
+    public String getLegacyMediaUrl() { // Renamed to avoid confusion
         if (mediaItems != null && !mediaItems.isEmpty()) {
             return mediaItems.get(0).getUrl();
         }
-        // Fallback to legacy field if new one is empty
-        if (mediaUrl != null) {
-            return mediaUrl;
-        }
-        return null;
+        return mediaUrl; // Fallback to legacy field
     }
 
-    @Exclude // Exclude from Firestore serialization
+    @Exclude
     public String getThumbnailUrl() {
         if (mediaItems != null && !mediaItems.isEmpty()) {
             MediaItem firstItem = mediaItems.get(0);
-            // Prioritize specific thumbnail URL if available (especially for videos)
             if (firstItem.getThumbnailUrl() != null && !firstItem.getThumbnailUrl().isEmpty()) {
                 return firstItem.getThumbnailUrl();
             }
-            // Fallback to the main URL (useful for images or if no specific thumbnail)
             return firstItem.getUrl();
         }
         return null;
     }
 
     // --- equals() and hashCode() ---
-    // Updated to include new fields and handle Long Timestamp
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Post post = (Post) o;
         return likeCount == post.likeCount &&
+                dislikeCount == post.dislikeCount &&
                 commentCount == post.commentCount &&
                 quizCorrectOptionIndex == post.quizCorrectOptionIndex &&
                 totalVotes == post.totalVotes &&
@@ -156,17 +137,18 @@ public class Post implements Serializable {
                 Objects.equals(authorUid, post.authorUid) &&
                 Objects.equals(authorName, post.authorName) &&
                 Objects.equals(authorAvatarUrl, post.authorAvatarUrl) &&
-                Objects.equals(timestamp, post.timestamp) && // Compare Longs
+                Objects.equals(timestamp, post.timestamp) &&
                 Objects.equals(textContent, post.textContent) &&
                 Objects.equals(mediaItems, post.mediaItems) &&
                 Objects.equals(postType, post.postType) &&
-                Objects.equals(pollOptions, post.pollOptions);
+                Objects.equals(pollOptions, post.pollOptions) &&
+                Objects.equals(pollDurationHours, post.pollDurationHours); // *** ADDED pollDurationHours ***
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, authorUid, authorName, authorAvatarUrl, timestamp, textContent,
-                mediaItems, likeCount, commentCount, postType, pollOptions,
-                quizCorrectOptionIndex, totalVotes);
+                mediaItems, likeCount, dislikeCount, commentCount, postType, pollOptions,
+                quizCorrectOptionIndex, totalVotes, pollDurationHours); // *** ADDED pollDurationHours ***
     }
 }

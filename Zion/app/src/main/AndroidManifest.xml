@@ -37,6 +37,12 @@
             android:parentActivityName=".MainActivity" />
 
         <activity
+            android:name=".ui.feed.FullScreenMediaActivity"
+            android:exported="false"
+            android:label="Media Viewer"
+            android:parentActivityName=".ui.feed.PostDetailActivity" />
+
+        <activity
             android:name=".auth.LoginActivity"
             android:exported="false"
             android:label="@string/login"
@@ -114,12 +120,6 @@
             android:parentActivityName=".MainActivity" />
 
         <activity
-            android:name=".ui.settings.SettingsActivity"
-            android:exported="false"
-            android:label="@string/settings"
-            android:parentActivityName=".MainActivity" />
-
-        <activity
             android:name=".ui.feed.RepliesActivity"
             android:exported="false"
             android:label="Comment Thread"
@@ -130,6 +130,30 @@
             android:exported="false"
             android:label="Comments"
             android:parentActivityName=".ui.feed.PostDetailActivity" />
+
+        <activity
+            android:name=".ui.channel.ChannelActivity"
+            android:exported="false"
+            android:label="Channel Profile"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".ui.blog.EditPostActivity"
+            android:exported="false"
+            android:label="Edit Post"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:exported="false"
+            android:label="@string/settings"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".ui.player.VideoPlayerActivity"
+            android:exported="false"
+            android:label="Video Player"
+            android:parentActivityName=".MainActivity" />
 
         <service
             android:name=".ui.notifications.MyFirebaseMessagingService"

@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="?attr/colorSurface">
+    android:background="?attr/colorSurface"
+    tools:context=".ui.blog.EditPostActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
@@ -19,13 +20,13 @@
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_arrow_back_24dp">
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_publish"
+                android:id="@+id/button_save_post"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginEnd="16dp"
-                android:text="Post"
+                android:text="Save"
                 android:textColor="?attr/colorSecondary" />
         </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.appbar.AppBarLayout>
@@ -48,9 +49,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="16dp"
                 app:selectionRequired="true"
-                app:singleSelection="true"
-                app:checkedButton="@id/button_type_media">
-
+                app:singleSelection="true">
                 <Button
                     android:id="@+id/button_type_media"
                     style="?attr/materialButtonOutlinedStyle"
@@ -106,7 +105,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:textAppearance="?attr/textAppearanceTitleMedium"
-                    tools:text="Create Poll"/>
+                    tools:text="Edit Poll"/>
 
                 <LinearLayout
                     android:id="@+id/poll_options_container" android:layout_width="match_parent"
@@ -141,22 +140,21 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Permanent"
-                        android:checked="true"
-                        app:buttonTint="@color/teal"/>
+                        app:buttonTint="@color/teal" />
                     <RadioButton
                         android:id="@+id/duration_24h"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:text="24 hours"
-                        app:buttonTint="@color/teal"/>
+                        app:buttonTint="@color/teal" />
                     <RadioButton
                         android:id="@+id/duration_3d"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:text="3 days"
-                        app:buttonTint="@color/teal"/>
+                        app:buttonTint="@color/teal" />
                 </RadioGroup>
                 <TextView
                     android:id="@+id/quiz_answer_label"
@@ -178,7 +176,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"/>
-
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView

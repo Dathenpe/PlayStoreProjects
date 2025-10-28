@@ -66,6 +66,7 @@ dependencies {
     // Glide (Image Loading)
     implementation(libs.glide)
     annotationProcessor(libs.glide.compiler)
+    implementation(libs.chrisbanes.photoview)
 
     // CircleImageView
     implementation(libs.circleimageview)

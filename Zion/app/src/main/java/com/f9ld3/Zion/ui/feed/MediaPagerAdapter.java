@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.f9ld3.Zion.R;
 import com.f9ld3.Zion.ui.player.PlayerMedia; // Import PlayerMedia
 import com.f9ld3.Zion.ui.player.VideoPlayerActivity; // To play videos on click
+import java.util.ArrayList;
 import java.util.List;
 
 public class MediaPagerAdapter extends RecyclerView.Adapter<MediaPagerAdapter.MediaViewHolder> {
@@ -36,6 +37,42 @@ public class MediaPagerAdapter extends RecyclerView.Adapter<MediaPagerAdapter.Me
     public void onBindViewHolder(@NonNull MediaViewHolder holder, int position) {
         MediaItem item = mediaItems.get(position);
         holder.bind(item, context);
+
+        boolean isVideo = "video".equals(item.getMediaType());
+
+        if (isVideo) {
+            // Clicking the thumbnail/play icon starts the video player
+            View.OnClickListener videoClickListener = v -> {
+                // Create PlayerMedia object to pass to VideoPlayerActivity
+                PlayerMedia playerMedia = new PlayerMedia();
+                playerMedia.id = String.valueOf(System.currentTimeMillis());
+                playerMedia.type = PlayerMedia.TYPE_VIDEO;
+                playerMedia.title = "Post Video";
+                playerMedia.mediaUrl = item.getUrl();
+                playerMedia.thumbnailUrl = item.getThumbnailUrl();
+                // Add author details if available from the Post object
+                // playerMedia.authorName = ...
+                // playerMedia.uploaderUid = ...
+                // playerMedia.uploaderAvatarUrl = ...
+
+                Intent intent = new Intent(context, VideoPlayerActivity.class);
+                intent.putExtra(VideoPlayerActivity.EXTRA_MEDIA_ITEM, playerMedia);
+                context.startActivity(intent);
+            };
+            holder.imageView.setOnClickListener(videoClickListener);
+            holder.playIcon.setOnClickListener(videoClickListener);
+
+        } else {
+            // Handle image click to open FullScreenMediaActivity
+            holder.imageView.setOnClickListener(v -> {
+                Intent intent = new Intent(context, FullScreenMediaActivity.class);
+                // Pass the entire list and the clicked position
+                intent.putExtra(FullScreenMediaActivity.EXTRA_MEDIA_ITEMS, new ArrayList<>(mediaItems));
+                intent.putExtra(FullScreenMediaActivity.EXTRA_START_POSITION, position);
+                context.startActivity(intent);
+            });
+            holder.playIcon.setOnClickListener(null);
+        }
     }
 
     @Override
@@ -50,6 +87,7 @@ public class MediaPagerAdapter extends RecyclerView.Adapter<MediaPagerAdapter.Me
         public MediaViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.media_image_view);
+            // FIX: Correctly find the ImageView using R.id.play_icon from item_post_media_page.xml
             playIcon = itemView.findViewById(R.id.play_icon);
         }
 
@@ -62,30 +100,12 @@ public class MediaPagerAdapter extends RecyclerView.Adapter<MediaPagerAdapter.Me
                     .error(R.drawable.ic_placeholder_24dp)
                     .into(imageView);
 
-            playIcon.setVisibility(isVideo ? View.VISIBLE : View.GONE);
-
-            // Add click listener to play video
-            if (isVideo) {
-                imageView.setOnClickListener(v -> {
-                    // Create PlayerMedia object to pass to VideoPlayerActivity
-                    PlayerMedia playerMedia = new PlayerMedia(); // You might need a constructor or setters
-                    playerMedia.id = String.valueOf(System.currentTimeMillis()); // Temporary ID if needed
-                    playerMedia.type = PlayerMedia.TYPE_VIDEO;
-                    playerMedia.title = "Post Video"; // Use post title or generate one
-                    playerMedia.mediaUrl = item.getUrl();
-                    playerMedia.thumbnailUrl = item.getThumbnailUrl();
-                    // Add author details if available from the Post object
-                    // playerMedia.authorName = ...
-                    // playerMedia.uploaderUid = ...
-                    // playerMedia.uploaderAvatarUrl = ...
-
-                    Intent intent = new Intent(context, VideoPlayerActivity.class);
-                    intent.putExtra(VideoPlayerActivity.EXTRA_MEDIA_ITEM, playerMedia);
-                    context.startActivity(intent);
-                });
-            } else {
-                imageView.setOnClickListener(null); // Remove listener for images
+            // Safely set visibility for the play icon
+            if (playIcon != null) {
+                playIcon.setVisibility(isVideo ? View.VISIBLE : View.GONE);
             }
+
+            // NOTE: Click listeners are handled exclusively in onBindViewHolder
         }
     }
 }

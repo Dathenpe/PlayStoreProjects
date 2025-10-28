@@ -11,6 +11,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -35,13 +36,21 @@ public class CommentLikeViewModel extends ViewModel {
 
     // Helper to generate the map key
     private String getKey(String postId, String commentId) {
+        // Ensure IDs are not null or empty to prevent invalid Firestore paths/keys
+        if (postId == null || postId.isEmpty() || commentId == null || commentId.isEmpty()) {
+            Log.e(TAG, "Attempted to generate key with null or empty postId/commentId");
+            return null; // Return null to indicate an invalid key
+        }
         return postId + "_" + commentId;
     }
+
 
     // --- LiveData Getters ---
 
     public LiveData<Boolean> isLiked(String postId, String commentId) {
-        return likedStatusMap.computeIfAbsent(getKey(postId, commentId), key -> {
+        String key = getKey(postId, commentId);
+        if (key == null) return new MutableLiveData<>(false); // Return default if key is invalid
+        return likedStatusMap.computeIfAbsent(key, k -> {
             MutableLiveData<Boolean> liveData = new MutableLiveData<>(false);
             startLikeStatusListener(postId, commentId, liveData);
             return liveData;
@@ -49,7 +58,9 @@ public class CommentLikeViewModel extends ViewModel {
     }
 
     public LiveData<Boolean> isDisliked(String postId, String commentId) {
-        return dislikedStatusMap.computeIfAbsent(getKey(postId, commentId), key -> {
+        String key = getKey(postId, commentId);
+        if (key == null) return new MutableLiveData<>(false); // Return default if key is invalid
+        return dislikedStatusMap.computeIfAbsent(key, k -> {
             MutableLiveData<Boolean> liveData = new MutableLiveData<>(false);
             startDislikeStatusListener(postId, commentId, liveData);
             return liveData;
@@ -58,6 +69,8 @@ public class CommentLikeViewModel extends ViewModel {
 
     public LiveData<Integer> getLikeCount(String postId, String commentId) {
         String key = getKey(postId, commentId);
+        if (key == null) return new MutableLiveData<>(0); // Return default if key is invalid
+
         // Ensure dislike LiveData exists if like is requested (count listener updates both)
         if (!dislikeCountMap.containsKey(key)) {
             dislikeCountMap.computeIfAbsent(key, k -> new MutableLiveData<>(0));
@@ -72,6 +85,8 @@ public class CommentLikeViewModel extends ViewModel {
 
     public LiveData<Integer> getDislikeCount(String postId, String commentId) {
         String key = getKey(postId, commentId);
+        if (key == null) return new MutableLiveData<>(0); // Return default if key is invalid
+
         // Ensure like LiveData exists if dislike is requested first
         if (!likeCountMap.containsKey(key)) {
             getLikeCount(postId, commentId); // This will start the listener that updates both
@@ -85,11 +100,11 @@ public class CommentLikeViewModel extends ViewModel {
 
     private void startLikeStatusListener(String postId, String commentId, MutableLiveData<Boolean> liveData) {
         FirebaseUser user = mAuth.getCurrentUser();
-        if (user == null || postId == null || commentId == null) {
+        String key = getKey(postId, commentId);
+        if (user == null || key == null) { // Check key validity
             liveData.postValue(false);
             return;
         }
-        String key = getKey(postId, commentId);
         String listenerKey = key + "_likeStatus";
 
         stopListener(listenerKey); // Stop previous if exists
@@ -111,11 +126,11 @@ public class CommentLikeViewModel extends ViewModel {
 
     private void startDislikeStatusListener(String postId, String commentId, MutableLiveData<Boolean> liveData) {
         FirebaseUser user = mAuth.getCurrentUser();
-        if (user == null || postId == null || commentId == null) {
+        String key = getKey(postId, commentId);
+        if (user == null || key == null) { // Check key validity
             liveData.postValue(false);
             return;
         }
-        String key = getKey(postId, commentId);
         String listenerKey = key + "_dislikeStatus";
 
         stopListener(listenerKey);
@@ -137,9 +152,9 @@ public class CommentLikeViewModel extends ViewModel {
 
     // Combined listener for both like and dislike counts from the parent comment document
     private void startCountListener(String postId, String commentId, MutableLiveData<Integer> likeLiveData, MutableLiveData<Integer> dislikeLiveData) {
-        if (postId == null || commentId == null) return;
-
         String key = getKey(postId, commentId);
+        if (key == null) return; // Check key validity
+
         String listenerKey = key + "_count";
 
         stopListener(listenerKey);
@@ -184,12 +199,13 @@ public class CommentLikeViewModel extends ViewModel {
 
     public void toggleLike(String postId, String commentId, String commentAuthorUid, String commentTextSnippet, String postTextSnippet) {
         FirebaseUser user = mAuth.getCurrentUser();
-        if (user == null || postId == null || commentId == null) {
+        String key = getKey(postId, commentId);
+        if (user == null || key == null) { // Check key validity
             Log.w(TAG, "toggleLike aborted: Missing user, postId, or commentId.");
             return; // Or show error message via LiveData
         }
         String userId = user.getUid();
-        String key = getKey(postId, commentId);
+
 
         // Get current state from LiveData, default to false if not yet loaded
         boolean currentlyLiked = Boolean.TRUE.equals(likedStatusMap.getOrDefault(key, new MutableLiveData<>(false)).getValue());
@@ -236,12 +252,13 @@ public class CommentLikeViewModel extends ViewModel {
 
     public void toggleDislike(String postId, String commentId) {
         FirebaseUser user = mAuth.getCurrentUser();
-        if (user == null || postId == null || commentId == null) {
+        String key = getKey(postId, commentId);
+        if (user == null || key == null) { // Check key validity
             Log.w(TAG, "toggleDislike aborted: Missing user, postId, or commentId.");
             return;
         }
         String userId = user.getUid();
-        String key = getKey(postId, commentId);
+
 
         boolean currentlyLiked = Boolean.TRUE.equals(likedStatusMap.getOrDefault(key, new MutableLiveData<>(false)).getValue());
         boolean currentlyDisliked = Boolean.TRUE.equals(dislikedStatusMap.getOrDefault(key, new MutableLiveData<>(false)).getValue());

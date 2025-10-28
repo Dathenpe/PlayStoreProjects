@@ -43,6 +43,7 @@ import java.io.Serializable; // Import Serializable
 import java.util.ArrayList;
 import java.util.List;
 
+// <<< Implement the full interface >>>
 public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMediaClickListener, PostAdapter.OnPostClickListener {
 
     private static final String TAG = "SearchFragment"; // Add TAG for logging
@@ -98,31 +99,39 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
     }
 
     private void setupSearchBar() {
-        buttonClose.setOnClickListener(v -> {
-            try {
-                NavHostFragment.findNavController(this).popBackStack();
-            } catch (IllegalStateException e) {
-                Log.e(TAG, "Error navigating back: ", e);
-                if (getActivity() != null) getActivity().finish(); // Fallback to finish activity
-            }
-        });
-
-        searchEditText.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            @Override public void afterTextChanged(Editable s) {
-                String query = s.toString().trim();
-                if (query.length() > 1) { // Start search after 2 chars
-                    searchViewModel.searchAll(query);
-                } else {
-                    searchViewModel.clearResults();
-                    updateEmptyState(true); // Show initial prompt when query is cleared
+        if (buttonClose != null) { // Add null check
+            buttonClose.setOnClickListener(v -> {
+                try {
+                    if (isAdded()) { // Check if fragment is added
+                        NavHostFragment.findNavController(this).popBackStack();
+                    }
+                } catch (IllegalStateException e) {
+                    Log.e(TAG, "Error navigating back: ", e);
+                    if (getActivity() != null) getActivity().finish(); // Fallback to finish activity
                 }
-            }
-        });
+            });
+        }
+
+        if (searchEditText != null) { // Add null check
+            searchEditText.addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                @Override public void afterTextChanged(Editable s) {
+                    String query = s.toString().trim();
+                    if (query.length() > 1) { // Start search after 2 chars
+                        searchViewModel.searchAll(query);
+                    } else {
+                        searchViewModel.clearResults();
+                        updateEmptyState(true); // Show initial prompt when query is cleared
+                    }
+                }
+            });
+        }
     }
 
+
     private void setupTabs() {
+        if (tabLayout == null) return; // Add null check
         tabLayout.addTab(tabLayout.newTab().setText("All"));
         tabLayout.addTab(tabLayout.newTab().setText("Posts"));
         tabLayout.addTab(tabLayout.newTab().setText("Videos"));
@@ -137,6 +146,7 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
     }
 
     private void setupRecyclerView() {
+        if (recyclerView == null || !isAdded()) return; // Add checks
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         // Pass 'this' as the listener for both media and post clicks
         videoAdapter = new PlayerPostAdapter(this);
@@ -150,7 +160,9 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
 
     private void setupObservers() {
         searchViewModel.isLoading().observe(getViewLifecycleOwner(), isLoading -> {
-            progressBar.setVisibility(isLoading != null && isLoading ? View.VISIBLE : View.GONE);
+            if (progressBar != null) { // Add null check
+                progressBar.setVisibility(isLoading != null && isLoading ? View.VISIBLE : View.GONE);
+            }
             // Hide empty state while loading, unless it's the initial prompt
             if (isLoading != null && isLoading && textPlaceholder != null && !textPlaceholder.getText().equals("Start typing to search")) {
                 textPlaceholder.setVisibility(View.GONE);
@@ -159,7 +171,7 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
         });
 
         searchViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
-            if (error != null && getContext() != null) {
+            if (error != null && getContext() != null && isAdded()) { // Add isAdded check
                 Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
                 updateEmptyState(true); // Show error state
             }
@@ -207,7 +219,7 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
     }
 
     private void switchTab(int position) {
-        if (recyclerView == null) return; // Add null check for safety
+        if (recyclerView == null || searchViewModel == null) return; // Add null check for safety
         Log.d(TAG, "Switching to tab: " + position);
         RecyclerView.Adapter<?> currentAdapter = null;
         List<?> currentData = null;
@@ -217,42 +229,73 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
                 currentAdapter = allAdapter;
                 currentData = searchViewModel.getAllResults().getValue();
                 recyclerView.setAdapter(allAdapter);
-                allAdapter.submitList(currentData != null ? (List<Object>) currentData : null);
+                // Safe casting: Check type before casting
+                if (currentData instanceof List) {
+                    allAdapter.submitList(new ArrayList<>((List<Object>) currentData));
+                } else {
+                    allAdapter.submitList(null);
+                }
                 break;
             case TAB_POSTS:
                 currentAdapter = postAdapter;
                 currentData = searchViewModel.getPostResults().getValue();
                 recyclerView.setAdapter(postAdapter);
-                postAdapter.submitList(currentData != null ? (List<Post>) currentData : null);
+                if (currentData instanceof List) {
+                    postAdapter.submitList(new ArrayList<>((List<Post>) currentData));
+                } else {
+                    postAdapter.submitList(null);
+                }
                 break;
             case TAB_VIDEOS:
                 currentAdapter = videoAdapter;
                 currentData = searchViewModel.getVideoResults().getValue();
                 recyclerView.setAdapter(videoAdapter);
-                videoAdapter.submitList(currentData != null ? (List<PlayerMedia>) currentData : null);
+                if (currentData instanceof List) {
+                    videoAdapter.submitList(new ArrayList<>((List<PlayerMedia>) currentData));
+                } else {
+                    videoAdapter.submitList(null);
+                }
                 break;
             case TAB_PODCASTS:
                 currentAdapter = podcastAdapter;
                 currentData = searchViewModel.getPodcastResults().getValue();
                 recyclerView.setAdapter(podcastAdapter);
-                podcastAdapter.submitList(currentData != null ? (List<PlayerMedia>) currentData : null);
+                if (currentData instanceof List) {
+                    podcastAdapter.submitList(new ArrayList<>((List<PlayerMedia>) currentData));
+                } else {
+                    podcastAdapter.submitList(null);
+                }
                 break;
             case TAB_USERS:
                 currentAdapter = allAdapter;
                 List<UserProfile> users = searchViewModel.getUserResults().getValue();
                 currentData = users != null ? new ArrayList<>(users) : new ArrayList<>();
                 recyclerView.setAdapter(allAdapter);
-                allAdapter.submitList((List<Object>) currentData);
+                if (currentData instanceof List) {
+                    // Convert List<UserProfile> to List<Object> for the adapter
+                    allAdapter.submitList(new ArrayList<>((List<Object>) currentData));
+                } else {
+                    allAdapter.submitList(null);
+                }
+                break;
+            default: // Handle unexpected position
+                Log.w(TAG, "Unexpected tab position: " + position);
+                recyclerView.setAdapter(null); // Or set a default adapter
+                currentData = null;
                 break;
         }
         updateEmptyState(currentData == null || currentData.isEmpty());
     }
 
+
     private void updateEmptyState(boolean isEmpty) {
         if (textPlaceholder == null || recyclerView == null || progressBar == null || searchEditText == null) return; // Add null checks
 
         String currentQuery = searchEditText.getText().toString().trim();
-        if (progressBar.getVisibility() == View.VISIBLE) {
+        // Check progressBar visibility safely
+        boolean isLoading = progressBar.getVisibility() == View.VISIBLE;
+
+        if (isLoading) {
             textPlaceholder.setVisibility(View.GONE);
             recyclerView.setVisibility(View.GONE);
         } else if (currentQuery.isEmpty()) {
@@ -275,7 +318,7 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
     @Override
     public void onMediaClick(PlayerMedia mediaItem) {
         Log.i(TAG, "Media item clicked in Search: " + mediaItem.getTitle() + " Type: " + mediaItem.getType());
-        if (getContext() == null) return;
+        if (getContext() == null || !isAdded()) return; // Add isAdded check
 
         Intent intent = null;
         if (mediaItem.getType() == PlayerMedia.TYPE_VIDEO) {
@@ -297,7 +340,7 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
     @Override
     public void onPostItemClick(Post post) {
         Log.i(TAG, "Post item clicked in Search: " + post.getId());
-        if (getContext() == null) return;
+        if (getContext() == null || !isAdded()) return; // Add isAdded check
         Intent intent = new Intent(requireContext(), PostDetailActivity.class);
         intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getId());
         intent.putExtra(PostDetailActivity.EXTRA_POST_DATA, (Serializable) post);
@@ -311,31 +354,47 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null && !user.isAnonymous()) {
             postLikeViewModel.toggleLike(post.getId(), post);
-        } else if (getContext() != null) {
+        } else if (getContext() != null && isAdded()) { // Add isAdded check
             Toast.makeText(getContext(), R.string.login_for_features, Toast.LENGTH_SHORT).show();
         }
     }
 
+    // <<< --- ADDED onDislikeClick --- >>>
+    @Override
+    public void onDislikeClick(Post post) {
+        Log.i(TAG, "Dislike clicked for post in Search: " + post.getId());
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null && !user.isAnonymous()) {
+            postLikeViewModel.toggleDislike(post.getId(), post); // Call ViewModel method
+        } else if (getContext() != null && isAdded()) { // Add isAdded check
+            Toast.makeText(getContext(), R.string.login_for_features, Toast.LENGTH_SHORT).show();
+        }
+    }
+    // <<< --- END of ADDED onDislikeClick --- >>>
+
+
     @Override
     public void onCommentClick(Post post) {
         Log.i(TAG, "Comment clicked for post in Search: " + post.getId());
-        if (getContext() == null) return;
+        if (getContext() == null || !isAdded()) return; // Add isAdded check
         CommentsBottomSheet commentsSheet = CommentsBottomSheet.newInstance(post.getId(), post);
         commentsSheet.show(getParentFragmentManager(), CommentsBottomSheet.TAG);
     }
 
-    // *** ADDED: Implementation for onOptionClick ***
+
     @Override
     public void onOptionClick(Post post, View anchorView) {
         Log.i(TAG, "Options clicked for post in Search: " + post.getId());
-        showPostOptionsMenu(anchorView, post); // Reuse logic similar to FeedFragment
+        if (isAdded() && getContext() != null) { // Add checks
+            showPostOptionsMenu(anchorView, post); // Reuse logic similar to FeedFragment
+        }
     }
 
-    // *** ADDED: Implementation for onAuthorClick ***
+
     @Override
     public void onAuthorClick(Post post) {
         Log.i(TAG, "Author clicked in Search: " + post.getAuthorName() + " (ID: " + post.getAuthorUid() + ")");
-        if (post.getAuthorUid() != null) {
+        if (post.getAuthorUid() != null && isAdded()) { // Add isAdded check
             Bundle args = new Bundle();
             args.putString("channelId", post.getAuthorUid());
             args.putString("channelName", post.getAuthorName());
@@ -344,6 +403,9 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
                         .navigate(R.id.navigation_channel, args);
             } catch (Exception e) {
                 Log.e(TAG, "Navigation to channel failed", e);
+                if (getContext() != null) { // Check context before toast
+                    Toast.makeText(getContext(), "Could not navigate to profile.", Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
@@ -351,7 +413,7 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
 
     // --- Helper for Post Options Menu (Similar to FeedFragment) ---
     private void showPostOptionsMenu(View anchorView, Post post) {
-        if (getContext() == null) return;
+        if (getContext() == null || !isAdded()) return; // Add checks
         PopupMenu popup = new PopupMenu(getContext(), anchorView);
         popup.getMenu().add("Share");
         popup.getMenu().add("Report");
@@ -378,7 +440,7 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
     }
 
     private void sharePost(Post post) {
-        if (getContext() == null) return;
+        if (getContext() == null || !isAdded()) return; // Add checks
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         String shareText = post.getTextContent() != null ? post.getTextContent() : "Check out this post!";
@@ -388,12 +450,13 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
     }
 
     private void reportPost(Post post) {
+        if (getContext() == null || !isAdded()) return; // Add checks
         Toast.makeText(getContext(), "Report functionality TBD", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "Reporting post ID: " + post.getId());
     }
 
     private void deletePost(Post post) {
-        if (getContext() == null) return;
+        if (getContext() == null || !isAdded()) return; // Add checks
         CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance(
                 "Delete Post?",
                 "Are you sure you want to permanently delete this post?",
@@ -405,7 +468,9 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
             public void onPositiveClick() {
                 // Call ViewModel method to delete
                 Log.d(TAG, "Deleting post ID: " + post.getId());
-                Toast.makeText(getContext(), "Delete functionality TBD", Toast.LENGTH_SHORT).show();
+                if (isAdded() && getContext() != null) { // Add checks before toast
+                    Toast.makeText(getContext(), "Delete functionality TBD", Toast.LENGTH_SHORT).show();
+                }
             }
             @Override
             public void onNegativeClick() {}

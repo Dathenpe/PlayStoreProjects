@@ -12,6 +12,8 @@ import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,41 +31,57 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer; // Import Observer
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.viewpager2.widget.ViewPager2; // Import ViewPager2
+import androidx.viewpager2.widget.ViewPager2;
 import com.bumptech.glide.Glide;
+import com.f9ld3.Zion.MainActivity;
 import com.f9ld3.Zion.R;
 import com.f9ld3.Zion.databinding.ActivityPostDetailBinding;
+import com.f9ld3.Zion.databinding.PostDetailContentBinding;
+import com.f9ld3.Zion.ui.blog.EditPostActivity;
+import com.f9ld3.Zion.ui.channel.ChannelActivity;
 import com.f9ld3.Zion.ui.dialogs.CustomAlertDialogFragment;
 import com.f9ld3.Zion.ui.dialogs.CustomInputDialogFragment;
 import com.google.android.material.color.MaterialColors;
-import com.google.android.material.tabs.TabLayoutMediator; // Import TabLayoutMediator
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.Timestamp; // <<< Import Timestamp
-
+import com.google.firebase.Timestamp;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects; // Import Objects
+import java.util.concurrent.TimeUnit; // Import TimeUnit
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import de.hdodenhof.circleimageview.CircleImageView; // If you use CircleImageView
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class PostDetailActivity extends AppCompatActivity implements CommentAdapter.CommentInteractionListener {
 
     public static final String EXTRA_POST_ID = "extra_post_id";
-    public static final String EXTRA_POST_DATA = "extra_post_data"; // Key for Post object
-    public static final String EXTRA_FOCUS_COMMENT_INPUT = "extra_focus_comment_input"; // New flag
+    public static final String EXTRA_POST_DATA = "extra_post_data";
+    public static final String EXTRA_FOCUS_COMMENT_INPUT = "extra_focus_comment_input";
     private static final String TAG = "PostDetailActivity";
 
+    public static final String ACTION_NAVIGATE_TO_CHANNEL = "com.f9ld3.Zion.NAVIGATE_TO_CHANNEL";
+    public static final String EXTRA_CHANNEL_ID = "channelId";
+    public static final String EXTRA_CHANNEL_NAME = "channelName";
+
     private ActivityPostDetailBinding binding;
+    private PostDetailContentBinding postBinding;
     private CommentsViewModel commentsViewModel;
     private CommentAdapter commentAdapter;
     private PostLikeViewModel postLikeViewModel;
-    private PollViewModel pollViewModel; // Added for Polls/Quizzes in detail view
+    private PollViewModel pollViewModel;
     private String postId;
-    private Post currentPostData; // To hold the Post object
-    private MediaPagerAdapter mediaPagerAdapter; // Add adapter field
+    private Post currentPostData; // Keep this to store the latest Post object
+    private ViewPager2.OnPageChangeCallback pageChangeCallback;
+
+    // Observers for Poll Data
+    private Observer<Post> postDataObserver;
+    private Observer<Integer> userVoteObserver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,196 +89,425 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
         binding = ActivityPostDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // Initialize binding for the included layout
+        View postContentView = binding.scrollView.findViewById(R.id.post_content_container);
+        postBinding = PostDetailContentBinding.bind(postContentView);
+
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle("Post"); // Set a default title
+            getSupportActionBar().setTitle("Post");
         }
 
         postId = getIntent().getStringExtra(EXTRA_POST_ID);
-        currentPostData = (Post) getIntent().getSerializableExtra(EXTRA_POST_DATA);
-        boolean shouldFocusComment = getIntent().getBooleanExtra(EXTRA_FOCUS_COMMENT_INPUT, false);
-
-        if (postId == null || currentPostData == null) {
-            Log.e(TAG, "Post ID or Post Data is null! Finishing activity.");
+        // Attempt to get initial Post data, but handle if it's null
+        Object postDataSerializable = getIntent().getSerializableExtra(EXTRA_POST_DATA);
+        if (postDataSerializable instanceof Post) {
+            currentPostData = (Post) postDataSerializable;
+        } else if (postId != null) {
+            Log.w(TAG, "Post data missing or invalid in intent, will rely on observer for postId: " + postId);
+            // Initialize currentPostData to null or a placeholder if necessary
+            currentPostData = null;
+        } else {
+            Log.e(TAG, "Post ID is null! Cannot load post. Finishing activity.");
             Toast.makeText(this, "Error loading post.", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
+        boolean shouldFocusComment = getIntent().getBooleanExtra(EXTRA_FOCUS_COMMENT_INPUT, false);
+
         // Initialize ViewModels
         commentsViewModel = new ViewModelProvider(this).get(CommentsViewModel.class);
         postLikeViewModel = new ViewModelProvider(this).get(PostLikeViewModel.class);
-        pollViewModel = new ViewModelProvider(this).get(PollViewModel.class); // Init PollViewModel
+        pollViewModel = new ViewModelProvider(this).get(PollViewModel.class);
 
-        setupRecyclerView(currentPostData.getAuthorUid());
-        updatePostUi(currentPostData); // Call updatePostUi AFTER initializing ViewModels
-        loadComments(); // loadComments needs postId, which is checked earlier
-        setupCommentInput();
-        observeViewModelMessages();
+        // Setup RecyclerView only if postId is valid
+        if (postId != null) {
+            setupRecyclerView(currentPostData != null ? currentPostData.getAuthorUid() : null); // Pass null author initially if needed
+        }
 
-        // Focus comment input if requested by the intent
+        // Initial UI update (can be partial if currentPostData is null)
+        updatePostUi(currentPostData);
+
+        // Load comments, setup input, observe messages (if postId is valid)
+        if (postId != null) {
+            loadComments();
+            setupCommentInput();
+            observeViewModelMessages();
+            observePostAndPollUpdates(); // Start observing post data
+        }
+
         if (shouldFocusComment) {
             focusCommentInput();
         }
-
-        // Observe the original post for real-time updates (e.g., like count, poll votes)
-        observePostUpdates();
     }
 
-    private void observePostUpdates() {
-        // Assuming you have a way to observe a single post, e.g., a LiveData in a ViewModel
-        // For simplicity, re-fetch or use a dedicated method in FeedViewModel/PostViewModel if available
-        // Example: A hypothetical LiveData<Post> getPostById(String postId) in a ViewModel
-        /*
-        someViewModel.getPostById(postId).observe(this, updatedPost -> {
+    // --- Combined observer setup ---
+    private void observePostAndPollUpdates() {
+        if (postId == null || pollViewModel == null) return;
+
+        clearPollObservers(); // Clear existing before adding new ones
+
+        postDataObserver = updatedPost -> {
             if (updatedPost != null) {
-                currentPostData = updatedPost; // Keep local data fresh
-                updatePostUi(updatedPost); // Re-render UI parts that change
+                currentPostData = updatedPost; // Update the activity's copy
+                Integer userVoteIndex = pollViewModel.getUserVoteForPost(postId).getValue();
+                updatePostUi(updatedPost); // Update general post UI, which will call renderPollUI if needed
+                Log.d(TAG, "PostDataObserver triggered. Post updated: " + updatedPost.getId());
+            } else {
+                Log.w(TAG, "Post data observer received null for postId: " + postId);
+                if (postBinding != null) {
+                    postBinding.postContent.setText("Error loading post content.");
+                    postBinding.pollContainer.setVisibility(View.GONE);
+                    postBinding.pollDetailsText.setVisibility(View.GONE);
+                    postBinding.actionsLayout.setVisibility(View.GONE);
+                }
             }
-        });
-        */
-        // As a simpler alternative for now, rely on Firestore listeners within ViewModels to update LiveData used by UI elements (like count)
+        };
+
+        userVoteObserver = userVoteIndex -> {
+            Log.d(TAG, "UserVoteObserver triggered for post " + postId + ". New vote index: " + userVoteIndex);
+            // Re-render the poll UI if the post data is available
+            if (currentPostData != null && (Post.TYPE_POLL.equals(currentPostData.getPostType()) || Post.TYPE_QUIZ.equals(currentPostData.getPostType()))) {
+                renderPollUI(currentPostData, userVoteIndex); // Call render directly
+            } else {
+                Log.d(TAG, "UserVoteObserver: Skipping poll render, currentPostData is null or not a poll type.");
+            }
+        };
+
+        pollViewModel.getPostData(postId).observe(this, postDataObserver);
+        pollViewModel.getUserVoteForPost(postId).observe(this, userVoteObserver);
+        Log.d(TAG, "Started observing post data and user vote for postId: " + postId);
     }
 
+    // --- Method to Clear Poll Observers ---
+    private void clearPollObservers() {
+        if (postId != null && pollViewModel != null) {
+            Log.d(TAG, "Clearing poll observers for postId: " + postId);
+            LiveData<Post> postLiveData = pollViewModel.getPostData(postId);
+            LiveData<Integer> voteLiveData = pollViewModel.getUserVoteForPost(postId);
+            if (postDataObserver != null && postLiveData != null) {
+                postLiveData.removeObserver(postDataObserver);
+                Log.d(TAG, "Removed postDataObserver.");
+            }
+            if (userVoteObserver != null && voteLiveData != null) {
+                voteLiveData.removeObserver(userVoteObserver);
+                Log.d(TAG, "Removed userVoteObserver.");
+            }
+        }
 
-    private void setupRecyclerView(String postAuthorUid) {
-        commentAdapter = new CommentAdapter(this, postAuthorUid, this, this);
-        binding.commentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        binding.commentsRecyclerView.setAdapter(commentAdapter);
-        binding.commentsRecyclerView.setNestedScrollingEnabled(false); // Important if inside ScrollView
     }
 
-    // --- REVISED updatePostUi ---
-    private void updatePostUi(Post post) {
-        if (post == null || binding == null) {
-            Log.w(TAG, "updatePostUi called with null post or binding");
+    private void updatePostUi(@Nullable Post post) { // Allow null post
+        if (postBinding == null) {
+            Log.w(TAG, "updatePostUi aborted: postBinding is null");
             return;
         }
-        currentPostData = post; // Update the member variable
-
-        // --- Populate Header ---
-        binding.authorName.setText(post.getAuthorName());
-
-        // <<< FIX: Get milliseconds from Long object >>>
-        Long postTime = post.getTimestamp(); // <-- CHANGED FROM Timestamp
-        if (postTime != null && postTime > 0) { // <-- Check if > 0
-            binding.postTimestampDetail.setText(DateUtils.getRelativeTimeSpanString(postTime, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS)); // <-- Removed .toDate().getTime()
-            binding.postTimestampDetail.setVisibility(View.VISIBLE);
-        } else {
-            binding.postTimestampDetail.setVisibility(View.GONE); // Hide if timestamp is null or 0
+        if (post == null) {
+            Log.w(TAG, "updatePostUi called with null post, showing error state.");
+            postBinding.postContent.setText("Loading post details...");
+            postBinding.authorName.setVisibility(View.GONE);
+            postBinding.authorAvatar.setVisibility(View.GONE);
+            postBinding.postTimestamp.setVisibility(View.GONE);
+            postBinding.mediaPagerContainer.setVisibility(View.GONE);
+            postBinding.pollContainer.setVisibility(View.GONE);
+            postBinding.pollDetailsText.setVisibility(View.GONE);
+            postBinding.actionsLayout.setVisibility(View.GONE);
+            return;
         }
-        // <<< END FIX >>>
 
-        setPostText(binding.postContent, post.getTextContent()); // Use helper for text/hashtags
+        // Ensure elements relying on post data are visible now
+        postBinding.authorName.setVisibility(View.VISIBLE);
+        postBinding.authorAvatar.setVisibility(View.VISIBLE);
+        postBinding.postTimestamp.setVisibility(View.VISIBLE);
+        postBinding.actionsLayout.setVisibility(View.VISIBLE);
 
-        Glide.with(this)
+
+        currentPostData = post; // Update the member variable with the latest data
+        Context context = this;
+        String currentPostId = post.getId();
+
+        // 1. Header Info
+        postBinding.authorName.setText(post.getAuthorName());
+        Long postTime = post.getTimestamp();
+        if (postTime != null && postTime > 0) {
+            postBinding.postTimestamp.setText(DateUtils.getRelativeTimeSpanString(postTime, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
+            postBinding.postTimestamp.setVisibility(View.VISIBLE);
+        } else {
+            postBinding.postTimestamp.setVisibility(View.GONE);
+        }
+        Glide.with(context)
                 .load(post.getAuthorAvatarUrl())
                 .placeholder(R.drawable.ic_profile_placeholder)
                 .error(R.drawable.ic_profile_placeholder)
-                .into(binding.authorAvatar);
+                .into(postBinding.authorAvatar);
 
-        // --- Setup Content Based on Type ---
-        switch (post.getPostType()) {
-            case Post.TYPE_POLL:
-            case Post.TYPE_QUIZ:
-                binding.mediaPager.setVisibility(View.GONE);
-                binding.tabIndicator.setVisibility(View.GONE);
-                // Poll/Quiz specific UI setup (similar to PostAdapter)
-                // This part is missing in activity_post_detail.xml, needs adding or handling differently
-                // Example: setupPollInDetailView(post);
-                Log.d(TAG, "Post type is Poll/Quiz - UI setup TBD in detail view.");
-                break;
-            case Post.TYPE_TEXT_MEDIA:
-            default:
-                // Poll/Quiz UI removal/hiding
-                // Example: binding.pollContainerDetail.setVisibility(View.GONE);
-                setupMediaPager(post);
-                break;
+        // 2. Set Content Text
+        setPostText(postBinding.postContent, post.getTextContent());
+
+        // 3. Setup Content Type Specific UI
+        final List<MediaItem> items = post.getMediaItems();
+        if (items != null && !items.isEmpty() && Post.TYPE_TEXT_MEDIA.equals(post.getPostType())) {
+            // Media Pager Setup
+            final ViewPager2 mediaPager = postBinding.mediaPagerFeed;
+            final TextView mediaIndicator = postBinding.mediaIndicatorFeed;
+            postBinding.mediaPagerContainer.setVisibility(View.VISIBLE);
+
+            mediaPager.post(() -> {
+                if (postBinding == null || mediaPager == null || items == null || items.isEmpty()) return;
+                int pagerWidth = mediaPager.getWidth();
+                if (pagerWidth > 0) {
+                    // ... (height calculation) ...
+                    int pagerHeight = (int) (pagerWidth * (9.0 / 16.0));
+                    int maxHeightPx = (int) TypedValue.applyDimension(
+                            TypedValue.COMPLEX_UNIT_DIP, 350, getResources().getDisplayMetrics());
+                    pagerHeight = Math.min(pagerHeight, maxHeightPx);
+                    ViewGroup.LayoutParams params = mediaPager.getLayoutParams();
+                    params.height = pagerHeight;
+                    mediaPager.setLayoutParams(params);
+
+
+                    MediaPagerAdapter pagerAdapter;
+                    if (mediaPager.getAdapter() instanceof MediaPagerAdapter) {
+                        pagerAdapter = (MediaPagerAdapter) mediaPager.getAdapter();
+                        // TODO: Implement pagerAdapter.updateItems(items) if needed
+                    } else {
+                        pagerAdapter = new MediaPagerAdapter(context, items);
+                        mediaPager.setAdapter(pagerAdapter);
+                    }
+                    updateMediaIndicator(mediaPager, mediaIndicator, mediaPager.getCurrentItem(), items.size());
+
+                    if (pageChangeCallback == null) {
+                        pageChangeCallback = new ViewPager2.OnPageChangeCallback() {
+                            @Override
+                            public void onPageSelected(int position) {
+                                super.onPageSelected(position);
+                                if (postBinding != null && items != null && !items.isEmpty()) {
+                                    updateMediaIndicator(mediaPager, mediaIndicator, position, items.size());
+                                }
+                            }
+                        };
+                        mediaPager.registerOnPageChangeCallback(pageChangeCallback);
+                    }
+                }
+            });
+
+            postBinding.pollContainer.setVisibility(View.GONE);
+            postBinding.pollDetailsText.setVisibility(View.GONE);
+
+        } else if (Post.TYPE_POLL.equals(post.getPostType()) || Post.TYPE_QUIZ.equals(post.getPostType())) {
+            // Poll/Quiz Setup
+            postBinding.mediaPagerContainer.setVisibility(View.GONE);
+            postBinding.pollContainer.setVisibility(View.VISIBLE);
+            postBinding.pollDetailsText.setVisibility(View.VISIBLE);
+            Integer userVoteIndex = pollViewModel.getUserVoteForPost(post.getId()).getValue();
+            renderPollUI(post, userVoteIndex); // Render poll UI based on the latest post data
+        }
+        else {
+            // Text-only post
+            postBinding.mediaPagerContainer.setVisibility(View.GONE);
+            postBinding.pollContainer.setVisibility(View.GONE);
+            postBinding.pollDetailsText.setVisibility(View.GONE);
         }
 
-        // --- Handle Actions (Like Button) ---
-        binding.likeButton.setOnClickListener(v -> {
-            if (currentPostData != null) { // Ensure post data is available
-                postLikeViewModel.toggleLike(currentPostData.getId(), currentPostData);
+        // 4. Setup Actions/Re-observe LiveData
+        View.OnClickListener authorClickListener = v -> {
+            Log.i(TAG, "Author clicked in Detail: " + post.getAuthorName() + " (ID: " + post.getAuthorUid() + ")");
+            if (post.getAuthorUid() != null) {
+                Intent intent = new Intent(this, ChannelActivity.class);
+                intent.putExtra(ChannelActivity.EXTRA_CHANNEL_ID, post.getAuthorUid());
+                intent.putExtra(ChannelActivity.EXTRA_CHANNEL_NAME, post.getAuthorName());
+                startActivity(intent);
             }
+        };
+        postBinding.authorAvatar.setOnClickListener(authorClickListener);
+        postBinding.authorName.setOnClickListener(authorClickListener);
+
+        // Like/Dislike Button Setup (observers are setup in onCreate/observePostAndPollUpdates)
+        postBinding.likeButton.setOnClickListener(v -> {
+            if (currentPostData != null) postLikeViewModel.toggleLike(currentPostId, currentPostData);
+        });
+        postBinding.dislikeButton.setOnClickListener(v -> {
+            if (currentPostData != null) postLikeViewModel.toggleDislike(currentPostId, currentPostData);
         });
 
-        // Observe like state
-        postLikeViewModel.isLiked(post.getId()).observe(this, isLiked -> {
-            if (binding == null) return;
-            ColorStateList tint = ColorStateList.valueOf(
-                    isLiked != null && isLiked
-                            ? ContextCompat.getColor(this, R.color.teal) // Liked color (adjust R.color if needed)
-                            : MaterialColors.getColor(binding.likeButton, com.google.android.material.R.attr.colorOnSurfaceVariant) // Default color
-            );
-            binding.likeButton.setImageTintList(tint);
-        });
+        // Comment Button (Hidden)
+        postBinding.commentButton.setVisibility(View.GONE);
+        postBinding.commentCount.setVisibility(View.GONE);
 
-        // Display like count
-        binding.likeCount.setText(formatCount(post.getLikeCount()));
-        binding.likeCount.setVisibility(post.getLikeCount() > 0 ? View.VISIBLE : View.GONE);
-
-        // Comment action button scrolls down or focuses input
-        binding.commentActionButton.setOnClickListener(v -> {
-            // Scroll to comments or focus input
-            focusCommentInput(); // Or scroll: binding.scrollView.smoothScrollTo(...)
-        });
-        binding.commentActionCount.setText(formatCount(post.getCommentCount()));
-        binding.commentActionCount.setVisibility(post.getCommentCount() > 0 ? View.VISIBLE : View.GONE);
-
-
-        // Post options button
-        binding.postOptionsButtonDetail.setOnClickListener(this::showPostOptionsMenu);
+        // Options Button
+        postBinding.postOptionsButton.setOnClickListener(this::showPostOptionsMenu);
     }
 
+
+    // --- Centralized Poll UI Rendering (Similar to Adapter's) ---
+    private void renderPollUI(@Nullable Post post, @Nullable Integer userVoteIndex) {
+        if (postBinding == null || post == null) {
+            Log.w(TAG, "renderPollUI aborted: binding or post is null.");
+            return;
+        }
+        if (!Post.TYPE_POLL.equals(post.getPostType()) && !Post.TYPE_QUIZ.equals(post.getPostType())) {
+            Log.d(TAG, "renderPollUI skipped: Post is not a poll/quiz.");
+            return;
+        }
+
+        Log.d(TAG, "Rendering poll UI for post: " + post.getId() + ", Vote Index: " + userVoteIndex);
+
+        final Context context = this;
+        LayoutInflater inflater = LayoutInflater.from(context);
+        postBinding.pollContainer.removeAllViews(); // Clear previous options
+
+        boolean hasVoted = userVoteIndex != null && userVoteIndex != -1;
+        boolean isExpired = isPollExpired(post);
+        boolean showResults = hasVoted || isExpired;
+        long totalVotes = post.getTotalVotes();
+
+        // Update details text
+        String details = formatCount((int)totalVotes) + (totalVotes == 1 ? " vote" : " votes");
+        if (isExpired) {
+            details += " • Final results";
+        } else if (post.getPollDurationHours() != null && post.getPollDurationHours() > 0) {
+            details += " • " + getPollTimeRemaining(post);
+        } else if (Post.TYPE_QUIZ.equals(post.getPostType()) && hasVoted) {
+            details += " • Final results";
+        }
+        postBinding.pollDetailsText.setText(details);
+
+        if (post.getPollOptions() == null) {
+            Log.e(TAG, "renderPollUI Error: PollOptions list is null for post: " + post.getId());
+            TextView errorText = new TextView(context);
+            errorText.setText("Error loading poll options.");
+            postBinding.pollContainer.addView(errorText);
+            return;
+        }
+
+        // Inflate and configure each option view
+        for (int i = 0; i < post.getPollOptions().size(); i++) {
+            View optionView = inflater.inflate(R.layout.item_poll_option, postBinding.pollContainer, false);
+            PollOption option = post.getPollOptions().get(i);
+            TextView optionText = optionView.findViewById(R.id.poll_option_text);
+            ProgressBar progressBar = optionView.findViewById(R.id.poll_option_progress);
+            TextView percentageText = optionView.findViewById(R.id.poll_option_percentage);
+            ImageView voteIndicator = optionView.findViewById(R.id.your_vote_indicator);
+
+            optionText.setText(option.getOptionText());
+
+            if (showResults) {
+                optionView.setClickable(false);
+                progressBar.setVisibility(View.VISIBLE);
+                percentageText.setVisibility(View.VISIBLE);
+                int percentage = (totalVotes > 0) ? (int) (((float) option.getVoteCount() / totalVotes) * 100) : 0;
+                progressBar.setProgress(percentage);
+                percentageText.setText(percentage + "%");
+                voteIndicator.setVisibility(hasVoted && userVoteIndex != null && userVoteIndex == i ? View.VISIBLE : View.GONE);
+
+                // --- Background Logic ---
+                if (Post.TYPE_QUIZ.equals(post.getPostType())) {
+                    if (i == post.getQuizCorrectOptionIndex()) {
+                        optionView.setBackgroundResource(R.drawable.poll_option_background_correct);
+                        voteIndicator.setImageResource(R.drawable.ic_check_circle_24dp);
+                        voteIndicator.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.teal)));
+                        voteIndicator.setVisibility(View.VISIBLE);
+                    } else if (hasVoted && userVoteIndex != null && userVoteIndex == i) {
+                        optionView.setBackgroundResource(R.drawable.poll_option_background_incorrect);
+                        voteIndicator.setImageResource(R.drawable.ic_error_24dp);
+                        voteIndicator.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.error)));
+                        voteIndicator.setVisibility(View.VISIBLE);
+                    } else {
+                        optionView.setBackgroundResource(R.drawable.poll_option_background_default);
+                        voteIndicator.setVisibility(View.GONE);
+                    }
+                } else { // Regular Poll
+                    if (hasVoted && userVoteIndex != null && userVoteIndex == i) {
+                        optionView.setBackgroundResource(R.drawable.poll_option_background_voted);
+                        voteIndicator.setImageResource(R.drawable.ic_check_circle_24dp);
+                        voteIndicator.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.teal)));
+                    } else {
+                        optionView.setBackgroundResource(R.drawable.poll_option_background_default);
+                    }
+                }
+                // --- End Background Logic ---
+
+            } else { // Allow voting
+                progressBar.setVisibility(View.INVISIBLE);
+                percentageText.setVisibility(View.GONE);
+                voteIndicator.setVisibility(View.GONE);
+                optionView.setBackgroundResource(R.drawable.poll_option_background_default);
+                optionView.setClickable(true);
+                final int optionIndex = i;
+
+                optionView.setOnClickListener(v -> {
+                    // Optional: Disable further clicks immediately for better UX while waiting for update
+                    ViewGroup container = (ViewGroup) optionView.getParent();
+                    if (container != null) {
+                        for (int j = 0; j < container.getChildCount(); j++) {
+                            View child = container.getChildAt(j);
+                            if (child != null) child.setClickable(false);
+                        }
+                    }
+                    // Only call the ViewModel. The UI update will happen when the LiveData observer fires.
+                    pollViewModel.castVote(post, optionIndex);
+                });
+            }
+            postBinding.pollContainer.addView(optionView);
+        }
+        Log.d(TAG, "Finished rendering poll UI for post: " + post.getId());
+    }
+
+    // Helper method to check if poll is expired
+    private boolean isPollExpired(Post post) {
+        if (post == null || post.getPollDurationHours() == null || post.getPollDurationHours() <= 0 || post.getTimestamp() == null) {
+            return false;
+        }
+        long postTimeMillis = post.getTimestamp();
+        long durationMillis = TimeUnit.HOURS.toMillis(post.getPollDurationHours());
+        long expiryTimeMillis = postTimeMillis + durationMillis;
+        return System.currentTimeMillis() > expiryTimeMillis;
+    }
+
+    // Helper method to get poll time remaining string
+    private String getPollTimeRemaining(Post post) {
+        if (post == null || post.getPollDurationHours() == null || post.getPollDurationHours() <= 0 || post.getTimestamp() == null) {
+            return "";
+        }
+        long postTimeMillis = post.getTimestamp();
+        long durationMillis = TimeUnit.HOURS.toMillis(post.getPollDurationHours());
+        long expiryTimeMillis = postTimeMillis + durationMillis;
+        long remainingMillis = expiryTimeMillis - System.currentTimeMillis();
+
+        if (remainingMillis <= 0) return "Poll ended";
+        long days = TimeUnit.MILLISECONDS.toDays(remainingMillis);
+        remainingMillis -= TimeUnit.DAYS.toMillis(days);
+        long hours = TimeUnit.MILLISECONDS.toHours(remainingMillis);
+        remainingMillis -= TimeUnit.HOURS.toMillis(hours);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(remainingMillis);
+
+        if (days > 0) return days + (days == 1 ? " day" : " days") + " left";
+        if (hours > 0) return hours + (hours == 1 ? " hour" : " hours") + " left";
+        if (minutes > 0) return minutes + (minutes == 1 ? " minute" : " minutes") + " left";
+        return "Ending soon";
+    }
+
+    // Helper to format count (k, M)
     private String formatCount(int count) {
         if (count < 1000) return String.valueOf(count);
         if (count < 1_000_000) return String.format("%.1fk", count / 1000.0).replace(".0", "");
         return String.format("%.1fm", count / 1_000_000.0).replace(".0", "");
     }
 
-
-    private void setupMediaPager(Post post) {
-        if (post.getMediaItems() != null && !post.getMediaItems().isEmpty()) {
-            mediaPagerAdapter = new MediaPagerAdapter(this, post.getMediaItems());
-            binding.mediaPager.setAdapter(mediaPagerAdapter);
-
-            // Dynamically set ViewPager height based on aspect ratio (e.g., 16:9 for first item)
-            // This is a basic example; adjust as needed
-            binding.mediaPager.post(() -> {
-                int pagerWidth = binding.mediaPager.getWidth();
-                if (pagerWidth > 0) {
-                    // Assuming 16:9 aspect ratio for simplicity
-                    int pagerHeight = (int) (pagerWidth * (9.0 / 16.0));
-                    ViewGroup.LayoutParams params = binding.mediaPager.getLayoutParams();
-                    params.height = pagerHeight;
-                    binding.mediaPager.setLayoutParams(params);
-                    binding.mediaPager.setVisibility(View.VISIBLE);
-                } else {
-                    binding.mediaPager.setVisibility(View.VISIBLE); // Fallback visibility
-                }
-            });
-
-
-            // Setup indicator only if more than one item
-            if (post.getMediaItems().size() > 1) {
-                binding.tabIndicator.setVisibility(View.VISIBLE);
-                new TabLayoutMediator(binding.tabIndicator, binding.mediaPager, (tab, position) -> {
-                    // No text needed, just dots (style comes from tabBackground)
-                }).attach();
-            } else {
-                binding.tabIndicator.setVisibility(View.GONE);
-            }
-
+    // Helper function to update media indicator
+    private void updateMediaIndicator(ViewPager2 pager, TextView indicator, int currentPosition, int totalItems) {
+        if (indicator == null) return;
+        if (totalItems > 1) {
+            indicator.setText(String.format("%d / %d", currentPosition + 1, totalItems));
+            indicator.setVisibility(View.VISIBLE);
         } else {
-            binding.mediaPager.setVisibility(View.GONE);
-            binding.tabIndicator.setVisibility(View.GONE);
+            indicator.setVisibility(View.GONE);
         }
     }
 
-
-    // --- Helper for setting post text with hashtag highlighting ---
+    // Helper to set post text with hashtag highlighting
     private void setPostText(TextView textView, String text) {
         if (text == null || text.isEmpty()) {
             textView.setVisibility(View.GONE);
@@ -270,7 +517,6 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
         SpannableString spannableString = new SpannableString(text);
         Pattern hashtagPattern = Pattern.compile("#(\\w+)");
         Matcher matcher = hashtagPattern.matcher(text);
-
         int hashtagColor = getColorFromAttr(com.google.android.material.R.attr.colorSecondary);
 
         while (matcher.find()) {
@@ -278,12 +524,8 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
                     matcher.start(),
                     matcher.end(),
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            // Add ClickableSpan if needed
         }
         textView.setText(spannableString);
-        // Add Linkify if needed
-        // Linkify.addLinks(textView, Linkify.WEB_URLS);
-        // textView.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     // Helper to get color from theme attribute
@@ -294,13 +536,20 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
         return typedValue.data;
     }
 
+    // --- Comments Section Logic ---
+    private void setupRecyclerView(@Nullable String postAuthorUid) { // Allow null authorUid initially
+        commentAdapter = new CommentAdapter(this, postAuthorUid, this, this);
+        binding.commentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.commentsRecyclerView.setAdapter(commentAdapter);
+        binding.commentsRecyclerView.setNestedScrollingEnabled(false);
+    }
+
     private void loadComments() {
-        // Observe top-level comments
         commentsViewModel.getComments().observe(this, comments -> {
-            if (binding == null) return; // Check binding
+            if (binding == null) return;
             boolean isEmpty = comments == null || comments.isEmpty();
             binding.commentsRecyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
-            binding.emptyCommentsText.setVisibility(isEmpty ? View.VISIBLE : View.GONE); // Control empty state
+            binding.emptyCommentsText.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
 
             if (!isEmpty) {
                 commentAdapter.submitList(comments);
@@ -310,12 +559,10 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
                 Log.w(TAG, "Received null or empty top-level comments list.");
             }
         });
-
-        commentsViewModel.loadComments(postId); // Start loading top-level comments
+        commentsViewModel.loadComments(postId);
     }
 
     private void observeViewModelMessages() {
-        // Observe error/success messages from CommentsViewModel
         commentsViewModel.getErrorMessage().observe(this, error -> {
             if (error != null) {
                 Toast.makeText(this, error, Toast.LENGTH_SHORT).show();
@@ -326,14 +573,19 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
             if (success != null) {
                 Toast.makeText(this, success, Toast.LENGTH_SHORT).show();
                 commentsViewModel.clearMessages();
-                // Optional: Scroll to bottom after posting success
                 if ("Comment posted.".equals(success) && binding != null) {
                     binding.commentsRecyclerView.postDelayed(() -> {
-                        if (commentAdapter.getItemCount() > 0) {
+                        if (commentAdapter != null && commentAdapter.getItemCount() > 0) {
                             binding.commentsRecyclerView.smoothScrollToPosition(commentAdapter.getItemCount() - 1);
                         }
                     }, 300);
                 }
+            }
+        });
+        pollViewModel.getToastMessage().observe(this, message -> {
+            if (message != null && !message.isEmpty()) {
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                pollViewModel.clearToastMessage();
             }
         });
     }
@@ -346,17 +598,16 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
         String text = binding.editTextComment.getText().toString().trim();
         if (!text.isEmpty()) {
             if (currentPostData != null) {
-                // Call new method signature, passing null for parentCommentId
                 commentsViewModel.postCommentOrReply(
                         postId,
                         text,
-                        null, // parentCommentId is null for top-level comments
+                        null,
                         currentPostData.getAuthorUid(),
                         currentPostData.getTextContent() != null && currentPostData.getTextContent().length() > 50
                                 ? currentPostData.getTextContent().substring(0, 50) + "..."
-                                : currentPostData.getTextContent() // Pass snippet
+                                : currentPostData.getTextContent()
                 );
-                binding.editTextComment.setText(""); // Clear input
+                binding.editTextComment.setText("");
                 hideKeyboard();
                 Log.d(TAG, "Posted top-level comment: " + text);
             } else {
@@ -373,58 +624,68 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
         binding.editTextComment.requestFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
-            // Show keyboard with a slight delay to ensure layout is ready
             binding.editTextComment.postDelayed(() -> imm.showSoftInput(binding.editTextComment, InputMethodManager.SHOW_IMPLICIT), 200);
         }
     }
 
-    // Helper to hide keyboard
     private void hideKeyboard() {
         View view = this.getCurrentFocus();
-        if (view == null && binding != null) {
-            view = binding.editTextComment; // Fallback to EditText
-        }
+        if (view == null && binding != null) view = binding.editTextComment;
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) { // Add null check
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-            }
-            view.clearFocus(); // Clear focus after hiding
+            if (imm != null) imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            view.clearFocus();
         }
     }
 
+    // --- Post Options Menu Logic ---
     private void showPostOptionsMenu(View anchorView) {
-        if (currentPostData == null) return;
+        if (currentPostData == null) {
+            Log.w(TAG, "Cannot show options menu, currentPostData is null.");
+            return; // Don't show if post data isn't loaded
+        }
         PopupMenu popup = new PopupMenu(this, anchorView);
-        popup.getMenu().add("Share");
-        popup.getMenu().add("Report");
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.menu_post_options, popup.getMenu());
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null && currentUser.getUid().equals(currentPostData.getAuthorUid())) {
-            popup.getMenu().add("Delete");
-        }
+        boolean isAuthor = currentUser != null && currentUser.getUid().equals(currentPostData.getAuthorUid());
+
+        MenuItem editItem = popup.getMenu().findItem(R.id.action_edit_post);
+        MenuItem deleteItem = popup.getMenu().findItem(R.id.action_delete_post);
+        MenuItem reportItem = popup.getMenu().findItem(R.id.action_report_post);
+
+        if (editItem != null) editItem.setVisible(isAuthor);
+        if (deleteItem != null) deleteItem.setVisible(isAuthor);
+        if (reportItem != null) reportItem.setVisible(!isAuthor);
 
         popup.setOnMenuItemClickListener(item -> {
-            String title = item.getTitle().toString();
-            if ("Share".equals(title)) {
-                sharePost(currentPostData);
-            } else if ("Report".equals(title)) {
-                reportPost(currentPostData);
-            } else if ("Delete".equals(title)) {
-                deletePost(currentPostData);
+            int itemId = item.getItemId();
+            if (itemId == R.id.action_share_post) {
+                sharePost(currentPostData); return true;
+            } else if (itemId == R.id.action_edit_post) {
+                editPost(currentPostData); return true;
+            } else if (itemId == R.id.action_delete_post) {
+                deletePost(currentPostData); return true;
+            } else if (itemId == R.id.action_report_post) {
+                reportPost(currentPostData); return true;
             } else {
                 return false;
             }
-            return true;
         });
         popup.show();
+    }
+
+    private void editPost(Post post) {
+        Intent intent = new Intent(this, EditPostActivity.class);
+        intent.putExtra(EditPostActivity.EXTRA_POST_TO_EDIT, (Serializable) post);
+        startActivity(intent);
     }
 
     private void sharePost(Post post) {
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         String shareText = post.getTextContent() != null ? post.getTextContent() : "Check out this post!";
-        // Add deep link if available
         sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
         sendIntent.setType("text/plain");
         startActivity(Intent.createChooser(sendIntent, null));
@@ -437,65 +698,45 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
 
     private void deletePost(Post post) {
         CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance(
-                "Delete Post?",
-                "Are you sure you want to permanently delete this post?",
-                "Delete",
-                "Cancel"
-        );
+                "Delete Post?", "Are you sure you want to permanently delete this post?", "Delete", "Cancel");
         dialog.setDialogListener(new CustomAlertDialogFragment.DialogListener() {
-            @Override
-            public void onPositiveClick() {
-                // Call ViewModel method to delete the post from Firestore
+            @Override public void onPositiveClick() {
                 Log.d(TAG, "Deleting post ID: " + post.getId());
                 Toast.makeText(PostDetailActivity.this, "Delete functionality TBD", Toast.LENGTH_SHORT).show();
-                // Example: someViewModel.deletePost(post.getId());
-                // finish(); // Close activity after deletion
             }
-            @Override
-            public void onNegativeClick() {}
+            @Override public void onNegativeClick() {}
         });
         dialog.show(getSupportFragmentManager(), "DeletePostDialog");
     }
 
-
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
+            onBackPressed(); return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    // --- Implementation of CommentInteractionListener ---
-
+    // --- CommentInteractionListener Implementations ---
     @Override
     public void onReplyClicked(Comment comment) {
         Log.d(TAG, "Reply clicked. Opening replies for: " + comment.getId());
         Intent intent = new Intent(this, RepliesActivity.class);
         intent.putExtra(RepliesActivity.EXTRA_POST, (Serializable) currentPostData);
         intent.putExtra(RepliesActivity.EXTRA_COMMENT_ID, comment.getId());
-        // Focus the input field in RepliesActivity
         intent.putExtra(RepliesActivity.EXTRA_SHOULD_FOCUS_REPLY, true);
         startActivity(intent);
     }
 
     @Override
     public void onDeleteClicked(Comment comment) {
+        if (currentPostData == null) return; // Need post author UID
         Log.d(TAG, "Delete clicked for comment: " + comment.getId());
         CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance(
-                "Delete Comment?",
-                "Are you sure you want to permanently delete this comment?",
-                "Delete",
-                "Cancel"
-        );
+                "Delete Comment?", "Are you sure you want to permanently delete this comment?", "Delete", "Cancel");
         dialog.setDialogListener(new CustomAlertDialogFragment.DialogListener() {
-            @Override
-            public void onPositiveClick() {
-                commentsViewModel.deleteComment(comment, currentPostData.getAuthorUid());
-            }
-            @Override
-            public void onNegativeClick() { }
+            @Override public void onPositiveClick() { commentsViewModel.deleteComment(comment, currentPostData.getAuthorUid()); }
+            @Override public void onNegativeClick() { }
         });
         dialog.show(getSupportFragmentManager(), "DeleteCommentDialog");
     }
@@ -504,16 +745,8 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
     public void onReportClicked(Comment comment) {
         Log.d(TAG, "Report clicked for comment: " + comment.getId());
         CustomInputDialogFragment reportDialog = CustomInputDialogFragment.newInstance(
-                "Report Comment",
-                "Please provide a brief reason for reporting this comment (optional).",
-                "Reason for reporting",
-                "Report",
-                "Cancel",
-                false // Not password
-        );
-        reportDialog.setInputListener(reason -> {
-            commentsViewModel.reportComment(comment, reason.isEmpty() ? "No reason provided" : reason);
-        });
+                "Report Comment", "Please provide a brief reason for reporting this comment (optional).", "Reason for reporting", "Report", "Cancel", false);
+        reportDialog.setInputListener(reason -> commentsViewModel.reportComment(comment, reason.isEmpty() ? "No reason provided" : reason));
         reportDialog.show(getSupportFragmentManager(), "ReportCommentDialog");
     }
 
@@ -523,7 +756,6 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
         Intent intent = new Intent(this, RepliesActivity.class);
         intent.putExtra(RepliesActivity.EXTRA_POST, (Serializable) currentPostData);
         intent.putExtra(RepliesActivity.EXTRA_COMMENT_ID, comment.getId());
-        // Don't focus input field when just viewing
         intent.putExtra(RepliesActivity.EXTRA_SHOULD_FOCUS_REPLY, false);
         startActivity(intent);
     }
@@ -531,9 +763,18 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (binding != null && binding.commentsRecyclerView != null) {
-            binding.commentsRecyclerView.setAdapter(null); // Detach adapter
+        // Clean up ViewPager callback
+        if (postBinding != null && postBinding.mediaPagerFeed != null && pageChangeCallback != null) {
+            postBinding.mediaPagerFeed.unregisterOnPageChangeCallback(pageChangeCallback);
+            pageChangeCallback = null;
         }
-        binding = null; // Clean up binding
+        // Clear Poll observers
+        clearPollObservers();
+
+        if (binding != null && binding.commentsRecyclerView != null) {
+            binding.commentsRecyclerView.setAdapter(null);
+        }
+        binding = null;
+        postBinding = null;
     }
 }

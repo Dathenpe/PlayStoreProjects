@@ -1,3 +1,4 @@
+// main/java/com/f9ld3/Zion/ui/profile/MyPostsFragment.java
 package com.f9ld3.Zion.ui.profile;
 
 import android.content.Intent; // Import Intent
@@ -52,15 +53,17 @@ public class MyPostsFragment extends Fragment implements PostAdapter.OnPostClick
         super.onViewCreated(view, savedInstanceState);
 
         // Setup Toolbar
-        binding.toolbar.setTitle(R.string.my_posts);
-        binding.toolbar.setNavigationOnClickListener(v -> {
-            try {
-                NavHostFragment.findNavController(this).popBackStack();
-            } catch (IllegalStateException e) {
-                Log.e(TAG, "Error popping back stack: ", e);
-                if (getActivity() != null) getActivity().finish(); // Fallback
-            }
-        });
+        if (binding.toolbar != null) { // Add null check
+            binding.toolbar.setTitle(R.string.my_posts);
+            binding.toolbar.setNavigationOnClickListener(v -> {
+                try {
+                    NavHostFragment.findNavController(this).popBackStack();
+                } catch (IllegalStateException e) {
+                    Log.e(TAG, "Error popping back stack: ", e);
+                    if (getActivity() != null) getActivity().finish(); // Fallback
+                }
+            });
+        }
 
         profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
 
@@ -71,35 +74,44 @@ public class MyPostsFragment extends Fragment implements PostAdapter.OnPostClick
         } else {
             Log.w(TAG, "Current user is null, cannot fetch posts.");
             // Optionally show a message or hide the list
+            updatePostList(null); // Show empty state if user is null
         }
 
         setupRecyclerView(); // Call setupRecyclerView after initializing postLikeViewModel
 
-        binding.textPlaceholder.setText(getString(R.string.blogs_empty_text));
-        binding.textPlaceholder.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_feed_24dp, 0, 0);
+        if (binding.textPlaceholder != null) { // Add null check
+            binding.textPlaceholder.setText(getString(R.string.blogs_empty_text));
+            binding.textPlaceholder.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_feed_24dp, 0, 0);
+        }
 
-        profileViewModel.getUserPosts().observe(getViewLifecycleOwner(), posts -> {
-            if (binding == null) return; // Check if binding is null (fragment destroyed)
-
-            if (posts != null && !posts.isEmpty()) {
-                binding.recyclerView.setVisibility(View.VISIBLE);
-                binding.textPlaceholder.setVisibility(View.GONE);
-                postAdapter.submitList(posts);
-                Log.d(TAG, "Displaying " + posts.size() + " user posts.");
-            } else {
-                binding.recyclerView.setVisibility(View.GONE);
-                binding.textPlaceholder.setVisibility(View.VISIBLE);
-                Log.d(TAG, "No user posts to display.");
-                postAdapter.submitList(null); // Clear adapter if list becomes empty/null
-            }
-        });
+        profileViewModel.getUserPosts().observe(getViewLifecycleOwner(), this::updatePostList); // Use helper method
     }
+    // Helper method to update UI based on post list
+    private void updatePostList(List<Post> posts) {
+        if (binding == null) return; // Check if binding is null (fragment destroyed)
+
+        boolean isEmpty = posts == null || posts.isEmpty();
+
+        if (binding.recyclerView != null) binding.recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        if (binding.textPlaceholder != null) binding.textPlaceholder.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+
+        if (!isEmpty) {
+            postAdapter.submitList(posts);
+            Log.d(TAG, "Displaying " + posts.size() + " user posts.");
+        } else {
+            Log.d(TAG, "No user posts to display.");
+            postAdapter.submitList(null); // Clear adapter if list becomes empty/null
+        }
+    }
+
 
     private void setupRecyclerView() {
         // Pass LifecycleOwner and Activity
         postAdapter = new PostAdapter(this, getViewLifecycleOwner(), requireActivity());
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        binding.recyclerView.setAdapter(postAdapter);
+        if (binding.recyclerView != null) { // Add null check
+            binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            binding.recyclerView.setAdapter(postAdapter);
+        }
     }
 
     // --- Interface Method Implementations ---
@@ -107,10 +119,12 @@ public class MyPostsFragment extends Fragment implements PostAdapter.OnPostClick
     @Override
     public void onPostItemClick(Post post) {
         Log.i(TAG, "Post clicked from MyPosts: " + (post.getTextContent() != null ? post.getTextContent() : "No Text") + " (ID: " + post.getId() + ")");
-        Intent intent = new Intent(requireContext(), PostDetailActivity.class);
-        intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getId());
-        intent.putExtra(PostDetailActivity.EXTRA_POST_DATA, (Serializable) post);
-        startActivity(intent);
+        if (isAdded() && getActivity() != null) { // Check attachment
+            Intent intent = new Intent(requireContext(), PostDetailActivity.class);
+            intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getId());
+            intent.putExtra(PostDetailActivity.EXTRA_POST_DATA, (Serializable) post);
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -119,26 +133,42 @@ public class MyPostsFragment extends Fragment implements PostAdapter.OnPostClick
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null && !user.isAnonymous()) {
             postLikeViewModel.toggleLike(post.getId(), post);
-        } else if (getContext() != null) {
+        } else if (getContext() != null && isAdded()) { // Check attachment
             Toast.makeText(getContext(), "Login to like posts", Toast.LENGTH_SHORT).show();
         }
     }
 
+    // <<< --- ADDED onDislikeClick --- >>>
+    @Override
+    public void onDislikeClick(Post post) {
+        Log.i(TAG, "Dislike clicked on post: " + post.getId());
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null && !user.isAnonymous()) {
+            postLikeViewModel.toggleDislike(post.getId(), post); // Call ViewModel method
+        } else if (getContext() != null && isAdded()) { // Check attachment
+            Toast.makeText(getContext(), R.string.login_for_features, Toast.LENGTH_SHORT).show();
+        }
+    }
+    // <<< --- END of ADDED onDislikeClick --- >>>
+
+
     @Override
     public void onCommentClick(Post post) {
         Log.i(TAG, "Comment clicked on post: " + post.getId());
-        CommentsBottomSheet commentsSheet = CommentsBottomSheet.newInstance(post.getId(), post);
-        commentsSheet.show(getParentFragmentManager(), CommentsBottomSheet.TAG);
+        if (isAdded() && getActivity() != null) { // Check attachment
+            CommentsBottomSheet commentsSheet = CommentsBottomSheet.newInstance(post.getId(), post);
+            commentsSheet.show(getParentFragmentManager(), CommentsBottomSheet.TAG);
+        }
     }
 
-    // *** ADDED: Implementation for onOptionClick ***
     @Override
     public void onOptionClick(Post post, View anchorView) {
         Log.i(TAG, "Options clicked for post: " + post.getId());
-        showPostOptionsMenu(anchorView, post);
+        if (isAdded() && getContext() != null) { // Check attachment
+            showPostOptionsMenu(anchorView, post);
+        }
     }
 
-    // *** ADDED: Implementation for onAuthorClick (Can be empty if not needed here) ***
     @Override
     public void onAuthorClick(Post post) {
         // In "My Posts", clicking the author might not be needed,
@@ -150,7 +180,7 @@ public class MyPostsFragment extends Fragment implements PostAdapter.OnPostClick
 
     // --- Helper for Post Options Menu (Similar to FeedFragment) ---
     private void showPostOptionsMenu(View anchorView, Post post) {
-        if (getContext() == null) return;
+        if (getContext() == null || !isAdded()) return; // Check attachment
         PopupMenu popup = new PopupMenu(getContext(), anchorView);
         popup.getMenu().add("Share");
         // No "Report" option for own posts
@@ -176,7 +206,7 @@ public class MyPostsFragment extends Fragment implements PostAdapter.OnPostClick
     }
 
     private void sharePost(Post post) {
-        if (getContext() == null) return;
+        if (getContext() == null || !isAdded()) return; // Check attachment
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         String shareText = post.getTextContent() != null ? post.getTextContent() : "Check out my post!";
@@ -186,7 +216,7 @@ public class MyPostsFragment extends Fragment implements PostAdapter.OnPostClick
     }
 
     private void deletePost(Post post) {
-        if (getContext() == null) return;
+        if (getContext() == null || !isAdded()) return; // Check attachment
         CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance(
                 "Delete Post?",
                 "Are you sure you want to permanently delete this post?",
@@ -199,7 +229,9 @@ public class MyPostsFragment extends Fragment implements PostAdapter.OnPostClick
                 // Call ViewModel method to delete the post from Firestore
                 // Example: profileViewModel.deleteUserPost(post.getId()); // Needs implementation
                 Log.d(TAG, "Deleting post ID: " + post.getId());
-                Toast.makeText(getContext(), "Delete functionality TBD", Toast.LENGTH_SHORT).show();
+                if (isAdded() && getContext() != null) { // Check attachment before toast
+                    Toast.makeText(getContext(), "Delete functionality TBD", Toast.LENGTH_SHORT).show();
+                }
             }
             @Override
             public void onNegativeClick() {}

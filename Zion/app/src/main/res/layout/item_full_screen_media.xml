@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground">
+
+    <com.github.chrisbanes.photoview.PhotoView
+        android:id="@+id/full_screen_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:contentDescription="Full screen media content"
+        tools:src="@tools:sample/backgrounds/scenic"/>
+
+    <ImageView
+        android:id="@+id/play_icon"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_play_circle_24dp"
+        app:tint="@color/white"
+        android:background="@drawable/circle_scrim"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+</FrameLayout>

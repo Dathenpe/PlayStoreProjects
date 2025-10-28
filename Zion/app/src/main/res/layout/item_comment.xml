@@ -107,10 +107,10 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:padding="8dp"
-            android:src="@drawable/ic_like"
+            android:src="@drawable/ic_thumb_up_outline_24dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:tint="?attr/colorOnSurfaceVariant"
-            android:contentDescription="Like Comment"/>
+            android:contentDescription="Like Comment"
+            app:tint="?attr/colorSecondary" />
 
         <TextView
             android:id="@+id/like_comment_count"
@@ -129,10 +129,11 @@
             android:layout_height="40dp"
             android:padding="8dp"
             android:layout_marginStart="12dp"
-            android:src="@drawable/ic_dislike"
+            android:src="@drawable/ic_thumb_down_outline_24dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:tint="?attr/colorOnSurfaceVariant"
-            android:contentDescription="Dislike Comment"/>
+            android:contentDescription="Dislike Comment"
+            app:tint="?attr/colorSecondary" />
+
         <TextView
             android:id="@+id/dislike_comment_count"
             android:layout_width="wrap_content"
@@ -140,26 +141,24 @@
             android:layout_marginStart="4dp"
             android:textAppearance="?attr/textAppearanceLabelSmall"
             android:textColor="?attr/colorOnSurfaceVariant"
-            android:visibility="gone"
-            tools:text="2"
-            tools:visibility="visible"/>
-
+            android:visibility="gone" tools:text="2"
+            tools:visibility="gone"/>
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_reply"
-            style="@style/Widget.Material3.Button.TextButton.Icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:minWidth="0dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:text="Reply"
-            android:textAppearance="?attr/textAppearanceLabelSmall"
-            android:textColor="?attr/colorSecondary"
-            app:icon="@drawable/ic_comment"
-            app:iconSize="16dp"
-            app:iconPadding="4dp"
-            app:iconTint="?attr/colorSecondary"/>
+        android:id="@+id/button_reply"
+        style="@style/Widget.Material3.Button.TextButton.Icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:minWidth="0dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:text="Reply"
+        android:textAppearance="?attr/textAppearanceLabelSmall"
+        android:textColor="?attr/colorSecondary"
+        app:icon="@drawable/ic_comment"
+        app:iconSize="16dp"
+        app:iconPadding="4dp"
+        app:iconTint="?attr/colorSecondary"/>
 
     </LinearLayout>
 
