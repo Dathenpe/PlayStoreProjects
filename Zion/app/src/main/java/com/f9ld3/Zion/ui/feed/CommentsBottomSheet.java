@@ -5,10 +5,12 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.DisplayMetrics; // *** ADDED IMPORT ***
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager; // *** ADDED IMPORT ***
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -122,19 +124,48 @@ public class CommentsBottomSheet extends BottomSheetDialogFragment implements Co
     @NonNull @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         BottomSheetDialog dialog = (BottomSheetDialog) super.onCreateDialog(savedInstanceState);
+
+        // *** FIX 1: Set windowSoftInputMode to adjustResize ***
+        // This allows the dialog to resize when the keyboard appears,
+        // fitting the content (like the EditText) into the remaining space.
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
+        // *** END FIX 1 ***
+
         dialog.setOnShowListener(dialogInterface -> {
             BottomSheetDialog bottomSheetDialog = (BottomSheetDialog) dialogInterface;
             FrameLayout bottomSheet = bottomSheetDialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
             if (bottomSheet != null) {
-                BottomSheetBehavior.from(bottomSheet).setState(BottomSheetBehavior.STATE_EXPANDED);
-                BottomSheetBehavior.from(bottomSheet).setSkipCollapsed(true); // Prevent collapsing halfway
+                BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                behavior.setSkipCollapsed(true); // Prevent collapsing halfway
+
+                // *** FIX 2: Set a max height (e.g., 70% of screen height) ***
+                if (getActivity() != null) {
+                    DisplayMetrics displayMetrics = new DisplayMetrics();
+                    getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+                    int screenHeight = displayMetrics.heightPixels;
+                    int maxHeight = (int) (screenHeight * 0.70); // 70%
+
+                    ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
+                    if (layoutParams != null) {
+                        layoutParams.height = maxHeight;
+                        bottomSheet.setLayoutParams(layoutParams);
+                        Log.d(TAG, "Set bottom sheet max height to: " + maxHeight);
+                    }
+                }
+                // *** END FIX 2 ***
             }
         });
         return dialog;
     }
 
     private void setupRecyclerView() {
-        adapter = new CommentAdapter(this, currentPostData.getAuthorUid(), getViewLifecycleOwner(), requireActivity());
+        // --- THIS IS THE FIX ---
+        // Passed 'currentPostData' (Post) instead of 'currentPostData.getAuthorUid()' (String)
+        adapter = new CommentAdapter(this, currentPostData, getViewLifecycleOwner(), requireActivity());
+        // --- END FIX ---
         binding.commentsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext())); // Use new ID
         binding.commentsRecyclerView.setAdapter(adapter);
     }
@@ -142,13 +173,19 @@ public class CommentsBottomSheet extends BottomSheetDialogFragment implements Co
     private void postNewCommentOrReply() {
         String text = binding.editTextComment.getText().toString().trim(); // Use new ID
         if (!text.isEmpty()) {
+            // --- FIX: Pass post snippet ---
+            String postTextSnippet = (currentPostData.getTextContent() != null && currentPostData.getTextContent().length() > 50)
+                    ? currentPostData.getTextContent().substring(0, 50) + "..."
+                    : currentPostData.getTextContent();
+
             viewModel.postCommentOrReply(
                     postId,
                     text,
                     null,
                     currentPostData.getAuthorUid(),
-                    currentPostData.getTextContent()
+                    postTextSnippet // Pass snippet
             );
+            // --- END FIX ---
             binding.editTextComment.setText(""); // Use new ID
             hideKeyboard();
         } else if (getContext() != null) {

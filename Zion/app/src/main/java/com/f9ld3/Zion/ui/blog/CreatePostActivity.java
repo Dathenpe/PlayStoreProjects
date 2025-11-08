@@ -13,31 +13,39 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton; // Import ImageButton
+import android.widget.ImageView; // Import ImageView
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable; // Added import
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
+
+import com.bumptech.glide.Glide; // Import Glide
 import com.f9ld3.Zion.R;
 import com.f9ld3.Zion.databinding.ActivityCreatePostBinding;
 import com.f9ld3.Zion.ui.dialogs.CustomAlertDialogFragment;
 import com.f9ld3.Zion.ui.feed.MediaItem;
 import com.f9ld3.Zion.ui.feed.PollOption;
 import com.f9ld3.Zion.ui.feed.Post;
+import com.google.android.material.imageview.ShapeableImageView; // Import ShapeableImageView
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import java.util.ArrayList;
+import java.util.HashMap; // Import HashMap
 import java.util.List;
+import java.util.Map; // Import Map
 
 public class CreatePostActivity extends AppCompatActivity implements MediaPreviewAdapter.OnMediaItemClickListener {
 
-    private static final String TAG = "CreatePostActivity"; // Use specific TAG
+    private static final String TAG = "CreatePostActivity";
 
     private ActivityCreatePostBinding binding;
     private PostViewModel postViewModel;
@@ -48,10 +56,17 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
     // --- Poll Option Management Logic ---
     private final List<TextInputLayout> pollOptionLayouts = new ArrayList<>();
     private final List<TextInputEditText> pollOptionEditTexts = new ArrayList<>();
+    // *** NEW: Store Views for Image Handling ***
+    private final List<ImageView> pollOptionImageViews = new ArrayList<>();
+    private final List<ImageButton> pollOptionImageButtons = new ArrayList<>();
+    private final Map<Integer, Uri> pollOptionImageUris = new HashMap<>(); // Store selected URIs by index
+    private int currentImagePickerIndex = -1; // Track which option's image is being picked
+    // *** END NEW ***
     private final int MAX_POLL_OPTIONS = 5;
     private final int MIN_POLL_OPTIONS = 2;
 
 
+    // Media Picker Launcher (for post media)
     private final ActivityResultLauncher<Intent> pickMediaLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -93,6 +108,33 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
                 }
             });
 
+    // *** NEW: Image Picker Launcher for Poll Options ***
+    private final ActivityResultLauncher<Intent> pickPollOptionImageLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null && currentImagePickerIndex != -1) {
+                    Uri selectedUri = result.getData().getData();
+                    if (selectedUri != null && currentImagePickerIndex < pollOptionImageViews.size()) {
+                        pollOptionImageUris.put(currentImagePickerIndex, selectedUri); // Store URI
+                        ImageView preview = pollOptionImageViews.get(currentImagePickerIndex);
+                        if (preview != null) {
+                            Glide.with(this).load(selectedUri).into(preview);
+                            preview.setVisibility(View.VISIBLE);
+                            Log.d(TAG, "Image selected for option " + currentImagePickerIndex + ": " + selectedUri);
+                        } else {
+                            Log.e(TAG, "ImageView is null for index: " + currentImagePickerIndex);
+                        }
+                    } else {
+                        Log.e(TAG, "Selected URI is null or index out of bounds: " + currentImagePickerIndex);
+                    }
+                } else {
+                    Log.d(TAG, "Image selection cancelled or failed for index: " + currentImagePickerIndex);
+                }
+                currentImagePickerIndex = -1; // Reset index
+            });
+    // *** END NEW ***
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,9 +149,17 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
         setupClickListeners();
         observeViewModel();
         updateUiForPostType(); // Set initial UI state
+
+        // --- NEW: Handle Back Press ---
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                checkForUnsavedChanges();
+            }
+        });
+        // --- END NEW ---
     }
 
-    // ... (setupToolbar, setupRecyclerView, createMediaItemFromUri, onMediaItemClick, showRemoveMediaConfirmation remain the same) ...
     private void setupToolbar() {
         setSupportActionBar(binding.toolbar);
         if(getSupportActionBar() != null) {
@@ -188,7 +238,7 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
         }
     }
 
-    // --- Poll Option Logic (remains the same) ---
+    // --- Poll Option Logic ---
     private final TextWatcher quizOptionTextWatcher = new TextWatcher() {
         @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
         @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -210,24 +260,44 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
         if (pollOptionLayouts.size() >= MAX_POLL_OPTIONS) return;
 
         LayoutInflater inflater = LayoutInflater.from(this);
-        TextInputLayout newLayout = (TextInputLayout) inflater.inflate(R.layout.item_poll_option_input, binding.pollOptionsContainer, false);
-        TextInputEditText newEditText = newLayout.findViewById(R.id.input_poll_option);
+        // 1. Inflate the root view (ConstraintLayout in this case)
+        View inflatedView = inflater.inflate(R.layout.item_poll_option_input, binding.pollOptionsContainer, false);
 
-        if (newEditText != null) {
+        // 2. Find the TextInputLayout *within* the inflated view using its ID
+        TextInputLayout newLayout = inflatedView.findViewById(R.id.poll_option_input_layout); // <-- Find the TextInputLayout by ID
+
+        // 3. Find other views *within* the inflated view
+        TextInputEditText newEditText = inflatedView.findViewById(R.id.input_poll_option);
+        ImageView newImageView = inflatedView.findViewById(R.id.image_poll_option_preview);
+        ImageButton newImageButton = inflatedView.findViewById(R.id.button_add_poll_option_image);
+
+        // Check if TextInputLayout was found before proceeding
+        if (newLayout != null && newEditText != null && newImageView != null && newImageButton != null) {
             if (initialText != null) newEditText.setText(initialText);
             newEditText.addTextChangedListener(quizOptionTextWatcher);
-            newLayout.setEndIconOnClickListener(v -> removePollOptionInputView(newLayout));
+            newLayout.setEndIconOnClickListener(v -> removePollOptionInputView(newLayout)); // Use newLayout here
 
-            binding.pollOptionsContainer.addView(newLayout);
+            final int currentIndex = pollOptionLayouts.size();
+            newImageButton.setOnClickListener(v -> {
+                currentImagePickerIndex = currentIndex;
+                openPollOptionImagePicker();
+            });
+
+            // Add the entire inflated view (the ConstraintLayout) to the container
+            binding.pollOptionsContainer.addView(inflatedView);
+
+            // Keep track of the actual TextInputLayout
             pollOptionLayouts.add(newLayout);
             pollOptionEditTexts.add(newEditText);
+            pollOptionImageViews.add(newImageView);
+            pollOptionImageButtons.add(newImageButton);
 
             updatePollOptionHintsAndRemoveButtons();
             updateQuizRadioButtons();
             binding.buttonAddOption.setEnabled(pollOptionLayouts.size() < MAX_POLL_OPTIONS);
 
         } else {
-            Log.e(TAG, "Could not find TextInputEditText in inflated poll option layout.");
+            Log.e(TAG, "Could not find required views in inflated poll option layout.");
         }
     }
 
@@ -238,9 +308,24 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
         if (indexToRemove != -1) {
             binding.pollOptionsContainer.removeView(layoutToRemove);
             pollOptionLayouts.remove(indexToRemove);
-            if (indexToRemove < pollOptionEditTexts.size()) {
-                pollOptionEditTexts.remove(indexToRemove);
+            // *** NEW: Remove corresponding Image Views and URI ***
+            if (indexToRemove < pollOptionEditTexts.size()) pollOptionEditTexts.remove(indexToRemove);
+            if (indexToRemove < pollOptionImageViews.size()) pollOptionImageViews.remove(indexToRemove);
+            if (indexToRemove < pollOptionImageButtons.size()) pollOptionImageButtons.remove(indexToRemove);
+            pollOptionImageUris.remove(indexToRemove);
+            // Adjust indices in the map for items after the removed one
+            Map<Integer, Uri> adjustedUris = new HashMap<>();
+            for (Map.Entry<Integer, Uri> entry : pollOptionImageUris.entrySet()) {
+                if (entry.getKey() > indexToRemove) {
+                    adjustedUris.put(entry.getKey() - 1, entry.getValue());
+                } else {
+                    adjustedUris.put(entry.getKey(), entry.getValue());
+                }
             }
+            pollOptionImageUris.clear();
+            pollOptionImageUris.putAll(adjustedUris);
+            // *** END NEW ***
+
             updatePollOptionHintsAndRemoveButtons();
             updateQuizRadioButtons();
             binding.buttonAddOption.setEnabled(true);
@@ -267,10 +352,13 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
             TextInputEditText editText = pollOptionEditTexts.get(i);
             if (editText == null) continue;
             String optionText = editText.getText().toString().trim();
-            if (!optionText.isEmpty()) {
+            Uri imageUri = pollOptionImageUris.get(i); // Check if there's an image
+            // Only add radio button if there's text OR an image
+            if (!optionText.isEmpty() || imageUri != null) {
                 RadioButton radioButton = new RadioButton(this);
                 radioButton.setId(i);
-                radioButton.setText(optionText);
+                // Show text, or "Image Option [n]" if only image exists
+                radioButton.setText(optionText.isEmpty() ? "Image Option " + (i+1) : optionText);
                 radioButton.setLayoutParams(new RadioGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                 binding.quizCorrectAnswerGroup.addView(radioButton);
                 if (i == currentSelection) radioButton.setChecked(true);
@@ -285,12 +373,29 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
         for (TextInputEditText editText : pollOptionEditTexts) {
             if (editText != null) editText.setText("");
         }
+        // *** NEW: Clear Image Views and URIs Map ***
+        for (ImageView imageView : pollOptionImageViews) {
+            if (imageView != null) {
+                imageView.setImageDrawable(null);
+                imageView.setVisibility(View.GONE);
+            }
+        }
+        pollOptionImageUris.clear();
+        // *** END NEW ***
         binding.quizCorrectAnswerGroup.clearCheck();
         binding.pollDurationGroup.check(R.id.duration_none); // Reset duration selection
         updatePollOptionHintsAndRemoveButtons();
         updateQuizRadioButtons();
         binding.buttonAddOption.setEnabled(true);
     }
+
+    // *** NEW: Method to open Image Picker for Poll Option ***
+    private void openPollOptionImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        pickPollOptionImageLauncher.launch(intent);
+    }
+    // *** END NEW ***
 
     // --- Click Listeners ---
     private void setupClickListeners() {
@@ -315,6 +420,11 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
                         break;
                     }
                 }
+                // *** NEW: Also check if any images were added ***
+                if (!hasPollData && !pollOptionImageUris.isEmpty()) {
+                    hasPollData = true;
+                }
+                // *** END NEW ***
                 if (hasPollData) showSwitchConfirmationDialog(previousType);
                 else updateUiForPostType(); // Switch UI directly if no data
             } else {
@@ -323,11 +433,10 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
         });
     }
 
-    // ... (showSwitchConfirmationDialog, observeViewModel remain the same) ...
     private void showSwitchConfirmationDialog(String previousType) {
         CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance(
                 "Discard " + previousType + "?",
-                "Switching post type will discard the options you've entered.",
+                "Switching post type will discard the options and images you've entered.", // Updated message
                 "Switch Anyway",
                 "Cancel"
         );
@@ -345,7 +454,6 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
                 else if (previousType.equals(Post.TYPE_QUIZ)) buttonIdToReselect = R.id.button_type_quiz;
                 binding.togglePostType.check(buttonIdToReselect);
                 currentPostType = previousType; // Revert type state variable
-                // No UI update needed as selection is reverted
             }
         });
         dialog.show(getSupportFragmentManager(), "SwitchTypeConfirmation");
@@ -361,27 +469,29 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
             binding.buttonPublish.setEnabled(!isLoading);
             binding.editTextContent.setEnabled(!isLoading);
             binding.buttonAttachMedia.setEnabled(!isLoading);
-            binding.buttonAddOption.setEnabled(!isLoading && pollOptionLayouts.size() < MAX_POLL_OPTIONS); // Also check max options
+            binding.buttonAddOption.setEnabled(!isLoading && pollOptionLayouts.size() < MAX_POLL_OPTIONS);
             binding.togglePostType.setEnabled(!isLoading);
 
-            // Disable poll inputs and remove buttons
+            // Disable poll inputs, remove buttons, and image buttons
             for (int i = 0; i < pollOptionLayouts.size(); i++) {
-                if(pollOptionEditTexts.get(i) != null) {
+                if(i < pollOptionEditTexts.size() && pollOptionEditTexts.get(i) != null) {
                     pollOptionEditTexts.get(i).setEnabled(!isLoading);
                 }
+                // *** NEW: Disable image button ***
+                if(i < pollOptionImageButtons.size() && pollOptionImageButtons.get(i) != null) {
+                    pollOptionImageButtons.get(i).setEnabled(!isLoading);
+                }
+                // *** END NEW ***
                 if (pollOptionLayouts.get(i) != null) {
-                    // Disable layout to prevent remove icon click
+                    // Disable layout to prevent remove icon click (only for optional)
                     if (i >= MIN_POLL_OPTIONS) {
                         pollOptionLayouts.get(i).setEnabled(!isLoading);
                     }
                 }
             }
-            // *** Disable duration radio buttons during upload ***
             binding.durationNone.setEnabled(!isLoading);
             binding.duration24h.setEnabled(!isLoading);
             binding.duration3d.setEnabled(!isLoading);
-            // *** End Disable ***
-
 
             if (status == PostViewModel.UploadStatus.SUCCESS) {
                 Toast.makeText(this, "Post published!", Toast.LENGTH_SHORT).show();
@@ -392,18 +502,14 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
         });
 
         postViewModel.getErrorMessage().observe(this, error -> {
-            if (error != null) {
-                // Ensure dialog is shown only if activity is not finishing
-                if (!isFinishing()) {
-                    CustomAlertDialogFragment.newInstance("Upload Failed", error, "OK", null)
-                            .show(getSupportFragmentManager(), "UploadErrorDialog");
-                }
-                postViewModel.clearMessages(); // Clear message after showing
+            if (error != null && !isFinishing()) {
+                CustomAlertDialogFragment.newInstance("Upload Failed", error, "OK", null)
+                        .show(getSupportFragmentManager(), "UploadErrorDialog");
+                postViewModel.clearMessages();
             }
         });
     }
 
-    // --- UPDATED updateUiForPostType ---
     private void updateUiForPostType() {
         boolean isPollOrQuiz = currentPostType.equals(Post.TYPE_POLL) || currentPostType.equals(Post.TYPE_QUIZ);
 
@@ -415,22 +521,19 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
                 currentPostType.equals(Post.TYPE_TEXT_MEDIA) ? View.VISIBLE : View.GONE
         );
 
-        // Manage Poll/Quiz specific UI
-        binding.pollDurationLabel.setVisibility(isPollOrQuiz ? View.VISIBLE : View.GONE); // *** Show/Hide Duration Label ***
-        binding.pollDurationGroup.setVisibility(isPollOrQuiz ? View.VISIBLE : View.GONE); // *** Show/Hide Duration Group ***
+        binding.pollDurationLabel.setVisibility(isPollOrQuiz ? View.VISIBLE : View.GONE);
+        binding.pollDurationGroup.setVisibility(isPollOrQuiz ? View.VISIBLE : View.GONE);
         binding.quizAnswerLabel.setVisibility(currentPostType.equals(Post.TYPE_QUIZ) ? View.VISIBLE : View.GONE);
         binding.quizCorrectAnswerGroup.setVisibility(currentPostType.equals(Post.TYPE_QUIZ) ? View.VISIBLE : View.GONE);
 
         if (isPollOrQuiz) {
             binding.pollQuizLabel.setText(currentPostType.equals(Post.TYPE_POLL) ? "Create Poll" : "Create Quiz");
             if (currentPostType.equals(Post.TYPE_QUIZ)) {
-                updateQuizRadioButtons(); // Update radio buttons when switching TO quiz
+                updateQuizRadioButtons();
             }
         }
     }
-    // --- END UPDATE ---
 
-    // ... (openMediaPicker remains the same) ...
     private void openMediaPicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
@@ -439,7 +542,6 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
         pickMediaLauncher.launch(Intent.createChooser(intent, "Select Media (Max 15)"));
     }
 
-    // --- UPDATED publishPost ---
     private void publishPost() {
         String content = binding.editTextContent.getText().toString().trim();
 
@@ -451,24 +553,35 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
 
         List<PollOption> pollOptions = new ArrayList<>();
         int quizCorrectIndex = -1;
-        Integer pollDuration = null; // *** NEW: Duration variable ***
+        Integer pollDuration = null;
+        // *** NEW: Map to pass URIs to ViewModel ***
+        Map<Integer, Uri> imageUrisToUpload = new HashMap<>();
+        // *** END NEW ***
 
         if (currentPostType.equals(Post.TYPE_POLL) || currentPostType.equals(Post.TYPE_QUIZ)) {
             // Iterate through the managed EditTexts
             for (int i = 0; i < pollOptionEditTexts.size(); i++) {
                 TextInputEditText editText = pollOptionEditTexts.get(i);
-                TextInputLayout layout = pollOptionLayouts.get(i); // Get corresponding layout for error
+                TextInputLayout layout = pollOptionLayouts.get(i);
                 if (editText == null || layout == null) continue;
 
                 String optionText = editText.getText().toString().trim();
-                if (!optionText.isEmpty()) {
-                    pollOptions.add(new PollOption(optionText));
+                Uri imageUri = pollOptionImageUris.get(i); // Get URI for this option
+
+                // An option is valid if it has text OR an image
+                if (!optionText.isEmpty() || imageUri != null) {
+                    PollOption option = new PollOption(optionText); // Create option (URL will be added later)
+                    pollOptions.add(option);
+                    if (imageUri != null) {
+                        imageUrisToUpload.put(pollOptions.size() - 1, imageUri); // Map URI to final index in pollOptions
+                    }
                     layout.setError(null); // Clear error if any
                 } else if (i < MIN_POLL_OPTIONS) {
-                    layout.setError("Option " + (i + 1) + " cannot be empty."); // Show error on layout
+                    // Option is invalid only if it's required (first MIN_POLL_OPTIONS) AND has neither text nor image
+                    layout.setError("Option " + (i + 1) + " requires text or an image."); // Show error on layout
                     return; // Stop processing
                 } else {
-                    layout.setError(null); // Clear error for optional fields
+                    layout.setError(null); // Clear error for optional fields that are empty
                 }
             }
             // Clear errors for initially required fields if they are now filled
@@ -477,20 +590,19 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
 
 
             if (pollOptions.size() < MIN_POLL_OPTIONS) {
-                Toast.makeText(this, "A poll or quiz requires at least " + MIN_POLL_OPTIONS + " non-empty options.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "A poll or quiz requires at least " + MIN_POLL_OPTIONS + " non-empty options (text or image).", Toast.LENGTH_SHORT).show();
                 return;
             }
-            post.setPollOptions(pollOptions);
+            post.setPollOptions(pollOptions); // Set options without image URLs initially
 
-            // *** Get selected poll duration ***
+            // Get selected poll duration
             int selectedDurationId = binding.pollDurationGroup.getCheckedRadioButtonId();
             if (selectedDurationId == R.id.duration_24h) {
                 pollDuration = 24;
             } else if (selectedDurationId == R.id.duration_3d) {
                 pollDuration = 72; // 3 days * 24 hours
-            } // else it remains null (Permanent)
+            }
             post.setPollDurationHours(pollDuration);
-            // *** End get duration ***
 
             if (currentPostType.equals(Post.TYPE_QUIZ)) {
                 quizCorrectIndex = binding.quizCorrectAnswerGroup.getCheckedRadioButtonId(); // ID is the index
@@ -515,17 +627,76 @@ public class CreatePostActivity extends AppCompatActivity implements MediaPrevie
             post.setMediaItems(new ArrayList<>());
         }
 
-        // Call ViewModel to handle creation/upload
-        postViewModel.createPost(post, mediaItems, this);
+        // *** UPDATED: Pass pollOptionImageUris to ViewModel ***
+        postViewModel.createPost(post, mediaItems, imageUrisToUpload, this);
     }
-    // --- END UPDATE ---
 
-    // ... (onOptionsItemSelected, onDestroy remain the same) ...
+    // --- NEW: Check for unsaved changes before exiting ---
+    private void checkForUnsavedChanges() {
+        if (hasUnsavedChanges()) {
+            showUnsavedChangesDialog();
+        } else {
+            finish(); // No changes, just close
+        }
+    }
+
+    private boolean hasUnsavedChanges() {
+        // Check text content
+        if (!binding.editTextContent.getText().toString().trim().isEmpty()) {
+            return true;
+        }
+        // Check for added media
+        if (!mediaItems.isEmpty()) {
+            return true;
+        }
+        // Check for poll data
+        if (currentPostType.equals(Post.TYPE_POLL) || currentPostType.equals(Post.TYPE_QUIZ)) {
+            for (TextInputEditText editText : pollOptionEditTexts) {
+                if (editText != null && !editText.getText().toString().trim().isEmpty()) {
+                    return true;
+                }
+            }
+            // *** NEW: Check if any poll images were added ***
+            if (!pollOptionImageUris.isEmpty()) {
+                return true;
+            }
+            // *** END NEW ***
+            // Check if duration was changed from default
+            if (binding.pollDurationGroup.getCheckedRadioButtonId() != R.id.duration_none) {
+                return true;
+            }
+        }
+        return false; // No changes found
+    }
+
+    private void showUnsavedChangesDialog() {
+        CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance(
+                "Discard Post?",
+                "If you go back now, your draft will be discarded.",
+                "Discard",
+                "Cancel"
+        );
+        dialog.setDialogListener(new CustomAlertDialogFragment.DialogListener() {
+            @Override
+            public void onPositiveClick() {
+                finish(); // User confirmed discard, close activity
+            }
+            @Override
+            public void onNegativeClick() {
+                // User cancelled, do nothing
+            }
+        });
+        if (!isFinishing()) {
+            dialog.show(getSupportFragmentManager(), "UnsavedChangesDialog");
+        }
+    }
+    // --- END NEW ---
+
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            // TODO: Add check for unsaved changes before finishing
-            finish();
+            checkForUnsavedChanges(); // <-- UPDATED: Check for changes
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -27,7 +27,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:clipChildren="false">
 
                 <ImageView
                     android:id="@+id/logo_image"
@@ -58,14 +59,16 @@
                     app:tint="?attr/colorOnSurfaceVariant" />
 
                 <FrameLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp">
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:clipChildren="false">
 
                     <ImageButton
                         android:id="@+id/button_notifications_toolbar"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="Notifications"
                         android:src="@drawable/ic_notifications_24dp"
@@ -75,7 +78,7 @@
                         android:id="@+id/notification_badge"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:layout_gravity="top|end"
+                        android:layout_gravity="top|start"
                         android:background="@drawable/circular_background"
                         android:backgroundTint="?attr/colorSecondary"
                         android:gravity="center"
@@ -84,9 +87,7 @@
                         android:textStyle="bold"
                         android:visibility="gone"
                         tools:text="3"
-                        tools:visibility="visible"
-                        android:translationX="8dp"
-                        android:translationY="-4dp"/>
+                        tools:visibility="visible" />
                 </FrameLayout>
             </LinearLayout>
         </androidx.appcompat.widget.Toolbar>
@@ -107,7 +108,7 @@
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/nav_view"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="52dp"
         android:background="?attr/colorSurface"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"

@@ -4,21 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <com.google.android.material.imageview.ShapeableImageView
-    android:id="@+id/media_image_item"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:scaleType="centerCrop"
-    app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium"
-    tools:src="@tools:sample/backgrounds/scenic"
-    android:contentDescription="Post media content" />
+        android:id="@+id/media_image_item"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Medium"
+        tools:src="@tools:sample/backgrounds/scenic"
+        android:contentDescription="Post media content" />
 
     <ImageView
         android:id="@+id/play_icon_item"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="center"
-        android:src="@drawable/ic_play_circle_24dp"
+        android:src="@drawable/ic_play_arrow_24dp"
         app:tint="@android:color/white"
         android:background="@drawable/circle_scrim"
         android:visibility="gone"

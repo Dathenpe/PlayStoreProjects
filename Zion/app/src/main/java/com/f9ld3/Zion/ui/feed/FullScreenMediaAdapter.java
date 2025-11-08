@@ -18,19 +18,31 @@ import java.util.ArrayList;
 
 public class FullScreenMediaAdapter extends RecyclerView.Adapter<FullScreenMediaAdapter.MediaViewHolder> {
 
+    // --- NEW: Interface for Play Click ---
+    public interface OnPlayClickListener {
+        void onPlayVideo(MediaItem mediaItem);
+    }
+    // --- End New ---
+
     private final ArrayList<MediaItem> mediaItems;
     private final Context context;
+    private final OnPlayClickListener playClickListener; // <-- Store listener
 
-    public FullScreenMediaAdapter(Context context, ArrayList<MediaItem> mediaItems) {
+    // --- UPDATE Constructor ---
+    public FullScreenMediaAdapter(Context context, ArrayList<MediaItem> mediaItems, OnPlayClickListener playClickListener) {
         this.context = context;
         this.mediaItems = mediaItems;
+        this.playClickListener = playClickListener; // <-- Initialize listener
     }
+    // --- End Update ---
+
 
     @NonNull
     @Override
     public MediaViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_full_screen_media, parent, false);
-        return new MediaViewHolder(view);
+        // --- Pass playClickListener to ViewHolder ---
+        return new MediaViewHolder(view, playClickListener);
     }
 
     @Override
@@ -47,12 +59,17 @@ public class FullScreenMediaAdapter extends RecyclerView.Adapter<FullScreenMedia
     static class MediaViewHolder extends RecyclerView.ViewHolder {
         PhotoView imageView; // Use PhotoView for zoomable images
         ImageView playIcon;
+        private final OnPlayClickListener playClickListener; // <-- Store listener
 
-        public MediaViewHolder(@NonNull View itemView) {
+
+        // --- UPDATE Constructor ---
+        public MediaViewHolder(@NonNull View itemView, OnPlayClickListener playClickListener) {
             super(itemView);
+            this.playClickListener = playClickListener; // <-- Initialize listener
             imageView = itemView.findViewById(R.id.full_screen_image_view);
             playIcon = itemView.findViewById(R.id.play_icon);
         }
+        // --- End Update ---
 
         void bind(MediaItem item, Context context) {
             boolean isVideo = "video".equals(item.getMediaType());
@@ -67,20 +84,14 @@ public class FullScreenMediaAdapter extends RecyclerView.Adapter<FullScreenMedia
             imageView.setEnabled(!isVideo); // Disable zoom for video thumbnails
 
             if (isVideo) {
-                // Clicking the thumbnail/play icon starts the video player
+                // --- UPDATE Click Listener ---
+                // Clicking the thumbnail/play icon triggers the callback
                 View.OnClickListener videoClickListener = v -> {
-                    PlayerMedia playerMedia = new PlayerMedia();
-                    playerMedia.id = String.valueOf(System.currentTimeMillis()); // Temporary ID
-                    playerMedia.type = PlayerMedia.TYPE_VIDEO;
-                    playerMedia.title = "Post Video"; // Consider passing post title
-                    playerMedia.mediaUrl = item.getUrl();
-                    playerMedia.thumbnailUrl = item.getThumbnailUrl();
-                    // Add author details if available
-
-                    Intent intent = new Intent(context, VideoPlayerActivity.class);
-                    intent.putExtra(VideoPlayerActivity.EXTRA_MEDIA_ITEM, playerMedia);
-                    context.startActivity(intent);
+                    if (playClickListener != null) {
+                        playClickListener.onPlayVideo(item); // <-- Trigger callback
+                    }
                 };
+                // --- End Update ---
                 imageView.setOnClickListener(videoClickListener);
                 playIcon.setOnClickListener(videoClickListener);
             } else {

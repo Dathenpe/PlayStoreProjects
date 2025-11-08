@@ -29,7 +29,8 @@ public class MediaPagerAdapter extends RecyclerView.Adapter<MediaPagerAdapter.Me
     @NonNull
     @Override
     public MediaViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_post_media_page, parent, false);
+        // --- FIX: Inflate the layout that matches the IDs used in the ViewHolder ---
+        View view = LayoutInflater.from(context).inflate(R.layout.item_feed_media_page, parent, false);
         return new MediaViewHolder(view);
     }
 
@@ -38,42 +39,27 @@ public class MediaPagerAdapter extends RecyclerView.Adapter<MediaPagerAdapter.Me
         MediaItem item = mediaItems.get(position);
         holder.bind(item, context);
 
-        boolean isVideo = "video".equals(item.getMediaType());
+        // --- UNIFIED CLICK LISTENER ---
+        // Both images and videos should open the FullScreenMediaActivity.
+        // That activity will handle whether to show an image or play a video.
+        View.OnClickListener mediaClickListener = v -> {
+            // Get the adapter position at click time, in case it changed
+            int clickedPosition = holder.getAbsoluteAdapterPosition();
+            if (clickedPosition == RecyclerView.NO_POSITION) {
+                return; // Invalid position, do nothing
+            }
 
-        if (isVideo) {
-            // Clicking the thumbnail/play icon starts the video player
-            View.OnClickListener videoClickListener = v -> {
-                // Create PlayerMedia object to pass to VideoPlayerActivity
-                PlayerMedia playerMedia = new PlayerMedia();
-                playerMedia.id = String.valueOf(System.currentTimeMillis());
-                playerMedia.type = PlayerMedia.TYPE_VIDEO;
-                playerMedia.title = "Post Video";
-                playerMedia.mediaUrl = item.getUrl();
-                playerMedia.thumbnailUrl = item.getThumbnailUrl();
-                // Add author details if available from the Post object
-                // playerMedia.authorName = ...
-                // playerMedia.uploaderUid = ...
-                // playerMedia.uploaderAvatarUrl = ...
+            Intent intent = new Intent(context, FullScreenMediaActivity.class);
+            // Pass the entire list and the clicked position
+            intent.putExtra(FullScreenMediaActivity.EXTRA_MEDIA_ITEMS, new ArrayList<>(mediaItems));
+            intent.putExtra(FullScreenMediaActivity.EXTRA_START_POSITION, clickedPosition);
+            context.startActivity(intent);
+        };
 
-                Intent intent = new Intent(context, VideoPlayerActivity.class);
-                intent.putExtra(VideoPlayerActivity.EXTRA_MEDIA_ITEM, playerMedia);
-                context.startActivity(intent);
-            };
-            holder.imageView.setOnClickListener(videoClickListener);
-            holder.playIcon.setOnClickListener(videoClickListener);
-
-        } else {
-            // Handle image click to open FullScreenMediaActivity
-            holder.imageView.setOnClickListener(v -> {
-                Intent intent = new Intent(context, FullScreenMediaActivity.class);
-                // Pass the entire list and the clicked position
-                intent.putExtra(FullScreenMediaActivity.EXTRA_MEDIA_ITEMS, new ArrayList<>(mediaItems));
-                intent.putExtra(FullScreenMediaActivity.EXTRA_START_POSITION, position);
-                context.startActivity(intent);
-            });
-            holder.playIcon.setOnClickListener(null);
-        }
+        holder.imageView.setOnClickListener(mediaClickListener);
+        holder.playIcon.setOnClickListener(mediaClickListener); // Also set for the play icon
     }
+
 
     @Override
     public int getItemCount() {
@@ -86,9 +72,9 @@ public class MediaPagerAdapter extends RecyclerView.Adapter<MediaPagerAdapter.Me
 
         public MediaViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageView = itemView.findViewById(R.id.media_image_view);
-            // FIX: Correctly find the ImageView using R.id.play_icon from item_post_media_page.xml
-            playIcon = itemView.findViewById(R.id.play_icon);
+            // --- FIX: Use the IDs from item_feed_media_page.xml ---
+            imageView = itemView.findViewById(R.id.media_image_item);
+            playIcon = itemView.findViewById(R.id.play_icon_item);
         }
 
         void bind(MediaItem item, Context context) {
@@ -98,6 +84,8 @@ public class MediaPagerAdapter extends RecyclerView.Adapter<MediaPagerAdapter.Me
                     .load(isVideo ? item.getThumbnailUrl() : item.getUrl()) // Use thumbnail for video
                     .placeholder(R.drawable.ic_placeholder_24dp)
                     .error(R.drawable.ic_placeholder_24dp)
+                    // --- FIX: Use fitCenter to match the change from the last step ---
+                    .fitCenter()
                     .into(imageView);
 
             // Safely set visibility for the play icon
@@ -105,7 +93,7 @@ public class MediaPagerAdapter extends RecyclerView.Adapter<MediaPagerAdapter.Me
                 playIcon.setVisibility(isVideo ? View.VISIBLE : View.GONE);
             }
 
-            // NOTE: Click listeners are handled exclusively in onBindViewHolder
+            // Click listeners are now handled exclusively in onBindViewHolder
         }
     }
 }

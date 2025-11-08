@@ -44,15 +44,13 @@ public class RepliesActivity extends AppCompatActivity implements CommentAdapter
     private String postAuthorUid;
     private Comment parentComment;
     private Post currentPostData;
-    private String postTextSnippet;
+    private String postTextSnippet; // <-- Store snippet
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityRepliesBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-
 
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
@@ -73,7 +71,12 @@ public class RepliesActivity extends AppCompatActivity implements CommentAdapter
 
         postId = currentPostData.getId();
         postAuthorUid = currentPostData.getAuthorUid();
-        postTextSnippet = currentPostData.getTextContent();
+        // --- MODIFIED ---
+        // Create and store the snippet
+        postTextSnippet = (currentPostData.getTextContent() != null && currentPostData.getTextContent().length() > 50)
+                ? currentPostData.getTextContent().substring(0, 50) + "..."
+                : currentPostData.getTextContent();
+        // --- END MODIFIED ---
 
         commentsViewModel = new ViewModelProvider(this).get(CommentsViewModel.class);
         postLikeViewModel = new ViewModelProvider(this).get(PostLikeViewModel.class);
@@ -124,7 +127,10 @@ public class RepliesActivity extends AppCompatActivity implements CommentAdapter
     }
 
     private void setupRecyclerView() {
-        commentAdapter = new CommentAdapter(this, postAuthorUid, this, this);
+        // --- MODIFIED CALL ---
+        // Pass the full currentPostData object to the adapter
+        commentAdapter = new CommentAdapter(this, currentPostData, this, this);
+        // --- END MODIFIED ---
         binding.commentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.commentsRecyclerView.setAdapter(commentAdapter);
     }
@@ -142,6 +148,9 @@ public class RepliesActivity extends AppCompatActivity implements CommentAdapter
             if (comment != null) {
                 View parentCommentView = getLayoutInflater().inflate(R.layout.item_comment, binding.parentCommentContainer, false);
                 CommentAdapter.CommentViewHolder holder = new CommentAdapter.CommentViewHolder(parentCommentView, this, postAuthorUid,
+                        // --- MODIFIED ---
+                        postTextSnippet, // Pass snippet
+                        // --- END MODIFIED ---
                         new ViewModelProvider(this).get(CommentLikeViewModel.class), this);
                 holder.bind(comment);
 
@@ -201,13 +210,16 @@ public class RepliesActivity extends AppCompatActivity implements CommentAdapter
             return;
         }
 
+        // --- MODIFIED CALL ---
+        // Pass the stored postTextSnippet
         commentsViewModel.postCommentOrReply(
                 postId,
                 text,
                 parentCommentId,
                 postAuthorUid,
-                postTextSnippet
+                postTextSnippet // Use stored snippet
         );
+        // --- END MODIFIED ---
 
         binding.editTextComment.setText("");
         hideKeyboard();

@@ -19,6 +19,7 @@ import com.f9ld3.Zion.databinding.ActivityMainBinding;
 import com.f9ld3.Zion.ui.feed.PostDetailActivity; // Import PostDetailActivity
 import com.f9ld3.Zion.ui.notifications.NotificationsActivity;
 import com.f9ld3.Zion.ui.notifications.NotificationViewModel;
+import com.f9ld3.Zion.ui.notifications.MyFirebaseMessagingService; // <-- ADDED IMPORT
 import com.f9ld3.Zion.ui.player.PlayerMedia;
 // Removed SearchActivity import as we navigate within MainActivity now
 // import com.f9ld3.Zion.ui.search.SearchActivity;
@@ -85,6 +86,11 @@ public class MainActivity extends AppCompatActivity implements com.f9ld3.Zion.ui
                     });
 
                     setupNavigation(); // Setup navigation which might trigger intent handling
+
+                    // --- ADD THIS LINE ---
+                    // Proactively save the FCM token on every authenticated startup.
+                    MyFirebaseMessagingService.updateFCMToken();
+                    // --- END ADD ---
                 }
             } else if (Boolean.FALSE.equals(authenticated)) {
                 // If not authenticated (or becomes unauthenticated), redirect to login

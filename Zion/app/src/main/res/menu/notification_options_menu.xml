@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_mark_all_read"
+        android:title="Mark all as read"
+        android:icon="@drawable/ic_check_all_24dp"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_notification_settings"
+        android:title="Notification settings"
+        android:icon="@drawable/ic_settings_24dp"
+        app:showAsAction="ifRoom" />
+</menu>

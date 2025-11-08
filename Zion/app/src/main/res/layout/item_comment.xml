@@ -84,8 +84,8 @@
         android:minWidth="48dp"
         android:minHeight="48dp"
         android:contentDescription="More options"
-        app:icon="@drawable/ic_more_vert_24dp"
-        app:iconTint="?attr/colorOnSurfaceVariant"
+        android:src="@drawable/ic_more_vert_24dp"
+        app:tint="?attr/colorSecondary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/author_name"
         app:layout_constraintBottom_toBottomOf="@id/timestamp_text"/>

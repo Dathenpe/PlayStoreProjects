@@ -13,6 +13,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException; // *** IMPORTED FOR LOGGING ***
 import com.google.firebase.firestore.ListenerRegistration;
 // Removed WriteBatch import as transaction is used
 import java.util.ArrayList;
@@ -65,7 +66,6 @@ public class PollViewModel extends ViewModel {
      * @param postId The ID of the post.
      * @return LiveData<Post> holding the latest post data.
      */
-    // *** NEW: Method to get LiveData for the Post itself ***
     public LiveData<Post> getPostData(String postId) {
         if (postId == null || postId.isEmpty()) {
             Log.w(TAG, "getPostData called with invalid postId.");
@@ -77,9 +77,7 @@ public class PollViewModel extends ViewModel {
             return liveData;
         });
     }
-    // *** END NEW ***
 
-    // *** Renamed from startVoteListener ***
     private void startUserVoteListener(String postId, MutableLiveData<Integer> liveData) {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null || postId == null || postId.isEmpty()) {
@@ -111,7 +109,6 @@ public class PollViewModel extends ViewModel {
         userVoteListeners.put(postId, listener); // Store in user vote listeners map
     }
 
-    // *** NEW: Listener for the Post document itself ***
     private void startPostDataListener(String postId, MutableLiveData<Post> liveData) {
         if (postId == null || postId.isEmpty()) {
             liveData.postValue(null);
@@ -126,7 +123,6 @@ public class PollViewModel extends ViewModel {
         ListenerRegistration listener = postRef.addSnapshotListener((snapshot, e) -> {
             if (e != null) {
                 Log.e(TAG, "Error listening for post data on post " + postId, e);
-                // Don't necessarily clear LiveData, maybe keep stale data? Or post null.
                 liveData.postValue(null); // Post null on error
                 return;
             }
@@ -152,7 +148,6 @@ public class PollViewModel extends ViewModel {
         });
         postDataListeners.put(postId, listener); // Store in post data listeners map
     }
-    // *** END NEW ***
 
     /**
      * Casts a vote for a specific option on a poll/quiz post using a transaction.
@@ -174,41 +169,63 @@ public class PollViewModel extends ViewModel {
         }
 
         String postId = currentPostData.getId();
-        LiveData<Integer> userVote = getUserVoteForPost(postId);
+        String userId = user.getUid(); // *** MOVED UP FOR LOGGING ***
 
-        if (userVote.getValue() != null && userVote.getValue() != -1) {
+        MutableLiveData<Integer> userVoteLiveData = userVoteMap.computeIfAbsent(postId, id -> new MutableLiveData<>(-1));
+
+        if (userVoteLiveData.getValue() != null && userVoteLiveData.getValue() != -1) {
             Log.w(TAG, "Vote attempt ignored: User already voted on post " + postId);
             return;
         }
 
-        if (isPollExpired(currentPostData)) { // Use potentially updated post data for check
+        if (isPollExpired(currentPostData)) {
             _toastMessage.setValue("This poll has ended.");
             Log.w(TAG, "Vote attempt ignored: Poll expired for post " + postId);
-            // Force UI update by reloading the vote status
-            startUserVoteListener(postId, (MutableLiveData<Integer>) userVote); // << Use startUserVoteListener
+            startUserVoteListener(postId, userVoteLiveData);
             return;
         }
 
-        String userId = user.getUid();
         DocumentReference postRef = db.collection("posts").document(postId);
 
-        // *** Transaction remains largely the same ***
+        // --- Optimistic UI Update ---
+        userVoteLiveData.postValue(optionIndex);
+        Log.d(TAG, "Optimistic vote set for post: " + postId + ", index: " + optionIndex);
+
+        // *** ADDED DETAILED LOGGING (as requested) ***
+        Log.d(TAG, "Starting vote transaction for user: " + userId + " on post: " + postId);
+        Log.d(TAG, "User authenticated: " + (user != null));
+        // Log.d(TAG, "User email verified: " + (user != null && user.isEmailVerified())); // isEmailVerified requires a reload, skip for now
+        // *** END DETAILED LOGGING ***
+
         db.runTransaction(transaction -> {
+            // *** ADDED DETAILED LOGGING (as requested) ***
+            Log.d(TAG, "Transaction started");
+            // *** END DETAILED LOGGING ***
+
             DocumentSnapshot postSnapshot = transaction.get(postRef);
+
+            // *** ADDED DETAILED LOGGING (as requested) ***
+            Log.d(TAG, "Post snapshot retrieved: " + postSnapshot.exists());
+            // *** END DETAILED LOGGING ***
+
             Post postFromDb = postSnapshot.exists() ? postSnapshot.toObject(Post.class) : null;
             if (postFromDb == null) {
-                throw new RuntimeException("Post not found during transaction: " + postId);
+                Log.w(TAG, "Transaction failed: Post " + postId + " not found.");
+                throw new FirebaseFirestoreException("Post not found", FirebaseFirestoreException.Code.ABORTED);
             }
-            // Add ID manually as it's not stored in the document fields
             postFromDb.setId(postSnapshot.getId());
 
             if (isPollExpired(postFromDb)) {
-                throw new RuntimeException("Poll expired during transaction: " + postId);
+                Log.w(TAG, "Transaction failed: Poll " + postId + " expired.");
+                throw new FirebaseFirestoreException("Poll expired", FirebaseFirestoreException.Code.ABORTED);
             }
 
             // Check if user already voted within transaction
             DocumentReference userVoteDocRefCheck = postRef.collection("votes").document(user.getUid());
+            Log.d(TAG, "Transaction: Checking for existing vote at " + userVoteDocRefCheck.getPath()); // *** MORE LOGGING ***
             DocumentSnapshot userVoteSnapshot = transaction.get(userVoteDocRefCheck);
+            Log.d(TAG, "Transaction: Existing vote snapshot retrieved. Exists: " + userVoteSnapshot.exists()); // *** MORE LOGGING ***
+
             if (userVoteSnapshot.exists()) {
                 Log.w(TAG, "Transaction check: User " + userId + " already voted on " + postId);
                 return null; // Vote already registered, exit transaction gracefully
@@ -216,47 +233,62 @@ public class PollViewModel extends ViewModel {
 
             List<PollOption> options = postFromDb.getPollOptions();
             if (options == null || optionIndex < 0 || optionIndex >= options.size()) {
-                throw new RuntimeException("Invalid option index: " + optionIndex + " for post " + postId);
+                Log.e(TAG, "Transaction failed: Invalid option index " + optionIndex + " for post " + postId);
+                throw new FirebaseFirestoreException("Invalid option index", FirebaseFirestoreException.Code.ABORTED);
             }
 
-            // --- Safely modify the options list fetched within the transaction ---
-            // Create a mutable copy if necessary, or modify directly if Firestore allows
-            List<PollOption> updatedOptions = new ArrayList<>(options); // Create a mutable copy
-            PollOption selectedOption = updatedOptions.get(optionIndex); // Get from the copy
-            selectedOption.setVoteCount(selectedOption.getVoteCount() + 1); // Increment vote count
-            // --- End Safe Modification ---
+            List<PollOption> updatedOptions = new ArrayList<>(options);
+            PollOption selectedOption = updatedOptions.get(optionIndex);
+            selectedOption.setVoteCount(selectedOption.getVoteCount() + 1);
 
             long newTotalVotes = postFromDb.getTotalVotes() + 1;
 
-            transaction.update(postRef, "pollOptions", updatedOptions); // Update with the modified copy
-            transaction.update(postRef, "totalVotes", newTotalVotes);
+            // Combine post updates into a single Map
+            Map<String, Object> postUpdates = new HashMap<>();
+            postUpdates.put("pollOptions", updatedOptions);
+            postUpdates.put("totalVotes", newTotalVotes);
+            // --- ADD TIMESTAMP UPDATE ---
+            postUpdates.put("timestamp", FieldValue.serverTimestamp()); // Bump the post's main timestamp
+            // --- END ADD ---
 
+            Log.d(TAG, "Transaction: Updating post " + postId); // *** MORE LOGGING ***
+            transaction.update(postRef, postUpdates);
+
+            // Create the new vote document
             DocumentReference userVoteDocRef = postRef.collection("votes").document(user.getUid());
             Map<String, Object> newVoteData = new HashMap<>();
             newVoteData.put("optionIndex", optionIndex);
-            newVoteData.put("timestamp", FieldValue.serverTimestamp());
+            // *** ADD TIMESTAMP TO VOTE DOCUMENT ***
+            newVoteData.put("votedAt", FieldValue.serverTimestamp());
+            // *** END EDIT ***
+            Log.d(TAG, "Transaction: Creating vote document at " + userVoteDocRef.getPath()); // *** MORE LOGGING ***
             transaction.set(userVoteDocRef, newVoteData);
 
             return null; // Indicate success
         }).addOnSuccessListener(aVoid -> {
             Log.d(TAG, "Vote transaction successful for post: " + postId);
-            // UI will update via the postDataListener now
         }).addOnFailureListener(e -> {
+            // *** ADDED DETAILED LOGGING (as requested) ***
             Log.e(TAG, "Error casting vote transaction for post: " + postId, e);
+            Log.e(TAG, "Transaction failed with exception type: " + e.getClass().getName());
+            if (e instanceof FirebaseFirestoreException) {
+                FirebaseFirestoreException firestoreException = (FirebaseFirestoreException) e;
+                Log.e(TAG, "Firestore error code: " + firestoreException.getCode());
+            }
+            // *** END DETAILED LOGGING ***
+
             if (e.getMessage() != null && e.getMessage().contains("Poll expired")) {
                 _toastMessage.setValue("This poll has ended.");
             } else {
                 _toastMessage.setValue("Error casting vote. Please try again.");
             }
-            // Force UI update in case of failure (listeners might need refresh)
-            startUserVoteListener(postId, (MutableLiveData<Integer>) userVote); // << Use startUserVoteListener
-            // Optionally, also force refresh the post data listener
-            startPostDataListener(postId, postDataMap.get(postId));
+            // --- Revert Optimistic Update on Failure ---
+            userVoteLiveData.postValue(-1); // Revert the vote
+            Log.w(TAG, "Vote transaction failed. Reverting optimistic UI for post: " + postId);
         });
     }
 
 
-    // *** Renamed from stopVoteListener ***
     private void stopUserVoteListener(String postId) {
         if (postId == null || postId.isEmpty()) return;
         ListenerRegistration listener = userVoteListeners.remove(postId);
@@ -266,7 +298,6 @@ public class PollViewModel extends ViewModel {
         }
     }
 
-    // *** NEW: Method to stop Post Data Listener ***
     private void stopPostDataListener(String postId) {
         if (postId == null || postId.isEmpty()) return;
         ListenerRegistration listener = postDataListeners.remove(postId);
@@ -275,7 +306,6 @@ public class PollViewModel extends ViewModel {
             Log.d(TAG, "Removed post data listener for post: " + postId);
         }
     }
-    // *** END NEW ***
 
     private boolean isPollExpired(Post post) {
         if (post == null || post.getPollDurationHours() == null || post.getPollDurationHours() <= 0 || post.getTimestamp() == null) {
@@ -297,11 +327,11 @@ public class PollViewModel extends ViewModel {
         // Remove all listeners when ViewModel is destroyed
         userVoteListeners.values().forEach(ListenerRegistration::remove);
         userVoteListeners.clear();
-        postDataListeners.values().forEach(ListenerRegistration::remove); // <<< Clear post listeners
-        postDataListeners.clear(); // <<< Clear post listeners map
+        postDataListeners.values().forEach(ListenerRegistration::remove);
+        postDataListeners.clear();
 
         userVoteMap.clear();
-        postDataMap.clear(); // <<< Clear post data map
+        postDataMap.clear();
         Log.d(TAG, "PollViewModel cleared, all listeners removed.");
     }
 }

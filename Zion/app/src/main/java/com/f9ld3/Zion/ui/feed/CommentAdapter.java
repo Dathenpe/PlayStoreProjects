@@ -13,6 +13,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable; // Import Nullable
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
@@ -34,9 +35,14 @@ public class CommentAdapter extends ListAdapter<Comment, CommentAdapter.CommentV
 
     private static final String TAG = "CommentAdapter";
     private final CommentInteractionListener listener;
-    private final String postAuthorUid; // ID of the user who owns the post
     private final CommentLikeViewModel likeViewModel; // ViewModel for comment likes/dislikes
     private final LifecycleOwner lifecycleOwner;
+
+    // --- MODIFIED ---
+    private Post postData; // NEW: Store Post data
+    private String postAuthorUid;
+    private String postTextSnippet;
+    // --- END MODIFIED ---
 
     public interface CommentInteractionListener {
         void onReplyClicked(Comment comment);
@@ -46,22 +52,36 @@ public class CommentAdapter extends ListAdapter<Comment, CommentAdapter.CommentV
         // Add if needed: void onAuthorClicked(Comment comment);
     }
 
-    public CommentAdapter(@NonNull CommentInteractionListener listener, String postAuthorUid,
+    // --- MODIFIED CONSTRUCTOR ---
+    public CommentAdapter(@NonNull CommentInteractionListener listener, @Nullable Post postData,
                           LifecycleOwner lifecycleOwner, FragmentActivity activity) {
         super(DIFF_CALLBACK);
         this.listener = listener;
-        this.postAuthorUid = postAuthorUid;
         this.lifecycleOwner = lifecycleOwner;
-        // Get ViewModel scoped to the Activity/Fragment
         this.likeViewModel = new ViewModelProvider(activity).get(CommentLikeViewModel.class);
+        setPostData(postData); // Use helper to set post data
     }
+
+    // --- NEW METHOD ---
+    // Allows PostDetailActivity to update the post context when it loads
+    public void setPostData(Post postData) {
+        this.postData = postData;
+        this.postAuthorUid = (postData != null) ? postData.getAuthorUid() : null;
+        this.postTextSnippet = (postData != null) ? getSnippet(postData.getTextContent()) : null;
+    }
+
+    private String getSnippet(String text) {
+        if (text == null) return null;
+        return text.length() > 50 ? text.substring(0, 50) + "..." : text;
+    }
+    // --- END NEW ---
 
     @NonNull
     @Override
     public CommentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_comment, parent, false);
-        // Pass ViewModel and LifecycleOwner to ViewHolder
-        return new CommentViewHolder(view, listener, postAuthorUid, likeViewModel, lifecycleOwner);
+        // Pass postAuthorUid and postTextSnippet to ViewHolder
+        return new CommentViewHolder(view, listener, postAuthorUid, postTextSnippet, likeViewModel, lifecycleOwner);
     }
 
     @Override
@@ -87,15 +107,18 @@ public class CommentAdapter extends ListAdapter<Comment, CommentAdapter.CommentV
 
         private final CommentInteractionListener listener;
         private final String postAuthorUid;
-        // Removed: private Comment currentComment; // No longer strictly needed if listeners use the 'comment' param directly
+        private final String postTextSnippet; // NEW
         private final CommentLikeViewModel likeViewModel;
         private final LifecycleOwner lifecycleOwner;
 
+        // --- MODIFIED CONSTRUCTOR ---
         public CommentViewHolder(@NonNull View itemView, CommentInteractionListener listener, String postAuthorUid,
+                                 String postTextSnippet, // NEW
                                  CommentLikeViewModel likeViewModel, LifecycleOwner lifecycleOwner) {
             super(itemView);
             this.listener = listener;
             this.postAuthorUid = postAuthorUid;
+            this.postTextSnippet = postTextSnippet; // NEW
             this.likeViewModel = likeViewModel;
             this.lifecycleOwner = lifecycleOwner;
 
@@ -205,7 +228,6 @@ public class CommentAdapter extends ListAdapter<Comment, CommentAdapter.CommentV
             if (currentUser != null && !currentUser.isAnonymous()) {
                 // Fetch post text snippet (needed for notification)
                 // This ideally should be available without fetching again. Pass from activity/fragment if possible.
-                String postTextSnippet = ""; // Placeholder - Pass this properly
                 String commentTextSnippet = commentToLike.getTextContent(); // Use current comment text
                 likeViewModel.toggleLike(commentToLike.getPostId(), commentToLike.getId(), commentToLike.getAuthorUid(), commentTextSnippet, postTextSnippet);
             } else {
@@ -282,10 +304,6 @@ public class CommentAdapter extends ListAdapter<Comment, CommentAdapter.CommentV
                     // dislikeCommentCount.setVisibility(currentCount > 0 ? View.VISIBLE : View.GONE);
                 }
             });
-
-            // --- REMOVE Initial Count Setting from Comment Object ---
-            // (Lines removed)
-            // --- END REMOVE ---
         }
 
 
