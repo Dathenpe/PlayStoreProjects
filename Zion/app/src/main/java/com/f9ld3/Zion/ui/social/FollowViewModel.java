@@ -1,3 +1,4 @@
+// main/java/com/f9ld3/Zion/ui/social/FollowViewModel.java
 package com.f9ld3.Zion.ui.social;
 
 import android.util.Log;
@@ -9,8 +10,10 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration; // <-- IMPORT
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap; // <-- IMPORT
 
 public class FollowViewModel extends ViewModel {
 
@@ -18,8 +21,10 @@ public class FollowViewModel extends ViewModel {
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    private final MutableLiveData<Boolean> _isFollowing = new MutableLiveData<>(false);
-    public LiveData<Boolean> isFollowing() { return _isFollowing; }
+    // --- REFACTORED: Use a map to track status for multiple users ---
+    private final ConcurrentHashMap<String, MutableLiveData<Boolean>> followingStatusMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ListenerRegistration> statusListeners = new ConcurrentHashMap<>();
+    // --- END REFACTOR ---
 
     private final MutableLiveData<Integer> _followerCount = new MutableLiveData<>(0);
     public LiveData<Integer> getFollowerCount() { return _followerCount; }
@@ -27,20 +32,54 @@ public class FollowViewModel extends ViewModel {
     private final MutableLiveData<String> _message = new MutableLiveData<>();
     public LiveData<String> getMessage() { return _message; }
 
+    // --- REFACTORED: This method now returns the correct LiveData from the map ---
+    public LiveData<Boolean> isFollowing(String targetUserId) {
+        if (targetUserId == null) {
+            return new MutableLiveData<>(false);
+        }
+        return followingStatusMap.computeIfAbsent(targetUserId, id -> {
+            MutableLiveData<Boolean> liveData = new MutableLiveData<>(false);
+            startFollowStatusListener(id, liveData); // Start a specific listener
+            return liveData;
+        });
+    }
+
+    // --- REFACTORED: This just starts the listener now ---
     public void checkFollowStatus(String targetUserId) {
+        // Simply call isFollowing to ensure the listener is started
+        isFollowing(targetUserId);
+    }
+
+    // --- NEW: Listener method ---
+    private void startFollowStatusListener(String targetUserId, MutableLiveData<Boolean> liveData) {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
-            _isFollowing.setValue(false);
+            liveData.postValue(false);
             return;
         }
 
-        db.collection("users").document(currentUser.getUid()).collection("following").document(targetUserId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> _isFollowing.setValue(documentSnapshot.exists()))
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error checking follow status", e);
-                    _isFollowing.setValue(false);
+        // Stop existing listener for this user
+        stopListener(targetUserId);
+
+        ListenerRegistration listener = db.collection("users").document(currentUser.getUid()).collection("following").document(targetUserId)
+                .addSnapshotListener((documentSnapshot, e) -> {
+                    if (e != null) {
+                        Log.e(TAG, "Error checking follow status for " + targetUserId, e);
+                        liveData.postValue(false);
+                        return;
+                    }
+                    liveData.postValue(documentSnapshot != null && documentSnapshot.exists());
                 });
+
+        statusListeners.put(targetUserId, listener); // Store the listener
+    }
+
+    // --- NEW: Helper to stop a single listener ---
+    private void stopListener(String listenerKey) {
+        ListenerRegistration listener = statusListeners.remove(listenerKey);
+        if (listener != null) {
+            listener.remove();
+        }
     }
 
     public void loadFollowerCount(String userId) {
@@ -84,7 +123,7 @@ public class FollowViewModel extends ViewModel {
                     db.collection("users").document(targetUserId).collection("followers").document(currentUserId)
                             .set(followerData)
                             .addOnSuccessListener(aVoid2 -> {
-                                _isFollowing.setValue(true);
+                                // --- REFACTORED: No longer set _isFollowing. The listener will auto-update. ---
                                 _message.setValue("Following " + targetUsername);
 
                                 // Use centralized NotificationViewModel
@@ -116,7 +155,7 @@ public class FollowViewModel extends ViewModel {
                     db.collection("users").document(targetUserId).collection("followers").document(currentUserId)
                             .delete()
                             .addOnSuccessListener(aVoid2 -> {
-                                _isFollowing.setValue(false);
+                                // --- REFACTORED: No longer set _isFollowing. The listener will auto-update. ---
                                 _message.setValue("Unfollowed");
                             });
                 })
@@ -125,5 +164,15 @@ public class FollowViewModel extends ViewModel {
 
     public void clearMessage() {
         _message.setValue(null);
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        // --- NEW: Clear all listeners ---
+        statusListeners.values().forEach(ListenerRegistration::remove);
+        statusListeners.clear();
+        followingStatusMap.clear();
+        Log.d(TAG, "FollowViewModel cleared, all status listeners removed.");
     }
 }

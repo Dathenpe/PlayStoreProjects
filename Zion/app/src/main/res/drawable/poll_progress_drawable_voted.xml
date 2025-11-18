@@ -6,12 +6,11 @@
             <solid android:color="?attr/colorSurfaceContainer" />
         </shape>
     </item>
-
     <item android:id="@android:id/progress">
         <clip>
             <shape>
                 <corners android:radius="8dp" />
-                <solid android:color="#4D757575" />
+                <solid android:color="?attr/colorSecondary" />
             </shape>
         </clip>
     </item>

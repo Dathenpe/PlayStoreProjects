@@ -52,8 +52,8 @@ public class UserVideosFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Use requireActivity() for potentially shared ViewModel
-        profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
+        // *** FIX: Get the ViewModel from the PARENT fragment (ChannelFragment) ***
+        profileViewModel = new ViewModelProvider(requireParentFragment()).get(ProfileViewModel.class);
         setupRecyclerView();
         profileViewModel.fetchUserVideos(userId); // Fetch for the specific user
         profileViewModel.getUserVideos().observe(getViewLifecycleOwner(), this::updateVideos);

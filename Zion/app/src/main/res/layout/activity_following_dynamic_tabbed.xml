@@ -10,24 +10,24 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:elevation="0dp"
+        android:stateListAnimator="@null"
         android:background="?attr/colorSurface">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize" />
-
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tab_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:tabMode="scrollable"
-            app:tabGravity="center"
-            app:tabTextColor="?attr/colorOnSurfaceVariant"
-            app:tabSelectedTextColor="?attr/colorOnSurface"
-            app:tabIndicatorColor="?attr/colorOnSurface"
-            app:tabIndicatorHeight="3dp"
-            app:tabIndicatorFullWidth="false" />
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back_24dp" /> <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabMode="scrollable"
+        app:tabGravity="start" app:tabTextColor="?attr/colorOnSurfaceVariant"
+        app:tabSelectedTextColor="?attr/colorOnSurface"
+        app:tabIndicatorColor="?attr/colorOnSurface"
+        app:tabIndicatorHeight="3dp"
+        app:tabIndicatorFullWidth="false" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

@@ -1,3 +1,4 @@
+// main/java/com/f9ld3/Zion/ui/profile/ChannelFragment.java
 package com.f9ld3.Zion.ui.profile;
 
 import android.os.Bundle;
@@ -17,6 +18,8 @@ import com.f9ld3.Zion.data.UserProfile;
 import com.f9ld3.Zion.databinding.FragmentChannelBinding;
 import com.f9ld3.Zion.ui.social.FollowViewModel;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.firebase.auth.FirebaseAuth; // <-- IMPORTED
+import com.google.firebase.auth.FirebaseUser; // <-- IMPORTED
 
 public class ChannelFragment extends Fragment {
 
@@ -24,6 +27,7 @@ public class ChannelFragment extends Fragment {
     private FragmentChannelBinding binding;
     private ProfileViewModel profileViewModel;
     private FollowViewModel followViewModel;
+    private String channelId; // <-- Store channelId
 
     @Nullable
     @Override
@@ -40,27 +44,27 @@ public class ChannelFragment extends Fragment {
         binding.toolbar.setNavigationOnClickListener(v -> {
             if (!NavHostFragment.findNavController(this).popBackStack()) {
                 // If popping back stack failed (e.g., at start destination), finish activity
-                requireActivity().finish();
+                if (isAdded() && getActivity() != null) requireActivity().finish();
             }
         });
 
         // Get user ID from arguments
-        String channelId = null;
+        // String channelId = null; // <-- Now a member variable
         if (getArguments() != null) {
             channelId = getArguments().getString("channelId");
         }
 
         if (channelId == null) {
             Log.e(TAG, "Channel ID is null. Cannot load profile.");
-            Toast.makeText(getContext(), "Error: User ID not found.", Toast.LENGTH_SHORT).show();
+            if (isAdded() && getContext() != null) Toast.makeText(getContext(), "Error: User ID not found.", Toast.LENGTH_SHORT).show();
             // Optionally navigate back or finish activity
             NavHostFragment.findNavController(this).popBackStack();
             return; // Stop further execution
         }
 
         // Initialize ViewModels
-        // Use 'this' as owner for Fragment-specific ViewModels like FollowViewModel
-        profileViewModel = new ViewModelProvider(requireActivity()).get(ProfileViewModel.class);
+        // *** FIX: Scope ProfileViewModel to this fragment instance ***
+        profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
         followViewModel = new ViewModelProvider(this).get(FollowViewModel.class);
 
 
@@ -71,9 +75,39 @@ public class ChannelFragment extends Fragment {
         // Fetch and display follower count
         followViewModel.loadFollowerCount(channelId);
         followViewModel.getFollowerCount().observe(getViewLifecycleOwner(), count -> {
+            if (binding == null) return; // Add null check
             binding.followerCount.setText(String.format("%s followers", formatCount(count)));
         });
-        // You might want to add following count as well if needed in your ViewModel/UI
+
+        // --- START OF FOLLOW LOGIC ---
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        // Hide follow button if it's the user's own profile
+        if (currentUser != null && currentUser.getUid().equals(channelId)) {
+            binding.buttonFollow.setVisibility(View.GONE);
+        } else {
+            binding.buttonFollow.setVisibility(View.VISIBLE);
+
+            // Check follow status (this just triggers the listener)
+            followViewModel.checkFollowStatus(channelId);
+
+            // Observe follow status using the channelId
+            followViewModel.isFollowing(channelId).observe(getViewLifecycleOwner(), isFollowing -> { // <-- UPDATED
+                if (binding == null) return; // Add null check
+                binding.buttonFollow.setText(isFollowing ? "Unfollow" : "Follow");
+            });
+
+            // Set click listener
+            binding.buttonFollow.setOnClickListener(v -> handleFollowClick());
+
+            // Observe messages from FollowViewModel (e.g., "Followed", "Unfollowed")
+            followViewModel.getMessage().observe(getViewLifecycleOwner(), message -> {
+                if (message != null && !message.isEmpty() && isAdded() && getContext() != null) {
+                    Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                    followViewModel.clearMessage(); // Clear message after showing
+                }
+            });
+        }
+        // --- END OF FOLLOW LOGIC ---
 
         // Setup ViewPager
         MyUploadsFragment.ViewPagerAdapter adapter = new MyUploadsFragment.ViewPagerAdapter(getChildFragmentManager(), getLifecycle());
@@ -86,24 +120,32 @@ public class ChannelFragment extends Fragment {
         new TabLayoutMediator(binding.tabLayout, binding.viewPager,
                 (tab, position) -> tab.setText(adapter.getPageTitle(position))
         ).attach();
-
-        // TODO: Implement follow/unfollow button logic using followViewModel
-        // followViewModel.checkFollowStatus(channelId);
-        // followViewModel.isFollowing().observe(getViewLifecycleOwner(), isFollowing -> {
-        //     binding.buttonFollow.setText(isFollowing ? "Unfollow" : "Follow");
-        // });
-        // binding.buttonFollow.setOnClickListener(v -> {
-        //    if (followViewModel.isFollowing().getValue() == Boolean.TRUE) {
-        //        followViewModel.unfollowUser(channelId);
-        //    } else {
-        //        UserProfile profile = profileViewModel.getUserProfile().getValue();
-        //        if (profile != null) {
-        //            followViewModel.followUser(channelId, profile.getAccountName()); // Use accountName
-        //        }
-        //    }
-        // });
-
     }
+
+    // --- NEW: Handle Follow Button Click ---
+    private void handleFollowClick() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null || user.isAnonymous()) {
+            if (isAdded() && getContext() != null) Toast.makeText(getContext(), R.string.login_for_features, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        UserProfile profile = profileViewModel.getUserProfile().getValue();
+        Boolean following = followViewModel.isFollowing(channelId).getValue(); // <-- UPDATED
+
+        if (profile != null && following != null && channelId != null) {
+            if (following) {
+                // --- UNFOLLOW ---
+                followViewModel.unfollowUser(channelId);
+            } else {
+                // --- FOLLOW ---
+                followViewModel.followUser(channelId, profile.getAccountName()); // Use accountName
+            }
+        } else {
+            if (isAdded() && getContext() != null) Toast.makeText(getContext(), "Could not perform action. Try again.", Toast.LENGTH_SHORT).show();
+        }
+    }
+    // --- END NEW ---
 
     private void updateUI(UserProfile userProfile) {
         if (userProfile != null && getContext() != null && binding != null) { // Added null check for binding

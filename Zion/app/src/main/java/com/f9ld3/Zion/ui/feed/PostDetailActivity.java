@@ -112,12 +112,13 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
         setContentView(binding.getRoot());
 
         // Initialize binding for the included layout
-        View postContentView = binding.scrollView.findViewById(R.id.post_content_container);
-        postBinding = PostDetailContentBinding.bind(postContentView);
+        // *** FIX: Direct assignment. ViewBinding automatically binds the included layout. ***
+        postBinding = binding.postContentContainer;
 
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false); // Hide title for a cleaner look or set to "Post"
             getSupportActionBar().setTitle("Post");
         }
 
@@ -292,13 +293,23 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
 
         // 1. Header Info
         postBinding.authorName.setText(post.getAuthorName());
-        Long postTime = post.getTimestamp();
-        if (postTime != null && postTime > 0) {
-            postBinding.postTimestamp.setText(DateUtils.getRelativeTimeSpanString(postTime, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
-            postBinding.postTimestamp.setVisibility(View.VISIBLE);
+
+        // --- THIS IS THE FIX ---
+        Timestamp postTime = post.getTimestamp(); // Get the Timestamp object
+        if (postTime != null) {
+            try {
+                long postTimeMillis = postTime.toDate().getTime(); // Convert to long milliseconds
+                postBinding.postTimestamp.setText(DateUtils.getRelativeTimeSpanString(postTimeMillis, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
+                postBinding.postTimestamp.setVisibility(View.VISIBLE);
+            } catch (Exception e) {
+                Log.e(TAG, "Error formatting timestamp", e);
+                postBinding.postTimestamp.setVisibility(View.GONE);
+            }
         } else {
             postBinding.postTimestamp.setVisibility(View.GONE);
         }
+        // --- END FIX ---
+
         Glide.with(context)
                 .load(post.getAuthorAvatarUrl())
                 .placeholder(R.drawable.ic_profile_placeholder)
@@ -526,42 +537,64 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
                 @ColorInt int progressTextColor = MaterialColors.getColor(context, com.google.android.material.R.attr.colorOnSecondaryContainer, Color.BLACK);
                 @ColorInt int defaultTextColor = MaterialColors.getColor(context, com.google.android.material.R.attr.colorOnSurface, Color.BLACK);
 
-                if(isVotedOption || percentage > 5) { // Or some threshold
-                    optionText.setTextColor(progressTextColor);
-                    percentageText.setTextColor(progressTextColor);
+                // --- YOUTUBE STYLE TEXT COLOR ---
+                // If progress is high OR it's the voted option, text is light/on-progress-color
+                // Otherwise, text is the default/on-surface-color
+                if (percentage > 50 || (isVotedOption && percentage > 5)) { // 50% is a common threshold
+                    optionText.setTextColor(Color.WHITE); // Or a theme attr like ?colorOnSecondary
+                    percentageText.setTextColor(Color.WHITE);
                 } else {
                     optionText.setTextColor(defaultTextColor);
                     percentageText.setTextColor(defaultTextColor);
                 }
-                // --- END REVAMPED ---
+                // --- END YOUTUBE STYLE ---
 
 
-                // --- Background Logic ---
+                // --- NEW Background & Progress Bar Logic (YouTube Style) ---
+                int progressDrawableRes;
+
+                // 1. Determine the correct progress bar drawable
                 if (Post.TYPE_QUIZ.equals(post.getPostType())) {
                     if (i == post.getQuizCorrectOptionIndex()) {
-                        optionView.setBackgroundResource(R.drawable.poll_option_background_correct);
+                        // This is the correct answer
+                        progressDrawableRes = R.drawable.poll_progress_drawable_correct;
                         voteIndicator.setImageResource(R.drawable.ic_check_circle_24dp);
-                        voteIndicator.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.teal)));
-                        voteIndicator.setVisibility(View.VISIBLE);
+                        voteIndicator.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.teal))); // Or your green color
+                        voteIndicator.setVisibility(View.VISIBLE); // Always show check for correct answer
                     } else if (isVotedOption) {
-                        optionView.setBackgroundResource(R.drawable.poll_option_background_incorrect);
-                        voteIndicator.setImageResource(R.drawable.ic_error_24dp);
+                        // This is the option the user voted for, and it's incorrect
+                        progressDrawableRes = R.drawable.poll_progress_drawable_incorrect;
+                        voteIndicator.setImageResource(R.drawable.ic_error_24dp); // Use an 'X' or error icon
                         voteIndicator.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.error)));
-                        voteIndicator.setVisibility(View.VISIBLE);
+                        voteIndicator.setVisibility(View.VISIBLE); // Show indicator for the incorrect vote
                     } else {
-                        optionView.setBackgroundResource(R.drawable.poll_option_background_default);
-                        voteIndicator.setVisibility(View.GONE); // Ensure it's hidden if not voted/correct
+                        // This is an incorrect answer the user did not vote for
+                        progressDrawableRes = R.drawable.poll_progress_drawable; // <-- CORRECTED
+                        voteIndicator.setVisibility(View.GONE);
                     }
                 } else { // Regular Poll
                     if (isVotedOption) {
-                        optionView.setBackgroundResource(R.drawable.poll_option_background_voted);
+                        // This is the option the user voted for
+                        progressDrawableRes = R.drawable.poll_progress_drawable_voted;
                         voteIndicator.setImageResource(R.drawable.ic_check_circle_24dp);
                         voteIndicator.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.teal)));
+                        voteIndicator.setVisibility(View.VISIBLE);
                     } else {
-                        optionView.setBackgroundResource(R.drawable.poll_option_background_default);
+                        // This is an option the user did not vote for
+                        progressDrawableRes = R.drawable.poll_progress_drawable; // <-- CORRECTED
+                        voteIndicator.setVisibility(View.GONE);
                     }
                 }
-                // --- End Background Logic ---
+
+                // 2. Set the progress bar drawable
+                // Make sure to import androidx.core.content.ContextCompat
+                if (progressBar != null && context != null) { // Check context
+                    progressBar.setProgressDrawable(ContextCompat.getDrawable(context, progressDrawableRes));
+                }
+
+                // 3. Set the outer background to the default, non-changing border
+                optionView.setBackgroundResource(R.drawable.poll_option_background_default);
+                // --- END NEW Logic ---
 
             } else { // Allow voting
                 progressBar.setVisibility(View.INVISIBLE);
@@ -599,7 +632,9 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
         if (post == null || post.getPollDurationHours() == null || post.getPollDurationHours() <= 0 || post.getTimestamp() == null) {
             return false;
         }
-        long postTimeMillis = post.getTimestamp();
+        // --- THIS IS THE FIX ---
+        long postTimeMillis = post.getTimestamp().toDate().getTime(); // Convert Timestamp to long
+        // --- END FIX ---
         long durationMillis = TimeUnit.HOURS.toMillis(post.getPollDurationHours());
         long expiryTimeMillis = postTimeMillis + durationMillis;
         return System.currentTimeMillis() > expiryTimeMillis;
@@ -611,7 +646,9 @@ public class PostDetailActivity extends AppCompatActivity implements CommentAdap
         if (post == null || post.getPollDurationHours() == null || post.getPollDurationHours() <= 0 || post.getTimestamp() == null) {
             return "";
         }
-        long postTimeMillis = post.getTimestamp();
+        // --- THIS IS THE FIX ---
+        long postTimeMillis = post.getTimestamp().toDate().getTime(); // Convert Timestamp to long
+        // --- END FIX ---
         long durationMillis = TimeUnit.HOURS.toMillis(post.getPollDurationHours());
         long expiryTimeMillis = postTimeMillis + durationMillis;
         long remainingMillis = expiryTimeMillis - System.currentTimeMillis();

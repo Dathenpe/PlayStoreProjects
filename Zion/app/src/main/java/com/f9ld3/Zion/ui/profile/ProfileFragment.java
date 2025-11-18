@@ -56,26 +56,19 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        FirebaseUser currentUser = authViewModel.getCurrentUser().getValue();
-        if (currentUser != null) {
-            profileViewModel.fetchUserProfile(currentUser.getUid());
-            followViewModel.loadFollowerCount(currentUser.getUid());
-            profileViewModel.fetchUserHistory(currentUser.getUid()); // Fetch history
-        } else {
-            // Handle logged out state if necessary (e.g., show login prompt)
-            binding.buttonLoginSignupPrompt.setVisibility(View.VISIBLE);
-            // Hide sensitive elements
-            binding.cardMyUploads.setVisibility(View.GONE);
-            binding.cardMyBlogs.setVisibility(View.GONE);
-            // ... hide other elements as needed
-        }
-
+        // <-- REMOVED this block -->
+        // FirebaseUser currentUser = authViewModel.getCurrentUser().getValue();
+        // if (currentUser != null) { ... } else { ... }
 
         profileViewModel.getUserProfile().observe(getViewLifecycleOwner(), this::updateUiWithProfile);
         profileViewModel.getUserHistory().observe(getViewLifecycleOwner(), this::updateHistoryButtonText); // Observe history
 
         authViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
             if (user == null) {
+                // User logged out
+                profileViewModel.handleSignOut(); // <-- Tell ProfileViewModel to clear its data
+                followViewModel.loadFollowerCount(null); // <-- Tell FollowViewModel to clear its count
+
                 // User logged out, update UI accordingly
                 binding.buttonLoginSignupPrompt.setVisibility(View.VISIBLE);
                 binding.textUsername.setText(R.string.anonymous_user);
@@ -97,6 +90,9 @@ public class ProfileFragment extends Fragment {
 
             } else {
                 // User logged in
+                profileViewModel.loadDataForCurrentUser(user); // <-- NEW: Load current user's data
+                followViewModel.loadFollowerCount(user.getUid()); // <-- Load follower count
+
                 binding.buttonLoginSignupPrompt.setVisibility(View.GONE);
                 // Make elements visible again
                 binding.cardMyUploads.setVisibility(View.VISIBLE);
@@ -110,12 +106,9 @@ public class ProfileFragment extends Fragment {
                 binding.statsLayout.setVisibility(View.VISIBLE);
 
                 updateVerificationUI(user.isEmailVerified());
-                // Re-fetch data if needed upon login state change after initial load
-                if (profileViewModel.getUserProfile().getValue() == null) {
-                    profileViewModel.fetchUserProfile(user.getUid());
-                    followViewModel.loadFollowerCount(user.getUid());
-                    profileViewModel.fetchUserHistory(user.getUid());
-                }
+
+                // <-- REMOVED this block -->
+                // if (profileViewModel.getUserProfile().getValue() == null) { ... }
             }
         });
 
@@ -154,20 +147,23 @@ public class ProfileFragment extends Fragment {
         setupInteractiveElements();
     }
 
-
-
-
+    // ... (rest of the file: setupInteractiveElements, updateUiWithProfile, updateHistoryButtonText, updateVerificationUI, formatDate, onDestroyView) ...
+    // ... (No changes needed in the other methods for this fix) ...
 
     private void setupInteractiveElements() {
-        FirebaseUser currentUser = authViewModel.getCurrentUser().getValue();
-        boolean isLoggedIn = currentUser != null;
+        // This method relies on authViewModel.getCurrentUser().getValue(),
+        // which is fine, but we'll re-check the value inside the listener
+        // to ensure correct behavior on click.
 
         View.OnClickListener navigationClickListener = v -> {
-            if (!isLoggedIn) {
+            // Re-check auth state *at the time of click*
+            FirebaseUser currentUser = authViewModel.getCurrentUser().getValue();
+            if (currentUser == null) {
                 Toast.makeText(requireContext(), R.string.login_for_features, Toast.LENGTH_SHORT).show();
                 // Optionally navigate to login screen
                 return;
             }
+            // If we're here, user is logged in
             int id = v.getId();
             try {
                 if (id == R.id.card_likes) {
@@ -210,6 +206,7 @@ public class ProfileFragment extends Fragment {
         });
 
         // Ensure visibility is correct based on login state (handled in observer)
+        boolean isLoggedIn = authViewModel.getCurrentUser().getValue() != null;
         binding.buttonLoginSignupPrompt.setVisibility(isLoggedIn ? View.GONE : View.VISIBLE);
     }
 
@@ -228,7 +225,9 @@ public class ProfileFragment extends Fragment {
                 binding.textHandle.setVisibility(View.GONE);
             }
 
-            binding.textEmail.setText(isLoggedIn ? (currentUser.getEmail() != null ? currentUser.getEmail() : "") : profile.getEmail());
+            // Only show email if logged in
+            binding.textEmail.setText(isLoggedIn ? (currentUser.getEmail() != null ? currentUser.getEmail() : "") : "");
+            binding.textEmail.setVisibility(isLoggedIn ? View.VISIBLE : View.GONE);
 
 
             if (profile.getBio() != null && !profile.getBio().isEmpty()) {
@@ -302,13 +301,22 @@ public class ProfileFragment extends Fragment {
             binding.textVerificationStatus.setText(R.string.email_verified);
             binding.textVerificationStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.teal)); // Use teal or success color
             binding.textVerificationStatus.setVisibility(View.VISIBLE); // Ensure it's visible
-            // Use binding to access included layout's root and set visibility
+            binding.verificationBanner.setVisibility(View.GONE); // Hide the warning banner
 
         } else {
             binding.textVerificationStatus.setText(R.string.email_not_verified);
             binding.textVerificationStatus.setTextColor(ContextCompat.getColor(requireContext(), R.color.error));
             binding.textVerificationStatus.setVisibility(View.VISIBLE); // Ensure it's visible
-            // Use binding to access included layout's root and set visibility
+            binding.verificationBanner.setVisibility(View.VISIBLE); // Show the warning banner
+
+            // Add listener for resend button
+            Button resendButton = binding.verificationBanner.findViewById(R.id.resend_button);
+            if(resendButton != null) {
+                resendButton.setOnClickListener(v -> {
+                    Toast.makeText(getContext(), "Sending verification email...", Toast.LENGTH_SHORT).show();
+                    authViewModel.resendVerificationEmail();
+                });
+            }
         }
     }
 

@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast; // <-- IMPORT
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner; // <-- Import LifecycleOwner
 import androidx.lifecycle.ViewModelProvider; // Import ViewModelProvider
@@ -25,10 +26,14 @@ import com.f9ld3.Zion.ui.feed.PostAdapter;
 import com.f9ld3.Zion.ui.feed.PostLikeViewModel; // <-- Import PostLikeViewModel
 import com.f9ld3.Zion.ui.player.PlayerMedia;
 import com.f9ld3.Zion.ui.player.PlayerPostAdapter;
+import com.f9ld3.Zion.ui.social.FollowViewModel; // <-- IMPORT
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser; // <-- IMPORT
 import de.hdodenhof.circleimageview.CircleImageView;
 import java.util.Objects; // Import Objects
 import java.util.concurrent.TimeUnit; // For formatDuration
+import java.util.ArrayList; // Import ArrayList
+import java.util.List; // Import List
 
 
 public class SearchAllAdapter extends ListAdapter<Object, RecyclerView.ViewHolder> {
@@ -40,24 +45,26 @@ public class SearchAllAdapter extends ListAdapter<Object, RecyclerView.ViewHolde
     private final PlayerPostAdapter.OnMediaClickListener mediaClickListener;
     private final PostAdapter.OnPostClickListener postClickListener;
     private final PostLikeViewModel postLikeViewModel;
-    private final PollViewModel pollViewModel; // <-- Add PollViewModel member variable
+    private final PollViewModel pollViewModel;
+    private final FollowViewModel followViewModel; // <-- ADD THIS
     private final LifecycleOwner lifecycleOwner;
-    private final FragmentActivity activity; // <-- Add FragmentActivity member variable
+    private final FragmentActivity activity;
 
 
     public SearchAllAdapter(PlayerPostAdapter.OnMediaClickListener mediaListener,
                             PostAdapter.OnPostClickListener postListener,
                             PostLikeViewModel postLikeViewModel,
+                            FollowViewModel followViewModel, // <-- ADD THIS
                             LifecycleOwner lifecycleOwner,
-                            FragmentActivity activity) { // <-- Add activity parameter
+                            FragmentActivity activity) {
         super(DIFF_CALLBACK);
         this.mediaClickListener = mediaListener;
         this.postClickListener = postListener;
         this.postLikeViewModel = postLikeViewModel;
-        // Get PollViewModel scoped to the Activity/Fragment
-        this.pollViewModel = new ViewModelProvider(activity).get(PollViewModel.class); // <-- Initialize PollViewModel
+        this.pollViewModel = new ViewModelProvider(activity).get(PollViewModel.class);
+        this.followViewModel = followViewModel; // <-- ADD THIS
         this.lifecycleOwner = lifecycleOwner;
-        this.activity = activity; // <-- Store activity
+        this.activity = activity;
     }
 
     @Override
@@ -74,16 +81,16 @@ public class SearchAllAdapter extends ListAdapter<Object, RecyclerView.ViewHolde
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         if (viewType == TYPE_POST) {
-            // *** FIX: Pass all required arguments to PostViewHolder constructor ***
             View postView = inflater.inflate(R.layout.item_feed_post, parent, false);
             return new PostAdapter.PostViewHolder(postView, postClickListener, postLikeViewModel, pollViewModel, lifecycleOwner);
         }
         if (viewType == TYPE_MEDIA) {
-            // Ensure you have R.layout.item_video_m3 layout defined and use ViewBinding
+            // Using ItemVideoM3Binding as it's the view holder used in PlayerPostAdapter
             return new PlayerPostAdapter.VideoViewHolder(com.f9ld3.Zion.databinding.ItemVideoM3Binding.inflate(inflater, parent, false));
         }
-        // Ensure you have R.layout.item_user_search layout defined
-        return new UserViewHolder(inflater.inflate(R.layout.item_user_search, parent, false));
+        // --- PASS VIEWMODELS AND LIFECYCLE OWNER ---
+        View userView = inflater.inflate(R.layout.item_user_search, parent, false);
+        return new UserViewHolder(userView, followViewModel, lifecycleOwner, activity);
     }
 
 
@@ -91,13 +98,12 @@ public class SearchAllAdapter extends ListAdapter<Object, RecyclerView.ViewHolde
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Object item = getItem(position);
         if (holder.getItemViewType() == TYPE_POST) {
-            // Bind method only needs the post object
             ((PostAdapter.PostViewHolder) holder).bind((Post) item);
         } else if (holder.getItemViewType() == TYPE_MEDIA) {
             ((PlayerPostAdapter.VideoViewHolder) holder).bind(
                     (PlayerMedia) item,
                     mediaClickListener,
-                    this::formatDuration); // Using the helper method
+                    this::formatDuration);
         } else if (holder.getItemViewType() == TYPE_USER) {
             ((UserViewHolder) holder).bind((UserProfile) item);
         }
@@ -123,49 +129,108 @@ public class SearchAllAdapter extends ListAdapter<Object, RecyclerView.ViewHolde
     static class UserViewHolder extends RecyclerView.ViewHolder {
         private final CircleImageView avatar;
         private final TextView username;
-        private final TextView email; // Or maybe user handle/bio
-        private final Button followButton; // Or similar action button
+        private final TextView email;
+        private final Button followButton;
 
-        public UserViewHolder(View itemView) {
+        // --- ADDED MEMBERS ---
+        private final FollowViewModel followViewModel;
+        private final LifecycleOwner lifecycleOwner;
+        private final FragmentActivity activity;
+
+        // --- UPDATED CONSTRUCTOR ---
+        public UserViewHolder(View itemView, FollowViewModel followViewModel, LifecycleOwner lifecycleOwner, FragmentActivity activity) {
             super(itemView);
+            this.followViewModel = followViewModel;
+            this.lifecycleOwner = lifecycleOwner;
+            this.activity = activity; // Store activity context
+
             avatar = itemView.findViewById(R.id.user_avatar);
             username = itemView.findViewById(R.id.user_name);
-            email = itemView.findViewById(R.id.user_email); // Adjust ID if needed
-            followButton = itemView.findViewById(R.id.button_follow); // Adjust ID if needed
+            email = itemView.findViewById(R.id.user_email);
+            followButton = itemView.findViewById(R.id.button_follow);
         }
 
         void bind(UserProfile user) {
-            // Use Account Name or Username based on availability/preference
             username.setText(user.getAccountName() != null ? user.getAccountName() : user.getUsername());
-            email.setText(user.getEmail()); // Or display username/handle like "@"+user.getUsername()
+            email.setText(user.getEmail());
 
             Glide.with(itemView.getContext())
                     .load(user.getProfileImageUrl())
-                    .placeholder(R.drawable.ic_profile_placeholder) // Use a suitable placeholder
-                    .error(R.drawable.ic_profile_placeholder) // Use a suitable error placeholder
+                    .placeholder(R.drawable.ic_profile_placeholder)
+                    .error(R.drawable.ic_profile_placeholder)
                     .into(avatar);
 
             String currentUid = FirebaseAuth.getInstance().getUid();
+            String targetUserId = user.getUserId(); // Get target ID
+
             // Hide follow button if viewing own profile
-            if (currentUid != null && currentUid.equals(user.getUserId())) {
+            if (currentUid != null && currentUid.equals(targetUserId)) {
                 followButton.setVisibility(View.GONE);
             } else {
                 followButton.setVisibility(View.VISIBLE);
-                // TODO: Set follow button text/state based on whether current user follows this user
-                // followButton.setText("Follow"); // or "Unfollow"
-                // followButton.setOnClickListener { /* Handle follow/unfollow action */ }
+
+                // --- FULLY IMPLEMENTED FOLLOW LOGIC ---
+
+                // 1. Check the *initial* follow status
+                // We use the new isFollowing(targetUserId) method
+                followViewModel.checkFollowStatus(targetUserId);
+
+                // 2. Observe changes to the follow status (e.g., after a click)
+                // Use the new isFollowing(targetUserId) method
+                followViewModel.isFollowing(targetUserId).observe(lifecycleOwner, isFollowing -> {
+                    if (isFollowing) {
+                        followButton.setText("Following");
+                        // You can also change style here if you have a "tonal" button style
+                        // followButton.setStyle(R.style.Widget_Material3_Button_TonalButton);
+                    } else {
+                        followButton.setText("Follow");
+                        // followButton.setStyle(R.style.Widget_Material3_Button);
+                    }
+                });
+
+                // 3. Set the click listener to perform the action
+                followButton.setOnClickListener(v -> {
+                    FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                    if (currentUser == null || currentUser.isAnonymous()) {
+                        Toast.makeText(itemView.getContext(), R.string.login_for_features, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Check the *current* state from the LiveData
+                    Boolean isCurrentlyFollowing = followViewModel.isFollowing(targetUserId).getValue();
+                    if (isCurrentlyFollowing != null) {
+                        if (isCurrentlyFollowing) {
+                            followViewModel.unfollowUser(targetUserId);
+                        } else {
+                            // --- (FIXED: Use fallback for account name) ---
+                            String nameToFollow = user.getAccountName() != null && !user.getAccountName().isEmpty()
+                                    ? user.getAccountName()
+                                    : user.getUsername();
+                            if (nameToFollow == null || nameToFollow.isEmpty()) nameToFollow = "user"; // Extra fallback
+                            followViewModel.followUser(targetUserId, nameToFollow);
+                        }
+                    }
+                });
+
+                // 4. (Optional but good) Observe toast messages from the shared ViewModel
+                // Use Activity as LifecycleOwner for messages to avoid re-showing on bind
+                followViewModel.getMessage().observe(activity, message -> {
+                    if (message != null && !message.isEmpty()) {
+                        Toast.makeText(itemView.getContext(), message, Toast.LENGTH_SHORT).show();
+                        followViewModel.clearMessage();
+                    }
+                });
+                // --- END OF IMPLEMENTED LOGIC ---
             }
 
             // Navigate to the user's profile/channel when the item is clicked
             itemView.setOnClickListener(v -> {
                 Bundle args = new Bundle();
                 args.putString("channelId", user.getUserId());
-                // Pass Account Name or Username
                 args.putString("channelName", user.getAccountName() != null ? user.getAccountName() : user.getUsername());
                 try {
                     Navigation.findNavController(v).navigate(R.id.navigation_channel, args);
                 } catch (Exception e) {
-                    // Handle potential navigation errors (e.g., NavController not found)
                     Log.e("SearchAllAdapter", "Navigation failed for user item", e);
                 }
             });
@@ -176,19 +241,16 @@ public class SearchAllAdapter extends ListAdapter<Object, RecyclerView.ViewHolde
         @Override
         public boolean areItemsTheSame(@NonNull Object oldItem, @NonNull Object newItem) {
             if (oldItem instanceof Post && newItem instanceof Post) {
-                // Ensure IDs are not null
                 String oldId = ((Post) oldItem).getId();
                 String newId = ((Post) newItem).getId();
                 return oldId != null && oldId.equals(newId);
             }
             if (oldItem instanceof PlayerMedia && newItem instanceof PlayerMedia) {
-                // Ensure IDs are not null
                 String oldId = ((PlayerMedia) oldItem).getId();
                 String newId = ((PlayerMedia) newItem).getId();
                 return oldId != null && oldId.equals(newId);
             }
             if (oldItem instanceof UserProfile && newItem instanceof UserProfile) {
-                // Ensure IDs are not null
                 String oldId = ((UserProfile) oldItem).getUserId();
                 String newId = ((UserProfile) newItem).getUserId();
                 return oldId != null && oldId.equals(newId);
@@ -198,12 +260,10 @@ public class SearchAllAdapter extends ListAdapter<Object, RecyclerView.ViewHolde
 
         @Override
         public boolean areContentsTheSame(@NonNull Object oldItem, @NonNull Object newItem) {
-            // Add null checks for content comparison
             try {
                 if (oldItem instanceof Post && newItem instanceof Post) {
                     Post oldP = (Post) oldItem;
                     Post newP = (Post) newItem;
-                    // Compare based on PostAdapter's DIFF_CALLBACK logic
                     return Objects.equals(oldP.getTextContent(), newP.getTextContent()) &&
                             oldP.getLikeCount() == newP.getLikeCount() &&
                             oldP.getCommentCount() == newP.getCommentCount() &&
@@ -218,7 +278,6 @@ public class SearchAllAdapter extends ListAdapter<Object, RecyclerView.ViewHolde
                 if (oldItem instanceof PlayerMedia && newItem instanceof PlayerMedia) {
                     PlayerMedia oldM = (PlayerMedia) oldItem;
                     PlayerMedia newM = (PlayerMedia) newItem;
-                    // Compare relevant fields for PlayerMedia
                     return Objects.equals(oldM.getTitle(), newM.getTitle()) &&
                             Objects.equals(oldM.getThumbnailUrl(), newM.getThumbnailUrl()) &&
                             Objects.equals(oldM.getAuthorName(), newM.getAuthorName()) &&
@@ -227,7 +286,6 @@ public class SearchAllAdapter extends ListAdapter<Object, RecyclerView.ViewHolde
                 if (oldItem instanceof UserProfile && newItem instanceof UserProfile) {
                     UserProfile oldU = (UserProfile) oldItem;
                     UserProfile newU = (UserProfile) newItem;
-                    // Compare relevant fields for UserProfile
                     return Objects.equals(oldU.getAccountName(), newU.getAccountName()) &&
                             Objects.equals(oldU.getUsername(), newU.getUsername()) &&
                             Objects.equals(oldU.getEmail(), newU.getEmail()) &&
@@ -235,7 +293,7 @@ public class SearchAllAdapter extends ListAdapter<Object, RecyclerView.ViewHolde
                 }
             } catch (NullPointerException e) {
                 Log.e("SearchAllAdapter", "NPE during content comparison", e);
-                return false; // Treat as different if NPE occurs
+                return false;
             }
             return false;
         }

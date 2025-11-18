@@ -10,6 +10,8 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:elevation="0dp"
+        android:stateListAnimator="@null"
         android:background="?attr/colorSurface">
 
         <com.google.android.material.appbar.MaterialToolbar

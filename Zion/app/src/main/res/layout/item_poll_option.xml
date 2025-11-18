@@ -5,13 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    android:background="@drawable/poll_option_background_selector"
+    android:background="@drawable/poll_option_background_default"
     android:clickable="true"
     android:focusable="true"
-    android:minHeight="48dp"
-    android:paddingStart="12dp"
+    android:minHeight="64dp" android:paddingStart="12dp"
     android:paddingTop="8dp"
-    android:paddingEnd="12dp"
+    android:paddingEnd="16dp"
     android:paddingBottom="8dp">
 
     <ProgressBar
@@ -31,25 +30,35 @@
         tools:progress="65"
         tools:visibility="visible" />
 
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier_end_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="start"
+        app:constraint_referenced_ids="poll_option_image,your_vote_indicator"
+        app:barrierMargin="8dp"
+        />
+
     <TextView
         android:id="@+id/poll_option_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_marginStart="4dp"
         android:textAppearance="?attr/textAppearanceBodyMedium"
         android:textColor="?attr/colorOnSurface"
         app:layout_constraintVertical_chainStyle="packed"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/poll_option_percentage"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/guideline_image_start"
-        tools:text="Option A: Yes" />
+        app:layout_constraintEnd_toStartOf="@+id/barrier_end_content"
+        tools:text="Option A: Yes, this text can be quite long and wrap" />
 
     <TextView
         android:id="@+id/poll_option_percentage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
+        android:layout_marginStart="4dp"
         android:textAppearance="?attr/textAppearanceLabelMedium"
         android:textColor="?attr/colorOnSurface"
         android:textStyle="bold"
@@ -60,23 +69,17 @@
         tools:text="65%"
         tools:visibility="visible" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_image_start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_end="68dp" />
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/poll_option_image"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:scaleType="centerCrop"
         android:visibility="gone"
+        android:layout_marginStart="2dp"
         app:layout_constraintDimensionRatio="1:1"
         app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/guideline_image_start"
         app:layout_constraintEnd_toEndOf="parent"
         tools:src="@tools:sample/backgrounds/scenic"
         tools:visibility="visible"/>
@@ -86,12 +89,11 @@
         android:id="@+id/your_vote_indicator"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:layout_marginStart="8dp"
         android:contentDescription="Your vote indicator"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/poll_option_text"
-        app:layout_constraintStart_toEndOf="@id/poll_option_text"
-        app:layout_constraintTop_toTopOf="@id/poll_option_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:srcCompat="@drawable/ic_check_circle_24dp"
         app:tint="?attr/colorSecondary"
         tools:visibility="visible" />

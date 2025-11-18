@@ -21,6 +21,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+// --- IMPORT ADDED ---
+import com.google.firebase.Timestamp;
+// --- END IMPORT ---
+
 import java.util.ArrayList;
 import java.util.Collections; // Import Collections
 import java.util.Comparator; // Import Comparator
@@ -186,7 +190,9 @@ public class PostViewModel extends ViewModel {
 
     private void savePost(Post post) {
         if (post.getTimestamp() == null) {
-            post.setTimestamp(System.currentTimeMillis()); // Set timestamp just before saving
+            // --- THIS IS THE FIX ---
+            post.setTimestamp(Timestamp.now()); // Set timestamp just before saving
+            // --- END FIX ---
         }
 
         FirebaseFirestore.getInstance().collection("posts").document(post.getId()).set(post)

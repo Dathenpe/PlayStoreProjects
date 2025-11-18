@@ -1,11 +1,15 @@
 // main/java/com/f9ld3/Zion/ui/feed/Post.java
 package com.f9ld3.Zion.ui.feed;
 
+import android.util.Log;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Exclude;
-// import com.google.firebase.firestore.ServerTimestamp; // <-- REMOVED
 
+import java.io.IOException; // Import IOException
+import java.io.ObjectInputStream; // Import ObjectInputStream
+import java.io.ObjectOutputStream; // Import ObjectOutputStream
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -16,17 +20,19 @@ public class Post implements Serializable {
     public static final String TYPE_POLL = "POLL";
     public static final String TYPE_QUIZ = "QUIZ";
 
-    // Media Types (Legacy, can be deprecated or used for simple checks)
+    // Media Types (Legacy)
     public static final int MEDIA_TYPE_TEXT = 1;
     public static final int MEDIA_TYPE_IMAGE = 2;
     public static final int MEDIA_TYPE_VIDEO = 3;
 
     // --- Fields ---
-    private String id; // Use private fields with getters/setters
+    private String id;
     private String authorUid;
     private String authorName;
     private String authorAvatarUrl;
-    private Long timestamp; // Timestamp stored as milliseconds since epoch
+
+    // *** FIX 1: Mark Timestamp as transient so default serialization skips it ***
+    private transient Timestamp timestamp;
 
     private String textContent;
     private List<MediaItem> mediaItems = new ArrayList<>();
@@ -35,25 +41,42 @@ public class Post implements Serializable {
     private int commentCount = 0;
 
     // New fields for Poll/Quiz posts
-    private String postType = TYPE_TEXT_MEDIA; // Default to old post type
+    private String postType = TYPE_TEXT_MEDIA;
     private List<PollOption> pollOptions = new ArrayList<>();
-    private int quizCorrectOptionIndex = -1; // -1 indicates not a quiz or no correct answer set
-    private int totalVotes = 0; // Total votes for a poll/quiz
-    private Integer pollDurationHours = null; // *** NEW: Poll duration in hours (null = permanent) ***
+    private int quizCorrectOptionIndex = -1;
+    private int totalVotes = 0;
+    private Integer pollDurationHours = null;
 
-    // Legacy fields for compatibility
+    // Legacy fields
     private int mediaType = 0;
     private String mediaUrl;
 
     // --- Constructor ---
-    public Post() {} // Required empty constructor for Firestore
+    public Post() {}
+
+    // *** FIX 2: Custom serialization methods ***
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject(); // Write all non-transient fields automatically
+        // Convert Timestamp to Date (which IS Serializable) and write it
+        out.writeObject(timestamp != null ? timestamp.toDate() : null);
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject(); // Read all non-transient fields automatically
+        // Read the Date object and convert it back to Timestamp
+        Date date = (Date) in.readObject();
+        timestamp = date != null ? new Timestamp(date) : null;
+    }
+    // *** END FIX ***
 
     // --- GETTERS ---
     public String getId() { return id; }
     public String getAuthorUid() { return authorUid; }
     public String getAuthorName() { return authorName; }
     public String getAuthorAvatarUrl() { return authorAvatarUrl; }
-    public Long getTimestamp() { return timestamp; }
+
+    public Timestamp getTimestamp() { return timestamp; }
+
     public String getTextContent() { return textContent; }
     public List<MediaItem> getMediaItems() { return mediaItems; }
     public int getLikeCount() { return likeCount; }
@@ -63,14 +86,27 @@ public class Post implements Serializable {
     public List<PollOption> getPollOptions() { return pollOptions; }
     public int getQuizCorrectOptionIndex() { return quizCorrectOptionIndex; }
     public int getTotalVotes() { return totalVotes; }
-    public Integer getPollDurationHours() { return pollDurationHours; } // *** NEW GETTER ***
+    public Integer getPollDurationHours() { return pollDurationHours; }
 
     // --- SETTERS ---
     public void setId(String id) { this.id = id; }
     public void setAuthorUid(String authorUid) { this.authorUid = authorUid; }
     public void setAuthorName(String authorName) { this.authorName = authorName; }
     public void setAuthorAvatarUrl(String authorAvatarUrl) { this.authorAvatarUrl = authorAvatarUrl; }
-    public void setTimestamp(Long timestamp) { this.timestamp = timestamp; }
+
+    public void setTimestamp(Object timestampObj) {
+        if (timestampObj instanceof Timestamp) {
+            this.timestamp = (Timestamp) timestampObj;
+        } else if (timestampObj instanceof Long) {
+            this.timestamp = new Timestamp(new Date((Long) timestampObj));
+        } else if (timestampObj == null) {
+            this.timestamp = null;
+        } else {
+            Log.e("Post.java", "Unknown type for timestamp field: " + timestampObj.getClass().getName());
+            this.timestamp = null;
+        }
+    }
+
     public void setTextContent(String textContent) { this.textContent = textContent; }
     public void setMediaItems(List<MediaItem> mediaItems) { this.mediaItems = mediaItems; }
     public void setLikeCount(int likeCount) { this.likeCount = likeCount; }
@@ -80,34 +116,25 @@ public class Post implements Serializable {
     public void setPollOptions(List<PollOption> pollOptions) { this.pollOptions = pollOptions; }
     public void setQuizCorrectOptionIndex(int quizCorrectOptionIndex) { this.quizCorrectOptionIndex = quizCorrectOptionIndex; }
     public void setTotalVotes(int totalVotes) { this.totalVotes = totalVotes; }
-    public void setPollDurationHours(Integer pollDurationHours) { this.pollDurationHours = pollDurationHours; } // *** NEW SETTER ***
+    public void setPollDurationHours(Integer pollDurationHours) { this.pollDurationHours = pollDurationHours; }
 
-    // Legacy setters
     public void setMediaType(int mediaType) { this.mediaType = mediaType; }
     public void setMediaUrl(String mediaUrl) { this.mediaUrl = mediaUrl; }
 
     // --- Excluded Helper Methods ---
     @Exclude
-    public int getLegacyMediaType() { // Renamed to avoid confusion with postType
-        if (mediaItems == null || mediaItems.isEmpty()) {
-            return MEDIA_TYPE_TEXT;
-        }
+    public int getLegacyMediaType() {
+        if (mediaItems == null || mediaItems.isEmpty()) return MEDIA_TYPE_TEXT;
         MediaItem firstItem = mediaItems.get(0);
-        if ("video".equals(firstItem.getMediaType())) {
-            return MEDIA_TYPE_VIDEO;
-        }
-        if ("image".equals(firstItem.getMediaType())) {
-            return MEDIA_TYPE_IMAGE;
-        }
+        if ("video".equals(firstItem.getMediaType())) return MEDIA_TYPE_VIDEO;
+        if ("image".equals(firstItem.getMediaType())) return MEDIA_TYPE_IMAGE;
         return MEDIA_TYPE_TEXT;
     }
 
     @Exclude
-    public String getLegacyMediaUrl() { // Renamed to avoid confusion
-        if (mediaItems != null && !mediaItems.isEmpty()) {
-            return mediaItems.get(0).getUrl();
-        }
-        return mediaUrl; // Fallback to legacy field
+    public String getLegacyMediaUrl() {
+        if (mediaItems != null && !mediaItems.isEmpty()) return mediaItems.get(0).getUrl();
+        return mediaUrl;
     }
 
     @Exclude
@@ -142,13 +169,13 @@ public class Post implements Serializable {
                 Objects.equals(mediaItems, post.mediaItems) &&
                 Objects.equals(postType, post.postType) &&
                 Objects.equals(pollOptions, post.pollOptions) &&
-                Objects.equals(pollDurationHours, post.pollDurationHours); // *** ADDED pollDurationHours ***
+                Objects.equals(pollDurationHours, post.pollDurationHours);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, authorUid, authorName, authorAvatarUrl, timestamp, textContent,
                 mediaItems, likeCount, dislikeCount, commentCount, postType, pollOptions,
-                quizCorrectOptionIndex, totalVotes, pollDurationHours); // *** ADDED pollDurationHours ***
+                quizCorrectOptionIndex, totalVotes, pollDurationHours);
     }
 }

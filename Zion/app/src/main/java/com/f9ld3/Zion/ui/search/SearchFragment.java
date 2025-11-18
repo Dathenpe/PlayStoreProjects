@@ -35,6 +35,7 @@ import com.f9ld3.Zion.ui.player.PlayerMedia;
 import com.f9ld3.Zion.ui.player.PlayerPostAdapter;
 import com.f9ld3.Zion.ui.player.PodcastPlayerActivity; // Import PodcastPlayerActivity
 import com.f9ld3.Zion.ui.player.VideoPlayerActivity; // Import VideoPlayerActivity
+import com.f9ld3.Zion.ui.social.FollowViewModel; // <-- IMPORT
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth; // Import FirebaseAuth
 import com.google.firebase.auth.FirebaseUser; // Import FirebaseUser
@@ -60,7 +61,8 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
     private PlayerPostAdapter podcastAdapter;
     private PostAdapter postAdapter;
     private SearchAllAdapter allAdapter;
-    private PostLikeViewModel postLikeViewModel; // <-- Add member variable
+    private PostLikeViewModel postLikeViewModel;
+    private FollowViewModel followViewModel; // <-- ADD THIS
 
     private static final int TAB_ALL = 0;
     private static final int TAB_POSTS = 1;
@@ -88,6 +90,7 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
         searchViewModel = new ViewModelProvider(this).get(SearchViewModel.class);
         // *** Get PostLikeViewModel scoped to the Activity/Fragment lifecycle ***
         postLikeViewModel = new ViewModelProvider(requireActivity()).get(PostLikeViewModel.class);
+        followViewModel = new ViewModelProvider(requireActivity()).get(FollowViewModel.class); // <-- INITIALIZE THIS
 
         setupSearchBar();
         setupTabs();
@@ -154,7 +157,8 @@ public class SearchFragment extends Fragment implements PlayerPostAdapter.OnMedi
         // *** Pass the PostLikeViewModel, LifecycleOwner, and Activity ***
         postAdapter = new PostAdapter(this, getViewLifecycleOwner(), requireActivity());
         // *** Pass the PostLikeViewModel, LifecycleOwner, and Activity ***
-        allAdapter = new SearchAllAdapter(this, this, postLikeViewModel, getViewLifecycleOwner(), requireActivity());
+        // --- PASS FOLLOW VIEW MODEL ---
+        allAdapter = new SearchAllAdapter(this, this, postLikeViewModel, followViewModel, getViewLifecycleOwner(), requireActivity());
         recyclerView.setAdapter(allAdapter); // Start with the 'All' adapter
     }
 
