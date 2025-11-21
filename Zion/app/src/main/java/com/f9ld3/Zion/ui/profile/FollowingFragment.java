@@ -34,6 +34,9 @@ public class FollowingFragment extends Fragment {
     private ProfileViewModel profileViewModel;
     private ViewPagerAdapter viewPagerAdapter;
 
+    // Track if we've received the first data update
+    private boolean hasReceivedData = false;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -44,6 +47,13 @@ public class FollowingFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // *** FIX: Set initial loading state - show only progress bar ***
+        binding.progressBar.setVisibility(View.VISIBLE);
+        binding.tabLayout.setVisibility(View.GONE);
+        binding.viewPager.setVisibility(View.GONE);
+        binding.emptyStateTextView.setVisibility(View.GONE);
+        hasReceivedData = false; // Always reset for clean entry
 
         binding.toolbar.setTitle(R.string.following);
         binding.toolbar.setNavigationOnClickListener(v -> {
@@ -60,7 +70,17 @@ public class FollowingFragment extends Fragment {
         profileViewModel.getFollowing().observe(getViewLifecycleOwner(), followedUsers -> {
             if (binding == null) return;
 
-            if (followedUsers == null || followedUsers.isEmpty()) {
+            // *** FIX: Only proceed if data is not null (ignore initial null emission) ***
+            if (followedUsers == null) return;
+
+            // *** FIX: Hide progress bar only after first non-null data arrives ***
+            if (!hasReceivedData) {
+                hasReceivedData = true;
+                binding.progressBar.setVisibility(View.GONE);
+            }
+
+            // *** FIX: Now update UI based on data ***
+            if (followedUsers.isEmpty()) {
                 binding.tabLayout.setVisibility(View.GONE);
                 binding.viewPager.setVisibility(View.GONE);
                 binding.emptyStateTextView.setVisibility(View.VISIBLE);
@@ -73,10 +93,17 @@ public class FollowingFragment extends Fragment {
             }
         });
 
+        // Fetch data
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             profileViewModel.fetchFollowingChannels(currentUser.getUid());
             profileViewModel.fetchFollowingUsers(currentUser.getUid());
+        } else {
+            // No user logged in - hide progress and show empty state
+            binding.progressBar.setVisibility(View.GONE);
+            binding.emptyStateTextView.setVisibility(View.VISIBLE);
+            binding.emptyStateTextView.setText(R.string.login_for_features);
+            hasReceivedData = true;
         }
     }
 
@@ -96,6 +123,7 @@ public class FollowingFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        hasReceivedData = false; // Reset for next time
     }
 
     private static class ViewPagerAdapter extends FragmentStateAdapter {
@@ -139,7 +167,6 @@ public class FollowingFragment extends Fragment {
             } else {
                 UserProfile user = getUserAt(position);
                 if (user != null) {
-                    // *** UPDATED: Pass true for includeMedia to show everything in individual tab ***
                     return UserPostsFragment.newInstance(user.getUserId(), true);
                 } else {
                     return new Fragment();

@@ -1,4 +1,3 @@
-// main/java/com/f9ld3/Zion/ui/profile/FollowedContentFragment.java
 package com.f9ld3.Zion.ui.profile;
 
 import android.content.Intent;
@@ -33,6 +32,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class FollowedContentFragment extends Fragment implements PostAdapter.OnPostClickListener, PlayerPostAdapter.OnMediaClickListener {
 
@@ -44,16 +44,20 @@ public class FollowedContentFragment extends Fragment implements PostAdapter.OnP
     private PostLikeViewModel postLikeViewModel;
     private FollowViewModel followViewModel;
 
-    public FollowedContentFragment() {
-        // Required empty public constructor
-    }
+    // Track first data arrival to hide progress bar exactly once
+    private boolean hasReceivedData = false;
+
+    public FollowedContentFragment() {}
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentListNoToolbarBinding.inflate(inflater, container, false);
-        // *** FIX: Removed code that forced placeholder VISIBLE here. ***
-        // Letting XML default (GONE) persist prevents the "No content" flash.
+        // Always show only progress bar on load
+        binding.progressBar.setVisibility(View.VISIBLE);
+        binding.recyclerView.setVisibility(View.GONE);
+        binding.textPlaceholder.setVisibility(View.GONE);
+        hasReceivedData = false; // Always reset for clean entry
         return binding.getRoot();
     }
 
@@ -67,19 +71,22 @@ public class FollowedContentFragment extends Fragment implements PostAdapter.OnP
 
         setupRecyclerView();
 
-        if (binding.textPlaceholder != null) {
-            binding.textPlaceholder.setText(getString(R.string.followed_content_empty_text));
-            binding.textPlaceholder.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_feed_24dp, 0, 0);
-        }
+        binding.textPlaceholder.setText(getString(R.string.followed_content_empty_text));
+        binding.textPlaceholder.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_feed_24dp, 0, 0);
 
         profileViewModel.getFollowedContent().observe(getViewLifecycleOwner(), content -> {
-            Log.d(TAG, "Observed followed content update. Size: " + (content != null ? content.size() : "null"));
             if (binding == null) return;
+
+            // Only hide progress bar after first live data
+            if (!hasReceivedData) {
+                hasReceivedData = true;
+                binding.progressBar.setVisibility(View.GONE);
+            }
 
             boolean isEmpty = content == null || content.isEmpty();
 
-            if (binding.recyclerView != null) binding.recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
-            if (binding.textPlaceholder != null) binding.textPlaceholder.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+            binding.recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+            binding.textPlaceholder.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
 
             if (!isEmpty) {
                 contentAdapter.submitList(content);
@@ -91,18 +98,13 @@ public class FollowedContentFragment extends Fragment implements PostAdapter.OnP
 
     private void setupRecyclerView() {
         contentAdapter = new SearchAllAdapter(this, this, postLikeViewModel, followViewModel, getViewLifecycleOwner(), requireActivity());
-
-        if (binding.recyclerView != null) {
-            binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-            binding.recyclerView.setAdapter(contentAdapter);
-        }
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.recyclerView.setAdapter(contentAdapter);
     }
 
     // --- Listener Implementations ---
-
     @Override
     public void onPostItemClick(Post post) {
-        Log.i(TAG, "Post item clicked: " + post.getId());
         if (getContext() == null || !isAdded()) return;
         Intent intent = new Intent(requireContext(), PostDetailActivity.class);
         intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getId());
@@ -150,8 +152,7 @@ public class FollowedContentFragment extends Fragment implements PostAdapter.OnP
             args.putString("channelId", post.getAuthorUid());
             args.putString("channelName", post.getAuthorName());
             try {
-                NavHostFragment.findNavController(this)
-                        .navigate(R.id.navigation_channel, args);
+                NavHostFragment.findNavController(this).navigate(R.id.navigation_channel, args);
             } catch (Exception e) {
                 Log.e(TAG, "Navigation to channel failed", e);
                 if (isAdded() && getContext() != null) {
@@ -221,12 +222,13 @@ public class FollowedContentFragment extends Fragment implements PostAdapter.OnP
 
     private void deletePost(Post post) {
         if (getContext() == null || !isAdded()) return;
-        com.f9ld3.Zion.ui.dialogs.CustomAlertDialogFragment dialog = com.f9ld3.Zion.ui.dialogs.CustomAlertDialogFragment.newInstance(
-                "Delete Post?",
-                "Are you sure you want to permanently delete this post?",
-                "Delete",
-                "Cancel"
-        );
+        com.f9ld3.Zion.ui.dialogs.CustomAlertDialogFragment dialog =
+                com.f9ld3.Zion.ui.dialogs.CustomAlertDialogFragment.newInstance(
+                        "Delete Post?",
+                        "Are you sure you want to permanently delete this post?",
+                        "Delete",
+                        "Cancel"
+                );
         dialog.setDialogListener(new com.f9ld3.Zion.ui.dialogs.CustomAlertDialogFragment.DialogListener() {
             @Override
             public void onPositiveClick() {
@@ -247,5 +249,6 @@ public class FollowedContentFragment extends Fragment implements PostAdapter.OnP
             binding.recyclerView.setAdapter(null);
         }
         binding = null;
+        hasReceivedData = false; // Reset for next time
     }
 }

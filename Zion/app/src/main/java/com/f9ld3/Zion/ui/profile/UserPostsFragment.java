@@ -27,7 +27,7 @@ import com.f9ld3.Zion.ui.player.PlayerMedia;
 import com.f9ld3.Zion.ui.player.PlayerPostAdapter;
 import com.f9ld3.Zion.ui.player.PodcastPlayerActivity;
 import com.f9ld3.Zion.ui.player.VideoPlayerActivity;
-import com.f9ld3.Zion.ui.search.SearchAllAdapter; // Use SearchAllAdapter
+import com.f9ld3.Zion.ui.search.SearchAllAdapter;
 import com.f9ld3.Zion.ui.social.FollowViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -44,11 +44,14 @@ public class UserPostsFragment extends Fragment implements PostAdapter.OnPostCli
 
     private FragmentUserPostsBinding binding;
     private ProfileViewModel profileViewModel;
-    private SearchAllAdapter adapter; // Changed from PostAdapter
+    private SearchAllAdapter adapter;
     private PostLikeViewModel postLikeViewModel;
     private FollowViewModel followViewModel;
     private String userId;
     private boolean includeMedia = false;
+
+    // Track if we've received the first data update
+    private boolean hasReceivedData = false;
 
     public static UserPostsFragment newInstance(String userId) {
         return newInstance(userId, false);
@@ -78,6 +81,12 @@ public class UserPostsFragment extends Fragment implements PostAdapter.OnPostCli
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = FragmentUserPostsBinding.inflate(inflater, container, false);
+
+        // *** FIX: Set initial state - show progress, hide everything else ***
+        if (binding.progressBar != null) binding.progressBar.setVisibility(View.VISIBLE);
+        if (binding.recyclerView != null) binding.recyclerView.setVisibility(View.GONE);
+        if (binding.emptyState != null) binding.emptyState.setVisibility(View.GONE);
+
         return binding.getRoot();
     }
 
@@ -92,7 +101,7 @@ public class UserPostsFragment extends Fragment implements PostAdapter.OnPostCli
 
         if (userId != null) {
             if (includeMedia) {
-                // Mixed mode (for Following tabs)
+                // *** FIX: Mixed mode (for Following tabs) - includes posts, videos, AND podcasts ***
                 profileViewModel.fetchUserMixedContent(userId);
                 profileViewModel.getUserMixedContent(userId).observe(getViewLifecycleOwner(), this::updateList);
             } else {
@@ -118,14 +127,21 @@ public class UserPostsFragment extends Fragment implements PostAdapter.OnPostCli
 
     private void updateList(List<Object> items) {
         if (binding == null) return;
+
+        // *** FIX: Hide progress bar after first data arrives ***
+        if (binding.progressBar != null) binding.progressBar.setVisibility(View.GONE);
+        hasReceivedData = true;
+
         boolean isEmpty = items == null || items.isEmpty();
         if (binding.recyclerView != null) binding.recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
         if (binding.emptyState != null) binding.emptyState.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
 
         if (!isEmpty) {
             adapter.submitList(items);
+            Log.d(TAG, "Updated list with " + items.size() + " items. IncludeMedia: " + includeMedia);
         } else {
             adapter.submitList(null);
+            Log.d(TAG, "Empty list for user: " + userId);
         }
     }
 
@@ -141,7 +157,11 @@ public class UserPostsFragment extends Fragment implements PostAdapter.OnPostCli
             intent = new Intent(requireContext(), PodcastPlayerActivity.class);
             intent.putExtra(PodcastPlayerActivity.EXTRA_MEDIA_ITEM, mediaItem);
         }
-        if (intent != null) startActivity(intent);
+        if (intent != null) {
+            startActivity(intent);
+        } else {
+            Toast.makeText(getContext(), "Cannot play this media type yet.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     // --- Post Listeners ---
@@ -160,6 +180,8 @@ public class UserPostsFragment extends Fragment implements PostAdapter.OnPostCli
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null && !user.isAnonymous()) {
             postLikeViewModel.toggleLike(post.getId(), post);
+        } else if (getContext() != null && isAdded()) {
+            Toast.makeText(getContext(), R.string.login_for_features, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -168,6 +190,8 @@ public class UserPostsFragment extends Fragment implements PostAdapter.OnPostCli
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null && !user.isAnonymous()) {
             postLikeViewModel.toggleDislike(post.getId(), post);
+        } else if (getContext() != null && isAdded()) {
+            Toast.makeText(getContext(), R.string.login_for_features, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -202,12 +226,54 @@ public class UserPostsFragment extends Fragment implements PostAdapter.OnPostCli
         }
         popup.setOnMenuItemClickListener(item -> {
             String title = item.getTitle().toString();
-            if ("Share".equals(title)) { /* share logic */ }
-            else if ("Report".equals(title)) { /* report logic */ }
-            else if ("Delete".equals(title)) { /* delete logic */ }
+            if ("Share".equals(title)) {
+                sharePost(post);
+            } else if ("Report".equals(title)) {
+                reportPost(post);
+            } else if ("Delete".equals(title)) {
+                deletePost(post);
+            } else {
+                return false;
+            }
             return true;
         });
         popup.show();
+    }
+
+    private void sharePost(Post post) {
+        if (getContext() == null || !isAdded()) return;
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        String shareText = post.getTextContent() != null ? post.getTextContent() : "Check out this post!";
+        sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+        sendIntent.setType("text/plain");
+        startActivity(Intent.createChooser(sendIntent, null));
+    }
+
+    private void reportPost(Post post) {
+        if (getContext() == null || !isAdded()) return;
+        Toast.makeText(getContext(), "Report functionality TBD", Toast.LENGTH_SHORT).show();
+    }
+
+    private void deletePost(Post post) {
+        if (getContext() == null || !isAdded()) return;
+        CustomAlertDialogFragment dialog = CustomAlertDialogFragment.newInstance(
+                "Delete Post?",
+                "Are you sure you want to permanently delete this post?",
+                "Delete",
+                "Cancel"
+        );
+        dialog.setDialogListener(new CustomAlertDialogFragment.DialogListener() {
+            @Override
+            public void onPositiveClick() {
+                if (isAdded() && getContext() != null) {
+                    Toast.makeText(getContext(), "Delete functionality TBD", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onNegativeClick() {}
+        });
+        dialog.show(getParentFragmentManager(), "DeletePostDialog");
     }
 
     @Override
@@ -215,5 +281,6 @@ public class UserPostsFragment extends Fragment implements PostAdapter.OnPostCli
         super.onDestroyView();
         if (binding != null && binding.recyclerView != null) binding.recyclerView.setAdapter(null);
         binding = null;
+        hasReceivedData = false;
     }
 }

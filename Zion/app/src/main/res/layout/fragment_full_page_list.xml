@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         app:elevation="0dp"
         android:stateListAnimator="@null"
-        android:background="?attr/colorSurface">
+        android:background="?attr/colorSurface"
+        app:liftOnScroll="false">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
